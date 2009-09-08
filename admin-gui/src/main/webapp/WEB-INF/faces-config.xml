@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+   "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+   <!-- Facelet portlet view handler-->
+
+   <application>
+      <view-handler>
+         org.jboss.portletbridge.application.PortletViewHandler
+      </view-handler>
+      <navigation-handler>org.jboss.portal.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
+      <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>
+      <locale-config>
+         <default-locale>en</default-locale>
+         <supported-locale>fr</supported-locale>
+         <supported-locale>ja</supported-locale>
+      </locale-config>
+   </application>
+
+   <converter>
+      <converter-for-class>org.jboss.portal.wsrp.registration.LocalizedString</converter-for-class>
+      <converter-class>org.jboss.portal.wsrp.admin.ui.LocalizedStringConverter</converter-class>
+   </converter>
+   <converter>
+      <converter-id>faces.convert.RegistrationProperty.Status</converter-id>
+      <converter-class>org.jboss.portal.wsrp.admin.ui.StatusConverter</converter-class>
+   </converter>
+
+
+   <managed-bean>
+      <managed-bean-name>beanContext</managed-bean-name>
+      <managed-bean-class>org.jboss.portal.faces.gui.JSFBeanContext</managed-bean-class>
+      <managed-bean-scope>application</managed-bean-scope>
+   </managed-bean>
+   <managed-bean>
+      <managed-bean-name>consumersMgr</managed-bean-name>
+      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ConsumerManagerBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+      <managed-property>
+         <property-name>registry</property-name>
+         <property-class>org.jboss.portal.wsrp.consumer.ConsumerRegistry</property-class>
+         <value>#{applicationScope.ConsumerRegistry}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>beanContext</property-name>
+         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <value>#{beanContext}</value>
+      </managed-property>
+   </managed-bean>
+   <managed-bean>
+      <managed-bean-name>consumer</managed-bean-name>
+      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ConsumerBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+      <managed-property>
+         <property-name>beanContext</property-name>
+         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <value>#{beanContext}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>registry</property-name>
+         <property-class>org.jboss.portal.wsrp.consumer.ConsumerRegistry</property-class>
+         <value>#{applicationScope.ConsumerRegistry}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>id</property-name>
+         <value>#{sessionScope.consumerId}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>manager</property-name>
+         <value>#{consumersMgr}</value>
+      </managed-property>
+   </managed-bean>
+   <managed-bean>
+      <managed-bean-name>producer</managed-bean-name>
+      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ProducerBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+      <managed-property>
+         <property-name>configurationService</property-name>
+         <property-class>org.jboss.portal.wsrp.producer.config.ProducerConfigurationService</property-class>
+         <value>#{applicationScope.ProducerConfigurationService}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>beanContext</property-name>
+         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <value>#{beanContext}</value>
+      </managed-property>
+   </managed-bean>
+
+   <navigation-rule>
+      <navigation-case>
+         <from-outcome>consumers</from-outcome>
+         <to-view-id>/jsf/consumers/consumers.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>configureConsumer</from-outcome>
+         <to-view-id>/jsf/consumers/editConsumer.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>producer</from-outcome>
+         <to-view-id>/jsf/producer/producer.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>confirmPropDeletion</from-outcome>
+         <to-view-id>/jsf/producer/confirmPropDeletion.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>confirmEraseRegistration</from-outcome>
+         <to-view-id>/jsf/consumers/confirmEraseRegistration.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>confirmDeleteConsumer</from-outcome>
+         <to-view-id>/jsf/consumers/confirmDeleteConsumer.xhtml</to-view-id>
+      </navigation-case>
+      <navigation-case>
+         <from-outcome>management</from-outcome>
+         <to-view-id>/jsf/management/management.xhtml</to-view-id>
+      </navigation-case>
+   </navigation-rule>
+</faces-config>

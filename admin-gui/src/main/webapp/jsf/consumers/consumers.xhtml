@@ -1,0 +1,113 @@
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<ui:decorate template="consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:f="http://java.sun.com/jsf/core"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:c="http://java.sun.com/jstl/core">
+
+   <ui:param name="title" value="#{i18n.consumers_title}"/>
+
+   <ui:define name="content">
+
+      <!-- Consumer creation -->
+      <h:form id="createConsumer" styleClass="createObjectForm">
+         <span class="portlet-font">#{i18n.consumers_create_title}</span>
+         <h:inputText value="#{consumersMgr.selectedId}" id="consumerName" styleClass="portlet-form-input-field"
+                      required="true"/>
+         <h:commandButton id="createConsumerButton" action="#{consumersMgr.createConsumer}"
+                          value="#{i18n.consumers_create_submit}" styleClass="portlet-form-button"/>
+         <h:message for="consumerName" errorClass="portlet-msg-error"/>
+      </h:form>
+
+      <br/>
+
+      <!-- Consumers list -->
+      <h:form id="consumer-list-form">
+         <h:dataTable id="consumersList" value="#{consumersMgr.consumers}" var="cons"
+                      rendered="#{!consumersMgr.consumersEmpty}"
+                      rowClasses="portlet-section-body,portlet-section-alternate" headerClass="portlet-section-header"
+                      styleClass="datatable objectList" width="100%">
+            <h:column>
+               <f:facet name="header">
+                  #{i18n.consumers_table_column_consumer}
+                  <div style="font-size: 90%; display:inline; font-weight: normal;">
+                     [#{i18n.consumers_table_column_consumer_status} <span
+                     class="active">#{i18n.path_consumers_active}</span>,
+                     <span class="inactive">#{i18n.path_consumers_inactive}</span>,
+                     <span class="needsRefresh">#{i18n.path_consumers_refreshNeeded}</span>]
+                  </div>
+               </f:facet>
+
+               <h:outputText style="display:block; width:100%;"
+                             styleClass="#{cons.active ? 'active' : 'inactive'} #{cons.refreshNeeded ? 'needsRefresh' : ''}"
+                             value="#{cons.producerId} (#{cons.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
+                             #{cons.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}"/>
+            </h:column>
+
+            <h:column>
+               <f:facet name="header">#{i18n.consumers_table_column_actions}</f:facet>
+
+               <h:commandLink action="#{consumersMgr.configureConsumer}" styleClass="actionConfigure" id="configure">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  #{i18n.consumers_table_action_configure}
+               </h:commandLink>
+               |
+               <h:commandLink action="#{consumersMgr.refreshConsumer}" styleClass="actionRefresh" id="refresh">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  #{i18n.consumers_table_action_refresh}
+               </h:commandLink>
+               |
+               <h:commandLink action="#{consumersMgr.activateConsumer}" id="activate"
+                              styleClass="#{cons.active ? 'actionDeactivate' : 'actionActivate'}">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  <f:param name="activate" value="#{!cons.active}"/>
+                  #{cons.active ? i18n.consumers_table_action_deactivate : i18n.consumers_table_action_activate}
+               </h:commandLink>
+               <h:panelGroup
+                  rendered="#{!cons.refreshNeeded and cons.active and cons.producerInfo.registrationRequired}">
+                  |
+                  <h:commandLink action="#{consumersMgr.registerConsumer}" id="register"
+                                 styleClass="action#{cons.producerInfo.registered ? 'Deregister' : 'Register'}">
+                     <f:param name="id" value="#{cons.producerId}"/>
+                     <f:param name="register" value="#{!cons.producerInfo.registered}"/>
+                     #{cons.producerInfo.registered ? i18n.consumers_table_action_deregister : i18n.consumers_table_action_register}
+                  </h:commandLink>
+               </h:panelGroup>
+               |
+               <h:commandLink action="confirmDeleteConsumer" styleClass="actionDelete" id="delete"
+                              actionListener="#{consumersMgr.selectConsumer}">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  #{i18n.consumers_table_action_delete}
+               </h:commandLink>
+            </h:column>
+         </h:dataTable>
+      </h:form>
+
+      <h:form>
+         <h:commandButton id="createConsumerButton" action="#{consumersMgr.reload}"
+                          value="#{i18n.consumers_table_reload}" styleClass="portlet-form-button"/>
+      </h:form>
+   </ui:define>
+</ui:decorate>

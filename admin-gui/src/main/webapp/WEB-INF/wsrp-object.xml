@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<!DOCTYPE deployments PUBLIC "-//JBoss Portal//DTD Portal Object 2.6//EN"
+   "http://www.jboss.org/portal/dtd/portal-object_2_6.dtd">
+
+<deployments>
+   <deployment>
+      <parent-ref>admin</parent-ref>
+      <if-exists>overwrite</if-exists>
+      <page>
+         <page-name>WSRP</page-name>
+         <supported-locale>ja</supported-locale>
+         <resource-bundle>Resource</resource-bundle>
+         <properties>
+            <property>
+               <name>layout.id</name>
+               <value>1column</value>
+            </property>
+         </properties>
+         <security-constraint>
+            <policy-permission>
+               <action-name>viewrecursive</action-name>
+               <role-name>Admin</role-name>
+            </policy-permission>
+         </security-constraint>
+         <window>
+            <window-name>WSRPConfigurationPortletWindow</window-name>
+            <instance-ref>WSRPConfigurationPortletInstance</instance-ref>
+            <region>center</region>
+            <height>0</height>
+            <properties>
+               <property>
+                  <name>theme.renderSetId</name>
+                  <value>emptyRenderer</value>
+               </property>
+            </properties>
+         </window>
+      </page>
+   </deployment>
+</deployments>

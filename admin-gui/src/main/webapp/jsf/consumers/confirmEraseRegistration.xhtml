@@ -1,0 +1,66 @@
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<ui:decorate template="consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:f="http://java.sun.com/jsf/core"
+             xmlns:jbp="http://www.jboss.org/portal"
+             xmlns:c="http://java.sun.com/jstl/core">
+
+   <ui:param name="title" value=""/>
+   <ui:define name="content">
+
+      <div class="portlet-msg">
+         <div class="portlet-msg-icon">
+            <h:graphicImage url="/img/msgIcon_Warning.gif" alt="/!\"/>
+         </div>
+         <div class="portlet-msg-body">
+            <h3>
+               <h:outputFormat value="#{i18n.confirm_delete_registration_title}">
+                  <f:param value="#{consumer.id}"/>
+               </h:outputFormat>
+            </h3>
+
+            <p class="portlet-msg-alert">
+               <h:outputFormat value="#{i18n.confirm_delete_registration_message}">
+                  <f:param value="#{consumer.id}"/>
+               </h:outputFormat>
+            </p>
+
+            <p class="portlet-class">#{i18n.confirm_delete_registration_proceed}</p>
+
+            <h:form id="confirm-erase-form">
+               <h:commandButton id="submit" value="#{i18n.confirm_delete_registration_submit}"
+                                action="#{consumer.eraseLocalRegistration}"
+                                styleClass="portlet-form-button portlet-section-buttonrow"/>
+               <h:commandButton id="cancel" value="#{i18n.confirm_delete_registration_cancel}"
+                                action="configureConsumer"
+                                styleClass="portlet-form-button portlet-section-buttonrow"/>
+            </h:form>
+         </div>
+      </div>
+
+   </ui:define>
+
+</ui:decorate>

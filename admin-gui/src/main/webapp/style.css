@@ -1,0 +1,350 @@
+@import url(basestyles.css);
+
+.wsrp-consumers-ui table {
+   border: 0;
+   border-collapse: separate;
+}
+
+.wsrp-consumers-ui form {
+   margin: 0;
+   border: 0;
+}
+
+.wsrp-consumers-ui hr {
+   border-top-style: solid;
+}
+
+/* Top nav. */
+
+.wsrp-consumers-ui ul.topnav {
+   padding: 4px 0 3px;
+   border-bottom: 1px solid #b3c0c7;
+   margin: 0;
+}
+
+.wsrp-consumers-ui ul.topnav li {
+   list-style-type: none;
+   display: inline;
+   margin: 0 0 0 5px;
+   padding: 3px 0.5em;
+   border: 1px solid #b3c0c7;
+   border-bottom: none;
+   background-color: #f2f4f5;
+}
+
+.wsrp-consumers-ui ul.topnav li:hover {
+   background-color: #fff;
+}
+
+.wsrp-consumers-ui ul.topnav li#currentTab {
+   background-color: white;
+   border-bottom: 1px solid white;
+}
+
+.wsrp-consumers-ui ul.topnav li#currentTab a:hover {
+}
+
+.wsrp-consumers-ui div.tab-container {
+   border-bottom: 1px solid #B3C0C7;
+   border-right: 1px solid #B3C0C7;
+   border-left: 1px solid #B3C0C7;
+   padding: 15px 0 10px 0;
+}
+
+/* Object path. */
+
+.wsrp-consumers-ui ul.objectpath {
+   list-style-type: none;
+   font-size: 11px;
+   border: solid 1px #bbb;
+   border-left: solid 1px #eee;
+   border-right: solid 1px #eee;
+   background: url(img/pathBackground.png) repeat-x left;
+   height: 21px;
+   margin: 0;
+   padding: 0 0 0 2px;
+}
+
+.wsrp-consumers-ui ul.objectpath li {
+   list-style-type: none;
+   display: block;
+   float: left;
+}
+
+.wsrp-consumers-ui ul li.pathItem {
+   padding-top: 4px;
+   padding-left: 3px;
+   padding-right: 2px;
+}
+
+.wsrp-consumers-ui ul.objectpath li.selected {
+   font-weight: bold;
+   padding-top: 4px;
+   padding-left: 3px;
+   padding-right: 2px;
+}
+
+.wsrp-consumers-ui ul.objectpath a {
+   color: #333333;
+   text-decoration: none;
+}
+
+.wsrp-consumers-ui ul.objectpath a:hover {
+   color: #5078aa;
+   text-decoration: none;
+}
+
+/*  Override theme styles */
+.wsrp-consumers-ui h3.sectionTitle {
+   font-weight: bold;
+   color: #315896;
+   font-size: 11px;
+   padding: 3px 0 3px 3px;
+   background: url(img/section-subHeader-bg.gif) repeat-x left top;
+   border: 1px solid #b9c6d7;
+}
+
+.wsrp-consumers-ui .portlet-section-header {
+   background: url(img/pathBackground.png) repeat-x left;
+   font-weight: bold;
+   color: #656565;
+   font-size: 10px;
+   border-top: 1px solid #ddd;
+   border-bottom: 1px solid #999;
+   padding-left: 4px;
+}
+
+.wsrp-consumers-ui .portlet-section-header th {
+   background: url(img/pathBackground.png) repeat-x left;
+   font-weight: bold;
+   color: #656565;
+   font-size: 10px;
+   border-top: 1px solid #ddd;
+   border-bottom: 1px solid #999;
+   padding-left: 4px;
+}
+
+.wsrp-consumers-ui .actionConfigure {
+   padding: 5px 5px 5px 20px;
+   background: url(img/jbp-icon-set/settings.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionRefresh {
+   padding: 5px 5px 5px 20px;
+   background: url(img/jbp-icon-set/refresh.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionRegister {
+   padding: 5px 5px 5px 24px;
+   background: url(img/jbp-icon-set/register.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionDeregister {
+   padding: 5px 5px 5px 24px;
+   background: url(img/jbp-icon-set/deregister.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionDelete {
+   padding: 5px 5px 5px 20px;
+   background: url(img/jbp-icon-set/delete2.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionActivate {
+   padding: 5px 5px 5px 23px;
+   background: url(img/jbp-icon-set/activate.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionDeactivate {
+   padding: 5px 5px 5px 20px;
+   background: url(img/jbp-icon-set/deactivate.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui td {
+   border: 0;
+   padding-bottom: 2px;
+   padding-top: 2px;
+   vertical-align: top;
+}
+
+.wsrp-consumers-ui th {
+   text-align: left;
+   border: 0;
+   vertical-align: top;
+}
+
+.wsrp-consumers-ui .active {
+   background-color: #C7DDB7;
+   font-weight: bold;
+}
+
+.wsrp-consumers-ui table.active {
+   border-bottom: 4px solid #C7DDB7;
+   border-top: 4px solid #C7DDB7;
+   background: inherit;
+   font-weight: normal;
+}
+
+.wsrp-consumers-ui li.active {
+   font-weight: normal;
+   padding-top: 4px;
+   padding-left: 3px;
+   padding-right: 2px;
+   background: inherit;
+}
+
+.wsrp-consumers-ui li.active:before {
+   content: "__";
+   padding: 1px;
+   background-color: #C7DDB7;
+   color: #C7DDB7;
+   border: 1px solid #999;
+}
+
+.wsrp-consumers-ui .inactive {
+   background-color: #EBD1B8;
+}
+
+.wsrp-consumers-ui table.inactive {
+   border-bottom: 4px solid #EBD1B8;
+   border-top: 4px solid #EBD1B8;
+   background: inherit;
+}
+
+.wsrp-consumers-ui li.inactive {
+   font-weight: normal;
+   padding-top: 4px;
+   padding-left: 3px;
+   padding-right: 2px;
+   background: inherit;
+}
+
+.wsrp-consumers-ui li.inactive:before {
+   content: "__";
+   padding: 1px;
+   background-color: #EBD1B8;
+   color: #EBD1B8;
+   border: 1px solid #999;
+}
+
+.wsrp-consumers-ui .needsRefresh {
+   font-style: italic;
+}
+
+.wsrp-consumers-ui .registration-prop-table {
+   text-align: left;
+   width: 100%;
+   margin-bottom: .3em;
+}
+
+.wsrp-consumers-ui .registration-prop-table.active {
+   border: 1px solid #C7DDB7;
+}
+
+.wsrp-consumers-ui .registration-prop-table.active th {
+   background: #C7DDB7 none;
+}
+
+.wsrp-consumers-ui .registration-prop-table.active .portlet-section-alternate {
+   background: #dcf0d0;
+}
+
+.wsrp-consumers-ui .registration-prop-table.inactive, .wsrp-consumers-ui span.inactive {
+   border: 1px solid #EBD1B8;
+}
+
+.wsrp-consumers-ui .registration-prop-table.inactive th {
+   background: #EBD1B8 none;
+}
+
+.wsrp-consumers-ui .registration-prop-table.inactive .portlet-section-alternate {
+   background: #f0f0dd;
+}
+
+.wsrp-consumers-ui .registration-prop-table .nameColumn {
+   width: 20%;
+}
+
+.wsrp-consumers-ui .registration-prop-table .descColumn {
+   width: 20%;
+}
+
+.wsrp-consumers-ui .portlet-section-buttonrow {
+   margin-top: 6px;
+   margin-bottom: 6px;
+   float: right;
+}
+
+.wsrp-consumers-ui #handle a.portlet-form-button {
+   padding: .2em;
+   margin-left: 3em;
+}
+
+.wsrp-consumers-ui .portlet-form-button {
+   padding: .2em;
+   margin: 0 .3em;
+}
+
+.portlet-msg-status:before {
+   content: "Info: "
+}
+
+.portlet-msg-error:before {
+   content: "Error: "
+}
+
+.portlet-msg-alert:before {
+   content: "Warning: "
+}
+
+.wsrp-consumers-ui .portlet-area-header {
+   border: 1px solid #54708c;
+   font-weight: bold;
+   color: #fff;
+   font-size: 11px;
+   background-color: #5986b3;
+   padding: 2px 2px 2px 4px;
+   margin: 0;
+   display: block;
+}
+
+.wsrp-consumers-ui .portlet-area-body {
+   border: 1px solid #d5d5d5;
+   border-top: 0;
+   background-color: #fff;
+   padding: 4px;
+   margin: 0;
+   display: block;
+}
+
+.wsrp-consumers-ui .portlet-msg {
+   border: 1px solid #bbb;
+   margin: 2em auto;
+   padding: 1em;
+   width: 60%;
+}
+
+.wsrp-consumers-ui .portlet-msg-body {
+   position: relative;
+   top: -3em;
+   left: 3em;
+   width: 95%;
+}
+
+.wsrp-consumers-ui .wsrp-content-container {
+   margin: 0 auto 0 auto;
+   width: 98%;
+}

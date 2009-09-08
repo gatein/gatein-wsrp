@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+   <!-- Filter to put request and response in ServletAccess -->
+   <!-- <filter>
+      <filter-name>ServletAccessFilter</filter-name>
+      <filter-class>org.jboss.portal.wsrp.servlet.ServletAccessFilter</filter-class>
+   </filter>
+   <filter-mapping>
+      <filter-name>ServletAccessFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+   </filter-mapping>-->
+
+   <!-- Wraps WSRP requests in transactions -->
+   <!--<filter>
+      <filter-name>TransactionFilter</filter-name>
+      <filter-class>org.jboss.portal.wsrp.servlet.TransactionFilter</filter-class>
+   </filter>
+   <filter-mapping>
+      <filter-name>TransactionFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+   </filter-mapping>-->
+
+   <!-- To listen to portlet deployments -->
+   <!--<servlet>
+      <servlet-name>ContainerServlet</servlet-name>
+      <servlet-class>org.jboss.portal.web.impl.tomcat.TC6ContainerServlet</servlet-class>
+      <load-on-startup>1</load-on-startup>
+   </servlet>-->
+   <!--<listener>
+      <listener-class>org.jboss.portal.wsrp.exo.KernelListener</listener-class>
+   </listener>
+   <servlet>
+      <servlet-name>WSRPExoInt</servlet-name>
+      <servlet-class>org.jboss.portal.wsrp.exo.ExoKernelIntegration</servlet-class>
+      <load-on-startup>0</load-on-startup>
+   </servlet>-->
+
+
+   <!-- WSRP Endpoints -->
+   <servlet>
+      <servlet-name>ServiceDescriptionService</servlet-name>
+      <servlet-class>org.jboss.portal.wsrp.endpoints.ServiceDescriptionEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_ServiceDescription_PortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>MarkupService</servlet-name>
+      <servlet-class>org.jboss.portal.wsrp.endpoints.MarkupEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_Markup_PortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>RegistrationService</servlet-name>
+      <servlet-class>org.jboss.portal.wsrp.endpoints.RegistrationEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_Registration_PortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>PortletManagementService</servlet-name>
+      <servlet-class>org.jboss.portal.wsrp.endpoints.PortletManagementEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_PortletManagement_PortType</param-value>
+      </init-param>
+   </servlet>
+
+   <!-- WSRP endpoint mappings -->
+   <servlet-mapping>
+      <servlet-name>ServiceDescriptionService</servlet-name>
+      <url-pattern>/ServiceDescriptionService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>MarkupService</servlet-name>
+      <url-pattern>/MarkupService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>RegistrationService</servlet-name>
+      <url-pattern>/RegistrationService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>PortletManagementService</servlet-name>
+      <url-pattern>/PortletManagementService</url-pattern>
+   </servlet-mapping>
+
+</web-app>
+
+

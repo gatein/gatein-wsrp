@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<!--
+  This pom functions as a default configuration.  The subproject
+  poms each inherit configuration from this one.
+
+  When adding version information for an artifact please do the following
+  - add a version property for the specific version
+  - add a dependency in the dependencyManagement section which refers to
+    the property
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <parent>
+      <groupId>org.jboss.portal</groupId>
+      <artifactId>jboss-portal-parent</artifactId>
+      <version>1.0.0</version>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.jboss.portal.wsrp</groupId>
+   <artifactId>module-parent</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   <name>JBoss Portal WSRP Parent</name>
+   <description>JBoss Portal WSRP</description>
+
+   <!--All artifacts versions should be defined here-->
+   <properties>
+      <version.gatein.pc>2.1.0-SNAPSHOT</version.gatein.pc>
+      <version.gatein.common>2.0.0-Beta02</version.gatein.common>
+      <version.gatein.wci>2.0.0-Beta01</version.gatein.wci>
+      <version.slf4j>1.5.6</version.slf4j>
+      <version.jbossxb>2.0.0.GA</version.jbossxb>
+   </properties>
+
+
+   <!--JBoss reporitories to be able to grab jboss-portal-parent pom-->
+   <repositories>
+      <repository>
+         <id>repository.jboss.org</id>
+         <name>JBoss Repository</name>
+         <layout>default</layout>
+         <url>http://repository.jboss.org/maven2/</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+      <repository>
+         <id>snapshots.jboss.org</id>
+         <name>JBoss Snapshots Repository</name>
+         <layout>default</layout>
+         <url>http://snapshots.jboss.org/maven2/</url>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+      </repository>
+   </repositories>
+
+   <!--<dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.jboss.portal.common</groupId>
+            <artifactId>common-common</artifactId>
+            <version>${version.common}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.portal.common</groupId>
+            <artifactId>common-portal</artifactId>
+            <version>${version.common}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.portal.portlet</groupId>
+            <artifactId>portlet-portlet</artifactId>
+            <version>${version.portlet}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version.slf4j}</version>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>-->
+</project>

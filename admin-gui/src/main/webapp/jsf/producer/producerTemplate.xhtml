@@ -1,0 +1,48 @@
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<ui:decorate template="../common/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:f="http://java.sun.com/jsf/core"
+             xmlns:c="http://java.sun.com/jstl/core">
+
+   <ui:define name="topnav">
+      <h:form id="producer-temp-form">
+         <ul class="topnav">
+            <li>
+               <h:commandLink id="consumersTab" action="consumers" value="#{i18n.nav_tabs_consumers}"/>
+            </li>
+            <li id="currentTab">#{i18n.nav_tabs_producer_config}</li>
+            <ui:remove>
+               <li>
+                  <h:commandLink id="prod-manag-link" value="#{i18n.nav_tabs_producer_management}"
+                                 action="management"/>
+               </li>
+            </ui:remove>
+         </ul>
+      </h:form>
+   </ui:define>
+
+   <ui:define name="objectpath"/>
+</ui:decorate>
