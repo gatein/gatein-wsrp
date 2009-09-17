@@ -66,34 +66,34 @@
    <!-- WSRP Endpoints -->
    <servlet>
       <servlet-name>ServiceDescriptionService</servlet-name>
-      <servlet-class>org.jboss.portal.wsrp.endpoints.ServiceDescriptionEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.ServiceDescriptionEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_ServiceDescription_PortType</param-value>
+         <param-value>org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>MarkupService</servlet-name>
-      <servlet-class>org.jboss.portal.wsrp.endpoints.MarkupEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.MarkupEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_Markup_PortType</param-value>
+         <param-value>org.oasis.wsrp.v1.WSRPV1MarkupPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>RegistrationService</servlet-name>
-      <servlet-class>org.jboss.portal.wsrp.endpoints.RegistrationEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.RegistrationEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_Registration_PortType</param-value>
+         <param-value>org.oasis.wsrp.v1.WSRPV1RegistrationPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>PortletManagementService</servlet-name>
-      <servlet-class>org.jboss.portal.wsrp.endpoints.PortletManagementEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.PortletManagementEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.jboss.portal.wsrp.core.WSRP_v1_PortletManagement_PortType</param-value>
+         <param-value>org.oasis.wsrp.v1.WSRPV1PortletManagementPortType</param-value>
       </init-param>
    </servlet>
 
