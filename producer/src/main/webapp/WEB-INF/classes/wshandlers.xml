@@ -27,7 +27,7 @@
    <javaee:handler-chain>
       <javaee:handler>
          <javaee:handler-name>WSRP Extension Handler</javaee:handler-name>
-         <javaee:handler-class>org.jboss.portal.wsrp.handler.WSRPExtensionHandler</javaee:handler-class>
+         <javaee:handler-class>org.gatein.wsrp.handler.WSRPExtensionHandler</javaee:handler-class>
       </javaee:handler>
    </javaee:handler-chain>
 </javaee:handler-chains>

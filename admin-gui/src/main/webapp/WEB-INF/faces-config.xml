@@ -33,7 +33,7 @@
       <view-handler>
          org.jboss.portletbridge.application.PortletViewHandler
       </view-handler>
-      <navigation-handler>org.jboss.portal.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
+      <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
       <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>
       <locale-config>
          <default-locale>en</default-locale>
@@ -43,47 +43,47 @@
    </application>
 
    <converter>
-      <converter-for-class>org.jboss.portal.wsrp.registration.LocalizedString</converter-for-class>
-      <converter-class>org.jboss.portal.wsrp.admin.ui.LocalizedStringConverter</converter-class>
+      <converter-for-class>org.gatein.wsrp.registration.LocalizedString</converter-for-class>
+      <converter-class>org.gatein.wsrp.admin.ui.LocalizedStringConverter</converter-class>
    </converter>
    <converter>
       <converter-id>faces.convert.RegistrationProperty.Status</converter-id>
-      <converter-class>org.jboss.portal.wsrp.admin.ui.StatusConverter</converter-class>
+      <converter-class>org.gatein.wsrp.admin.ui.StatusConverter</converter-class>
    </converter>
 
 
    <managed-bean>
       <managed-bean-name>beanContext</managed-bean-name>
-      <managed-bean-class>org.jboss.portal.faces.gui.JSFBeanContext</managed-bean-class>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.JSFBeanContext</managed-bean-class>
       <managed-bean-scope>application</managed-bean-scope>
    </managed-bean>
    <managed-bean>
       <managed-bean-name>consumersMgr</managed-bean-name>
-      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ConsumerManagerBean</managed-bean-class>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.ConsumerManagerBean</managed-bean-class>
       <managed-bean-scope>session</managed-bean-scope>
       <managed-property>
          <property-name>registry</property-name>
-         <property-class>org.jboss.portal.wsrp.consumer.ConsumerRegistry</property-class>
+         <property-class>org.gatein.wsrp.consumer.ConsumerRegistry</property-class>
          <value>#{applicationScope.ConsumerRegistry}</value>
       </managed-property>
       <managed-property>
          <property-name>beanContext</property-name>
-         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
          <value>#{beanContext}</value>
       </managed-property>
    </managed-bean>
    <managed-bean>
       <managed-bean-name>consumer</managed-bean-name>
-      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ConsumerBean</managed-bean-class>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.ConsumerBean</managed-bean-class>
       <managed-bean-scope>session</managed-bean-scope>
       <managed-property>
          <property-name>beanContext</property-name>
-         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
          <value>#{beanContext}</value>
       </managed-property>
       <managed-property>
          <property-name>registry</property-name>
-         <property-class>org.jboss.portal.wsrp.consumer.ConsumerRegistry</property-class>
+         <property-class>org.gatein.wsrp.consumer.ConsumerRegistry</property-class>
          <value>#{applicationScope.ConsumerRegistry}</value>
       </managed-property>
       <managed-property>
@@ -97,16 +97,16 @@
    </managed-bean>
    <managed-bean>
       <managed-bean-name>producer</managed-bean-name>
-      <managed-bean-class>org.jboss.portal.wsrp.admin.ui.ProducerBean</managed-bean-class>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.ProducerBean</managed-bean-class>
       <managed-bean-scope>session</managed-bean-scope>
       <managed-property>
          <property-name>configurationService</property-name>
-         <property-class>org.jboss.portal.wsrp.producer.config.ProducerConfigurationService</property-class>
+         <property-class>org.gatein.wsrp.producer.config.ProducerConfigurationService</property-class>
          <value>#{applicationScope.ProducerConfigurationService}</value>
       </managed-property>
       <managed-property>
          <property-name>beanContext</property-name>
-         <property-class>org.jboss.portal.faces.gui.BeanContext</property-class>
+         <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
          <value>#{beanContext}</value>
       </managed-property>
    </managed-bean>

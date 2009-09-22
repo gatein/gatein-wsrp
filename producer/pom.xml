@@ -24,7 +24,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
-      <groupId>org.jboss.portal.wsrp</groupId>
+      <groupId>org.gatein.wsrp</groupId>
       <artifactId>module-parent</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <relativePath>../build/pom.xml</relativePath>
@@ -32,16 +32,16 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>producer</artifactId>
    <packaging>jar</packaging>
-   <name>JBoss Portal WSRP Producer</name>
+   <name>GateIn WSRP Producer</name>
 
    <dependencies>
       <dependency>
-         <groupId>org.jboss.portal.wsrp</groupId>
+         <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp1-ws</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.portal.wsrp</groupId>
+         <groupId>org.gatein.wsrp</groupId>
          <artifactId>common</artifactId>
          <version>${project.version}</version>
       </dependency>

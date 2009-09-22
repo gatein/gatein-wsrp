@@ -39,12 +39,12 @@
       <version>1.0.0</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.jboss.portal.wsrp</groupId>
+   <groupId>org.gatein.wsrp</groupId>
    <artifactId>module-parent</artifactId>
    <version>1.0.0-SNAPSHOT</version>
    <packaging>pom</packaging>
-   <name>JBoss Portal WSRP Parent</name>
-   <description>JBoss Portal WSRP</description>
+   <name>GateIn WSRP Parent</name>
+   <description>GateIn WSRP</description>
 
    <!--All artifacts versions should be defined here-->
    <properties>
