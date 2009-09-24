@@ -34,6 +34,8 @@ import org.jboss.xb.binding.MarshallingContext;
 import org.jboss.xb.binding.ObjectModelProvider;
 
 /**
+ * Used to marshall Producer configuration to XML via JBoss XB.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 10408 $
  * @since 2.6.3
