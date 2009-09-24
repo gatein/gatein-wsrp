@@ -21,22 +21,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer.config.impl;
+package org.gatein.wsrp.producer.config.impl.xml;
 
 import org.gatein.common.net.URLTools;
-import org.gatein.registration.RegistrationPolicyChangeListener;
-import org.gatein.registration.RegistrationPropertyChangeListener;
-import org.gatein.wsrp.producer.config.ProducerConfiguration;
-import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
-import org.gatein.wsrp.producer.config.ProducerConfigurationFactory;
-import org.gatein.wsrp.producer.config.ProducerConfigurationProvider;
-import org.gatein.wsrp.producer.config.ProducerConfigurationService;
-import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
-import org.jboss.xb.binding.JBossXBException;
-import org.jboss.xb.binding.ObjectModelFactory;
 import org.jboss.xb.binding.ObjectModelProvider;
-import org.jboss.xb.binding.Unmarshaller;
-import org.jboss.xb.binding.UnmarshallerFactory;
 import org.jboss.xb.binding.XercesXsMarshaller;
 import org.jboss.xb.binding.sunday.unmarshalling.DefaultSchemaResolver;
 import org.slf4j.Logger;
@@ -45,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -53,20 +40,21 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
 
 /**
+ * A ProducerConfigurationService that can load an initial seed of an XML configuration file and then store
+ * modifications made to it on the file system, in the <code>${java.io.tmpdir}/portal/wsrp-producer-config.xml</code>
+ * file.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12276 $
  * @since 2.6
  */
-public class ProducerConfigurationServiceImpl implements ProducerConfigurationService
+public class FileSystemXMLProducerConfigurationService extends SimpleXMLProducerConfigurationService
 {
-   private static final Logger log = LoggerFactory.getLogger(ProducerConfigurationServiceImpl.class);
+   private static final Logger log = LoggerFactory.getLogger(FileSystemXMLProducerConfigurationService.class);
 
    private String configLocation;
-   private ProducerConfiguration configuration;
 
    private File config;
 
@@ -95,27 +83,9 @@ public class ProducerConfigurationServiceImpl implements ProducerConfigurationSe
    }
 
 
-   public ProducerConfiguration getConfiguration()
-   {
-      return configuration;
-   }
-
    public void start() throws Exception
    {
-      File dataDir;
-      /*MBeanServer server = MBeanServerLocator.locateJBoss();
-      ObjectName oname = ObjectNameFactory.create("jboss.system:type=ServerConfig");
-      try
-      {
-         dataDir = (File)server.getAttribute(oname, "ServerDataDir");
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Couldn't locate server data dir!", e);
-      }*/
-
-      // todo: replace by proper location or JCR-based persistence 
-      dataDir = new File(System.getProperty("java.io.tmpdir"));
+      File dataDir = new File(System.getProperty("java.io.tmpdir"));
 
       // if "portal" directory doesn't exist already in data, create it (JBPORTAL-2229)
       File portalDir = new File(dataDir, "portal");
@@ -160,57 +130,12 @@ public class ProducerConfigurationServiceImpl implements ProducerConfigurationSe
       }
    }
 
-   private void loadConfigurationAt(URL configURL) throws JBossXBException, IOException
+   private void loadConfigurationAt(URL configURL) throws Exception
    {
       log.debug("About to parse producer configuration " + configURL);
-      Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-      ObjectModelFactory factory = new ProducerConfigurationFactory();
+      InputStream inputStream = configURL.openStream();
 
-      // save listeners if we already have a configuration
-      List<ProducerConfigurationChangeListener> listeners = null;
-      Set<RegistrationPolicyChangeListener> policyListeners = null;
-      Set<RegistrationPropertyChangeListener> propertyListeners = null;
-      ProducerRegistrationRequirements registrationRequirements;
-      if (configuration != null)
-      {
-         listeners = configuration.getChangeListeners();
-         registrationRequirements = configuration.getRegistrationRequirements();
-         if (registrationRequirements != null)
-         {
-            policyListeners = registrationRequirements.getPolicyChangeListeners();
-            propertyListeners = registrationRequirements.getPropertyChangeListeners();
-         }
-      }
-
-      // reload
-      configuration = (ProducerConfiguration)unmarshaller.unmarshal(configURL.openStream(), factory, null);
-
-      // restore listeners
-      if (listeners != null)
-      {
-         for (ProducerConfigurationChangeListener listener : listeners)
-         {
-            configuration.addChangeListener(listener);
-         }
-      }
-      registrationRequirements = configuration.getRegistrationRequirements();
-      if (registrationRequirements != null)
-      {
-         if (propertyListeners != null)
-         {
-            for (RegistrationPropertyChangeListener listener : propertyListeners)
-            {
-               registrationRequirements.addRegistrationPropertyChangeListener(listener);
-            }
-         }
-         if (policyListeners != null)
-         {
-            for (RegistrationPolicyChangeListener listener : policyListeners)
-            {
-               registrationRequirements.addRegistrationPolicyChangeListener(listener);
-            }
-         }
-      }
+      loadConfigurationFrom(inputStream);
    }
 
    private URL getConfigLocationURL() throws Exception

@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.producer.config;
 
+import java.io.InputStream;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 8784 $
@@ -47,4 +49,12 @@ public interface ProducerConfigurationService
     * @since 2.6.3
     */
    void saveConfiguration() throws Exception;
+
+   /**
+    * Loads a producer configuration from the given InputStream.
+    *
+    * @param inputStream the InputStream to load the configuration from
+    * @throws Exception
+    */
+   void loadConfigurationFrom(InputStream inputStream) throws Exception;
 }
