@@ -296,8 +296,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          try
          {
             Class policyClass = loader.loadClass(policyClassName);
-            Class expectedInterface = loader.loadClass("org.jboss.portal.registration.RegistrationPolicy");
-            if (!expectedInterface.isAssignableFrom(policyClass))
+            if (!RegistrationPolicy.class.isAssignableFrom(policyClass))
             {
                throw new IllegalArgumentException("Policy class does not implement RegistrationPolicy!");
             }
@@ -324,8 +323,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
             try
             {
                Class validatorClass = loader.loadClass(validatorClassName);
-               Class expectedInterface = loader.loadClass("org.jboss.portal.registration.policies.RegistrationPropertyValidator");
-               if (!expectedInterface.isAssignableFrom(validatorClass))
+               if (!RegistrationPropertyValidator.class.isAssignableFrom(validatorClass))
                {
                   throw new IllegalArgumentException("Validator class does not implement RegistrationPropertyValidator!");
                }

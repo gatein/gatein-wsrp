@@ -24,7 +24,6 @@
 package org.gatein.wsrp.producer.config.impl.xml;
 
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
-import org.gatein.wsrp.producer.config.ProducerConfigurationFactory;
 import org.gatein.wsrp.producer.config.impl.AbstractProducerConfigurationService;
 import org.jboss.xb.binding.ObjectModelFactory;
 import org.jboss.xb.binding.Unmarshaller;

@@ -40,8 +40,8 @@ import java.util.Set;
  */
 public interface ProducerRegistrationRequirements extends ValueChangeListener
 {
-   String DEFAULT_POLICY_CLASS_NAME = "org.jboss.portal.registration.policies.DefaultRegistrationPolicy";
-   String DEFAULT_VALIDATOR_CLASS_NAME = "org.jboss.portal.registration.policies.DefaultRegistrationPropertyValidator";
+   String DEFAULT_POLICY_CLASS_NAME = "org.gatein.registration.policies.DefaultRegistrationPolicy";
+   String DEFAULT_VALIDATOR_CLASS_NAME = "org.gatein.registration.policies.DefaultRegistrationPropertyValidator";
 
    boolean isRegistrationRequired();
 
