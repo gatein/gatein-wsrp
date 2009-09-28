@@ -30,24 +30,24 @@
       <relativePath>../build/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>consumer</artifactId>
+   <artifactId>wsrp-consumer</artifactId>
    <packaging>jar</packaging>
    <name>GateIn WSRP Consumer</name>
 
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>common</artifactId>
+         <artifactId>wsrp-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>api</artifactId>
+         <artifactId>wsrp-integration-api</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp1-ws</artifactId>
+         <artifactId>wsrp-wsrp1-ws</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

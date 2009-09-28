@@ -30,26 +30,26 @@
       <relativePath>../build/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>admin-gui</artifactId>
+   <artifactId>wsrp-admin-gui</artifactId>
    <packaging>war</packaging>
    <name>GateIn WSRP Admin GUI</name>
 
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>common</artifactId>
+         <artifactId>wsrp-common</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>consumer</artifactId>
+         <artifactId>wsrp-consumer</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>producer</artifactId>
+         <artifactId>wsrp-producer-lib</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>
       </dependency>

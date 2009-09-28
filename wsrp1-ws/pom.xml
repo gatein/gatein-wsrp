@@ -30,7 +30,7 @@
       <relativePath>../build/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>wsrp1-ws</artifactId>
+   <artifactId>wsrp-wsrp1-ws</artifactId>
    <packaging>jar</packaging>
    <name>GateIn WSRP Generated JAX-WS Classes</name>
 
@@ -44,7 +44,6 @@
    </dependencies>
 
    <build>
-      <finalName>wsrp1-ws</finalName>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>

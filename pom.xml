@@ -52,9 +52,9 @@
       <module>api</module>
       <module>wsrp1-ws</module>
       <module>common</module>
-      <!-- <module>test-support</module> -->
       <module>producer</module>
       <module>consumer</module>
       <module>admin-gui</module>
+      <module>wsrp-producer-war</module>
    </modules>
 </project>
