@@ -48,7 +48,7 @@ import java.util.List;
  */
 @javax.jws.WebService(
    name = "WSRPV1ServiceDescriptionPortType",
-   serviceName = "WSRPV1Service",
+   serviceName = "WSRPService",
    portName = "WSRPServiceDescriptionService",
    targetNamespace = "urn:oasis:names:tc:wsrp:v1:wsdl",
    wsdlLocation = "/WEB-INF/wsdl/wsrp_services.wsdl",
