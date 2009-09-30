@@ -23,11 +23,10 @@
 
 package org.gatein.wsrp;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.PortletURL;
@@ -35,6 +34,7 @@ import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.pc.api.URLFormat;
+import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.oasis.wsrp.v1.BlockingInteractionResponse;
 import org.oasis.wsrp.v1.CacheControl;
@@ -1080,9 +1080,18 @@ public class WSRPTypeFactory
    {
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
-      markupType.getModes().addAll(modeNames);
-      markupType.getWindowStates().addAll(windowStateNames);
-      markupType.getLocales().addAll(localeNames);
+      if (modeNames != null)
+      {
+         markupType.getModes().addAll(modeNames);
+      }
+      if (windowStateNames != null)
+      {
+         markupType.getWindowStates().addAll(windowStateNames);
+      }
+      if (localeNames != null)
+      {
+         markupType.getLocales().addAll(localeNames);
+      }
       return markupType;
    }
 }
