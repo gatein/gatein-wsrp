@@ -28,14 +28,14 @@
          version="2.4">
 
    <!-- Filter to put request and response in ServletAccess -->
-   <!-- <filter>
+   <filter>
       <filter-name>ServletAccessFilter</filter-name>
-      <filter-class>org.jboss.portal.wsrp.servlet.ServletAccessFilter</filter-class>
+      <filter-class>org.gatein.wsrp.servlet.ServletAccessFilter</filter-class>
    </filter>
    <filter-mapping>
       <filter-name>ServletAccessFilter</filter-name>
       <url-pattern>/*</url-pattern>
-   </filter-mapping>-->
+   </filter-mapping>
 
    <!-- Wraps WSRP requests in transactions -->
    <!--<filter>
@@ -52,14 +52,6 @@
       <servlet-name>ContainerServlet</servlet-name>
       <servlet-class>org.jboss.portal.web.impl.tomcat.TC6ContainerServlet</servlet-class>
       <load-on-startup>1</load-on-startup>
-   </servlet>-->
-   <!--<listener>
-      <listener-class>org.jboss.portal.wsrp.exo.KernelListener</listener-class>
-   </listener>
-   <servlet>
-      <servlet-name>WSRPExoInt</servlet-name>
-      <servlet-class>org.jboss.portal.wsrp.exo.ExoKernelIntegration</servlet-class>
-      <load-on-startup>0</load-on-startup>
    </servlet>-->
 
 
