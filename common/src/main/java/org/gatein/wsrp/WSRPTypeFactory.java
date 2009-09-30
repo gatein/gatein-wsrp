@@ -80,6 +80,7 @@ import org.oasis.wsrp.v1.UploadContext;
 import org.oasis.wsrp.v1.UserContext;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -365,8 +366,14 @@ public class WSRPTypeFactory
       markupParams.setSecureClientCommunication(secureClientCommunication);
       markupParams.setMode(mode);
       markupParams.setWindowState(windowState);
-      markupParams.getLocales().addAll(locales);
-      markupParams.getMimeTypes().addAll(mimeTypes);
+      if (existsAndIsNotEmpty(locales))
+      {
+         markupParams.getLocales().addAll(locales);
+      }
+      if (existsAndIsNotEmpty(mimeTypes))
+      {
+         markupParams.getMimeTypes().addAll(mimeTypes);
+      }
       return markupParams;
    }
 
@@ -773,7 +780,10 @@ public class WSRPTypeFactory
    public static ModelDescription createModelDescription(List<PropertyDescription> propertyDescriptions)
    {
       ModelDescription description = new ModelDescription();
-      description.getPropertyDescriptions().addAll(propertyDescriptions);
+      if (existsAndIsNotEmpty(propertyDescriptions))
+      {
+         description.getPropertyDescriptions().addAll(propertyDescriptions);
+      }
       return description;
    }
 
@@ -868,7 +878,10 @@ public class WSRPTypeFactory
       description.setRegistrationContext(registrationContext);
       description.setPortletContext(portletContext);
       description.setUserContext(userContext);
-      description.getDesiredLocales().addAll(desiredLocales);
+      if (existsAndIsNotEmpty(desiredLocales))
+      {
+         description.getDesiredLocales().addAll(desiredLocales);
+      }
       return description;
    }
 
@@ -914,7 +927,10 @@ public class WSRPTypeFactory
    public static DestroyPortletsResponse createDestroyPortletsResponse(List<DestroyFailed> destroyFailed)
    {
       DestroyPortletsResponse destroyPortletsResponse = new DestroyPortletsResponse();
-      destroyPortletsResponse.getDestroyFailed().addAll(destroyFailed);
+      if (existsAndIsNotEmpty(destroyFailed))
+      {
+         destroyPortletsResponse.getDestroyFailed().addAll(destroyFailed);
+      }
       return destroyPortletsResponse;
    }
 
@@ -986,7 +1002,10 @@ public class WSRPTypeFactory
 
       DestroyPortlets destroyPortlets = new DestroyPortlets();
       destroyPortlets.setRegistrationContext(registrationContext);
-      destroyPortlets.getPortletHandles().addAll(portletHandles);
+      if (existsAndIsNotEmpty(portletHandles))
+      {
+         destroyPortlets.getPortletHandles().addAll(portletHandles);
+      }
       return destroyPortlets;
    }
 
@@ -1033,7 +1052,10 @@ public class WSRPTypeFactory
 
       ReleaseSessions sessions = new ReleaseSessions();
       sessions.setRegistrationContext(registrationContext);
-      sessions.getSessionIDs().addAll(sessionIDs);
+      if (existsAndIsNotEmpty(sessionIDs))
+      {
+         sessions.getSessionIDs().addAll(sessionIDs);
+      }
       return sessions;
    }
 
@@ -1080,18 +1102,24 @@ public class WSRPTypeFactory
    {
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
-      if (modeNames != null)
+
+      if (existsAndIsNotEmpty(modeNames))
       {
          markupType.getModes().addAll(modeNames);
       }
-      if (windowStateNames != null)
+      if (existsAndIsNotEmpty(windowStateNames))
       {
          markupType.getWindowStates().addAll(windowStateNames);
       }
-      if (localeNames != null)
+      if (existsAndIsNotEmpty(localeNames))
       {
          markupType.getLocales().addAll(localeNames);
       }
       return markupType;
+   }
+
+   private static boolean existsAndIsNotEmpty(Collection collection)
+   {
+      return collection != null && !collection.isEmpty();
    }
 }
