@@ -21,9 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.endpoints;
-
-import org.gatein.wsrp.producer.WSRPProducer;
+package org.gatein.wsrp.producer;
 
 /**
  * Holds the current WSRPProducer as configured for a particular portlet container.
@@ -33,15 +31,24 @@ import org.gatein.wsrp.producer.WSRPProducer;
  */
 public class ProducerHolder
 {
-   private static final ThreadLocal<WSRPProducer> PRODUCER_HOLDER = new ThreadLocal<WSRPProducer>();
+   private ProducerHolder()
+   {
+   }
 
    public static WSRPProducer getProducer()
    {
-      return PRODUCER_HOLDER.get();
+      return getProducer(false);
    }
 
-   public static void setProducer(WSRPProducer producer)
+   public static WSRPProducer getProducer(boolean allowUnstartedProducer)
    {
-      PRODUCER_HOLDER.set(producer);
+      if (allowUnstartedProducer || WSRPProducerImpl.isProducerStarted())
+      {
+         return WSRPProducerImpl.getInstance();
+      }
+      else
+      {
+         throw new IllegalStateException("Attempting to access a non-started producer!");
+      }
    }
 }

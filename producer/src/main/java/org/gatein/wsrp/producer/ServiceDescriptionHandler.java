@@ -66,7 +66,8 @@ import java.util.Set;
  * @version $Revision: 12017 $
  * @since 2.4
  */
-class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface
+class
+   ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface
 {
    // JBPORTAL-1220: force call to initCookie... Required so that BEA version < 9.2 will behave properly as a Consumer
    private final CookieProtocol BEA_8_CONSUMER_FIX = CookieProtocol.PER_USER;
@@ -97,7 +98,10 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
 
       // get the portlet descriptions based on registration information
       List<PortletDescription> offeredPortlets = getPortletDescriptions(gs.getDesiredLocales(), registration);
-      serviceDescription.getOfferedPortlets().addAll(offeredPortlets);
+      if (offeredPortlets != null)
+      {
+         serviceDescription.getOfferedPortlets().addAll(offeredPortlets);
+      }
 
       // if we don't have registration information but a registration is required, send registration props information
       if (registration == null && requirements.isRegistrationRequired())

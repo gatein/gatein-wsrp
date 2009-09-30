@@ -100,27 +100,42 @@ public class WSRPProducerImpl implements WSRPProducer
    private PortletInvoker invoker;
 
    /** Handles Markup interface calls. */
-   private MarkupHandler markupHandler;
+   private final MarkupHandler markupHandler;
 
    /** Handles ServiceDescription interface calls. */
-   private ServiceDescriptionHandler serviceDescriptionHandler;
+   private final ServiceDescriptionHandler serviceDescriptionHandler;
 
    /** Handles Registration interface calls. */
-   private RegistrationHandler registrationHandler;
+   private final RegistrationHandler registrationHandler;
 
    /** Handles Portlet Management interface calls. */
-   private PortletManagementHandler portletManagementHandler;
+   private final PortletManagementHandler portletManagementHandler;
 
    /** Registration Manager */
-   private RegistrationManager registrationManager;
-
-   /** Supported locales. */
-   private List<String> supportedLocales = WSRPConstants.getDefaultLocales();
+   private RegistrationManager registrationManager; //todo: make sure it's multi-thread safe
 
    /** configuration service */
-   private ProducerConfigurationService configurationService;
+   private ProducerConfigurationService configurationService; //todo: make sure it's multi-thread safe
 
-   public WSRPProducerImpl()
+   private boolean started = false;
+
+   // On-demand class holder Singleton pattern (multi-thread safe)
+   private static final class InstanceHolder
+   {
+      public static final WSRPProducerImpl producer = new WSRPProducerImpl();
+   }
+
+   static WSRPProducer getInstance()
+   {
+      return InstanceHolder.producer;
+   }
+
+   static boolean isProducerStarted()
+   {
+      return InstanceHolder.producer.started;
+   }
+
+   private WSRPProducerImpl()
    {
       markupHandler = new MarkupHandler(this);
       serviceDescriptionHandler = new ServiceDescriptionHandler(this);
@@ -289,31 +304,41 @@ public class WSRPProducerImpl implements WSRPProducer
       return configurationService;
    }
 
-   public void start()
+   public synchronized void start()
    {
-      ProducerConfiguration configuration = configurationService.getConfiguration();
-
-      // register to listen to changes in configuration and get initial state
-      configuration.addChangeListener(this);
-      usingStrictModeChangedTo(configuration.isUsingStrictMode());
-
-      ProducerRegistrationRequirements registrationRequirements = getProducerRegistrationRequirements();
-      registrationRequirements.addRegistrationPolicyChangeListener(registrationManager);
-      registrationRequirements.addRegistrationPropertyChangeListener(registrationManager);
-
-      if (registrationRequirements.isRegistrationRequired())
+      if (!started)
       {
-         registrationManager.setPolicy(registrationRequirements.getPolicy());
+         ProducerConfiguration configuration = configurationService.getConfiguration();
+
+         // register to listen to changes in configuration and get initial state
+         configuration.addChangeListener(this);
+         usingStrictModeChangedTo(configuration.isUsingStrictMode());
+
+         ProducerRegistrationRequirements registrationRequirements = getProducerRegistrationRequirements();
+         registrationRequirements.addRegistrationPolicyChangeListener(registrationManager);
+         registrationRequirements.addRegistrationPropertyChangeListener(registrationManager);
+
+         if (registrationRequirements.isRegistrationRequired())
+         {
+            registrationManager.setPolicy(registrationRequirements.getPolicy());
+         }
+
+         started = true;
       }
    }
 
-   public void stop()
+   public synchronized void stop()
    {
-      ProducerRegistrationRequirements registrationRequirements = getProducerRegistrationRequirements();
-      registrationRequirements.removeRegistrationPropertyChangeListener(registrationManager);
-      registrationRequirements.removeRegistrationPolicyChangeListener(registrationManager);
+      if (started)
+      {
+         ProducerRegistrationRequirements registrationRequirements = getProducerRegistrationRequirements();
+         registrationRequirements.removeRegistrationPropertyChangeListener(registrationManager);
+         registrationRequirements.removeRegistrationPolicyChangeListener(registrationManager);
 
-      getProducerConfiguration().removeChangeListener(this);
+         getProducerConfiguration().removeChangeListener(this);
+
+         started = false;
+      }
    }
 
    int getExpirationTime()
@@ -441,7 +466,7 @@ public class WSRPProducerImpl implements WSRPProducer
 
    public List<String> getSupportedLocales()
    {
-      return supportedLocales; // todo: avoid hardcoding this at some point...
+      return WSRPConstants.getDefaultLocales(); // todo: avoid hardcoding this at some point...
    }
 
    public void usingStrictModeChangedTo(boolean strictMode)

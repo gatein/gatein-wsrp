@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints;
 
+import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.servlet.ServletAccess;
 
