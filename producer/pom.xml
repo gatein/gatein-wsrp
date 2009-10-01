@@ -25,9 +25,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
-      <artifactId>module-parent</artifactId>
+      <artifactId>wsrp-parent</artifactId>
       <version>1.0.0-SNAPSHOT</version>
-      <relativePath>../build/pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <artifactId>wsrp-producer-lib</artifactId>
@@ -38,73 +37,45 @@
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-wsrp1-ws</artifactId>
-         <version>${project.version}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-common</artifactId>
-         <version>${project.version}</version>
-         <scope>provided</scope>
       </dependency>
+      
       <dependency>
          <groupId>org.gatein.common</groupId>
          <artifactId>common-common</artifactId>
-         <version>${version.gatein.common}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-api</artifactId>
-         <version>${version.gatein.pc}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-portlet</artifactId>
-         <version>${version.gatein.pc}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-federation</artifactId>
-         <version>${version.gatein.pc}</version>
-         <scope>provided</scope>
       </dependency>
+      
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
-         <version>${version.slf4j}</version>
       </dependency>
       <dependency>
          <groupId>commons-fileupload</groupId>
          <artifactId>commons-fileupload</artifactId>
-         <version>1.2.1</version>
       </dependency>
       <dependency>
          <groupId>javax.mail</groupId>
          <artifactId>mail</artifactId>
-         <version>1.4.1</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss</groupId>
          <artifactId>jbossxb</artifactId>
-         <version>${version.jbossxb}</version>
-         <scope>provided</scope>
       </dependency>
    </dependencies>
-
-   <build>
-      <plugins>
-         <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <source>1.5</source>
-               <target>1.5</target>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
 
 </project>
