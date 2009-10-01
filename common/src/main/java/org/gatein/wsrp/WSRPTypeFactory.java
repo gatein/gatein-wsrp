@@ -618,8 +618,10 @@ public class WSRPTypeFactory
     */
    public static RegistrationData createDefaultRegistrationData()
    {
-      RegistrationData registrationData = createRegistrationData(WSRPConstants.DEFAULT_CONSUMER_NAME, false);
+      RegistrationData registrationData = new RegistrationData();
+      registrationData.setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME);
       registrationData.setConsumerAgent(WSRPConstants.CONSUMER_AGENT);
+      registrationData.setMethodGetSupported(false);
       return registrationData;
    }
 
