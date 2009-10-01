@@ -24,11 +24,11 @@
 package org.gatein.wsrp.admin.ui;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.ConsumerRegistry;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.RegistrationInfo;
-import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;

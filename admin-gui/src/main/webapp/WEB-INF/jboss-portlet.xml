@@ -34,7 +34,7 @@
    </portlet>
    <service>
       <service-name>ConsumerRegistry</service-name>
-      <service-class>org.gatein.wsrp.consumer.ConsumerRegistry</service-class>
+      <service-class>org.gatein.wsrp.consumer.registry.ConsumerRegistry</service-class>
       <service-ref>portal.wsrp:service=ConsumerRegistry</service-ref>
    </service>
    <service>

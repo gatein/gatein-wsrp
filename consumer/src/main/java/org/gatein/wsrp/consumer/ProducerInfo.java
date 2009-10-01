@@ -34,6 +34,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
+import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 import org.gatein.wsrp.servlet.UserAccess;
 import org.oasis.wsrp.v1.CookieProtocol;
 import org.oasis.wsrp.v1.Extension;

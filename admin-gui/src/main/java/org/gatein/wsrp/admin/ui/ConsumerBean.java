@@ -24,11 +24,11 @@
 package org.gatein.wsrp.admin.ui;
 
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.ConsumerRegistry;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
+import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;

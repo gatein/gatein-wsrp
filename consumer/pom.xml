@@ -107,8 +107,6 @@
    </dependencies>
 
    <build>
-      <finalName>wsrp-consumer</finalName>
-
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>

@@ -63,7 +63,7 @@
       <managed-bean-scope>session</managed-bean-scope>
       <managed-property>
          <property-name>registry</property-name>
-         <property-class>org.gatein.wsrp.consumer.ConsumerRegistry</property-class>
+         <property-class>org.gatein.wsrp.consumer.registry.ConsumerRegistry</property-class>
          <value>#{applicationScope.ConsumerRegistry}</value>
       </managed-property>
       <managed-property>
@@ -83,7 +83,7 @@
       </managed-property>
       <managed-property>
          <property-name>registry</property-name>
-         <property-class>org.gatein.wsrp.consumer.ConsumerRegistry</property-class>
+         <property-class>org.gatein.wsrp.consumer.registry.ConsumerRegistry</property-class>
          <value>#{applicationScope.ConsumerRegistry}</value>
       </managed-property>
       <managed-property>

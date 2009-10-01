@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ JBoss, a division of Red Hat                                              ~
+  ~ Copyright 2006, Red Hat Middleware, LLC, and individual                   ~
+  ~ contributors as indicated by the @authors tag. See the                    ~
+  ~ copyright.txt in the distribution for a full listing of                   ~
+  ~ individual contributors.                                                  ~
+  ~                                                                           ~
+  ~ This is free software; you can redistribute it and/or modify it           ~
+  ~ under the terms of the GNU Lesser General Public License as               ~
+  ~ published by the Free Software Foundation; either version 2.1 of          ~
+  ~ the License, or (at your option) any later version.                       ~
+  ~                                                                           ~
+  ~ This software is distributed in the hope that it will be useful,          ~
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
+  ~ Lesser General Public License for more details.                           ~
+  ~                                                                           ~
+  ~ You should have received a copy of the GNU Lesser General Public          ~
+  ~ License along with this software; if not, write to the Free               ~
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<deployments xmlns="urn:jboss:portal:wsrp:consumer:v2_7" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="urn:jboss:portal:wsrp:consumer:v2_7 http://www.jboss.org/portal/xsd/jboss-wsrp-consumer_2_7.xsd">
+   <deployment>
+      <wsrp-producer id="self" expiration-cache="300">
+         <!--
+         we need to use the individual endpoint configuration because the configuration via wsdl forces an
+         immediate attempt to access the web service description which is not available yet at this point of deployment
+         -->
+         <endpoint-config>
+            <service-description-url>http://localhost:8080/portal-wsrp/ServiceDescriptionService
+            </service-description-url>
+            <markup-url>http://localhost:8080/portal-wsrp/MarkupService</markup-url>
+            <registration-url>http://localhost:8080/portal-wsrp/RegistrationService</registration-url>
+            <portlet-management-url>http://localhost:8080/portal-wsrp/PortletManagementService</portlet-management-url>
+         </endpoint-config>
+         <registration-data/>
+      </wsrp-producer>
+   </deployment>
+   <!--<deployment>
+      <wsrp-producer id="NetUnity" expiration-cache="300">
+         <endpoint-wsdl-url>http://wsrp.netunitysoftware.com/WSRPTestService/WSRPTestService.asmx?Operation=WSDL</endpoint-wsdl-url>
+         <registration-data/>
+      </wsrp-producer>
+   </deployment>-->
+   <!--<deployment>
+      <wsrp-producer id="vignette" expiration-cache="300">
+         <endpoint-wsdl-url>http://wsrpdemo.vignette.com:8080/producer/wsdl</endpoint-wsdl-url>
+         <registration-data>
+            <property>
+               <name>com.vignette.wsrp.registration.username</name>
+               <lang>en</lang>
+               <value>test</value>
+            </property>
+            <property>
+               <name>com.vignette.wsrp.registration.password</name>
+               <lang>en</lang>
+               <value>test</value>
+            </property>
+         </registration-data>
+      </wsrp-producer>
+   </deployment>-->
+   <deployment>
+      <wsrp-producer id="bea" expiration-cache="300">
+         <endpoint-wsdl-url>http://wsrp.bea.com:7001/producer/producer?WSDL</endpoint-wsdl-url>
+         <registration-data>
+            <property>
+               <name>registration/consumerRole</name>
+               <lang>en</lang>
+               <value>insider</value>
+            </property>
+         </registration-data>
+      </wsrp-producer>
+   </deployment>
+   <!--<deployment>
+      <wsrp-producer id="oracle" expiration-cache="300">
+         <endpoint-wsdl-url>http://portalstandards.oracle.com/portletapp/portlets?WSDL</endpoint-wsdl-url>
+         <registration-data/>
+      </wsrp-producer>
+   </deployment>-->
+</deployments>

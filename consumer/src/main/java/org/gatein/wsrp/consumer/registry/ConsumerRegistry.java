@@ -21,10 +21,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.registry;
 
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.api.SessionEventBroadcaster;
+import org.gatein.wsrp.consumer.ConsumerException;
+import org.gatein.wsrp.consumer.ProducerInfo;
 
 import java.util.List;
 
@@ -63,4 +66,12 @@ public interface ConsumerRegistry
    void destroyConsumer(String id) throws ConsumerException;
 
    void reloadConsumers();
+
+   void start() throws Exception;
+
+   void stop() throws Exception;
+
+   void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster);
+
+   void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
 }

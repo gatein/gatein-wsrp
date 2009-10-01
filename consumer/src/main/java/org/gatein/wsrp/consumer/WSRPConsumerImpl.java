@@ -31,9 +31,9 @@ import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.invocation.ActionInvocation;
+import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
-import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.state.DestroyCloneFailure;
@@ -121,7 +121,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       this(new ProducerInfo());
    }
 
-   WSRPConsumerImpl(ProducerInfo info)
+   public WSRPConsumerImpl(ProducerInfo info)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(info, "ProducerInfo");
 
@@ -196,7 +196,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
 
-      if(!PortletStateType.OPAQUE.equals(stateType))
+      if (!PortletStateType.OPAQUE.equals(stateType))
       {
          throw new IllegalArgumentException("This PortletInvoker cannot deal with PortletStateTypes other than PortletStateType.OPAQUE. Given: " + stateType);
       }

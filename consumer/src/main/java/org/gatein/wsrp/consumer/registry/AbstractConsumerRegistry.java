@@ -21,11 +21,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.registry;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.PortletInvokerException;
@@ -33,10 +30,12 @@ import org.gatein.pc.federation.FederatedPortletInvoker;
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.SessionEventBroadcaster;
+import org.gatein.wsrp.consumer.ConsumerException;
+import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,23 +47,19 @@ import java.util.TreeMap;
  * @version $Revision: 12693 $
  * @since 2.6
  */
-public class ConsumerRegistryService implements ConsumerRegistry
+public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 {
    /** Gives access to the Portal's portlet invokers */
    private FederatingPortletInvoker federatingPortletInvoker;
 
-   private SortedMap<String, WSRPConsumer> consumers;
-
-   private SessionFactory sessionFactory;
-
-   private String sessionFactoryJNDIName;
+   protected SortedMap<String, WSRPConsumer> consumers;
 
    private SessionEventBroadcaster sessionEventBroadcaster;
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
 
-   private static final Logger log = LoggerFactory.getLogger(ConsumerRegistryService.class);
+   private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
    {
@@ -91,16 +86,7 @@ public class ConsumerRegistryService implements ConsumerRegistry
       info.setRegistry(this);
       info.setExpirationCacheSeconds(expirationCacheSeconds);
 
-      try
-      {
-         Session session = sessionFactory.getCurrentSession();
-
-         session.persist(info);
-      }
-      catch (HibernateException e)
-      {
-         throw new ConsumerException("Couldn't create Consumer '" + id + "'", e);
-      }
+      save(info, "Couldn't create Consumer '" + id + "'");
 
       log.info(CONSUMER_WITH_ID + id + "' created");
       return createConsumerFrom(info);
@@ -133,9 +119,7 @@ public class ConsumerRegistryService implements ConsumerRegistry
          deactivateConsumerWith(id);
          consumers.remove(id);
 
-         Session session = sessionFactory.getCurrentSession();
-
-         session.delete(info);
+         delete(info);
       }
       else
       {
@@ -151,15 +135,7 @@ public class ConsumerRegistryService implements ConsumerRegistry
 
       ProducerInfo info = consumer.getProducerInfo();
 
-      try
-      {
-         Session session = sessionFactory.getCurrentSession();
-         session.persist(info);
-      }
-      catch (HibernateException e)
-      {
-         throw new ConsumerException(CONSUMER_WITH_ID + info.getId() + "' couldn't be persisted!");
-      }
+      save(info, CONSUMER_WITH_ID + info.getId() + "' couldn't be persisted!");
 
       createConsumerFrom(info);
    }
@@ -167,16 +143,6 @@ public class ConsumerRegistryService implements ConsumerRegistry
    public void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
    {
       this.federatingPortletInvoker = federatingPortletInvoker;
-   }
-
-   public String getSessionFactoryJNDIName()
-   {
-      return sessionFactoryJNDIName;
-   }
-
-   public void setSessionFactoryJNDIName(String sessionFactoryJNDIName)
-   {
-      this.sessionFactoryJNDIName = sessionFactoryJNDIName;
    }
 
    private WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
@@ -233,38 +199,18 @@ public class ConsumerRegistryService implements ConsumerRegistry
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
 
-      Session session = sessionFactory.getCurrentSession();
-      try
+      String oldId = update(producerInfo);
+
+      // if we updated and oldId is not null, we need to update the local consumers map
+      if (oldId != null)
       {
-
-         // Retrieve the previous id of the given ProducerInfo to update local consumers map if needed
-         String oldId = (String)session.createQuery("select pi.persistentId from ProducerInfo pi where pi.id = :key")
-            .setParameter("key", producerInfo.getKey()).uniqueResult();
-         if (producerInfo.getId().equals(oldId))
-         {
-            oldId = null; // reset oldId as the ProducerInfo's id hasn't been modified
-         }
-
-         // merge old producer info with new data
-         session.update(producerInfo);
-
-         // if we updated and oldId is not null, we need to update the local consumers map
-         if (oldId != null)
-         {
-            WSRPConsumer consumer = consumers.remove(oldId);
-            consumers.put(producerInfo.getId(), consumer);
-         }
-      }
-      catch (HibernateException e)
-      {
-         throw new ConsumerException("Couldn't update ProducerInfo for Consumer '" + producerInfo.getId() + "'", e);
+         WSRPConsumer consumer = consumers.remove(oldId);
+         consumers.put(producerInfo.getId(), consumer);
       }
    }
 
-   protected void startService() throws Exception
+   public void start() throws Exception
    {
-      InitialContext initialContext = new InitialContext();
-      sessionFactory = (SessionFactory)initialContext.lookup(sessionFactoryJNDIName);
       reloadConsumers();
    }
 
@@ -273,9 +219,7 @@ public class ConsumerRegistryService implements ConsumerRegistry
       // load the configured consumers
       consumers = new TreeMap<String, WSRPConsumer>();
 
-      Session session = sessionFactory.getCurrentSession();
-
-      Iterator producerInfos = session.createQuery("from ProducerInfo pi order by pi.persistentId").iterate();
+      Iterator producerInfos = getAllProducerInfos();
 
       // load the configured producers
       ProducerInfo producerInfo;
@@ -305,10 +249,8 @@ public class ConsumerRegistryService implements ConsumerRegistry
       }
    }
 
-   protected void stopService() throws Exception
+   public void stop() throws Exception
    {
-      sessionFactory = null;
-
       for (WSRPConsumer consumer : consumers.values())
       {
          // if producer is not active, it shouldn't be registered with the federating portlet invoker, hence do not
@@ -431,4 +373,12 @@ public class ConsumerRegistryService implements ConsumerRegistry
    {
       return RELEASE_SESSIONS_LISTENER + id;
    }
+
+   protected abstract void save(ProducerInfo info, String messageOnError);
+
+   protected abstract void delete(ProducerInfo info);
+
+   protected abstract String update(ProducerInfo producerInfo);
+
+   protected abstract Iterator getAllProducerInfos();
 }
