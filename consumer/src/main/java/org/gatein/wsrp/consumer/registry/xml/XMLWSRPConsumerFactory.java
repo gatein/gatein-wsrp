@@ -50,7 +50,7 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
 
    private ConsumerRegistry consumerRegistry;
 
-   private static final boolean DEBUG = true;
+   private static final boolean DEBUG = false;
 
    /** . */
    private static final String WSRP_PRODUCER = "wsrp-producer";
