@@ -38,5 +38,10 @@
          <groupId>javax.xml.ws</groupId>
          <artifactId>jaxws-api</artifactId>
       </dependency>
+      <dependency>
+         <groupId>javax.jws</groupId>
+         <artifactId>jsr181-api</artifactId>
+         <version>1.0-MR1</version>
+      </dependency>
    </dependencies>
 </project>
