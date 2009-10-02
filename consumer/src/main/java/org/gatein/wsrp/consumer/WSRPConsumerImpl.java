@@ -683,13 +683,8 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return getHttpRequest(invocation).getSession();
    }
 
-   public void sessionCreated(SessionEvent event)
+   public void onSessionEvent(SessionEvent event)
    {
-      sessionHandler.sessionCreated(event);
-   }
-
-   public void sessionDestroyed(SessionEvent event)
-   {
-      sessionHandler.sessionDestroyed(event);
+      sessionHandler.onSessionEvent(event);
    }
 }

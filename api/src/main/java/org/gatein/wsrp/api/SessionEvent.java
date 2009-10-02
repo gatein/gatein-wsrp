@@ -31,5 +31,12 @@ import javax.servlet.http.HttpSession;
  */
 public interface SessionEvent
 {
+   enum SessionEventType
+   {
+      SESSION_CREATED, SESSION_DESTROYED
+   }
+
+   SessionEventType getType();
+
    HttpSession getSession();
 }

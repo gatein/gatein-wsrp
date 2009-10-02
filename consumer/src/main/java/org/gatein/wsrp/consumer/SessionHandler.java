@@ -390,30 +390,28 @@ public class SessionHandler implements SessionEventListener
 
    // SessionEventListener implementation
 
-   public void sessionCreated(SessionEvent event)
+   public void onSessionEvent(SessionEvent event)
    {
-      // nothing to do
-   }
-
-   public void sessionDestroyed(SessionEvent event)
-   {
-      String id = event.getSession().getId();
-
-      // check if the session being destroyed is the one associated with this thread
-      ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      if (info != null)
+      if (SessionEvent.SessionEventType.SESSION_DESTROYED.equals(event.getType()))
       {
-         if (id != null && id.equals(info.getParentSessionId()))
+         String id = event.getSession().getId();
+
+         // check if the session being destroyed is the one associated with this thread
+         ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
+         if (info != null)
          {
-            try
+            if (id != null && id.equals(info.getParentSessionId()))
             {
-               internalReleaseSessions(info.removeSessions());
+               try
+               {
+                  internalReleaseSessions(info.removeSessions());
+               }
+               catch (PortletInvokerException e)
+               {
+                  // already logged...
+               }
+               log.debug("Released session '" + id + "' after session was destroyed by Portal.");
             }
-            catch (PortletInvokerException e)
-            {
-               // already logged...
-            }
-            log.debug("Released session '" + id + "' after session was destroyed by Portal.");
          }
       }
    }

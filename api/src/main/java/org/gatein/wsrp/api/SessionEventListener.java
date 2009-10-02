@@ -29,7 +29,5 @@ package org.gatein.wsrp.api;
  */
 public interface SessionEventListener
 {
-   void sessionCreated(SessionEvent event);
-
-   void sessionDestroyed(SessionEvent event);
+   void onSessionEvent(SessionEvent event);
 }

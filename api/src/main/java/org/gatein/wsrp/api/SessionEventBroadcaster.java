@@ -24,20 +24,14 @@
 package org.gatein.wsrp.api;
 
 /**
- * TODO: Implement
- *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class SessionEventBroadcaster
+public interface SessionEventBroadcaster
 {
-   public void registerListener(String listenerId, SessionEventListener listener)
-   {
-      throw new UnsupportedOperationException("registerListener");
-   }
+   public void registerListener(String listenerId, SessionEventListener listener);
 
-   public void unregisterListener(String listenerId)
-   {
-      throw new UnsupportedOperationException("unregisterListener");
-   }
+   public void unregisterListener(String listenerId);
+
+   public void notifyListenersOf(SessionEvent event);
 }
