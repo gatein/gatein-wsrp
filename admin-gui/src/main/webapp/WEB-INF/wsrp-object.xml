@@ -31,8 +31,6 @@
       <if-exists>overwrite</if-exists>
       <page>
          <page-name>WSRP</page-name>
-         <supported-locale>ja</supported-locale>
-         <resource-bundle>Resource</resource-bundle>
          <properties>
             <property>
                <name>layout.id</name>
@@ -57,6 +55,8 @@
                </property>
             </properties>
          </window>
+         <resource-bundle>Resource</resource-bundle>
+         <supported-locale>ja</supported-locale>
       </page>
    </deployment>
 </deployments>
