@@ -38,7 +38,7 @@
   <parent>
     <groupId>org.gatein</groupId>
     <artifactId>gatein-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Beta01</version>
   </parent>
   
   <scm>
@@ -66,7 +66,7 @@
       <dependency>
         <groupId>org.gatein</groupId>
         <artifactId>gatein-dep</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-Beta01</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
