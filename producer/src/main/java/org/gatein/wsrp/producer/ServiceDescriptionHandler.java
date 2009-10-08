@@ -191,9 +191,9 @@ class
     */
    PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales)
    {
-      String id = portlet.getContext().getId();
+      org.gatein.pc.api.PortletContext context = portlet.getContext();
       PortletInfo info = portlet.getInfo();
-      log.debug("Constructing portlet description for: " + id);
+      log.debug("Constructing portlet description for: " + context.getId());
 
       CapabilitiesInfo capInfo = info.getCapabilities();
       Collection<MediaType> allMediaTypes = capInfo.getMediaTypes();
@@ -206,10 +206,10 @@ class
          markupTypes.add(markupType);
       }
 
-      //todo generate a valid and better portlet handle
-      PortletDescription desc = WSRPTypeFactory.createPortletDescription(id, markupTypes);
+      PortletDescription desc = WSRPTypeFactory.createPortletDescription(context, markupTypes);
 
-      // todo: group ID
+      // group ID
+      desc.setGroupID(info.getApplicationName());
 
       MetaInfo metaInfo = info.getMeta();
 

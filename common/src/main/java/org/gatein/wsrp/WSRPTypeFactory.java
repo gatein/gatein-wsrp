@@ -303,9 +303,9 @@ public class WSRPTypeFactory
     *
     * @return
     */
-   public static PortletDescription createPortletDescription(String portletHandle, List<MarkupType> markupTypes)
+   public static PortletDescription createPortletDescription(org.gatein.pc.api.PortletContext portletContext, List<MarkupType> markupTypes)
    {
-      checkPortletHandle(portletHandle);
+      PortletContext context = WSRPUtils.convertToWSRPPortletContext(portletContext);
 
       ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
       if (markupTypes.isEmpty())
@@ -314,7 +314,7 @@ public class WSRPTypeFactory
       }
 
       PortletDescription portletDescription = new PortletDescription();
-      portletDescription.setPortletHandle(portletHandle);
+      portletDescription.setPortletHandle(context.getPortletHandle());
       portletDescription.getMarkupTypes().addAll(markupTypes);
       return portletDescription;
    }

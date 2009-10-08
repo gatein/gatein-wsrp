@@ -23,17 +23,17 @@
 
 package org.gatein.wsrp;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.common.i18n.LocaleFormat;
 import org.gatein.common.util.ConversionException;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.PortletURL;
 import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.StatefulPortletContext;
+import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
