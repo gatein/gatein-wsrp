@@ -25,8 +25,7 @@ package org.gatein.wsrp.consumer;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
-import org.gatein.wsrp.services.PerEndpointSOAPInvokerServiceFactory;
-import org.gatein.wsrp.services.RemoteSOAPInvokerServiceFactory;
+import org.gatein.wsrp.services.SOAPServiceFactory;
 import org.gatein.wsrp.services.ServiceFactory;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
@@ -57,13 +56,8 @@ public class EndpointConfigurationInfo
 
    // transient variables
    /** Access to the WS */
-   private ServiceFactory serviceFactory;
+   private transient SOAPServiceFactory serviceFactory;
    private transient String remoteHostAddress;
-
-   static final String SERVICE_DESCRIPTION = "service description";
-   static final String MARKUP = "markup";
-   static final String PORTLET_MANAGEMENT = "portlet management";
-   static final String REGISTRATION = "registration";
 
    // Used to ensure that even invalid values can be persisted to DB so that it can be accessed from the GUI
    public final static String UNSET = "MUST BE SET";
@@ -79,23 +73,12 @@ public class EndpointConfigurationInfo
    private boolean usingWSDL = true;
    private boolean isModifiedWSDL;
 
-   // todo: public for tests
-   public EndpointConfigurationInfo()
-   {
-   }
-
    public EndpointConfigurationInfo(ProducerInfo producerInfo)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
       producerInfo.setEndpointConfigurationInfo(this);
+      serviceFactory = new SOAPServiceFactory();
    }
-
-   public EndpointConfigurationInfo(ProducerInfo producerInfo, ServiceFactory serviceFactory)
-   {
-      this(producerInfo);
-      setServiceFactory(serviceFactory);
-   }
-
 
    public Long getKey()
    {
@@ -119,9 +102,9 @@ public class EndpointConfigurationInfo
 
    public String getWsdlDefinitionURL()
    {
-      if (serviceFactory instanceof RemoteSOAPInvokerServiceFactory)
+      if (serviceFactory != null)
       {
-         persistentWsdlDefinitionURL = ((RemoteSOAPInvokerServiceFactory)serviceFactory).getWsdlDefinitionURL();
+         persistentWsdlDefinitionURL = (serviceFactory).getWsdlDefinitionURL();
       }
 
       return persistentWsdlDefinitionURL;
@@ -211,14 +194,7 @@ public class EndpointConfigurationInfo
       {
          usingWSDL = true;
 
-         if (serviceFactory != null)
-         {
-            if (!(serviceFactory instanceof RemoteSOAPInvokerServiceFactory))
-            {
-               serviceFactory = new RemoteSOAPInvokerServiceFactory();
-            }
-            internalSetWsdlURL();
-         }
+         internalSetWsdlURL();
       }
       else
       {
@@ -237,11 +213,7 @@ public class EndpointConfigurationInfo
       {
          if (usesWSDL())
          {
-            if (serviceFactory instanceof RemoteSOAPInvokerServiceFactory)
-            {
-               isModifiedWSDL = true;
-            }
-
+            isModifiedWSDL = true;
             usingWSDL = false;
          }
 
@@ -256,16 +228,17 @@ public class EndpointConfigurationInfo
    {
       if (serviceFactory == null)
       {
+         serviceFactory = new SOAPServiceFactory();
          if (usesWSDL())
          {
-            serviceFactory = new RemoteSOAPInvokerServiceFactory();
+//            serviceFactory = new RemoteSOAPInvokerServiceFactory();
             internalSetWsdlURL();
          }
          else
          {
             if (!UNSET.equals(persistentServiceDescriptionURL) && !UNSET.equals(persistentMarkupURL))
             {
-               serviceFactory = new PerEndpointSOAPInvokerServiceFactory();
+//               serviceFactory = new PerEndpointSOAPInvokerServiceFactory();
                serviceFactory.setServiceDescriptionURL(persistentServiceDescriptionURL);
                serviceFactory.setMarkupURL(persistentMarkupURL);
                serviceFactory.setPortletManagementURL(persistentPortletManagementURL);
@@ -310,7 +283,7 @@ public class EndpointConfigurationInfo
    {
       try
       {
-         ((RemoteSOAPInvokerServiceFactory)serviceFactory).setWsdlDefinitionURL(persistentWsdlDefinitionURL);
+         serviceFactory.setWsdlDefinitionURL(persistentWsdlDefinitionURL);
 
          // update the URLs based on WSDL information
          persistentMarkupURL = serviceFactory.getMarkupURL();
@@ -340,52 +313,29 @@ public class EndpointConfigurationInfo
       }
    }
 
-   // todo: public for tests
-   public ServiceFactory getServiceFactory()
+   private ServiceFactory getServiceFactory()
    {
       initServiceFactoryIfNeeded();
       startServiceFactoryIfNeeded();
       return serviceFactory;
    }
 
-   // todo: public for tests
-   public void setServiceFactory(ServiceFactory serviceFactory)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(serviceFactory, "ServiceFactory");
-
-      this.serviceFactory = serviceFactory;
-      persistentServiceDescriptionURL = serviceFactory.getServiceDescriptionURL();
-      persistentMarkupURL = serviceFactory.getMarkupURL();
-      persistentPortletManagementURL = serviceFactory.getPortletManagementURL();
-      persistentRegistrationURL = serviceFactory.getRegistrationURL();
-
-      if (serviceFactory instanceof RemoteSOAPInvokerServiceFactory)
-      {
-         persistentWsdlDefinitionURL = ((RemoteSOAPInvokerServiceFactory)serviceFactory).getWsdlDefinitionURL();
-      }
-
-   }
-
-   // todo: public for tests
-   public WSRPV1ServiceDescriptionPortType getServiceDescriptionService() throws InvokerUnavailableException
+   WSRPV1ServiceDescriptionPortType getServiceDescriptionService() throws InvokerUnavailableException
    {
       return getService(WSRPV1ServiceDescriptionPortType.class);
    }
 
-   // todo: public for tests
-   public WSRPV1MarkupPortType getMarkupService() throws InvokerUnavailableException
+   WSRPV1MarkupPortType getMarkupService() throws InvokerUnavailableException
    {
       return getService(WSRPV1MarkupPortType.class);
    }
 
-   // todo: public for tests
-   public WSRPV1PortletManagementPortType getPortletManagementService() throws InvokerUnavailableException
+   WSRPV1PortletManagementPortType getPortletManagementService() throws InvokerUnavailableException
    {
       return getService(WSRPV1PortletManagementPortType.class);
    }
 
-   // todo: public for tests
-   public WSRPV1RegistrationPortType getRegistrationService() throws InvokerUnavailableException
+   WSRPV1RegistrationPortType getRegistrationService() throws InvokerUnavailableException
    {
       return getService(WSRPV1RegistrationPortType.class);
    }
@@ -429,14 +379,7 @@ public class EndpointConfigurationInfo
 
    public boolean isAvailable()
    {
-      try
-      {
-         return getServiceFactory().isAvailable();
-      }
-      catch (Exception e)
-      {
-         return false;
-      }
+      return serviceFactory.isAvailable();
    }
 
    public boolean isRefreshNeeded()

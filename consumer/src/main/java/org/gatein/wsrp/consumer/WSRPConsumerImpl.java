@@ -49,7 +49,6 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
-import org.gatein.wsrp.services.ServiceFactory;
 import org.gatein.wsrp.servlet.UserAccess;
 import org.oasis.wsrp.v1.DestroyFailed;
 import org.oasis.wsrp.v1.Extension;
@@ -485,7 +484,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
    public void activate() throws Exception
    {
       internalStart();
-      producerInfo.setActiveAndSave(getEndpointConfigurationInfo().isAvailable());
+      producerInfo.setActiveAndSave(true);
    }
 
    private void internalStart() throws Exception
@@ -560,16 +559,6 @@ public class WSRPConsumerImpl implements WSRPConsumer
    }
 
    // Web services access **********************************************************************************************
-
-   /**
-    * Needed to wire Consumer tests.
-    *
-    * @param serviceFactory
-    */
-   public void setServiceFactory(ServiceFactory serviceFactory)
-   {
-      getEndpointConfigurationInfo().setServiceFactory(serviceFactory);
-   }
 
    private EndpointConfigurationInfo getEndpointConfigurationInfo()
    {

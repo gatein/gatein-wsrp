@@ -66,7 +66,7 @@ public interface ServiceFactory
 
    void setPortletManagementURL(String portletManagementURL);
 
-   void start();
+   void start() throws Exception;
 
    void stop();
 }

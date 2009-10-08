@@ -225,7 +225,7 @@ public class ProducerInfo
     */
    public boolean isActive()
    {
-      return persistentActive && persistentEndpointInfo.isAvailable();
+      return persistentActive/* && persistentEndpointInfo.isAvailable()*/;
    }
 
    /**

@@ -334,19 +334,10 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
          System.out.println("adding consumer " + info.getId() + " to deployment - localName: " + localName);
       }
 
-      String message;
       String id = consumer.getProducerId();
-      if (consumer.getProducerInfo().getEndpointConfigurationInfo().isAvailable())
-      {
-         message = "Added consumer for producer '" + id + "' from xml configuration.";
-         consumers.put(id, consumer);
-      }
-      else
-      {
-         message = "There was a problem initializing the WSRP interface for producer '"
-            + id + "'. The consumer will NOT be available.";
-         info.setActive(false);
-      }
+      consumers.put(id, consumer);
+      log.info("Added consumer for producer '" + id + "' from xml configuration.");
+
 
       // update the producer info once the whole information is known
       try
@@ -358,9 +349,6 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
          // if we couldn't update the info, remove it from the list of service to be activated
          consumers.remove(id);
          log.info("Couldn't update the ProducerInfo for Consumer '" + info.getId() + "'", e);
-         return;
       }
-
-      log.info(message);
    }
 }

@@ -27,17 +27,17 @@
              xsi:schemaLocation="urn:jboss:portal:wsrp:consumer:v2_7 http://www.jboss.org/portal/xsd/jboss-wsrp-consumer_2_7.xsd">
    <deployment>
       <wsrp-producer id="self" expiration-cache="300">
+         <endpoint-wsdl-url>http://127.0.0.1:8080/wsrp-producer/MarkupService?wsdl</endpoint-wsdl-url>
          <!--
          we need to use the individual endpoint configuration because the configuration via wsdl forces an
          immediate attempt to access the web service description which is not available yet at this point of deployment
          -->
-         <endpoint-config>
-            <service-description-url>http://localhost:8080/portal-wsrp/ServiceDescriptionService
-            </service-description-url>
+         <!--<endpoint-config>
+            <service-description-url>http://localhost:8080/portal-wsrp/ServiceDescriptionService</service-description-url>
             <markup-url>http://localhost:8080/portal-wsrp/MarkupService</markup-url>
             <registration-url>http://localhost:8080/portal-wsrp/RegistrationService</registration-url>
             <portlet-management-url>http://localhost:8080/portal-wsrp/PortletManagementService</portlet-management-url>
-         </endpoint-config>
+         </endpoint-config>-->
          <registration-data/>
       </wsrp-producer>
    </deployment>
@@ -69,7 +69,7 @@
          <endpoint-wsdl-url>http://wsrp.bea.com:7001/producer/producer?WSDL</endpoint-wsdl-url>
          <registration-data>
             <property>
-               <name>registration/consumerRole</name>
+               <name>{urn:bea:wlp:prop:reg:registration}consumerRole</name>
                <lang>en</lang>
                <value>insider</value>
             </property>

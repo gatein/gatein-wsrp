@@ -36,7 +36,7 @@ import java.util.Map;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-class ServiceWrapper<T>
+public class ServiceWrapper<T>
 {
    protected T service;
    protected ManageableServiceFactory parentFactory;
@@ -86,30 +86,6 @@ class ServiceWrapper<T>
 
    public static <T> T getServiceWrapper(Class<T> expectedServiceInterface, Object service, ManageableServiceFactory parentFactory)
    {
-      /*ServiceWrapper wrapper;
-      if (WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(expectedServiceInterface))
-      {
-         wrapper = new ServiceDescriptionServiceWrapper(service, parentFactory);
-      }
-      else if (WSRPV1MarkupPortType.class.isAssignableFrom(expectedServiceInterface))
-      {
-         wrapper = new MarkupServiceWrapper(service, parentFactory);
-      }
-      else if (WSRPV1RegistrationPortType.class.isAssignableFrom(expectedServiceInterface))
-      {
-         wrapper = new RegistrationServiceWrapper(service, parentFactory);
-      }
-      else if (WSRPV1PortletManagementPortType.class.isAssignableFrom(expectedServiceInterface))
-      {
-         wrapper = new PortletManagementServiceWrapper(service, parentFactory);
-      }
-      else
-      {
-         throw new IllegalArgumentException("Unknown endpoint interface " + expectedServiceInterface);
-      }
-
-      return expectedServiceInterface.cast(wrapper);*/
-
       // for now, only set timeouts
       setTimeout((BindingProvider)service);
       return expectedServiceInterface.cast(service);
