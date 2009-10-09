@@ -38,7 +38,7 @@
   <parent>
     <groupId>org.gatein</groupId>
     <artifactId>gatein-parent</artifactId>
-    <version>1.0.0-Beta01</version>
+    <version>1.0.0-Beta02</version>
   </parent>
   
   <scm>
