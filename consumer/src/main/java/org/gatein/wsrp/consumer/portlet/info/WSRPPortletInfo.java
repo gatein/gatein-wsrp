@@ -23,11 +23,11 @@
 
 package org.gatein.wsrp.consumer.portlet.info;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.TransportGuarantee;
+import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.info.CacheInfo;
 import org.gatein.pc.api.info.CapabilitiesInfo;
 import org.gatein.pc.api.info.EventInfo;
@@ -77,6 +77,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
    private boolean userContextStoredInSession;
    private boolean templatesStoredInSession;
    private boolean doesUrlTemplateProcessing;
+   private String applicationName;
    private String groupId;
    private PreferencesInfo prefInfo;
    private ProducerInfo originatingProducer;
@@ -91,7 +92,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 
       createMetaInfo(portletDescription);
 
-      createWSRPInfo(portletDescription);
+      createWSRPInfo(portletDescription, originatingProducerInfo.getId());
 
       this.originatingProducer = originatingProducerInfo;
       this.portletHandle = portletDescription.getPortletHandle();
@@ -110,7 +111,8 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       userContextStoredInSession = other.userContextStoredInSession;
       templatesStoredInSession = other.templatesStoredInSession;
       doesUrlTemplateProcessing = other.doesUrlTemplateProcessing;
-      groupId = other.groupId; // should be duplicate group id?
+      groupId = other.groupId;
+      applicationName = other.applicationName;
 
       WSRPCapabilitiesInfo otherCapabilities = (WSRPCapabilitiesInfo)other.getCapabilities();
       capabilities = new WSRPCapabilitiesInfo(new HashMap<MediaType, MediaTypeInfo>(otherCapabilities.mediaTypes),
@@ -133,7 +135,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 
    public String getApplicationName()
    {
-      return groupId;
+      return applicationName;
    }
 
    public CapabilitiesInfo getCapabilities()
@@ -312,7 +314,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       return groupId;
    }
 
-   private void createWSRPInfo(PortletDescription portletDescription)
+   private void createWSRPInfo(PortletDescription portletDescription, String consumerId)
    {
 //      String[] userCategories = portletDescription.getUserCategories();
 //      String[] userProfileItems = portletDescription.getUserProfileItems();
@@ -327,6 +329,17 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       doesUrlTemplateProcessing = Boolean.TRUE.equals(portletDescription.isDoesUrlTemplateProcessing());
 
       groupId = portletDescription.getGroupID();
+
+      // if we don't have a group id, use the consumer id as the application name
+      if (ParameterValidation.isNullOrEmpty(groupId))
+      {
+         applicationName = consumerId;
+      }
+      else
+      {
+         applicationName = groupId;
+      }
+
    }
 
    private void createCapabilitiesInfo(PortletDescription portletDescription)
