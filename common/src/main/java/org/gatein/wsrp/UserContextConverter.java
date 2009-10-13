@@ -68,7 +68,10 @@ public class UserContextConverter
    {
       org.oasis.wsrp.v1.UserContext wsrpUserContext = WSRPTypeFactory.createUserContext(userContextKey);
       wsrpUserContext.setProfile(createUserProfileFrom(userContext));
-      wsrpUserContext.getUserCategories().addAll(userCategories);
+      if (WSRPTypeFactory.existsAndIsNotEmpty(userCategories))
+      {
+         wsrpUserContext.getUserCategories().addAll(userCategories);
+      }
       return wsrpUserContext;
    }
 
@@ -76,7 +79,7 @@ public class UserContextConverter
    {
       Map<String, String> userInfos = userContext.getInformations();
 
-      if (userInfos == null || userInfos.isEmpty())
+      if (!WSRPTypeFactory.existsAndIsNotEmpty(userInfos))
       {
          return null;
       }
@@ -169,8 +172,7 @@ public class UserContextConverter
    }
 
    /**
-    * Builds a Portal {@link org.gatein.pc.api.spi.UserContext} from a WSRP {@link
-    * org.oasis.wsrp.v1.UserContext}.
+    * Builds a Portal {@link org.gatein.pc.api.spi.UserContext} from a WSRP {@link org.oasis.wsrp.v1.UserContext}.
     *
     * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
     * @since 2.4 (May 8, 2006)
@@ -300,21 +302,19 @@ public class UserContextConverter
 
       public List<Locale> getLocales()
       {
-         int length = desiredLocales.size();
-         if (length > 0)
+         List<Locale> locales = Collections.emptyList();
+
+         if (WSRPTypeFactory.existsAndIsNotEmpty(desiredLocales))
          {
-            List<Locale> locales = new ArrayList<Locale>(length);
+            locales = new ArrayList<Locale>(desiredLocales.size());
             for (String desiredLocale : desiredLocales)
             {
                Locale locale = WSRPUtils.getLocale(desiredLocale);
                locales.add(locale);
             }
-            return locales;
          }
-         else
-         {
-            return Collections.emptyList();
-         }
+
+         return locales;
       }
 
       public Object getAttribute(String arg0)

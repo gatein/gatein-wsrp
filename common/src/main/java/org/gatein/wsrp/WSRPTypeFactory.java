@@ -675,7 +675,8 @@ public class WSRPTypeFactory
 
       public Map<String, String[]> getPublicNavigationalStateChanges()
       {
-         throw new UnsupportedOperationException("getPublicNavigationalStateChanges is not currently supported!"); // todo: fix me
+         // todo: implement properly
+         return null;
       }
 
       public Mode getMode()
@@ -1120,8 +1121,23 @@ public class WSRPTypeFactory
       return markupType;
    }
 
-   private static boolean existsAndIsNotEmpty(Collection collection)
+   /**
+    * @param collection
+    * @return
+    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
+    */
+   static boolean existsAndIsNotEmpty(Collection collection)
    {
       return collection != null && !collection.isEmpty();
+   }
+
+   /**
+    * @param map
+    * @return
+    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
+    */
+   static boolean existsAndIsNotEmpty(Map map)
+   {
+      return map != null && !map.isEmpty();
    }
 }
