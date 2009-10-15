@@ -68,7 +68,7 @@ public class UserContextConverter
    {
       org.oasis.wsrp.v1.UserContext wsrpUserContext = WSRPTypeFactory.createUserContext(userContextKey);
       wsrpUserContext.setProfile(createUserProfileFrom(userContext));
-      if (WSRPTypeFactory.existsAndIsNotEmpty(userCategories))
+      if (WSRPUtils.existsAndIsNotEmpty(userCategories))
       {
          wsrpUserContext.getUserCategories().addAll(userCategories);
       }
@@ -79,7 +79,7 @@ public class UserContextConverter
    {
       Map<String, String> userInfos = userContext.getInformations();
 
-      if (!WSRPTypeFactory.existsAndIsNotEmpty(userInfos))
+      if (!WSRPUtils.existsAndIsNotEmpty(userInfos))
       {
          return null;
       }
@@ -304,7 +304,7 @@ public class UserContextConverter
       {
          List<Locale> locales = Collections.emptyList();
 
-         if (WSRPTypeFactory.existsAndIsNotEmpty(desiredLocales))
+         if (WSRPUtils.existsAndIsNotEmpty(desiredLocales))
          {
             locales = new ArrayList<Locale>(desiredLocales.size());
             for (String desiredLocale : desiredLocales)

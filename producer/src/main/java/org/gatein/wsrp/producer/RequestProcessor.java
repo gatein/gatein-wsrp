@@ -23,13 +23,13 @@
 
 package org.gatein.wsrp.producer;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.MarkupInfo;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
+import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.PortalContext;
@@ -405,7 +405,7 @@ public abstract class RequestProcessor
          public Set<WindowState> getWindowStates()
          {
             List<String> validNewWindowStates = params.getValidNewWindowStates();
-            if (validNewWindowStates != null)
+            if (WSRPUtils.existsAndIsNotEmpty(validNewWindowStates))
             {
                Set<WindowState> states = new HashSet<WindowState>(validNewWindowStates.size());
                for (String state : validNewWindowStates)
@@ -420,7 +420,7 @@ public abstract class RequestProcessor
          public Set<Mode> getModes()
          {
             List<String> validNewModes = params.getValidNewModes();
-            if (validNewModes != null)
+            if (WSRPUtils.existsAndIsNotEmpty(validNewModes))
             {
                Set<Mode> modes = new HashSet<Mode>(validNewModes.size());
                for (String mode : validNewModes)

@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -451,5 +452,25 @@ public class WSRPUtils
       LocalizedString localizedString = new LocalizedString(wsrpLocalizedString.getValue(), locale);
       localizedString.setResourceName(wsrpLocalizedString.getResourceName());
       return localizedString;
+   }
+
+   /**
+    * @param collection
+    * @return
+    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
+    */
+   public static boolean existsAndIsNotEmpty(Collection collection)
+   {
+      return collection != null && !collection.isEmpty();
+   }
+
+   /**
+    * @param map
+    * @return
+    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
+    */
+   public static boolean existsAndIsNotEmpty(Map map)
+   {
+      return map != null && !map.isEmpty();
    }
 }

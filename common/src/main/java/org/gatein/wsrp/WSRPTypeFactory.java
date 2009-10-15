@@ -80,7 +80,6 @@ import org.oasis.wsrp.v1.UploadContext;
 import org.oasis.wsrp.v1.UserContext;
 
 import javax.xml.namespace.QName;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -366,11 +365,11 @@ public class WSRPTypeFactory
       markupParams.setSecureClientCommunication(secureClientCommunication);
       markupParams.setMode(mode);
       markupParams.setWindowState(windowState);
-      if (existsAndIsNotEmpty(locales))
+      if (WSRPUtils.existsAndIsNotEmpty(locales))
       {
          markupParams.getLocales().addAll(locales);
       }
-      if (existsAndIsNotEmpty(mimeTypes))
+      if (WSRPUtils.existsAndIsNotEmpty(mimeTypes))
       {
          markupParams.getMimeTypes().addAll(mimeTypes);
       }
@@ -783,7 +782,7 @@ public class WSRPTypeFactory
    public static ModelDescription createModelDescription(List<PropertyDescription> propertyDescriptions)
    {
       ModelDescription description = new ModelDescription();
-      if (existsAndIsNotEmpty(propertyDescriptions))
+      if (WSRPUtils.existsAndIsNotEmpty(propertyDescriptions))
       {
          description.getPropertyDescriptions().addAll(propertyDescriptions);
       }
@@ -881,7 +880,7 @@ public class WSRPTypeFactory
       description.setRegistrationContext(registrationContext);
       description.setPortletContext(portletContext);
       description.setUserContext(userContext);
-      if (existsAndIsNotEmpty(desiredLocales))
+      if (WSRPUtils.existsAndIsNotEmpty(desiredLocales))
       {
          description.getDesiredLocales().addAll(desiredLocales);
       }
@@ -930,7 +929,7 @@ public class WSRPTypeFactory
    public static DestroyPortletsResponse createDestroyPortletsResponse(List<DestroyFailed> destroyFailed)
    {
       DestroyPortletsResponse destroyPortletsResponse = new DestroyPortletsResponse();
-      if (existsAndIsNotEmpty(destroyFailed))
+      if (WSRPUtils.existsAndIsNotEmpty(destroyFailed))
       {
          destroyPortletsResponse.getDestroyFailed().addAll(destroyFailed);
       }
@@ -1005,7 +1004,7 @@ public class WSRPTypeFactory
 
       DestroyPortlets destroyPortlets = new DestroyPortlets();
       destroyPortlets.setRegistrationContext(registrationContext);
-      if (existsAndIsNotEmpty(portletHandles))
+      if (WSRPUtils.existsAndIsNotEmpty(portletHandles))
       {
          destroyPortlets.getPortletHandles().addAll(portletHandles);
       }
@@ -1055,7 +1054,7 @@ public class WSRPTypeFactory
 
       ReleaseSessions sessions = new ReleaseSessions();
       sessions.setRegistrationContext(registrationContext);
-      if (existsAndIsNotEmpty(sessionIDs))
+      if (WSRPUtils.existsAndIsNotEmpty(sessionIDs))
       {
          sessions.getSessionIDs().addAll(sessionIDs);
       }
@@ -1106,38 +1105,18 @@ public class WSRPTypeFactory
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
 
-      if (existsAndIsNotEmpty(modeNames))
+      if (WSRPUtils.existsAndIsNotEmpty(modeNames))
       {
          markupType.getModes().addAll(modeNames);
       }
-      if (existsAndIsNotEmpty(windowStateNames))
+      if (WSRPUtils.existsAndIsNotEmpty(windowStateNames))
       {
          markupType.getWindowStates().addAll(windowStateNames);
       }
-      if (existsAndIsNotEmpty(localeNames))
+      if (WSRPUtils.existsAndIsNotEmpty(localeNames))
       {
          markupType.getLocales().addAll(localeNames);
       }
       return markupType;
-   }
-
-   /**
-    * @param collection
-    * @return
-    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
-    */
-   static boolean existsAndIsNotEmpty(Collection collection)
-   {
-      return collection != null && !collection.isEmpty();
-   }
-
-   /**
-    * @param map
-    * @return
-    * @deprecated use ParameterValidation.existsAndIsNotEmpty instead
-    */
-   static boolean existsAndIsNotEmpty(Map map)
-   {
-      return map != null && !map.isEmpty();
    }
 }
