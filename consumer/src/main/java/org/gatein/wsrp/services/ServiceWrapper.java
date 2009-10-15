@@ -40,7 +40,7 @@ public class ServiceWrapper<T>
 {
    protected T service;
    protected ManageableServiceFactory parentFactory;
-   private static final int TIMEOUT_MS = 3 * 1000; //todo: expose timeout so that it can be changed from the GUI
+   private static final int TIMEOUT_MS = 10 * 1000; //todo: expose timeout so that it can be changed from the GUI
 
    /**
     * HTTP request timeout property. JAX-WS doesn't standardize that value, so needs to be adapted per used
