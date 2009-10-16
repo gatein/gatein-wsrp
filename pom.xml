@@ -21,8 +21,7 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   
   <modelVersion>4.0.0</modelVersion>
    
@@ -30,7 +29,7 @@
    
   <groupId>org.gatein.wsrp</groupId>
   <artifactId>wsrp-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-Beta01</version>
   <url>http://www.gatein.org</url>
    
   <packaging>pom</packaging>
@@ -42,15 +41,15 @@
   </parent>
   
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/trunk/</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/trunk/</developerConnection>
-    <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/trunk/</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/tags/1.0.0-Beta01</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/tags/1.0.0-Beta01</developerConnection>
+    <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/tags/1.0.0-Beta01</url>
   </scm>
   
   <properties>
-    <version.gatein.pc>2.1.0-SNAPSHOT</version.gatein.pc>
-    <version.gatein.common>2.0.0-Beta02</version.gatein.common>
-    <version.gatein.wci>2.0.0-Beta01</version.gatein.wci>
+    <version.gatein.pc>2.1.0-Beta02</version.gatein.pc>
+    <version.gatein.common>2.0.0-Beta03</version.gatein.common>
+    <version.gatein.wci>2.0.0-Beta02</version.gatein.wci>
     
     <version.jsf>1.2_12</version.jsf>
     <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
