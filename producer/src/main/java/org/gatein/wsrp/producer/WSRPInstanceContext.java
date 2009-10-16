@@ -98,7 +98,7 @@ class WSRPInstanceContext implements InstanceContext
       }
       else
       {
-         return null;
+         return PortletStateType.OPAQUE;
       }
    }
 }
