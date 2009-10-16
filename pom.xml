@@ -29,7 +29,7 @@
    
   <groupId>org.gatein.wsrp</groupId>
   <artifactId>wsrp-parent</artifactId>
-  <version>1.0.0-Beta01</version>
+  <version>1.0.0-Beta02-SNAPSHOT</version>
   <url>http://www.gatein.org</url>
    
   <packaging>pom</packaging>
@@ -41,9 +41,9 @@
   </parent>
   
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/tags/1.0.0-Beta01</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/tags/1.0.0-Beta01</developerConnection>
-    <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/tags/1.0.0-Beta01</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/trunk/</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/trunk/</developerConnection>
+    <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/trunk/</url>
   </scm>
   
   <properties>
