@@ -23,17 +23,17 @@
 
 package org.gatein.wsrp;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.text.FastURLDecoder;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.ParametersStateString;
 import org.gatein.pc.api.PortletURL;
 import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
+import org.gatein.pc.api.WindowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision: 13120 $
+ * @version $Revision: 13470 $
  * @since 2.4 (Apr 28, 2006)
  */
 public abstract class WSRPPortletURL implements PortletURL
@@ -66,9 +66,11 @@ public abstract class WSRPPortletURL implements PortletURL
    private WindowState windowState;
 
    /** Are we using strict rewriting parameters validation mode? */
-   private static boolean strict = true;
+   protected static boolean strict = true;
    /** Holds extra parameters if we are in relaxed validation mode */
    private Map<String, String> extraParams;
+   /** Holds extra data after URL in relaxed mode */
+   protected String extra;
    /** Remember position of extra parameters wrt end token */
    private boolean extraParamsAfterEndToken = false;
 
@@ -116,6 +118,7 @@ public abstract class WSRPPortletURL implements PortletURL
       {
          WSRPPortletURL other = (WSRPPortletURL)portletURL;
          url.setParams(other.extraParams, other.toString());
+         url.setExtra(other.extra);
       }
 
       return url;
@@ -132,6 +135,7 @@ public abstract class WSRPPortletURL implements PortletURL
 
       String originalURL = encodedURL;
       boolean extraAfterEnd = false;
+      String extra = null;
 
       // URL needs to start wsrp_rewrite? and end with /wsrp_rewrite in strict validation mode
       if (!encodedURL.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
@@ -140,24 +144,43 @@ public abstract class WSRPPortletURL implements PortletURL
       }
       if (!encodedURL.endsWith(WSRPRewritingConstants.END_WSRP_REWRITE))
       {
-         if (strict)
+         // first remove prefix only (as suffix is not at the end of the string)
+         encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH);
+
+         // end token should be marked by the first / in the URL and extract it
+         int endTokenIndex = encodedURL.indexOf('/');
+         if (endTokenIndex < 0)
          {
-            throw new IllegalArgumentException(encodedURL + " does not end with " + WSRPRewritingConstants.END_WSRP_REWRITE);
+            throw new IllegalArgumentException(originalURL + " does not contain " + WSRPRewritingConstants.END_WSRP_REWRITE);
+         }
+
+         encodedURL = encodedURL.substring(0, endTokenIndex)
+            + encodedURL.substring(endTokenIndex + WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
+
+         /*
+         we need to deal with the case when a WSRP URL is concatenated to a context path using something similar to:
+         renderResponse.encodeURL(renderRequest.getContextPath()) in which case, there should be a slash still present.
+         How to process further depends on whether we're in strict mode or not...
+         */
+         int concatenationIndex = encodedURL.indexOf('/');
+
+         if (strict && concatenationIndex != endTokenIndex)
+         {
+            // in strict mode, the only character available after the end token is the concatenating slash
+            throw new IllegalArgumentException(encodedURL + " does not end with "
+               + WSRPRewritingConstants.END_WSRP_REWRITE + " or does not appear to be a valid concatenation of URLs.");
          }
          else
          {
-            // first remove prefix only (as suffix is not at the end of the string)
-            encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH);
-
-            // find end token and extract it
-            int endTokenIndex = encodedURL.indexOf('/');
-            if (endTokenIndex < 0)
+            // deal with extra characters: this should only happen when the URL is concatenated to form a longer one
+            // hence, it should be possible to have param-value pairs followed by a slash '/' then characters.
+            // Anything after the slash will be kept as is, uninterpreted.
+            if (concatenationIndex != -1)
             {
-               throw new IllegalArgumentException(originalURL + " does not contain " + WSRPRewritingConstants.END_WSRP_REWRITE);
+               String tmp = encodedURL;
+               encodedURL = encodedURL.substring(0, concatenationIndex);
+               extra = tmp.substring(concatenationIndex);
             }
-
-            encodedURL = encodedURL.substring(0, endTokenIndex)
-               + encodedURL.substring(endTokenIndex + WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
 
             // remember that we should position the extra params after the end token
             extraAfterEnd = true;
@@ -229,6 +252,7 @@ public abstract class WSRPPortletURL implements PortletURL
 
       url.setParams(params, originalURL);
       url.setExtraParamsAfterEndToken(extraAfterEnd);
+      url.setExtra(extra);
       return url;
    }
 
@@ -379,16 +403,17 @@ public abstract class WSRPPortletURL implements PortletURL
          if (extraParams != null && !extraParams.isEmpty())
          {
             StringBuffer extras = new StringBuffer();
-            for (Map.Entry<String, String> entry : extraParams.entrySet())
-            {
-               createURLParameter(extras, entry.getKey(), entry.getValue());
-            }
+            appendExtraParams(extras);
 
             // if we had extra params, we need to figure out where thwy should be positioned wrt end token
             if (extraParamsAfterEndToken)
             {
                sb.append(WSRPRewritingConstants.END_WSRP_REWRITE);
                sb.append(extras);
+               if (extra != null)
+               {
+                  sb.append(extra);
+               }
             }
             else
             {
@@ -402,6 +427,17 @@ public abstract class WSRPPortletURL implements PortletURL
          }
       }
       return sb.toString();
+   }
+
+   protected void appendExtraParams(StringBuffer buffer)
+   {
+      if (extraParams != null)
+      {
+         for (Map.Entry<String, String> entry : extraParams.entrySet())
+         {
+            createURLParameter(buffer, entry.getKey(), entry.getValue());
+         }
+      }
    }
 
    protected abstract void appendEnd(StringBuffer sb);
@@ -522,5 +558,10 @@ public abstract class WSRPPortletURL implements PortletURL
    private void setExtraParamsAfterEndToken(boolean extraParamsAfterEndToken)
    {
       this.extraParamsAfterEndToken = extraParamsAfterEndToken;
+   }
+
+   public void setExtra(String extra)
+   {
+      this.extra = extra;
    }
 }
