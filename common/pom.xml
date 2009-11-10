@@ -68,5 +68,11 @@
          <artifactId>slf4j-jdk14</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>test-framework</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 </project>

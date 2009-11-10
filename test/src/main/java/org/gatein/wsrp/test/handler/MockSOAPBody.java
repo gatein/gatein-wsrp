@@ -20,7 +20,7 @@
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
 
-package org.gatein.wsrp.handler;
+package org.gatein.wsrp.test.handler;
 
 import org.jboss.util.xml.DOMUtils;
 import org.w3c.dom.Element;

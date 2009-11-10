@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
 
-package org.gatein.wsrp.handler;
+package org.gatein.wsrp.test.handler;
 
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.lang.reflect.InvocationHandler;

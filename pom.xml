@@ -21,181 +21,183 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
-  <modelVersion>4.0.0</modelVersion>
-   
-  <name>GateIn WSRP</name>
-   
-  <groupId>org.gatein.wsrp</groupId>
-  <artifactId>wsrp-parent</artifactId>
-  <version>1.0.0-Beta02-SNAPSHOT</version>
-  <url>http://www.gatein.org</url>
-   
-  <packaging>pom</packaging>
-   
-  <parent>
-    <groupId>org.gatein</groupId>
-    <artifactId>gatein-parent</artifactId>
-    <version>1.0.0-Beta03</version>
-  </parent>
-  
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/trunk/</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/trunk/</developerConnection>
-    <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/trunk/</url>
-  </scm>
-  
-  <properties>
-    <version.gatein.pc>2.1.0-Beta02</version.gatein.pc>
-    <version.gatein.common>2.0.0-Beta03</version.gatein.common>
-    <version.gatein.wci>2.0.0-Beta02</version.gatein.wci>
-    
-    <version.jsf>1.2_12</version.jsf>
-    <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
-    <version.javax.mail>1.4.1</version.javax.mail>
-    <version.javax.xml.ws>2.1</version.javax.xml.ws>
-    <version.javax.xml.soap.saaj>1.3</version.javax.xml.soap.saaj>
-    <version.hibernate>3.3.1.GA</version.hibernate>
-  </properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <dependencyManagement>
-    <dependencies>
-      <!-- Import dependency management configuration -->
-      <dependency>
-        <groupId>org.gatein</groupId>
-        <artifactId>gatein-dep</artifactId>
-        <version>1.0.0-Beta02</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      
-      <!-- internal dependencies -->
-      <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>wsrp-common</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>wsrp-consumer</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>wsrp-producer-lib</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>wsrp-wsrp1-ws</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>wsrp-integration-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.gatein.common</groupId>
-        <artifactId>common-common</artifactId>
-        <version>${version.gatein.common}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.common</groupId>
-        <artifactId>common-mc</artifactId>
-        <version>${version.gatein.common}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.gatein.pc</groupId>
-        <artifactId>pc-api</artifactId>
-        <version>${version.gatein.pc}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.pc</groupId>
-        <artifactId>pc-portlet</artifactId>
-        <version>${version.gatein.pc}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gatein.pc</groupId>
-        <artifactId>pc-federation</artifactId>
-        <version>${version.gatein.pc}</version>
-      </dependency>
-      
-      <!-- external dependencies -->
-      <dependency>
-        <groupId>javax.faces</groupId>
-        <artifactId>jsf-api</artifactId>
-        <version>${version.jsf}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>${version.apache.commons-fileupload}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>${version.javax.mail}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>javax.xml.ws</groupId>
-        <artifactId>jaxws-api</artifactId>
-        <version>${version.javax.xml.ws}</version>
-      </dependency>
+   <modelVersion>4.0.0</modelVersion>
 
-      <dependency>
-        <groupId>javax.xml.soap</groupId>
-        <artifactId>saaj-api</artifactId>
-        <version>${version.javax.xml.soap.saaj}</version>
-      </dependency>
-            
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${version.hibernate}</version>
-      </dependency>
-      
-    </dependencies>
-  </dependencyManagement>
-  
-  <modules>
-    <module>api</module>
-    <module>wsrp1-ws</module>
-    <module>common</module>
-    <module>producer</module>
-    <module>consumer</module>
-    <module>admin-gui</module>
-    <module>wsrp-producer-war</module>
-  </modules>
-  
-  <repositories>
-    <repository>
-      <id>repository.jboss.org</id>
-      <name>JBoss Repository</name>
-      <layout>default</layout>
-      <url>http://repository.jboss.org/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>snapshots.jboss.org</id>
-      <name>JBoss Snapshots Repository</name>
-      <layout>default</layout>
-      <url>http://snapshots.jboss.org/maven2/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
-  
+   <name>GateIn WSRP</name>
+
+   <groupId>org.gatein.wsrp</groupId>
+   <artifactId>wsrp-parent</artifactId>
+   <version>1.0.0-Beta02-SNAPSHOT</version>
+   <url>http://www.gatein.org</url>
+
+   <packaging>pom</packaging>
+
+   <parent>
+      <groupId>org.gatein</groupId>
+      <artifactId>gatein-parent</artifactId>
+      <version>1.0.0-Beta03</version>
+   </parent>
+
+   <scm>
+      <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/trunk/</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/trunk/</developerConnection>
+      <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/trunk/</url>
+   </scm>
+
+   <properties>
+      <version.gatein.pc>2.1.0-Beta02</version.gatein.pc>
+      <version.gatein.common>2.0.0-Beta03</version.gatein.common>
+      <version.gatein.wci>2.0.0-Beta02</version.gatein.wci>
+
+      <version.jsf>1.2_12</version.jsf>
+      <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
+      <version.javax.mail>1.4.1</version.javax.mail>
+      <version.javax.xml.ws>2.1</version.javax.xml.ws>
+      <version.javax.xml.soap.saaj>1.3</version.javax.xml.soap.saaj>
+      <version.hibernate>3.3.1.GA</version.hibernate>
+   </properties>
+
+   <dependencyManagement>
+      <dependencies>
+         <!-- Import dependency management configuration -->
+         <dependency>
+            <groupId>org.gatein</groupId>
+            <artifactId>gatein-dep</artifactId>
+            <version>1.0.0-Beta02</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+
+         <!-- internal dependencies -->
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-common</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-consumer</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-producer-lib</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-wsrp1-ws</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-integration-api</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.gatein.common</groupId>
+            <artifactId>common-common</artifactId>
+            <version>${version.gatein.common}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.common</groupId>
+            <artifactId>common-mc</artifactId>
+            <version>${version.gatein.common}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.gatein.pc</groupId>
+            <artifactId>pc-api</artifactId>
+            <version>${version.gatein.pc}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.pc</groupId>
+            <artifactId>pc-portlet</artifactId>
+            <version>${version.gatein.pc}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.pc</groupId>
+            <artifactId>pc-federation</artifactId>
+            <version>${version.gatein.pc}</version>
+         </dependency>
+
+         <!-- external dependencies -->
+         <dependency>
+            <groupId>javax.faces</groupId>
+            <artifactId>jsf-api</artifactId>
+            <version>${version.jsf}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${version.apache.commons-fileupload}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${version.javax.mail}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <version>${version.javax.xml.ws}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>saaj-api</artifactId>
+            <version>${version.javax.xml.soap.saaj}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${version.hibernate}</version>
+         </dependency>
+
+      </dependencies>
+   </dependencyManagement>
+
+   <modules>
+      <module>api</module>
+      <module>wsrp1-ws</module>
+      <module>common</module>
+      <module>test</module>
+      <module>producer</module>
+      <module>consumer</module>
+      <module>admin-gui</module>
+      <module>wsrp-producer-war</module>
+   </modules>
+
+   <repositories>
+      <repository>
+         <id>repository.jboss.org</id>
+         <name>JBoss Repository</name>
+         <layout>default</layout>
+         <url>http://repository.jboss.org/maven2/</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+      </repository>
+      <repository>
+         <id>snapshots.jboss.org</id>
+         <name>JBoss Snapshots Repository</name>
+         <layout>default</layout>
+         <url>http://snapshots.jboss.org/maven2/</url>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+      </repository>
+   </repositories>
+
 </project>

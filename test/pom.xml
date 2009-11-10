@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <parent>
+      <groupId>org.gatein.wsrp</groupId>
+      <artifactId>wsrp-parent</artifactId>
+      <version>1.0.0-Beta02-SNAPSHOT</version>
+   </parent>
+
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>test-framework</artifactId>
+   <packaging>jar</packaging>
+   <name>GateIn WSRP Test Framework</name>
+
+   <dependencies>
+      <!--<dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-common</artifactId>
+      </dependency>-->
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-wsrp1-ws</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.pc</groupId>
+         <artifactId>pc-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.pc</groupId>
+         <artifactId>pc-portlet</artifactId>
+      </dependency>
+   </dependencies>
+
+
+</project>

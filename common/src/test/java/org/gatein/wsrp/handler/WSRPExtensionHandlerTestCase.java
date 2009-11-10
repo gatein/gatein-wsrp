@@ -23,6 +23,8 @@
 package org.gatein.wsrp.handler;
 
 import junit.framework.TestCase;
+import org.gatein.wsrp.test.handler.MockSOAPMessage;
+import org.gatein.wsrp.test.handler.MockSOAPMessageContext;
 
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
