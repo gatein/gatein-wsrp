@@ -741,12 +741,30 @@ public class ProducerInfo
          serviceDescription.setRegistrationPropertyDescription(registrationPropertyDescription.value);
          serviceDescription.setRequiresInitCookie(initCookie.value);
          serviceDescription.setResourceList(resourceList.value);
-         serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
-         serviceDescription.getCustomUserProfileItemDescriptions().addAll(userProfileItemDescriptions.value);
-         serviceDescription.getCustomWindowStateDescriptions().addAll(windowStateDescriptions.value);
-         serviceDescription.getLocales().addAll(locales.value);
-         serviceDescription.getOfferedPortlets().addAll(offeredPortlets.value);
-         serviceDescription.getUserCategoryDescriptions().addAll(userCategoryDescriptions.value);
+         if (WSRPUtils.existsAndIsNotEmpty(modeDescriptions.value))
+         {
+            serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
+         }
+         if (WSRPUtils.existsAndIsNotEmpty(userProfileItemDescriptions.value))
+         {
+            serviceDescription.getCustomUserProfileItemDescriptions().addAll(userProfileItemDescriptions.value);
+         }
+         if (WSRPUtils.existsAndIsNotEmpty(windowStateDescriptions.value))
+         {
+            serviceDescription.getCustomWindowStateDescriptions().addAll(windowStateDescriptions.value);
+         }
+         if (WSRPUtils.existsAndIsNotEmpty(locales.value))
+         {
+            serviceDescription.getLocales().addAll(locales.value);
+         }
+         if (WSRPUtils.existsAndIsNotEmpty(offeredPortlets.value))
+         {
+            serviceDescription.getOfferedPortlets().addAll(offeredPortlets.value);
+         }
+         if (WSRPUtils.existsAndIsNotEmpty(userCategoryDescriptions.value))
+         {
+            serviceDescription.getUserCategoryDescriptions().addAll(userCategoryDescriptions.value);
+         }
 
          return serviceDescription;
       }
