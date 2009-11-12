@@ -21,69 +21,70 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
 
-package org.gatein.wsrp.test.handler;
+package org.gatein.wsrp.test.support;
 
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
+import org.gatein.common.util.Tools;
+
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.wsrp.handler.MockSOAPMessageContext">Chris
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.test.support.MockHttpSession">Chris
  *         Laprun</a>
  * @version $Revision: 8784 $
  * @since 2.4
  */
-public class MockSOAPMessageContext implements InvocationHandler
+public class MockHttpSession implements InvocationHandler, Serializable
 {
-   MockSOAPMessage message;
+   private final Map map = new HashMap();
 
-
-   public MockSOAPMessageContext(MockSOAPMessage message)
+   private MockHttpSession()
    {
-      this.message = message;
    }
 
-   public MockSOAPMessage getMessage()
+   public static HttpSession createMockSession()
    {
-      return message;
-   }
-
-   public void setMessage(MockSOAPMessage message)
-   {
-      this.message = message;
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      return (HttpSession)Proxy.newProxyInstance(loader, new Class[]{HttpSession.class}, new MockHttpSession());
    }
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       String methodName = method.getName();
-
-      if ("getMessage".equals(methodName))
+      if ("setAttribute".equals(methodName))
       {
-         return getMessage();
+         map.put(args[0], args[1]);
+         return null;
       }
-      else if ("get".equals(methodName))
+      else if ("removeAttribute".equals(methodName))
       {
-         // should only be called to get the endpoint address
-         if (BindingProvider.ENDPOINT_ADDRESS_PROPERTY.equals(args[0]))
-         {
-            return "http://jboss.com";
-         }
-         throw new IllegalArgumentException("MockSOAPMessageContext.get method should only be called to retrieve "
-            + BindingProvider.ENDPOINT_ADDRESS_PROPERTY + " value. Requested: " + args[0]);
+         map.remove(args[0]);
+         return null;
+      }
+      else if ("getAttribute".equals(methodName))
+      {
+         return map.get(args[0]);
+      }
+      else if ("getAttributeNames".equals(methodName))
+      {
+         return Tools.toEnumeration(map.keySet().iterator());
       }
       else if ("toString".equals(methodName))
       {
-         return this.toString();
+         return "MockHttpSession";
       }
-
-      throw new UnsupportedOperationException("MockSOAPMessageContext does not support " + methodName + " method");
-   }
-
-   public static SOAPMessageContext createMessageContext(MockSOAPMessage message, ClassLoader classLoader)
-   {
-      return (SOAPMessageContext)Proxy.newProxyInstance(classLoader, new Class[]{SOAPMessageContext.class},
-         new MockSOAPMessageContext(message));
+      else if ("getId".equals(methodName))
+      {
+         return "SESSION_ID";
+      }
+      else
+      {
+         throw new UnsupportedOperationException("MockHttpSession does not support: " + method);
+      }
    }
 }

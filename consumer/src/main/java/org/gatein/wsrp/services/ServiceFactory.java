@@ -69,4 +69,8 @@ public interface ServiceFactory
    void start() throws Exception;
 
    void stop();
+
+   void setWsdlDefinitionURL(String wsdlDefinitionURL) throws Exception;
+
+   String getWsdlDefinitionURL();
 }

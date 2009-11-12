@@ -21,69 +21,51 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
 
-package org.gatein.wsrp.test.handler;
+package org.gatein.wsrp.test.support;
 
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.wsrp.handler.MockSOAPMessageContext">Chris
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.test.support.MockHttpServletResponse">Chris
  *         Laprun</a>
  * @version $Revision: 8784 $
  * @since 2.4
  */
-public class MockSOAPMessageContext implements InvocationHandler
+public class MockHttpServletResponse implements InvocationHandler, Serializable
 {
-   MockSOAPMessage message;
+   Object cookie;
 
-
-   public MockSOAPMessageContext(MockSOAPMessage message)
+   private MockHttpServletResponse()
    {
-      this.message = message;
    }
 
-   public MockSOAPMessage getMessage()
+   public static HttpServletResponse createMockResponse()
    {
-      return message;
-   }
-
-   public void setMessage(MockSOAPMessage message)
-   {
-      this.message = message;
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      return (HttpServletResponse)Proxy.newProxyInstance(loader, new Class[]{HttpServletResponse.class}, new MockHttpServletResponse());
    }
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       String methodName = method.getName();
-
-      if ("getMessage".equals(methodName))
+      if ("addCookie".equals(methodName))
       {
-         return getMessage();
+         cookie = args[0];
+         return null;
       }
-      else if ("get".equals(methodName))
+      else if ("reset".equals(methodName))
       {
-         // should only be called to get the endpoint address
-         if (BindingProvider.ENDPOINT_ADDRESS_PROPERTY.equals(args[0]))
-         {
-            return "http://jboss.com";
-         }
-         throw new IllegalArgumentException("MockSOAPMessageContext.get method should only be called to retrieve "
-            + BindingProvider.ENDPOINT_ADDRESS_PROPERTY + " value. Requested: " + args[0]);
+         cookie = null;
+         return null;
       }
       else if ("toString".equals(methodName))
       {
-         return this.toString();
+         return "MockHttpServletResponse";
       }
-
-      throw new UnsupportedOperationException("MockSOAPMessageContext does not support " + methodName + " method");
-   }
-
-   public static SOAPMessageContext createMessageContext(MockSOAPMessage message, ClassLoader classLoader)
-   {
-      return (SOAPMessageContext)Proxy.newProxyInstance(classLoader, new Class[]{SOAPMessageContext.class},
-         new MockSOAPMessageContext(message));
+      throw new UnsupportedOperationException("MockHttpServletResponse does not support: " + method);
    }
 }

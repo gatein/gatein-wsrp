@@ -56,7 +56,7 @@ public class EndpointConfigurationInfo
 
    // transient variables
    /** Access to the WS */
-   private transient SOAPServiceFactory serviceFactory;
+   private transient ServiceFactory serviceFactory;
    private transient String remoteHostAddress;
 
    // Used to ensure that even invalid values can be persisted to DB so that it can be accessed from the GUI
@@ -78,6 +78,13 @@ public class EndpointConfigurationInfo
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
       producerInfo.setEndpointConfigurationInfo(this);
       serviceFactory = new SOAPServiceFactory();
+   }
+
+   EndpointConfigurationInfo(ProducerInfo producerInfo, ServiceFactory serviceFactory)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
+      producerInfo.setEndpointConfigurationInfo(this);
+      this.serviceFactory = serviceFactory;
    }
 
    public Long getKey()
@@ -313,7 +320,7 @@ public class EndpointConfigurationInfo
       }
    }
 
-   private ServiceFactory getServiceFactory()
+   ServiceFactory getServiceFactory()
    {
       initServiceFactoryIfNeeded();
       startServiceFactoryIfNeeded();
