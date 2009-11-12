@@ -61,6 +61,7 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
    protected List<PortletDescription> offeredPortlets;
    private boolean requiresRegistration;
    private CookieProtocol cookieProtocol;
+   private ModelDescription registrationProperties;
 
    public ServiceDescriptionBehavior()
    {
@@ -79,7 +80,10 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
 
    public void setServiceDescription(boolean requiresRegistration, int numberOfProps)
    {
-      serviceDescription = createServiceDescription(requiresRegistration, numberOfProps);
+      ServiceDescription sd = createServiceDescription(requiresRegistration, numberOfProps);
+      offeredPortlets = sd.getOfferedPortlets();
+      this.requiresRegistration = sd.isRequiresRegistration();
+      registrationProperties = sd.getRegistrationPropertyDescription();
    }
 
    public static ServiceDescription getDefaultServiceDescription()
@@ -145,5 +149,6 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
       offeredPortlets.value = this.offeredPortlets;
       requiresRegistration.value = this.requiresRegistration;
       requiresInitCookie.value = this.cookieProtocol;
+      registrationPropertyDescription.value = registrationProperties;
    }
 }

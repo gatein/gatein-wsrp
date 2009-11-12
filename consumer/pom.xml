@@ -111,7 +111,6 @@
                   <exclude>org/gatein/wsrp/protocol/v1/*</exclude>
                   <exclude>org/gatein/wsrp/consumer/ConsumerRegistryTestCase*</exclude>
                   <exclude>org/gatein/wsrp/consumer/EndpointConfigurationInfoTestCase*</exclude>
-                  <exclude>org/gatein/wsrp/consumer/ProducerInfoTestCase*</exclude>
                </excludes>
             </configuration>
          </plugin>
