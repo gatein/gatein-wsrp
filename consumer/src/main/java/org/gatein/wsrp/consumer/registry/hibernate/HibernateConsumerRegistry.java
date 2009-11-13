@@ -104,12 +104,11 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
       return oldId;
    }
 
-   protected Iterator getAllProducerInfos()
+   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       Session session = sessionFactory.getCurrentSession();
 
-      Iterator producerInfos = session.createQuery("from ProducerInfo pi order by pi.persistentId").iterate();
-      return producerInfos;
+      return session.createQuery("from ProducerInfo pi order by pi.persistentId").iterate();
    }
 
    @Override

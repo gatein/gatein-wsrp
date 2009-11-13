@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
@@ -68,12 +69,20 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
       this.entityResolver = entityResolver;
    }
 
-   public void start() throws Exception
+   public void reloadConsumers()
    {
       URL defaultWSRPURL = Thread.currentThread().getContextClassLoader().getResource(defaultWSRPLocation);
       if (defaultWSRPURL != null)
       {
-         InputStream inputStream = defaultWSRPURL.openStream();
+         InputStream inputStream;
+         try
+         {
+            inputStream = defaultWSRPURL.openStream();
+         }
+         catch (IOException e)
+         {
+            throw new RuntimeException("Couldn't open default XML WSRP Consumer configuration file", e);
+         }
 
          Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
          ObjectModelFactory factory = new XMLWSRPConsumerFactory(this);
@@ -82,19 +91,33 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
             log.debug("Could not obtain entity resolver for XMLConsumerRegistry");
             entityResolver = new NullEntityResolver();
          }
-         unmarshaller.setEntityResolver(entityResolver);
          try
          {
+            unmarshaller.setEntityResolver(entityResolver);
             consumers = (SortedMap<String, WSRPConsumer>)unmarshaller.unmarshal(inputStream, factory, null);
          }
          catch (JBossXBException e)
          {
-            e.printStackTrace();
+            throw new RuntimeException("Couldn't set unmarshall WSRP Consumers configuration", e);
          }
 
          for (WSRPConsumer consumer : consumers.values())
          {
-            activateConsumerWith(consumer.getProducerId());
+
+            ProducerInfo producerInfo = consumer.getProducerInfo();
+            try
+            {
+               // if the producer is marked as active, activate it fo' real! :)
+               if (producerInfo.isActive())
+               {
+                  activateConsumer(consumer);
+               }
+            }
+            catch (Exception e)
+            {
+               producerInfo.setActive(false);
+               updateProducerInfo(producerInfo);
+            }
          }
       }
    }
@@ -127,13 +150,38 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
    }
 
    @Override
-   protected Iterator getAllProducerInfos()
+   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
-      return consumers.values().iterator();
+      return new ProducerInfoIterator(consumers.values().iterator());
    }
 
    SortedMap<String, WSRPConsumer> getConsumers()
    {
       return consumers;
+   }
+
+   class ProducerInfoIterator implements Iterator<ProducerInfo>
+   {
+      private Iterator<WSRPConsumer> consumers;
+
+      ProducerInfoIterator(Iterator<WSRPConsumer> consumers)
+      {
+         this.consumers = consumers;
+      }
+
+      public boolean hasNext()
+      {
+         return consumers.hasNext();
+      }
+
+      public ProducerInfo next()
+      {
+         return consumers.next().getProducerInfo();
+      }
+
+      public void remove()
+      {
+         throw new UnsupportedOperationException("remove not supported on this iterator implementation");
+      }
    }
 }
