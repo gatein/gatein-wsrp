@@ -21,11 +21,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.registry;
 
 import junit.framework.TestCase;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+import org.gatein.wsrp.consumer.ConsumerException;
+import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
+import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.registry.xml.XMLConsumerRegistry;
 import org.jboss.unit.api.pojo.annotations.Test;
 
@@ -63,8 +66,6 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(consumer.getProducerId(), info.getId());
       EndpointConfigurationInfo endpoint = info.getEndpointConfigurationInfo();
       assertNotNull(endpoint);
-      assertEquals(EndpointConfigurationInfo.UNSET, endpoint.getServiceDescriptionURL());
-      assertEquals(EndpointConfigurationInfo.UNSET, endpoint.getMarkupURL());
       RegistrationInfo regInfo = info.getRegistrationInfo();
       assertTrue(regInfo.isUndetermined());
 //      TransactionAssert.commitTransaction();
@@ -90,8 +91,6 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(consumer.getProducerId(), info.getId());
       endpoint = info.getEndpointConfigurationInfo();
       assertNotNull(endpoint);
-      assertEquals(EndpointConfigurationInfo.UNSET, endpoint.getServiceDescriptionURL());
-      assertEquals(EndpointConfigurationInfo.UNSET, endpoint.getMarkupURL());
       assertTrue(info.getRegistrationInfo().isUndetermined());
 
       assertNull(registry.getConsumer("inexistent"));

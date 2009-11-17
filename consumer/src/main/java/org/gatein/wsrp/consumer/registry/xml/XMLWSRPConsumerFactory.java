@@ -236,41 +236,10 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
          System.out.println("setvalue endpointInfo " + localName);
       }
 
-      if ("service-description-url".equals(localName))
-      {
-         // Resolve value that may contain properties for that one
-         value = StringPropertyReplacer.replaceProperties(value);
-         endpointInfo.setServiceDescriptionURL(value);
-      }
-      else if ("markup-url".equals(localName))
-      {
-         // Resolve value that may contain properties for that one
-         value = StringPropertyReplacer.replaceProperties(value);
-         endpointInfo.setMarkupURL(value);
-      }
-      else if ("registration-url".equals(localName))
-      {
-         // Resolve value that may contain properties for that one
-         value = StringPropertyReplacer.replaceProperties(value);
-         endpointInfo.setRegistrationURL(value);
-      }
-      else if ("portlet-management-url".equals(localName))
-      {
-         // Resolve value that may contain properties for that one
-         value = StringPropertyReplacer.replaceProperties(value);
-         endpointInfo.setPortletManagementURL(value);
-      }
-      else if ("endpoint-wsdl-url".equals(localName))
+      if ("endpoint-wsdl-url".equals(localName))
       {
          value = StringPropertyReplacer.replaceProperties(value);
-         try
-         {
-            endpointInfo.setWsdlDefinitionURL(value);
-         }
-         catch (RuntimeException e)
-         {
-            // ignore at this point if the WSDL cannot be retrieved, another attempt will be made before persisting
-         }
+         endpointInfo.setWsdlDefinitionURL(value);
       }
    }
 

@@ -34,7 +34,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -210,32 +210,22 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       return wsdlDefinitionURL;
    }
 
-   public void setWsdlDefinitionURL(String wsdlDefinitionURL) throws Exception
+   public void setWsdlDefinitionURL(String wsdlDefinitionURL)
    {
-      if (wsdlDefinitionURL == null || wsdlDefinitionURL.length() == 0)
-      {
-         throw new IllegalArgumentException("Require a non-empty, non-null URL specifying where to find the WSRP " +
-            "services definition");
-      }
+      this.wsdlDefinitionURL = wsdlDefinitionURL;
 
-      // only modify WSDL URL if it's different from the previous one as this will trigger re-import of data from remote host
-      if (!wsdlDefinitionURL.equals(this.wsdlDefinitionURL))
-      {
-         this.wsdlDefinitionURL = wsdlDefinitionURL;
-
-         // we need a refresh so mark as not available but not failed
-         setAvailable(false);
-         setFailed(false);
-      }
+      // we need a refresh so mark as not available but not failed
+      setAvailable(false);
+      setFailed(false);
    }
 
    public void start() throws Exception
    {
       try
       {
-         URL wsdlURL = new URL(wsdlDefinitionURL);
+         URI wsdlURL = new URI(wsdlDefinitionURL);
 
-         Service service = Service.create(wsdlURL, SERVICE);
+         Service service = Service.create(wsdlURL.toURL(), SERVICE);
 
 //         WSRPV1MarkupPortType markupPortType = service.getPort(WSRPBaseService, WSRPV1MarkupPortType.class);
          WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);

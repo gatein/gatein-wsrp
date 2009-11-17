@@ -70,7 +70,7 @@ public interface ServiceFactory
 
    void stop();
 
-   void setWsdlDefinitionURL(String wsdlDefinitionURL) throws Exception;
+   void setWsdlDefinitionURL(String wsdlDefinitionURL);
 
    String getWsdlDefinitionURL();
 }

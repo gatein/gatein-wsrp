@@ -121,8 +121,6 @@ public class MockConsumerRegistry implements ConsumerRegistry
       MockWSRPConsumer consumer = new MockWSRPConsumer(CONSUMER2);
       consumer.getProducerInfo().setActive(true);
       EndpointConfigurationInfo info = consumer.getProducerInfo().getEndpointConfigurationInfo();
-      info.setServiceDescriptionURL(MOCK_SERVICE_DESCRIPTION);
-      info.setMarkupURL(MOCK_MARKUP);
       consumers.put(CONSUMER2, consumer);
    }
 

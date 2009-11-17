@@ -62,6 +62,8 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
    private final static String PM_URL = "pm";
    private final static String R_URL = "r";
    private boolean initialized = false;
+   private String wsdl = DEFAULT_WSDL_URL;
+   public static final String DEFAULT_WSDL_URL = "http://example.com?wsdl";
 
 
    public BehaviorBackedServiceFactory()
@@ -72,6 +74,11 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public <T> T getService(Class<T> serviceClass) throws Exception
    {
+      if (!isAvailable() && !isFailed())
+      {
+         start();
+      }
+
       if (WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(serviceClass))
       {
          return (T)registry.getServiceDescriptionBehavior();
@@ -103,12 +110,7 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public boolean isAvailable()
    {
-      if (!initialized)
-      {
-         initialized = true;
-         return false;
-      }
-      return true;
+      return initialized;
    }
 
    public boolean isFailed()
@@ -168,7 +170,7 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public void start() throws Exception
    {
-      // do nothing
+      initialized = true;
    }
 
    public void stop()
@@ -176,14 +178,14 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       throw new NotYetImplemented();
    }
 
-   public void setWsdlDefinitionURL(String wsdlDefinitionURL) throws Exception
+   public void setWsdlDefinitionURL(String wsdlDefinitionURL)
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      wsdl = wsdlDefinitionURL;
    }
 
    public String getWsdlDefinitionURL()
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return wsdl;
    }
 
    public void destroy()

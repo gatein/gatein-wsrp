@@ -126,7 +126,7 @@ public class ProducerInfo
 
    public ProducerInfo()
    {
-      persistentEndpointInfo = new EndpointConfigurationInfo(this);
+      persistentEndpointInfo = new EndpointConfigurationInfo();
       persistentRegistrationInfo = RegistrationInfo.createUndeterminedRegistration(this);
    }
 

@@ -25,6 +25,7 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.wsrp.services.ServiceFactory;
+import org.gatein.wsrp.test.support.BehaviorBackedServiceFactory;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -38,77 +39,24 @@ public class EndpointConfigurationInfoTestCase extends TestCase
 
    protected void setUp() throws Exception
    {
-//      info = new EndpointConfigurationInfo(); // todo fix me
-   }
-
-   public void testSetURLs() throws InvokerUnavailableException
-   {
-      // default state is to use WSDL
-      assertTrue(info.usesWSDL());
-
-
-      info.setServiceDescriptionURL(url);
-      assertEquals(url, info.getServiceDescriptionURL());
-
-      // changing the URLs should switch to not using WSDL anymore...
-      assertFalse(info.usesWSDL());
-      try
-      {
-         info.getServiceFactory();
-         fail("Missing markup URL: service factory should not be initialized");
-      }
-      catch (IllegalStateException expected)
-      {
-      }
-
-      info.setMarkupURL(url);
-      assertFalse(info.usesWSDL());
-      assertNotNull(info.getServiceFactory());
-      assertEquals(url, info.getServiceFactory().getServiceDescriptionURL());
-      assertEquals(url, info.getServiceFactory().getMarkupURL());
-      assertTrue(info.getServiceFactory().isAvailable());
+      info = new EndpointConfigurationInfo(new BehaviorBackedServiceFactory());
    }
 
    public void testSetWSDLURL() throws InvokerUnavailableException
    {
-      assertTrue(info.usesWSDL());
-
-      // todo fix me
-
-      /*info.setServiceDescriptionURL(url);
-      info.setMarkupURL(url);
-      assertTrue(info.getServiceFactory() instanceof PerEndpointSOAPInvokerServiceFactory);
-      assertFalse(info.usesWSDL());
-
       String bea = "http://wsrp.bea.com:7001/producer/producer?WSDL";
       info.setWsdlDefinitionURL(bea);
       assertEquals(bea, info.getWsdlDefinitionURL());
-      assertTrue(info.getServiceFactory() instanceof RemoteSOAPInvokerServiceFactory);
-      assertEquals(bea, ((RemoteSOAPInvokerServiceFactory)info.getServiceFactory()).getWsdlDefinitionURL());
-      assertTrue(info.usesWSDL());
-
-      info.setMarkupURL(url);
-      assertEquals(url, info.getMarkupURL());
-      assertEquals(url, info.getServiceFactory().getMarkupURL());
-      assertFalse(info.usesWSDL());*/
    }
 
-   public void testSetInvalidWSDLURL()
+   /**
+    * Setting the WSDL URL shouldn't trigger an attempt to retrieve the associated WSDL so it should be possible to
+    * provide a URL that doesn't correspond to a valid WSDL location without triggering an error until a refresh
+    */
+   public void testSetWSDLURLDoesNotTriggerWSDLRetrieval()
    {
       info.setWsdlDefinitionURL(url);
-      assertTrue(info.usesWSDL());
       assertEquals(url, info.getWsdlDefinitionURL());
-   }
-
-   public void testSetNullWSDLURL()
-   {
-      info.setServiceDescriptionURL(url);
-      info.setMarkupURL(url);
-
-      // it should be possible to set the WSDL to null for Hibernate
-      info.setWsdlDefinitionURL(null);
-
-      assertFalse(info.usesWSDL());
    }
 
    public void testRefreshWSDL() throws Exception
@@ -123,25 +71,12 @@ public class EndpointConfigurationInfoTestCase extends TestCase
       assertTrue(info.isAvailable());
    }
 
-   public void testRefresh() throws Exception
+   public void testGetRemoteHost()
    {
-      assertTrue(info.isRefreshNeeded());
-      assertFalse(info.isAvailable());
+      String bea = "http://wsrp.bea.com:7001/producer/producer?WSDL";
+      info.setWsdlDefinitionURL(bea);
 
-      // change the service factory to a fake one to be able to simulate access to endpoint
-//      info.setServiceFactory(new BehaviorBackedServiceFactory()); //todo
-      info.refresh();
-      assertFalse(info.isRefreshNeeded());
-      assertTrue(info.isAvailable());
-
-      info.setServiceDescriptionURL(url);
-      assertTrue(info.isRefreshNeeded());
-
-      info.getRegistrationService();
-      assertTrue(info.isRefreshNeeded());
-
-      info.getServiceDescriptionService();
-      assertFalse(info.isRefreshNeeded());
+      assertEquals("http://wsrp.bea.com:7001", info.getRemoteHostAddress());
    }
 
    public void testGetServiceFactory() throws Exception
@@ -149,8 +84,6 @@ public class EndpointConfigurationInfoTestCase extends TestCase
       assertTrue(info.isRefreshNeeded());
       assertFalse(info.isAvailable());
 
-      // change the service factory to a fake one to be able to simulate access to endpoint
-//      info.setServiceFactory(new BehaviorBackedServiceFactory()); // todo
       ServiceFactory factory = info.getServiceFactory();
       assertNotNull(factory);
       assertFalse(info.isRefreshNeeded());

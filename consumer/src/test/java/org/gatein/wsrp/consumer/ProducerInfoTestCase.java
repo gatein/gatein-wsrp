@@ -68,9 +68,10 @@ public class ProducerInfoTestCase extends TestCase
    {
       info = new ProducerInfo();
       info.setId("test");
-      serviceFactory = new BehaviorBackedServiceFactory();
 
-      EndpointConfigurationInfo eci = new EndpointConfigurationInfo(info, serviceFactory);
+      serviceFactory = new BehaviorBackedServiceFactory();
+      EndpointConfigurationInfo eci = new EndpointConfigurationInfo(serviceFactory);
+      info.setEndpointConfigurationInfo(eci);
 
       info.setRegistry(new MockConsumerRegistry());
    }
