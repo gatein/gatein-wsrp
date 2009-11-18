@@ -120,12 +120,13 @@ public class WSRPProducerImpl implements WSRPProducer
    private boolean started = false;
 
    // On-demand class holder Singleton pattern (multi-thread safe)
+
    private static final class InstanceHolder
    {
       public static final WSRPProducerImpl producer = new WSRPProducerImpl();
    }
 
-   static WSRPProducer getInstance()
+   static WSRPProducerImpl getInstance()
    {
       return InstanceHolder.producer;
    }
@@ -472,5 +473,27 @@ public class WSRPProducerImpl implements WSRPProducer
    public void usingStrictModeChangedTo(boolean strictMode)
    {
       WSRPValidator.setStrict(strictMode);
+   }
+
+   // access to handlers for tests
+
+   MarkupInterface getMarkupInterface()
+   {
+      return markupHandler;
+   }
+
+   ServiceDescriptionInterface getServiceDescriptionInterface()
+   {
+      return serviceDescriptionHandler;
+   }
+
+   RegistrationInterface getRegistrationInterface()
+   {
+      return registrationHandler;
+   }
+
+   PortletManagementInterface getPortletManagementInterface()
+   {
+      return portletManagementHandler;
    }
 }

@@ -24,7 +24,7 @@
 package org.gatein.wsrp;
 
 import org.gatein.common.NotYetImplemented;
-import static org.gatein.common.p3p.P3PConstants.*;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.spi.UserContext;
 import org.oasis.wsrp.v1.Contact;
 import org.oasis.wsrp.v1.EmployerInfo;
@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.gatein.common.p3p.P3PConstants.*;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -68,7 +70,7 @@ public class UserContextConverter
    {
       org.oasis.wsrp.v1.UserContext wsrpUserContext = WSRPTypeFactory.createUserContext(userContextKey);
       wsrpUserContext.setProfile(createUserProfileFrom(userContext));
-      if (WSRPUtils.existsAndIsNotEmpty(userCategories))
+      if (ParameterValidation.existsAndIsNotEmpty(userCategories))
       {
          wsrpUserContext.getUserCategories().addAll(userCategories);
       }
@@ -79,7 +81,7 @@ public class UserContextConverter
    {
       Map<String, String> userInfos = userContext.getInformations();
 
-      if (!WSRPUtils.existsAndIsNotEmpty(userInfos))
+      if (!ParameterValidation.existsAndIsNotEmpty(userInfos))
       {
          return null;
       }
@@ -304,7 +306,7 @@ public class UserContextConverter
       {
          List<Locale> locales = Collections.emptyList();
 
-         if (WSRPUtils.existsAndIsNotEmpty(desiredLocales))
+         if (ParameterValidation.existsAndIsNotEmpty(desiredLocales))
          {
             locales = new ArrayList<Locale>(desiredLocales.size());
             for (String desiredLocale : desiredLocales)

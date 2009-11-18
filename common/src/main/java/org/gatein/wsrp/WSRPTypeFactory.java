@@ -365,11 +365,11 @@ public class WSRPTypeFactory
       markupParams.setSecureClientCommunication(secureClientCommunication);
       markupParams.setMode(mode);
       markupParams.setWindowState(windowState);
-      if (WSRPUtils.existsAndIsNotEmpty(locales))
+      if (ParameterValidation.existsAndIsNotEmpty(locales))
       {
          markupParams.getLocales().addAll(locales);
       }
-      if (WSRPUtils.existsAndIsNotEmpty(mimeTypes))
+      if (ParameterValidation.existsAndIsNotEmpty(mimeTypes))
       {
          markupParams.getMimeTypes().addAll(mimeTypes);
       }
@@ -782,7 +782,7 @@ public class WSRPTypeFactory
    public static ModelDescription createModelDescription(List<PropertyDescription> propertyDescriptions)
    {
       ModelDescription description = new ModelDescription();
-      if (WSRPUtils.existsAndIsNotEmpty(propertyDescriptions))
+      if (ParameterValidation.existsAndIsNotEmpty(propertyDescriptions))
       {
          description.getPropertyDescriptions().addAll(propertyDescriptions);
       }
@@ -880,7 +880,7 @@ public class WSRPTypeFactory
       description.setRegistrationContext(registrationContext);
       description.setPortletContext(portletContext);
       description.setUserContext(userContext);
-      if (WSRPUtils.existsAndIsNotEmpty(desiredLocales))
+      if (ParameterValidation.existsAndIsNotEmpty(desiredLocales))
       {
          description.getDesiredLocales().addAll(desiredLocales);
       }
@@ -929,7 +929,7 @@ public class WSRPTypeFactory
    public static DestroyPortletsResponse createDestroyPortletsResponse(List<DestroyFailed> destroyFailed)
    {
       DestroyPortletsResponse destroyPortletsResponse = new DestroyPortletsResponse();
-      if (WSRPUtils.existsAndIsNotEmpty(destroyFailed))
+      if (ParameterValidation.existsAndIsNotEmpty(destroyFailed))
       {
          destroyPortletsResponse.getDestroyFailed().addAll(destroyFailed);
       }
@@ -1004,7 +1004,7 @@ public class WSRPTypeFactory
 
       DestroyPortlets destroyPortlets = new DestroyPortlets();
       destroyPortlets.setRegistrationContext(registrationContext);
-      if (WSRPUtils.existsAndIsNotEmpty(portletHandles))
+      if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
          destroyPortlets.getPortletHandles().addAll(portletHandles);
       }
@@ -1054,7 +1054,7 @@ public class WSRPTypeFactory
 
       ReleaseSessions sessions = new ReleaseSessions();
       sessions.setRegistrationContext(registrationContext);
-      if (WSRPUtils.existsAndIsNotEmpty(sessionIDs))
+      if (ParameterValidation.existsAndIsNotEmpty(sessionIDs))
       {
          sessions.getSessionIDs().addAll(sessionIDs);
       }
@@ -1105,15 +1105,15 @@ public class WSRPTypeFactory
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
 
-      if (WSRPUtils.existsAndIsNotEmpty(modeNames))
+      if (ParameterValidation.existsAndIsNotEmpty(modeNames))
       {
          markupType.getModes().addAll(modeNames);
       }
-      if (WSRPUtils.existsAndIsNotEmpty(windowStateNames))
+      if (ParameterValidation.existsAndIsNotEmpty(windowStateNames))
       {
          markupType.getWindowStates().addAll(windowStateNames);
       }
-      if (WSRPUtils.existsAndIsNotEmpty(localeNames))
+      if (ParameterValidation.existsAndIsNotEmpty(localeNames))
       {
          markupType.getLocales().addAll(localeNames);
       }

@@ -52,10 +52,6 @@ public class ConsumerBean extends ManagedBean
    private boolean modified;
    private boolean registrationLocallyModified;
 
-   private String serviceDescription;
-   private String markup;
-   private String portletManagement;
-   private String registration;
    private String wsdl;
 
    private transient RegistrationInfo expectedRegistrationInfo;
@@ -92,12 +88,7 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isUseWSDL()
    {
-      if (useWSDL != null)
-      {
-         return useWSDL.booleanValue();
-      }
-
-      return getProducerInfo().getEndpointConfigurationInfo().usesWSDL();
+      return true;
    }
 
    public void setUseWSDL(boolean useWSDL)
@@ -146,12 +137,7 @@ public class ConsumerBean extends ManagedBean
          if (consumer != null)
          {
             EndpointConfigurationInfo endpoint = getProducerInfo().getEndpointConfigurationInfo();
-            serviceDescription = endpoint.getServiceDescriptionURL();
-            markup = endpoint.getMarkupURL();
-            portletManagement = endpoint.getPortletManagementURL();
-            registration = endpoint.getRegistrationURL();
             wsdl = endpoint.getWsdlDefinitionURL();
-            useWSDL = endpoint.usesWSDL();
          }
          else
          {
@@ -168,46 +154,6 @@ public class ConsumerBean extends ManagedBean
    public void setCache(Integer cache)
    {
       getProducerInfo().setExpirationCacheSeconds((Integer)modifyIfNeeded(getCache(), cache, "cache", false));
-   }
-
-   public String getServiceDescription()
-   {
-      return serviceDescription;
-   }
-
-   public void setServiceDescription(String sdURL)
-   {
-      serviceDescription = (String)modifyIfNeeded(serviceDescription, sdURL, "sd", true);
-   }
-
-   public String getMarkup()
-   {
-      return markup;
-   }
-
-   public void setMarkup(String markupURL)
-   {
-      markup = (String)modifyIfNeeded(markup, markupURL, "m", true);
-   }
-
-   public String getPortletManagement()
-   {
-      return portletManagement;
-   }
-
-   public void setPortletManagement(String pmURL)
-   {
-      portletManagement = (String)modifyIfNeeded(portletManagement, pmURL, "pm", true);
-   }
-
-   public String getRegistration()
-   {
-      return registration;
-   }
-
-   public void setRegistration(String rURL)
-   {
-      registration = (String)modifyIfNeeded(registration, rURL, "r", true);
    }
 
    public String getWsdl()
@@ -375,14 +321,7 @@ public class ConsumerBean extends ManagedBean
                // update values
                ProducerInfo prodInfo = getProducerInfo();
                EndpointConfigurationInfo endpointInfo = prodInfo.getEndpointConfigurationInfo();
-               endpointInfo.setMarkupURL(markup);
-               endpointInfo.setServiceDescriptionURL(serviceDescription);
-               endpointInfo.setPortletManagementURL(portletManagement);
-               endpointInfo.setRegistrationURL(registration);
-               if (isUseWSDL())
-               {
-                  internalSetWsdl(wsdl);
-               }
+               internalSetWsdl(wsdl);
 
                saveToRegistry(prodInfo);
             }
@@ -554,6 +493,7 @@ public class ConsumerBean extends ManagedBean
    }
 
    // todo: valueChangeListener not needed anymore when events on RegistrationProperties work  
+
    public void regPropListener(ValueChangeEvent event)
    {
       if (!registrationLocallyModified)
