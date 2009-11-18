@@ -73,12 +73,6 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
    ProducerInfo getProducerInfo();
 
    /**
-    * @param producerInfo
-    * @since 2.6
-    */
-   void setProducerInfo(ProducerInfo producerInfo);
-
-   /**
     * @throws PortletInvokerException
     * @since 2.6
     */

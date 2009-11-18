@@ -39,7 +39,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -53,11 +52,6 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
    private static final String defaultWSRPLocation = "conf/wsrp-consumers-config.xml";
 
    private EntityResolver entityResolver;
-
-   public XMLConsumerRegistry()
-   {
-      consumers = new TreeMap<String, WSRPConsumer>();
-   }
 
    public EntityResolver getEntityResolver()
    {
@@ -94,14 +88,14 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
          try
          {
             unmarshaller.setEntityResolver(entityResolver);
-            consumers = (SortedMap<String, WSRPConsumer>)unmarshaller.unmarshal(inputStream, factory, null);
+            initConsumers((SortedMap<String, WSRPConsumer>)unmarshaller.unmarshal(inputStream, factory, null));
          }
          catch (JBossXBException e)
          {
             throw new RuntimeException("Couldn't set unmarshall WSRP Consumers configuration", e);
          }
 
-         for (WSRPConsumer consumer : consumers.values())
+         for (WSRPConsumer consumer : getConsumers())
          {
 
             ProducerInfo producerInfo = consumer.getProducerInfo();
@@ -125,7 +119,7 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
    @Override
    public void stop() throws Exception
    {
-      for (WSRPConsumer consumer : consumers.values())
+      for (WSRPConsumer consumer : getConsumers())
       {
          consumer.stop();
       }
@@ -152,36 +146,6 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
    @Override
    protected Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
-      return new ProducerInfoIterator(consumers.values().iterator());
-   }
-
-   SortedMap<String, WSRPConsumer> getConsumers()
-   {
-      return consumers;
-   }
-
-   class ProducerInfoIterator implements Iterator<ProducerInfo>
-   {
-      private Iterator<WSRPConsumer> consumers;
-
-      ProducerInfoIterator(Iterator<WSRPConsumer> consumers)
-      {
-         this.consumers = consumers;
-      }
-
-      public boolean hasNext()
-      {
-         return consumers.hasNext();
-      }
-
-      public ProducerInfo next()
-      {
-         return consumers.next().getProducerInfo();
-      }
-
-      public void remove()
-      {
-         throw new UnsupportedOperationException("remove not supported on this iterator implementation");
-      }
+      return new ProducerInfoIterator(getConsumers().iterator());
    }
 }

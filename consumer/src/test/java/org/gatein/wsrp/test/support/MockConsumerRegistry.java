@@ -143,4 +143,9 @@ public class MockConsumerRegistry implements ConsumerRegistry
    {
       //To change body of implemented methods use File | Settings | File Templates.
    }
+
+   public ProducerInfo getProducerInfoByKey(String key)
+   {
+      throw new UnsupportedOperationException();
+   }
 }

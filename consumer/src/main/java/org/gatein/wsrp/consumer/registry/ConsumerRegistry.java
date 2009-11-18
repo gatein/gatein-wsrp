@@ -74,4 +74,6 @@ public interface ConsumerRegistry
    void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster);
 
    void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
+
+   ProducerInfo getProducerInfoByKey(String key);
 }

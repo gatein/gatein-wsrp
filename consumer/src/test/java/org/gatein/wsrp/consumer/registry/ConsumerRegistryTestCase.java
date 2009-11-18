@@ -24,13 +24,12 @@
 package org.gatein.wsrp.consumer.registry;
 
 import junit.framework.TestCase;
+import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
-import org.gatein.wsrp.consumer.registry.xml.XMLConsumerRegistry;
-import org.jboss.unit.api.pojo.annotations.Test;
 
 import java.util.Collection;
 
@@ -39,24 +38,19 @@ import java.util.Collection;
  * @version $Revision: 12686 $
  * @since 2.6
  */
-@Test
 public class ConsumerRegistryTestCase extends TestCase
 {
-   private ConsumerRegistry registry = new XMLConsumerRegistry();
+   private ConsumerRegistry registry;
 
-   public ConsumerRegistry getRegistry()
+   @Override
+   protected void setUp() throws Exception
    {
-      return registry;
+      registry = new InMemoryConsumerRegistry();
+      registry.setFederatingPortletInvoker(new FederatingPortletInvokerService());
    }
 
-   public void setRegistry(ConsumerRegistry registry)
+   public void testCreateAndGet()
    {
-      this.registry = registry;
-   }
-
-   public void testCRUD()
-   {
-//      TransactionAssert.beginTransaction();
       String id = "test";
       WSRPConsumer consumer = registry.createConsumer(id, null);
       assertNotNull(consumer);
@@ -68,9 +62,48 @@ public class ConsumerRegistryTestCase extends TestCase
       assertNotNull(endpoint);
       RegistrationInfo regInfo = info.getRegistrationInfo();
       assertTrue(regInfo.isUndetermined());
-//      TransactionAssert.commitTransaction();
 
-//      TransactionAssert.beginTransaction();
+      WSRPConsumer fromRegistry = registry.getConsumer(id);
+      assertNotNull(fromRegistry);
+      assertEquals(consumer.getProducerId(), fromRegistry.getProducerId());
+      ProducerInfo fromRegistryInfo = fromRegistry.getProducerInfo();
+      assertNotNull(fromRegistryInfo);
+      assertEquals(fromRegistry.getProducerId(), fromRegistryInfo.getId());
+      assertNotNull(fromRegistryInfo.getEndpointConfigurationInfo());
+      assertTrue(fromRegistryInfo.getRegistrationInfo().isUndetermined());
+
+      assertEquals(info.getId(), fromRegistryInfo.getId());
+      assertEquals(info.getEndpointConfigurationInfo(), fromRegistryInfo.getEndpointConfigurationInfo());
+      assertEquals(info.getRegistrationInfo(), fromRegistryInfo.getRegistrationInfo());
+
+      Collection consumers = registry.getConfiguredConsumers();
+      assertNotNull(consumers);
+      assertEquals(1, consumers.size());
+      assertTrue(consumers.contains(consumer));
+   }
+
+   public void testGetConsumer()
+   {
+      assertNull(registry.getConsumer("inexistent"));
+   }
+
+   public void testGetProducerInfoByKey()
+   {
+      WSRPConsumer consumer = registry.createConsumer("id", null);
+      ProducerInfo info = consumer.getProducerInfo();
+
+      String key = info.getKey();
+      assertNotNull(key);
+
+      assertEquals(info, registry.getProducerInfoByKey(key));
+   }
+
+   public void testDoubleRegistrationOfConsumerWithSameId()
+   {
+      String id = "foo";
+
+      registry.createConsumer(id, null);
+
       try
       {
          registry.createConsumer(id, null);
@@ -78,45 +111,39 @@ public class ConsumerRegistryTestCase extends TestCase
       }
       catch (ConsumerException expected)
       {
-         // transaction should have been rolled back
-//         TransactionAssert.rollbackTransaction();
       }
+   }
 
-//      TransactionAssert.beginTransaction();
-      consumer = registry.getConsumer(id);
-      assertNotNull(consumer);
-      assertEquals(id, consumer.getProducerId());
-      info = consumer.getProducerInfo();
-      assertNotNull(info);
-      assertEquals(consumer.getProducerId(), info.getId());
-      endpoint = info.getEndpointConfigurationInfo();
-      assertNotNull(endpoint);
-      assertTrue(info.getRegistrationInfo().isUndetermined());
+   public void testDelete()
+   {
+      String id = "id";
 
-      assertNull(registry.getConsumer("inexistent"));
-      Collection consumers = registry.getConfiguredConsumers();
-      assertNotNull(consumers);
-      assertEquals(1, consumers.size());
-      assertTrue(consumers.contains(consumer));
-//      TransactionAssert.commitTransaction();
+      WSRPConsumer consumer = registry.createConsumer(id, null);
+      assertEquals(consumer, registry.getConsumer(id));
+
+      String key = consumer.getProducerInfo().getKey();
+
+      registry.destroyConsumer(id);
+
+      assertNull(registry.getConsumer(id));
+      assertNull(registry.getProducerInfoByKey(key));
    }
 
    public void testUpdateProducerInfo()
    {
       // create a foo consumer
-//      TransactionAssert.beginTransaction();
       String id = "foo";
       WSRPConsumer consumer = registry.createConsumer(id, null);
       ProducerInfo info = consumer.getProducerInfo();
-//      TransactionAssert.commitTransaction();
+      String key = info.getKey();
 
-//      TransactionAssert.beginTransaction();
       // change the id on the consumer's producer info and save it
       info.setId("bar");
       registry.updateProducerInfo(info);
 
       assertNull(registry.getConsumer(id));
+      assertEquals(info, consumer.getProducerInfo());
+      assertEquals(info, registry.getProducerInfoByKey(key));
       assertEquals(consumer, registry.getConsumer("bar"));
-//      TransactionAssert.commitTransaction();
    }
 }

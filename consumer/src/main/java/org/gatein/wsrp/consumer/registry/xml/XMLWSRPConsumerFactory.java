@@ -69,12 +69,6 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
 
    public Object newRoot(Object root, UnmarshallingContext nav, String nsURI, String localName, Attributes attrs)
    {
-      if (consumerRegistry instanceof XMLConsumerRegistry)
-      {
-         XMLConsumerRegistry registry = (XMLConsumerRegistry)consumerRegistry;
-         return registry.getConsumers();
-      }
-
       return new TreeMap<String, WSRPConsumer>();
    }
 

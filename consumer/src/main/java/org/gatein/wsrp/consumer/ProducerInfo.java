@@ -74,8 +74,8 @@ public class ProducerInfo
 
    // Persistent information
 
-   /** DB primary key */
-   private Long key;
+   /** persistence key */
+   private String key;
 
    /** Configuration of the remote WS endpoints */
    private EndpointConfigurationInfo persistentEndpointInfo;
@@ -130,6 +130,51 @@ public class ProducerInfo
       persistentRegistrationInfo = RegistrationInfo.createUndeterminedRegistration(this);
    }
 
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      ProducerInfo that = (ProducerInfo)o;
+
+      if (key != null ? !key.equals(that.key) : that.key != null)
+      {
+         return false;
+      }
+      if (!persistentId.equals(that.persistentId))
+      {
+         return false;
+      }
+
+      return true;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = key != null ? key.hashCode() : 0;
+      result = 31 * result + persistentId.hashCode();
+      return result;
+   }
+
+   @Override
+   public String toString()
+   {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("ProducerInfo");
+      sb.append("{key='").append(key).append('\'');
+      sb.append(", id='").append(persistentId).append('\'');
+      sb.append('}');
+      return sb.toString();
+   }
+
    public ConsumerRegistry getRegistry()
    {
       return registry;
@@ -140,12 +185,12 @@ public class ProducerInfo
       this.registry = registry;
    }
 
-   public Long getKey()
+   public String getKey()
    {
       return key;
    }
 
-   public void setKey(Long key)
+   public void setKey(String key)
    {
       this.key = key;
    }
@@ -251,6 +296,7 @@ public class ProducerInfo
    }
 
    // FIX-ME: remove when a better dirty management is in place at property level
+
    public void setModifyRegistrationRequired(boolean modifyRegistrationRequired)
    {
       this.isModifyRegistrationRequired = modifyRegistrationRequired;
@@ -832,6 +878,7 @@ public class ProducerInfo
    }
 
    // make package only after package reorg
+
    public PortletPropertyDescriptionResponse getPropertyDescriptionsFor(String portletHandle)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);

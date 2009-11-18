@@ -135,11 +135,6 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return producerInfo;
    }
 
-   public void setProducerInfo(ProducerInfo producerInfo)
-   {
-      this.producerInfo = producerInfo;
-   }
-
    // PortletInvoker implementation ************************************************************************************
 
    public Set getPortlets() throws InvokerUnavailableException
@@ -622,6 +617,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
    }
 
    // fix-me!
+
    org.oasis.wsrp.v1.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // first decide if we need to pass the user context...
@@ -675,5 +671,29 @@ public class WSRPConsumerImpl implements WSRPConsumer
    public void onSessionEvent(SessionEvent event)
    {
       sessionHandler.onSessionEvent(event);
+   }
+
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      WSRPConsumerImpl that = (WSRPConsumerImpl)o;
+
+      return producerInfo.equals(that.producerInfo);
+
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return producerInfo.hashCode();
    }
 }

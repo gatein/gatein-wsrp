@@ -81,10 +81,6 @@ public class MockWSRPConsumer implements WSRPConsumer
       return producerInfo;
    }
 
-   public void setProducerInfo(ProducerInfo producerInfo)
-   {
-   }
-
    public void refreshProducerInfo() throws PortletInvokerException
    {
    }
