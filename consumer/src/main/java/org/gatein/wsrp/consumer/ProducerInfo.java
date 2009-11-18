@@ -787,27 +787,27 @@ public class ProducerInfo
          serviceDescription.setRegistrationPropertyDescription(registrationPropertyDescription.value);
          serviceDescription.setRequiresInitCookie(initCookie.value);
          serviceDescription.setResourceList(resourceList.value);
-         if (WSRPUtils.existsAndIsNotEmpty(modeDescriptions.value))
+         if (ParameterValidation.existsAndIsNotEmpty(modeDescriptions.value))
          {
             serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
          }
-         if (WSRPUtils.existsAndIsNotEmpty(userProfileItemDescriptions.value))
+         if (ParameterValidation.existsAndIsNotEmpty(userProfileItemDescriptions.value))
          {
             serviceDescription.getCustomUserProfileItemDescriptions().addAll(userProfileItemDescriptions.value);
          }
-         if (WSRPUtils.existsAndIsNotEmpty(windowStateDescriptions.value))
+         if (ParameterValidation.existsAndIsNotEmpty(windowStateDescriptions.value))
          {
             serviceDescription.getCustomWindowStateDescriptions().addAll(windowStateDescriptions.value);
          }
-         if (WSRPUtils.existsAndIsNotEmpty(locales.value))
+         if (ParameterValidation.existsAndIsNotEmpty(locales.value))
          {
             serviceDescription.getLocales().addAll(locales.value);
          }
-         if (WSRPUtils.existsAndIsNotEmpty(offeredPortlets.value))
+         if (ParameterValidation.existsAndIsNotEmpty(offeredPortlets.value))
          {
             serviceDescription.getOfferedPortlets().addAll(offeredPortlets.value);
          }
-         if (WSRPUtils.existsAndIsNotEmpty(userCategoryDescriptions.value))
+         if (ParameterValidation.existsAndIsNotEmpty(userCategoryDescriptions.value))
          {
             serviceDescription.getUserCategoryDescriptions().addAll(userCategoryDescriptions.value);
          }

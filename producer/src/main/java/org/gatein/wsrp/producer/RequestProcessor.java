@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer;
 
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.MarkupInfo;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
@@ -405,7 +406,7 @@ public abstract class RequestProcessor
          public Set<WindowState> getWindowStates()
          {
             List<String> validNewWindowStates = params.getValidNewWindowStates();
-            if (WSRPUtils.existsAndIsNotEmpty(validNewWindowStates))
+            if (ParameterValidation.existsAndIsNotEmpty(validNewWindowStates))
             {
                Set<WindowState> states = new HashSet<WindowState>(validNewWindowStates.size());
                for (String state : validNewWindowStates)
@@ -420,7 +421,7 @@ public abstract class RequestProcessor
          public Set<Mode> getModes()
          {
             List<String> validNewModes = params.getValidNewModes();
-            if (WSRPUtils.existsAndIsNotEmpty(validNewModes))
+            if (ParameterValidation.existsAndIsNotEmpty(validNewModes))
             {
                Set<Mode> modes = new HashSet<Mode>(validNewModes.size());
                for (String mode : validNewModes)
@@ -455,6 +456,7 @@ public abstract class RequestProcessor
    }
 
    // fix-me: check that the correct semantics is used.
+
    private SecurityContext createSecurityContext(final MarkupParams params, final RuntimeContext runtimeContext,
                                                  final org.oasis.wsrp.v1.UserContext wsrpUserContext)
    {
