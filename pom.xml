@@ -26,12 +26,11 @@
 
    <modelVersion>4.0.0</modelVersion>
 
-   <name>GateIn WSRP</name>
+   <name>GateIn - WSRP</name>
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
    <version>1.0.0-Beta02-SNAPSHOT</version>
-   <url>http://www.gatein.org</url>
 
    <packaging>pom</packaging>
 
