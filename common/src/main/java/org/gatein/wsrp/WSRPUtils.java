@@ -417,6 +417,33 @@ public class WSRPUtils
       return desc;
    }
 
+   public static PropertyDescription convertToPropertyDescription(RegistrationPropertyDescription propertyDescription)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(propertyDescription, "RegistrationPropertyDescription");
+      PropertyDescription propDesc = WSRPTypeFactory.createPropertyDescription(propertyDescription.getName().toString(),
+         propertyDescription.getType());
+
+      // todo: deal with languages properly!!
+      LocalizedString hint = propertyDescription.getHint();
+      if (hint != null)
+      {
+         propDesc.setHint(convertToWSRPLocalizedString(hint));
+      }
+      LocalizedString label = propertyDescription.getLabel();
+      if (label != null)
+      {
+         propDesc.setLabel(convertToWSRPLocalizedString(label));
+      }
+      return propDesc;
+   }
+
+   public static org.oasis.wsrp.v1.LocalizedString convertToWSRPLocalizedString(LocalizedString regLocalizedString)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(regLocalizedString, "LocalizedString");
+      return WSRPTypeFactory.createLocalizedString(toString(regLocalizedString.getLocale()),
+         regLocalizedString.getResourceName(), regLocalizedString.getValue());
+   }
+
    private static LocalizedString getLocalizedStringOrNull(org.oasis.wsrp.v1.LocalizedString wsrpLocalizedString)
    {
       if (wsrpLocalizedString == null)
