@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.producer.config.impl;
 
-import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.RegistrationPolicyChangeListener;
 import org.gatein.registration.RegistrationPropertyChangeListener;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
@@ -31,7 +30,6 @@ import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -48,10 +46,8 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       return configuration;
    }
 
-   public void loadConfigurationFrom(InputStream inputStream) throws Exception
+   public void loadConfiguration() throws Exception
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(inputStream, "InputStream");
-
       // save listeners if we already have a configuration
       List<ProducerConfigurationChangeListener> listeners = null;
       Set<RegistrationPolicyChangeListener> policyListeners = null;
@@ -69,7 +65,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       }
 
       // reload
-      configuration = parseConfigurationFrom(inputStream);
+      reloadConfiguration();
 
       // restore listeners
       if (listeners != null)
@@ -98,7 +94,4 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
          }
       }
    }
-
-   protected abstract ProducerConfiguration parseConfigurationFrom(InputStream inputStream) throws Exception;
-
 }

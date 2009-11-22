@@ -41,18 +41,22 @@ import java.io.InputStream;
  */
 public class SimpleXMLProducerConfigurationService extends AbstractProducerConfigurationService
 {
+   protected InputStream inputStream;
 
-   @Override
-   protected ProducerConfiguration parseConfigurationFrom(InputStream inputStream) throws Exception
+   public SimpleXMLProducerConfigurationService()
    {
-      Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-      ObjectModelFactory factory = new ProducerConfigurationFactory();
-      return (ProducerConfiguration)unmarshaller.unmarshal(inputStream, factory, null);
+   }
+
+   public SimpleXMLProducerConfigurationService(InputStream inputStream)
+   {
+      this.inputStream = inputStream;
    }
 
    public void reloadConfiguration() throws Exception
    {
-      throw new UnsupportedOperationException("reloadConfiguration is not supported!");
+      Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
+      ObjectModelFactory factory = new ProducerConfigurationFactory();
+      configuration = (ProducerConfiguration)unmarshaller.unmarshal(inputStream, factory, null);
    }
 
    public void saveConfiguration() throws Exception

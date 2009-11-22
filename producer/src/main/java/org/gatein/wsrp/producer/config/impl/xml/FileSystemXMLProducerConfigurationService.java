@@ -133,9 +133,9 @@ public class FileSystemXMLProducerConfigurationService extends SimpleXMLProducer
    private void loadConfigurationAt(URL configURL) throws Exception
    {
       log.debug("About to parse producer configuration " + configURL);
-      InputStream inputStream = configURL.openStream();
+      inputStream = configURL.openStream();
 
-      loadConfigurationFrom(inputStream);
+      super.loadConfiguration();
    }
 
    private URL getConfigLocationURL() throws Exception
