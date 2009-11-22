@@ -52,7 +52,7 @@ public class SimpleXMLProducerConfigurationService extends AbstractProducerConfi
       this.inputStream = inputStream;
    }
 
-   public void reloadConfiguration() throws Exception
+   public void loadConfiguration() throws Exception
    {
       Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
       ObjectModelFactory factory = new ProducerConfigurationFactory();

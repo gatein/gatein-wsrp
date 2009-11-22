@@ -46,7 +46,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       return configuration;
    }
 
-   public void loadConfiguration() throws Exception
+   public void reloadConfiguration() throws Exception
    {
       // save listeners if we already have a configuration
       List<ProducerConfigurationChangeListener> listeners = null;
@@ -65,7 +65,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       }
 
       // reload
-      reloadConfiguration();
+      loadConfiguration();
 
       // restore listeners
       if (listeners != null)
@@ -94,4 +94,6 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
          }
       }
    }
+
+   protected abstract void loadConfiguration() throws Exception;
 }

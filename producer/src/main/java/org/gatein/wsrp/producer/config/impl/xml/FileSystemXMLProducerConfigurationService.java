@@ -110,7 +110,7 @@ public class FileSystemXMLProducerConfigurationService extends SimpleXMLProducer
       reloadConfiguration();
    }
 
-   public void reloadConfiguration() throws Exception
+   public void loadConfiguration() throws Exception
    {
       URL configURL = getConfigLocationURL();
 
