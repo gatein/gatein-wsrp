@@ -218,8 +218,9 @@ public class ProducerInfo
       return persistentEndpointInfo;
    }
 
-   void setEndpointConfigurationInfo(EndpointConfigurationInfo endpointConfigurationInfo)
+   public void setEndpointConfigurationInfo(EndpointConfigurationInfo endpointConfigurationInfo)
    {
+      ParameterValidation.throwIllegalArgExceptionIfNull(endpointConfigurationInfo, "EndpointConfigurationInfo");
       this.persistentEndpointInfo = endpointConfigurationInfo;
    }
 

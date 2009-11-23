@@ -104,6 +104,25 @@ public class ProducerInfoTestCase extends TestCase
       }
    }
 
+   public void testSetEndpointConfigurationInfo()
+   {
+      EndpointConfigurationInfo endInfo = new EndpointConfigurationInfo();
+      info.setEndpointConfigurationInfo(endInfo);
+      assertEquals(endInfo, info.getEndpointConfigurationInfo());
+   }
+
+   public void testSetNullEndpointConfigurationInfo()
+   {
+      try
+      {
+         info.setEndpointConfigurationInfo(null);
+         fail("Shouldn't be possible to set a null EndpointConfigurationInfo");
+      }
+      catch (IllegalArgumentException expected)
+      {
+      }
+   }
+
    public void testRefreshAndCache() throws Exception
    {
       ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
