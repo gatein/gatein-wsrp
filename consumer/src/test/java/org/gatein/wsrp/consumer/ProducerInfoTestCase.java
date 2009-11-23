@@ -77,6 +77,33 @@ public class ProducerInfoTestCase extends TestCase
       info.setRegistry(new MockConsumerRegistry());
    }
 
+   public void testSetRegistrationInfo()
+   {
+      RegistrationInfo regInfo = new RegistrationInfo(info);
+      assertEquals(regInfo, info.getRegistrationInfo());
+      assertEquals(info, regInfo.getParent());
+
+      RegistrationInfo regInfo2 = new RegistrationInfo();
+      assertEquals(regInfo, info.getRegistrationInfo());
+      assertNull(regInfo2.getParent());
+
+      info.setRegistrationInfo(regInfo2);
+      assertEquals(regInfo2, info.getRegistrationInfo());
+      assertEquals(info, regInfo2.getParent());
+   }
+
+   public void testSetNullRegistrationInfo()
+   {
+      try
+      {
+         info.setRegistrationInfo(null);
+         fail("Shouldn't be possible to set a null RegistrationInfo");
+      }
+      catch (IllegalArgumentException expected)
+      {
+      }
+   }
+
    public void testRefreshAndCache() throws Exception
    {
       ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();

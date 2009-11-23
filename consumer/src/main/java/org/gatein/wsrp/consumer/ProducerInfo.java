@@ -232,6 +232,7 @@ public class ProducerInfo
 
    public void setRegistrationInfo(RegistrationInfo registrationInfo)
    {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationInfo, "RegistrationInfo");
       this.persistentRegistrationInfo = registrationInfo;
    }
 
