@@ -24,9 +24,10 @@
 package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.registration.Consumer;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.registration.spi.ConsumerSPI;
+import org.gatein.registration.spi.RegistrationSPI;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
@@ -38,17 +39,17 @@ import java.util.Map;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class RegistrationImpl implements Registration
+public class RegistrationImpl implements RegistrationSPI
 {
 
    private final String id;
-   private ConsumerImpl consumer;
+   private ConsumerSPI consumer;
    private RegistrationStatus status;
    private Map<QName, Object> properties;
    private String registrationHandle;
 
 
-   public RegistrationImpl(String id, ConsumerImpl consumer, RegistrationStatus status, Map properties)
+   public RegistrationImpl(String id, ConsumerSPI consumer, RegistrationStatus status, Map properties)
    {
       this.id = id;
       this.consumer = consumer;
@@ -71,7 +72,7 @@ public class RegistrationImpl implements Registration
       return registrationHandle;
    }
 
-   public Consumer getConsumer()
+   public ConsumerSPI getConsumer()
    {
       return consumer;
    }

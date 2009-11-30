@@ -24,14 +24,15 @@
 package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.registration.AbstractRegistrationPersistenceManager;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerGroup;
-import org.gatein.registration.DuplicateRegistrationException;
-import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
-import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.registration.spi.ConsumerGroupSPI;
+import org.gatein.registration.spi.ConsumerSPI;
+import org.gatein.registration.spi.RegistrationSPI;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,130 +44,12 @@ import java.util.Map;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class RegistrationPersistenceManagerImpl implements RegistrationPersistenceManager
+public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPersistenceManager
 {
    private long lastRegistrationId;
-   private Map<String, Consumer> consumers = new HashMap<String, Consumer>();
-   private Map<String, ConsumerGroup> groups = new HashMap<String, ConsumerGroup>();
-   private Map<String, Registration> registrations = new HashMap<String, Registration>();
-
-   public Consumer createConsumer(String consumerId, String consumerName) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
-
-      ConsumerImpl consumer = new ConsumerImpl(consumerId, consumerName);
-      consumer.setStatus(RegistrationStatus.PENDING);
-      internalAddConsumer(consumer);
-
-      return consumer;
-   }
-
-   public ConsumerGroup getConsumerGroup(String name) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
-
-      return groups.get(name);
-   }
-
-   public ConsumerGroup createConsumerGroup(String name) throws RegistrationException
-   {
-      ConsumerGroup group = getConsumerGroup(name);
-      if (group != null)
-      {
-         throw new DuplicateRegistrationException("A ConsumerGroup named '" + name + "' has already been registered.");
-      }
-      else
-      {
-         group = new ConsumerGroupImpl(name);
-         internalAddConsumerGroup(group);
-         return group;
-      }
-   }
-
-   public void removeConsumerGroup(String name) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
-      if (internalRemoveConsumerGroup(name) == null)
-      {
-         throw new NoSuchRegistrationException("There is no ConsumerGroup named '" + name + "'.");
-      }
-   }
-
-   public void removeConsumer(String consumerId) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-      if (internalRemoveConsumer(consumerId) == null)
-      {
-         throw new RegistrationException("There is no Consumer with identity '" + consumerId + "'.");
-      }
-   }
-
-   public void removeRegistration(String registrationId) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration identity", null);
-
-      Registration registration = internalRemoveRegistration(registrationId);
-      if (registration == null)
-      {
-         throw new NoSuchRegistrationException("There is no Registration with id '" + registrationId + "'");
-      }
-
-      ConsumerImpl consumer = (ConsumerImpl)registration.getConsumer();
-      consumer.removeRegistration(registration);
-   }
-
-   public Consumer getConsumerById(String consumerId) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-
-      return consumers.get(consumerId);
-   }
-
-   public Registration addRegistrationFor(String consumerId, Map registrationProperties) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-      ParameterValidation.throwIllegalArgExceptionIfNull(registrationProperties, "Registration properties");
-
-      ConsumerImpl consumer = (ConsumerImpl)getConsumerById(consumerId);
-      if (consumer == null)
-      {
-         throw new NoSuchRegistrationException("There is no Consumer with identity '" + consumerId
-            + "' to add a Registration to...");
-      }
-
-      RegistrationImpl registration = new RegistrationImpl("" + lastRegistrationId++, consumer,
-         RegistrationStatus.PENDING, registrationProperties);
-      consumer.addRegistration(registration);
-
-      internalAddRegistration(registration);
-
-      return registration;
-   }
-
-   public Consumer addConsumerToGroupNamed(String consumerId, String groupName) throws RegistrationException
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(groupName, "ConsumerGroup name", null);
-
-      ConsumerGroupImpl group = (ConsumerGroupImpl)getConsumerGroup(groupName);
-      if (group == null)
-      {
-         throw new NoSuchRegistrationException("There is no ConsumerGroup named '" + groupName
-            + "' to add a Consumer to...");
-      }
-
-      ConsumerImpl consumer = (ConsumerImpl)getConsumerById(consumerId);
-      if (consumer == null)
-      {
-         throw new NoSuchRegistrationException("There is no Consumer with identity '" + consumerId
-            + "' to add to ConsumerGroup named '" + groupName + "'. Did you create it?");
-      }
-
-      group.addConsumer(consumer);
-
-      return consumer;
-   }
+   private Map<String, ConsumerSPI> consumers = new HashMap<String, ConsumerSPI>();
+   private Map<String, ConsumerGroupSPI> groups = new HashMap<String, ConsumerGroupSPI>();
+   private Map<String, RegistrationSPI> registrations = new HashMap<String, RegistrationSPI>();
 
    public Collection<? extends Consumer> getConsumers()
    {
@@ -190,35 +73,77 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
       return registrations.get(registrationId);
    }
 
-   // internal methods: extension points for subclasses
+   public ConsumerGroup getConsumerGroup(String name) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
 
-   protected void internalAddRegistration(RegistrationImpl registration)
+      return groups.get(name);
+   }
+
+   public Consumer getConsumerById(String consumerId) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
+
+      return consumers.get(consumerId);
+   }
+
+   @Override
+   protected void internalAddRegistration(RegistrationSPI registration)
    {
       registrations.put(registration.getId(), registration);
    }
 
-   protected Registration internalRemoveRegistration(String registrationId)
+   @Override
+   protected RegistrationSPI internalRemoveRegistration(String registrationId)
    {
       return registrations.remove(registrationId);
    }
 
-   protected void internalAddConsumer(Consumer consumer)
+   @Override
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties)
+   {
+      return new RegistrationImpl("" + lastRegistrationId++, consumer, RegistrationStatus.PENDING, registrationProperties);
+   }
+
+   @Override
+   protected void internalAddConsumer(ConsumerSPI consumer)
    {
       consumers.put(consumer.getId(), consumer);
    }
 
-   protected Consumer internalRemoveConsumer(String consumerId)
+   @Override
+   protected ConsumerSPI internalRemoveConsumer(String consumerId)
    {
       return consumers.remove(consumerId);
    }
 
-   protected void internalAddConsumerGroup(ConsumerGroup group)
+   @Override
+   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName)
+   {
+      return new ConsumerImpl(consumerId, consumerName);
+   }
+
+   @Override
+   protected void internalAddConsumerGroup(ConsumerGroupSPI group)
    {
       groups.put(group.getName(), group);
    }
 
-   protected ConsumerGroup internalRemoveConsumerGroup(String name)
+   @Override
+   protected ConsumerGroupSPI internalRemoveConsumerGroup(String name)
    {
       return groups.remove(name);
+   }
+
+   @Override
+   protected ConsumerGroupSPI internalCreateConsumerGroup(String name)
+   {
+      return new ConsumerGroupImpl(name);
+   }
+
+   @Override
+   protected ConsumerSPI getConsumerSPIById(String consumerId) throws RegistrationException
+   {
+      return (ConsumerSPI)getConsumerById(consumerId);
    }
 }

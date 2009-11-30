@@ -24,13 +24,14 @@
 package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerCapabilities;
 import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.RegistrationUtils;
+import org.gatein.registration.spi.ConsumerSPI;
+import org.gatein.registration.spi.RegistrationSPI;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +43,7 @@ import java.util.Set;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class ConsumerImpl implements Consumer
+public class ConsumerImpl implements ConsumerSPI
 {
 
    private String name;
@@ -154,14 +155,14 @@ public class ConsumerImpl implements Consumer
       return group;
    }
 
-   void addRegistration(Registration registration)
+   public void addRegistration(RegistrationSPI registration)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
       registrations.add(registration);
    }
 
-   void removeRegistration(Registration registration) throws RegistrationException
+   public void removeRegistration(RegistrationSPI registration) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 

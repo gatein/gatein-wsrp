@@ -24,10 +24,10 @@ package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
-import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.registration.spi.ConsumerGroupSPI;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import java.util.Map;
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision:5672 $
  */
-public class ConsumerGroupImpl implements ConsumerGroup
+public class ConsumerGroupImpl implements ConsumerGroupSPI
 {
 
    private String name;
