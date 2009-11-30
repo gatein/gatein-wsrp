@@ -101,11 +101,8 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
             ProducerInfo producerInfo = consumer.getProducerInfo();
             try
             {
-               // if the producer is marked as active, activate it fo' real! :)
-               if (producerInfo.isActive())
-               {
-                  activateConsumer(consumer);
-               }
+               // try to activate the consumer 
+               activateConsumer(consumer);
             }
             catch (Exception e)
             {
