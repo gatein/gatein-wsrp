@@ -31,7 +31,6 @@ import org.gatein.registration.RegistrationStatus;
 import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -45,7 +44,7 @@ public class RegistrationImpl implements Registration
    private final String id;
    private ConsumerImpl consumer;
    private RegistrationStatus status;
-   private Map properties;
+   private Map<QName, Object> properties;
    private String registrationHandle;
 
 
@@ -54,7 +53,7 @@ public class RegistrationImpl implements Registration
       this.id = id;
       this.consumer = consumer;
       this.status = status;
-      this.properties = new HashMap(properties);
+      this.properties = new HashMap<QName, Object>(properties);
    }
 
    public String getId()
@@ -150,12 +149,10 @@ public class RegistrationImpl implements Registration
       }
 
       // check properties
-      for (Iterator props = properties.entrySet().iterator(); props.hasNext();)
+      for (Map.Entry<QName, Object> entry : properties.entrySet())
       {
-         Map.Entry entry = (Map.Entry)props.next();
-
          // we should have a 1-1 match between name/value pair
-         QName name = (QName)entry.getKey();
+         QName name = entry.getKey();
          if (!entry.getValue().equals(registrationProperties.get(name)))
          {
             return false;

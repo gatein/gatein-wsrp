@@ -63,7 +63,7 @@ public interface Consumer
     * @return the consumer registrations
     * @throws RegistrationException
     */
-   Collection getRegistrations() throws RegistrationException;
+   Collection<? extends Registration> getRegistrations() throws RegistrationException;
 
    /**
     * Returns the group that this consumer belongs to.

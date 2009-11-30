@@ -46,9 +46,9 @@ import java.util.Map;
 public class RegistrationPersistenceManagerImpl implements RegistrationPersistenceManager
 {
    private long lastRegistrationId;
-   private Map consumers = new HashMap();
-   private Map groups = new HashMap();
-   private Map registrations = new HashMap();
+   private Map<String, Consumer> consumers = new HashMap<String, Consumer>();
+   private Map<String, ConsumerGroup> groups = new HashMap<String, ConsumerGroup>();
+   private Map<String, Registration> registrations = new HashMap<String, Registration>();
 
    public Consumer createConsumer(String consumerId, String consumerName) throws RegistrationException
    {
@@ -57,7 +57,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
 
       ConsumerImpl consumer = new ConsumerImpl(consumerId, consumerName);
       consumer.setStatus(RegistrationStatus.PENDING);
-      consumers.put(consumerId, consumer);
+      internalAddConsumer(consumer);
 
       return consumer;
    }
@@ -66,7 +66,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
 
-      return (ConsumerGroup)groups.get(name);
+      return groups.get(name);
    }
 
    public ConsumerGroup createConsumerGroup(String name) throws RegistrationException
@@ -79,7 +79,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
       else
       {
          group = new ConsumerGroupImpl(name);
-         groups.put(name, group);
+         internalAddConsumerGroup(group);
          return group;
       }
    }
@@ -87,7 +87,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
    public void removeConsumerGroup(String name) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
-      if (groups.remove(name) == null)
+      if (internalRemoveConsumerGroup(name) == null)
       {
          throw new NoSuchRegistrationException("There is no ConsumerGroup named '" + name + "'.");
       }
@@ -96,7 +96,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
    public void removeConsumer(String consumerId) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
-      if (consumers.remove(consumerId) == null)
+      if (internalRemoveConsumer(consumerId) == null)
       {
          throw new RegistrationException("There is no Consumer with identity '" + consumerId + "'.");
       }
@@ -106,7 +106,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration identity", null);
 
-      RegistrationImpl registration = (RegistrationImpl)registrations.get(registrationId);
+      Registration registration = internalRemoveRegistration(registrationId);
       if (registration == null)
       {
          throw new NoSuchRegistrationException("There is no Registration with id '" + registrationId + "'");
@@ -114,14 +114,13 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
 
       ConsumerImpl consumer = (ConsumerImpl)registration.getConsumer();
       consumer.removeRegistration(registration);
-      registrations.remove(registrationId);
    }
 
    public Consumer getConsumerById(String consumerId) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
 
-      return (Consumer)consumers.get(consumerId);
+      return consumers.get(consumerId);
    }
 
    public Registration addRegistrationFor(String consumerId, Map registrationProperties) throws RegistrationException
@@ -140,7 +139,7 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
          RegistrationStatus.PENDING, registrationProperties);
       consumer.addRegistration(registration);
 
-      registrations.put(registration.getId(), registration);
+      internalAddRegistration(registration);
 
       return registration;
    }
@@ -169,17 +168,17 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
       return consumer;
    }
 
-   public Collection getConsumers()
+   public Collection<? extends Consumer> getConsumers()
    {
       return Collections.unmodifiableCollection(consumers.values());
    }
 
-   public Collection getRegistrations()
+   public Collection<? extends Registration> getRegistrations()
    {
       return Collections.unmodifiableCollection(registrations.values());
    }
 
-   public Collection getConsumerGroups()
+   public Collection<? extends ConsumerGroup> getConsumerGroups()
    {
       return Collections.unmodifiableCollection(groups.values());
    }
@@ -188,6 +187,38 @@ public class RegistrationPersistenceManagerImpl implements RegistrationPersisten
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration id", null);
 
-      return (Registration)registrations.get(registrationId);
+      return registrations.get(registrationId);
+   }
+
+   // internal methods: extension points for subclasses
+
+   protected void internalAddRegistration(RegistrationImpl registration)
+   {
+      registrations.put(registration.getId(), registration);
+   }
+
+   protected Registration internalRemoveRegistration(String registrationId)
+   {
+      return registrations.remove(registrationId);
+   }
+
+   protected void internalAddConsumer(Consumer consumer)
+   {
+      consumers.put(consumer.getId(), consumer);
+   }
+
+   protected Consumer internalRemoveConsumer(String consumerId)
+   {
+      return consumers.remove(consumerId);
+   }
+
+   protected void internalAddConsumerGroup(ConsumerGroup group)
+   {
+      groups.put(group.getName(), group);
+   }
+
+   protected ConsumerGroup internalRemoveConsumerGroup(String name)
+   {
+      return groups.remove(name);
    }
 }

@@ -48,7 +48,7 @@ public class ConsumerImpl implements Consumer
    private String name;
    private String identity;
    private String consumerAgent;
-   private Set registrations;
+   private Set<Registration> registrations;
    private RegistrationStatus status;
    private ConsumerGroup group;
    private ConsumerCapabilities capabilities;
@@ -71,7 +71,7 @@ public class ConsumerImpl implements Consumer
 
    private void init()
    {
-      registrations = new HashSet(7);
+      registrations = new HashSet<Registration>(7);
       status = RegistrationStatus.PENDING;
       capabilities = new ConsumerCapabilitiesImpl();
    }
@@ -144,7 +144,7 @@ public class ConsumerImpl implements Consumer
       this.status = status;
    }
 
-   public Collection getRegistrations() throws RegistrationException
+   public Collection<Registration> getRegistrations() throws RegistrationException
    {
       return Collections.unmodifiableSet(registrations);
    }

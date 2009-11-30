@@ -77,13 +77,13 @@ public interface RegistrationPersistenceManager
 
    Registration addRegistrationFor(String consumerId, Map registrationProperties) throws RegistrationException;
 
-   Collection getConsumerGroups();
+   Collection<? extends ConsumerGroup> getConsumerGroups();
 
    Registration getRegistration(String registrationId);
 
    Consumer addConsumerToGroupNamed(String consumerId, String groupName) throws RegistrationException;
 
-   Collection getConsumers();
+   Collection<? extends Consumer> getConsumers();
 
-   Collection getRegistrations();
+   Collection<? extends Registration> getRegistrations();
 }

@@ -42,7 +42,7 @@ public class ConsumerGroupImpl implements ConsumerGroup
 {
 
    private String name;
-   private Map consumers;
+   private Map<String, Consumer> consumers;
    private RegistrationStatus status;
 
 
@@ -59,7 +59,7 @@ public class ConsumerGroupImpl implements ConsumerGroup
 
    private void init()
    {
-      this.consumers = new HashMap();
+      this.consumers = new HashMap<String, Consumer>();
       status = RegistrationStatus.PENDING;
    }
 
@@ -109,7 +109,7 @@ public class ConsumerGroupImpl implements ConsumerGroup
    public Consumer getConsumer(String consumerId) throws IllegalArgumentException, RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer name", null);
-      return (Consumer)consumers.get(consumerId);
+      return consumers.get(consumerId);
    }
 
    public boolean isEmpty()
