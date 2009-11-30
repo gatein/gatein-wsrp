@@ -108,17 +108,15 @@ public class RegistrationPropertyDescriptionTestCase extends TestCase
 
       public void valueHasChanged(RegistrationPropertyDescription originating, Object oldValue, Object newValue, boolean isName)
       {
-         if (isName)
+         // fake updating the property map if the old name was foo...
+         String oldValueString = oldValue == null ? null : oldValue.toString();
+         if ("foo".equals(oldValueString))
          {
-            // fake updating the property map if the old name was foo...
-            if ("foo".equals(oldValue))
-            {
-               // then set the prop name to the new property name
-               propName = originating.getName().getLocalPart();
-            }
-
-            notifyCalled = true;
+            // then set the prop name to the new property name
+            propName = originating.getName().getLocalPart();
          }
+
+         notifyCalled = true;
       }
    }
 }

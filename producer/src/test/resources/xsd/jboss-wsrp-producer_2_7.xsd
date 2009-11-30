@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ JBoss, a division of Red Hat                                              ~
+  ~ Copyright 2008, Red Hat Middleware, LLC, and individual                   ~
+  ~ contributors as indicated by the @authors tag. See the                    ~
+  ~ copyright.txt in the distribution for a full listing of                   ~
+  ~ individual contributors.                                                  ~
+  ~                                                                           ~
+  ~ This is free software; you can redistribute it and/or modify it           ~
+  ~ under the terms of the GNU Lesser General Public License as               ~
+  ~ published by the Free Software Foundation; either version 2.1 of          ~
+  ~ the License, or (at your option) any later version.                       ~
+  ~                                                                           ~
+  ~ This software is distributed in the hope that it will be useful,          ~
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
+  ~ Lesser General Public License for more details.                           ~
+  ~                                                                           ~
+  ~ You should have received a copy of the GNU Lesser General Public          ~
+  ~ License along with this software; if not, write to the Free               ~
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:jboss:portal:wsrp:producer:v2_7"
+           xmlns="urn:jboss:portal:wsrp:producer:v2_7"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xmlns:wpc="urn:jboss:portal:wsrp:producer:v2_7" elementFormDefault="qualified">
+
+   <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+
+   <xs:element name="producer-configuration">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="registration-configuration" type="wpc:RegistrationConfiguration"/>
+         </xs:sequence>
+         <xs:attribute name="useStrictMode" type="xs:boolean" use="optional"/>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:complexType name="RegistrationConfiguration">
+      <xs:sequence>
+         <xs:element name="registration-policy" type="xs:string" minOccurs="0"/>
+         <xs:element name="registration-property-validator" type="xs:string" minOccurs="0"/>
+         <xs:element name="registration-property-description" type="wpc:RegistrationPropertyDescription" minOccurs="0"
+                     maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="fullServiceDescriptionRequiresRegistration" type="xs:boolean" use="optional"/>
+   </xs:complexType>
+
+   <xs:complexType name="RegistrationPropertyDescription">
+      <xs:sequence>
+         <xs:element name="name" type="xs:QName"/>
+         <xs:element name="type" type="xs:QName"/>
+         <xs:element name="label" type="wpc:LocalizedString" minOccurs="0"/>
+         <xs:element name="hint" type="wpc:LocalizedString" minOccurs="0"/>
+         <xs:element name="description" type="wpc:LocalizedString" minOccurs="0"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="LocalizedString">
+      <xs:simpleContent>
+         <xs:extension base="xs:string">
+            <xs:attribute ref="xml:lang" use="required"/>
+            <xs:attribute name="resourceName" type="xs:string" use="optional"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+</xs:schema>

@@ -84,6 +84,10 @@
          <scope>test</scope>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-jdk14</artifactId>
+      </dependency>
    </dependencies>
 
    <!-- Disable some tests for now until we can find some time to work on migrating them -->
@@ -94,7 +98,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <excludes>
-                  <exclude>org/gatein/wsrp/*</exclude>
+                  <exclude>org/gatein/wsrp/protocol/v1/*</exclude>
                </excludes>
             </configuration>
          </plugin>

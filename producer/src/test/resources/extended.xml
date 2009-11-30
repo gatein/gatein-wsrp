@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ JBoss, a division of Red Hat                                              ~
+  ~ Copyright 2006, Red Hat Middleware, LLC, and individual                   ~
+  ~ contributors as indicated by the @authors tag. See the                    ~
+  ~ copyright.txt in the distribution for a full listing of                   ~
+  ~ individual contributors.                                                  ~
+  ~                                                                           ~
+  ~ This is free software; you can redistribute it and/or modify it           ~
+  ~ under the terms of the GNU Lesser General Public License as               ~
+  ~ published by the Free Software Foundation; either version 2.1 of          ~
+  ~ the License, or (at your option) any later version.                       ~
+  ~                                                                           ~
+  ~ This software is distributed in the hope that it will be useful,          ~
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
+  ~ Lesser General Public License for more details.                           ~
+  ~                                                                           ~
+  ~ You should have received a copy of the GNU Lesser General Public          ~
+  ~ License along with this software; if not, write to the Free               ~
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<wpc:producer-configuration xmlns:wpc="urn:jboss:portal:wsrp:producer:v2_7"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xsi:schemaLocation="urn:jboss:portal:wsrp:producer:v2_7 "
+                            xmlns:xml="http://www.w3.org/XML/1998/namespace">
+   <registration-configuration fullServiceDescriptionRequiresRegistration="true">
+      <registration-property-validator>org.gatein.registration.policies.DefaultRegistrationPropertyValidator
+      </registration-property-validator>
+      <registration-property-description>
+         <name>name1</name>
+         <type>xsd:string</type>
+         <label xml:lang="en" resourceName="resource.label1">label1</label>
+         <hint xml:lang="en" resourceName="resource.hint1">hint1</hint>
+      </registration-property-description>
+      <registration-property-description>
+         <name>name2</name>
+         <type xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</type>
+         <label xml:lang="en" resourceName="resource.label2">label2</label>
+         <hint xml:lang="en" resourceName="resource.hint2">hint2</hint>
+      </registration-property-description>
+   </registration-configuration>
+</wpc:producer-configuration>
