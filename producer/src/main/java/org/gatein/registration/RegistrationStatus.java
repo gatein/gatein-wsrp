@@ -30,18 +30,14 @@ import java.io.Serializable;
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision:5641 $
  */
-public class RegistrationStatus implements Serializable
+public enum RegistrationStatus implements Serializable
 {
-   private String humanReadable;
-
    /** The registration is valid. */
-   public static final RegistrationStatus VALID = new RegistrationStatus("valid");
-
+   VALID("valid"),
    /** The registration is waiting for validation. */
-   public static final RegistrationStatus PENDING = new RegistrationStatus("pending");
-
+   PENDING("pending"),
    /** The registration is not valid. */
-   public static final RegistrationStatus INVALID = new RegistrationStatus("invalid");
+   INVALID("invalid");
 
    private RegistrationStatus(String humanReadable)
    {
@@ -52,4 +48,6 @@ public class RegistrationStatus implements Serializable
    {
       return "RegistrationStatus: " + humanReadable;
    }
+
+   private String humanReadable;
 }
