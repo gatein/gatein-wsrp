@@ -23,6 +23,8 @@
 
 package org.gatein.registration.impl;
 
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
 import org.gatein.registration.ConsumerCapabilities;
 
 import java.util.List;
@@ -35,32 +37,32 @@ import java.util.List;
 public class ConsumerCapabilitiesImpl implements ConsumerCapabilities
 {
    private boolean supportsGetMethod;
-   private List supportedModes;
-   private List supportedWindowStates;
-   private List supportedUserScopes;
-   private List supportedUserProfileData;
+   private List<Mode> supportedModes;
+   private List<WindowState> supportedWindowStates;
+   private List<String> supportedUserScopes;
+   private List<String> supportedUserProfileData;
 
    public boolean supportsGetMethod()
    {
       return supportsGetMethod;
    }
 
-   public List getSupportedModes()
+   public List<Mode> getSupportedModes()
    {
       return supportedModes;
    }
 
-   public List getSupportedWindowStates()
+   public List<WindowState> getSupportedWindowStates()
    {
       return supportedWindowStates;
    }
 
-   public List getSupportedUserScopes()
+   public List<String> getSupportedUserScopes()
    {
       return supportedUserScopes;
    }
 
-   public List getSupportedUserProfileData()
+   public List<String> getSupportedUserProfileData()
    {
       return supportedUserProfileData;
    }
@@ -70,22 +72,22 @@ public class ConsumerCapabilitiesImpl implements ConsumerCapabilities
       this.supportsGetMethod = supportsGetMethod;
    }
 
-   public void setSupportedModes(List supportedModes)
+   public void setSupportedModes(List<Mode> supportedModes)
    {
       this.supportedModes = supportedModes;
    }
 
-   public void setSupportedWindowStates(List supportedWindowStates)
+   public void setSupportedWindowStates(List<WindowState> supportedWindowStates)
    {
       this.supportedWindowStates = supportedWindowStates;
    }
 
-   public void setSupportedUserScopes(List supportedUserScopes)
+   public void setSupportedUserScopes(List<String> supportedUserScopes)
    {
       this.supportedUserScopes = supportedUserScopes;
    }
 
-   public void setSupportedUserProfileData(List supportedUserProfileData)
+   public void setSupportedUserProfileData(List<String> supportedUserProfileData)
    {
       this.supportedUserProfileData = supportedUserProfileData;
    }

@@ -23,6 +23,9 @@
 
 package org.gatein.registration;
 
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
+
 import java.util.List;
 
 /**
@@ -35,18 +38,18 @@ public interface ConsumerCapabilities
    boolean supportsGetMethod();
 
    /**
-    * Returns the list of supported {@link org.jboss.portal.Mode}s
+    * Returns the list of supported {@link org.gatein.pc.api.Mode}s
     *
     * @return
     */
-   List getSupportedModes();
+   List<Mode> getSupportedModes();
 
    /**
-    * Returns the list of supported {@link org.jboss.portal.WindowState}s
+    * Returns the list of supported {@link org.gatein.pc.api.WindowState}s
     *
     * @return
     */
-   List getSupportedWindowStates();
+   List<WindowState> getSupportedWindowStates();
 
    /**
     * Returns the list of user scopes (e.g. "wsrp:perUser") the associated Consumer is willing to process. See WSRP 1.0
@@ -54,7 +57,7 @@ public interface ConsumerCapabilities
     *
     * @return
     */
-   List getSupportedUserScopes();
+   List<String> getSupportedUserScopes();
 
    /**
     * Returns the list of names of UserProfile extensions the associated Consumer supports. See WSRP 1.0 7.1.1 for more
@@ -62,15 +65,15 @@ public interface ConsumerCapabilities
     *
     * @return
     */
-   List getSupportedUserProfileData();
+   List<String> getSupportedUserProfileData();
 
    void setSupportsGetMethod(boolean supportsGetMethod);
 
-   void setSupportedModes(List supportedModes);
+   void setSupportedModes(List<Mode> supportedModes);
 
-   void setSupportedWindowStates(List supportedWindowStates);
+   void setSupportedWindowStates(List<WindowState> supportedWindowStates);
 
-   void setSupportedUserScopes(List supportedUserScopes);
+   void setSupportedUserScopes(List<String> supportedUserScopes);
 
-   void setSupportedUserProfileData(List supportedUserProfileData);
+   void setSupportedUserProfileData(List<String> supportedUserProfileData);
 }
