@@ -70,7 +70,7 @@ public class RegistrationManagerTestCase extends TestCase
    {
       Registration registration = manager.addRegistrationTo("consumerName", registrationProperties, true);
       assertNotNull(registration);
-      assertNotNull(registration.getId());
+      assertNotNull(registration.getPersistentKey());
 
       Consumer consumer = manager.getConsumerByIdentity("consumerName");
       assertNotNull(consumer); // default policy: name == identity

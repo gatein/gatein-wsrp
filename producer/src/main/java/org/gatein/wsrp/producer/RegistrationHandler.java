@@ -23,9 +23,9 @@
 
 package org.gatein.wsrp.producer;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
-import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerCapabilities;
 import org.gatein.registration.NoSuchRegistrationException;
@@ -99,7 +99,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
                msg, e);
          }
 
-         RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getId());
+         RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getRegistrationHandle());
          log.debug("Registration completed without error.");
          return registrationContext;
       }

@@ -42,7 +42,7 @@ public interface Registration
     *
     * @return this Registration's internal identifier.
     */
-   String getId();
+   String getPersistentKey();
 
    /**
     * Sets the handle for this Registration.

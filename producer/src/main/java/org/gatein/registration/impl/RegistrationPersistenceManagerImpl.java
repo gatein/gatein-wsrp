@@ -90,7 +90,7 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    @Override
    protected void internalAddRegistration(RegistrationSPI registration)
    {
-      registrations.put(registration.getId(), registration);
+      registrations.put(registration.getPersistentKey(), registration);
    }
 
    @Override
@@ -102,7 +102,12 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    @Override
    protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties)
    {
-      return new RegistrationImpl("" + lastRegistrationId++, consumer, RegistrationStatus.PENDING, registrationProperties);
+      return newRegistrationSPI(consumer, registrationProperties, "" + lastRegistrationId++);
+   }
+
+   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map registrationProperties, String registrationKey)
+   {
+      return new RegistrationImpl(registrationKey, consumer, RegistrationStatus.PENDING, registrationProperties);
    }
 
    @Override
@@ -119,6 +124,11 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
 
    @Override
    protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName)
+   {
+      return newConsumerSPI(consumerId, consumerName);
+   }
+
+   public ConsumerSPI newConsumerSPI(String consumerId, String consumerName)
    {
       return new ConsumerImpl(consumerId, consumerName);
    }
@@ -137,6 +147,11 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
 
    @Override
    protected ConsumerGroupSPI internalCreateConsumerGroup(String name)
+   {
+      return newConsumerGroupSPI(name);
+   }
+
+   public ConsumerGroupSPI newConsumerGroupSPI(String name)
    {
       return new ConsumerGroupImpl(name);
    }

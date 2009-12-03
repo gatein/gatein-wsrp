@@ -90,4 +90,11 @@ public interface Consumer
    String getConsumerAgent();
 
    void setConsumerAgent(String consumerAgent) throws IllegalArgumentException, IllegalStateException;
+
+   /**
+    * Retrieves this Consumer's internal persistent key which would correspond to a primary key in a database.
+    *
+    * @return
+    */
+   String getPersistentKey();
 }

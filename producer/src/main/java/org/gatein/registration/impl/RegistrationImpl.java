@@ -42,24 +42,24 @@ import java.util.Map;
 public class RegistrationImpl implements RegistrationSPI
 {
 
-   private final String id;
+   private final String key;
    private ConsumerSPI consumer;
    private RegistrationStatus status;
    private Map<QName, Object> properties;
    private String registrationHandle;
 
 
-   public RegistrationImpl(String id, ConsumerSPI consumer, RegistrationStatus status, Map properties)
+   public RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map properties)
    {
-      this.id = id;
+      this.key = key;
       this.consumer = consumer;
       this.status = status;
       this.properties = new HashMap<QName, Object>(properties);
    }
 
-   public String getId()
+   public String getPersistentKey()
    {
-      return id;
+      return key;
    }
 
    public void setRegistrationHandle(String handle)

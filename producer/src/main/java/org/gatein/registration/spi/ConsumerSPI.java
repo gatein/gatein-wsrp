@@ -34,4 +34,6 @@ public interface ConsumerSPI extends Consumer
    void removeRegistration(RegistrationSPI registration) throws RegistrationException;
 
    void addRegistration(RegistrationSPI registration);
+
+   void setPersistentKey(String key);
 }

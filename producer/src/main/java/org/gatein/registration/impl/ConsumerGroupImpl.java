@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class ConsumerGroupImpl implements ConsumerGroupSPI
 {
-
+   private String key;
    private String name;
    private Map<String, Consumer> consumers;
    private RegistrationStatus status;
@@ -68,6 +68,15 @@ public class ConsumerGroupImpl implements ConsumerGroupSPI
       return name;
    }
 
+   public String getPersistentKey()
+   {
+      return key;
+   }
+
+   public void setPersistentKey(String id)
+   {
+      this.key = id;
+   }
 
    public boolean equals(Object o)
    {

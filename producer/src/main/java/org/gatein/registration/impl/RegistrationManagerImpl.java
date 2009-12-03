@@ -28,13 +28,13 @@ import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.InvalidConsumerDataException;
 import org.gatein.registration.NoSuchRegistrationException;
-import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       Registration registration = persistenceManager.addRegistrationFor(identity, registrationProperties);
 
       // let the policy decide what the handle should be
-      String handle = policy.createRegistrationHandleFor(registration.getId());
+      String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
       registration.setRegistrationHandle(handle);
 
       return registration;
@@ -236,7 +236,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       registration.setStatus(RegistrationStatus.INVALID); // just in case...
 //      registration.clearAssociatedState(); // todo: do we need to clear associated state?
 
-      persistenceManager.removeRegistration(registration.getId());
+      persistenceManager.removeRegistration(registration.getPersistentKey());
    }
 
    public ConsumerGroup getConsumerGroup(String groupName) throws RegistrationException

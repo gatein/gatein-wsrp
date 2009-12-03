@@ -53,6 +53,7 @@ public class ConsumerImpl implements ConsumerSPI
    private RegistrationStatus status;
    private ConsumerGroup group;
    private ConsumerCapabilities capabilities;
+   private String key;
 
 
    private ConsumerImpl()
@@ -124,6 +125,11 @@ public class ConsumerImpl implements ConsumerSPI
       }
    }
 
+   public String getPersistentKey()
+   {
+      return key;
+   }
+
    public ConsumerCapabilities getCapabilities()
    {
       return capabilities;
@@ -160,6 +166,11 @@ public class ConsumerImpl implements ConsumerSPI
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
       registrations.add(registration);
+   }
+
+   public void setPersistentKey(String key)
+   {
+      this.key = key;
    }
 
    public void removeRegistration(RegistrationSPI registration) throws RegistrationException

@@ -43,6 +43,13 @@ public interface ConsumerGroup
    String getName();
 
    /**
+    * Return this ConsumerGroup's persistent identifier.
+    *
+    * @return this ConsumerGroup's persistent identifier
+    */
+   String getPersistentKey();
+
+   /**
     * Return a collection of associated consumers.
     *
     * @return the consumer collection

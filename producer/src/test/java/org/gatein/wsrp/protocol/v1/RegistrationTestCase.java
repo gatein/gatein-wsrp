@@ -23,6 +23,9 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationException;
+import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -31,6 +34,7 @@ import org.gatein.wsrp.test.ExtendedAssert;
 import org.oasis.wsrp.v1.GetMarkup;
 import org.oasis.wsrp.v1.GetServiceDescription;
 import org.oasis.wsrp.v1.InvalidRegistration;
+import org.oasis.wsrp.v1.MissingParameters;
 import org.oasis.wsrp.v1.ModifyRegistration;
 import org.oasis.wsrp.v1.OperationFailed;
 import org.oasis.wsrp.v1.PropertyDescription;
@@ -91,6 +95,27 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       regData.setConsumerAgent(WSRPConstants.CONSUMER_AGENT);
       registrationService.register(regData);
+   }
+
+   public void testRegistrationHandle() throws OperationFailed, MissingParameters, RegistrationException
+   {
+      // check that a registration handle was created
+      RegistrationContext rc = registerConsumer();
+      String registrationHandle = rc.getRegistrationHandle();
+      assertNotNull(registrationHandle);
+
+      // check that a registration was created with that handle
+      RegistrationManager registrationManager = producer.getRegistrationManager();
+      Registration registration = registrationManager.getRegistration(registrationHandle);
+      assertNotNull(registration);
+
+      // check that the registration was persisted...
+      String key = registration.getPersistentKey();
+      assertNotNull(key);
+
+      // ... and that the handle was created by the policy based on the registration key
+      String expectedHandle = registrationManager.getPolicy().createRegistrationHandleFor(key);
+      assertEquals(expectedHandle, registrationHandle);
    }
 
    public void testDeregister() throws Exception

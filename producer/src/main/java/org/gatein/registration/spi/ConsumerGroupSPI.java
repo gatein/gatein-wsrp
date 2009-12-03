@@ -30,4 +30,6 @@ import org.gatein.registration.ConsumerGroup;
  */
 public interface ConsumerGroupSPI extends ConsumerGroup
 {
+
+   void setPersistentKey(String id);
 }

@@ -302,7 +302,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       consumer = getManager().getConsumerById("Bar");
       Registration reg1 = getManager().addRegistrationFor("Bar", registrationProperties);
       assertNotNull(reg1);
-      String regId = reg1.getId();
+      String regId = reg1.getPersistentKey();
       assertNotNull(regId);
       assertEquals(consumer, reg1.getConsumer());
       Map expectedProps = new HashMap();
@@ -318,7 +318,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertNotNull(registrations);
       assertEquals(1, registrations.size());
       Registration reg3 = (Registration)registrations.iterator().next();
-      assertEquals(regId, reg3.getId());
+      assertEquals(regId, reg3.getPersistentKey());
       assertEquals(consumer, reg3.getConsumer());
       assertEquals(expectedProps, reg3.getProperties());
       stopInteraction();
@@ -328,7 +328,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       Registration reg2 = getManager().getRegistration(regId);
       consumer = getManager().getConsumerById("Bar");
       assertNotNull(reg2);
-      assertEquals(regId, reg2.getId());
+      assertEquals(regId, reg2.getPersistentKey());
       assertEquals(consumer, reg2.getConsumer());
       assertEquals(expectedProps, reg2.getProperties());
       stopInteraction();
@@ -373,7 +373,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
       Registration reg = getManager().addRegistrationFor("Bar", registrationProperties);
-      String regId = reg.getId();
+      String regId = reg.getPersistentKey();
       getManager().removeRegistration(regId);
       stopInteraction();
 
