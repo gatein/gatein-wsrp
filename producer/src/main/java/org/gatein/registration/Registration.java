@@ -70,7 +70,7 @@ public interface Registration
     *
     * @return a Map containing the associated properties
     */
-   Map getProperties();
+   Map<QName, Object> getProperties();
 
    void setPropertyValueFor(QName propertyName, Object value) throws IllegalArgumentException;
 

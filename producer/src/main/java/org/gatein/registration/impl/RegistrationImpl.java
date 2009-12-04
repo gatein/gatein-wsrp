@@ -77,7 +77,7 @@ public class RegistrationImpl implements RegistrationSPI
       return consumer;
    }
 
-   public Map getProperties()
+   public Map<QName, Object> getProperties()
    {
       return Collections.unmodifiableMap(properties);
    }
