@@ -212,7 +212,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          {
             Registration registration = producer.getRegistrationManager().getRegistration(registrationHandle);
 
-            Map properties = createRegistrationProperties(registrationData);
+            Map<QName, Object> properties = createRegistrationProperties(registrationData);
 
             // check that the given registration properties are acceptable according to expectations and policy
             ProducerRegistrationRequirements req = producer.getProducerRegistrationRequirements();

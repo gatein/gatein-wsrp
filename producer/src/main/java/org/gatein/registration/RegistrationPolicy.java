@@ -51,7 +51,7 @@ public interface RegistrationPolicy
     * @throws IllegalArgumentException if any of the registration properties is invalid for the specified Consumer
     * @throws RegistrationException    if an exception occured in the registration service
     */
-   void validateRegistrationDataFor(Map<QName, ? extends PropertyDescription> registrationProperties, String consumerIdentity)
+   void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
       throws IllegalArgumentException, RegistrationException;
 
    /**
@@ -91,7 +91,7 @@ public interface RegistrationPolicy
     *                                      Consumer identity and decides that they are not in a proper state
     * @throws IllegalArgumentException     if the specified Consumer name if <code>null</code> or empty
     */
-   String getConsumerIdFrom(String consumerName, Map registrationProperties)
+   String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties)
       throws IllegalArgumentException, InvalidConsumerDataException;
 
    /**

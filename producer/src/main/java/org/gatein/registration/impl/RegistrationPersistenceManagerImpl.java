@@ -34,6 +34,7 @@ import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 
+import javax.xml.namespace.QName;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,17 +52,17 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    private Map<String, ConsumerGroupSPI> groups = new HashMap<String, ConsumerGroupSPI>();
    private Map<String, RegistrationSPI> registrations = new HashMap<String, RegistrationSPI>();
 
-   public Collection<? extends Consumer> getConsumers()
+   public Collection<ConsumerSPI> getConsumers()
    {
       return Collections.unmodifiableCollection(consumers.values());
    }
 
-   public Collection<? extends Registration> getRegistrations()
+   public Collection<RegistrationSPI> getRegistrations()
    {
       return Collections.unmodifiableCollection(registrations.values());
    }
 
-   public Collection<? extends ConsumerGroup> getConsumerGroups()
+   public Collection<ConsumerGroupSPI> getConsumerGroups()
    {
       return Collections.unmodifiableCollection(groups.values());
    }
@@ -100,12 +101,12 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    }
 
    @Override
-   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties)
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties)
    {
       return newRegistrationSPI(consumer, registrationProperties, "" + lastRegistrationId++);
    }
 
-   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map registrationProperties, String registrationKey)
+   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map<QName, Object> registrationProperties, String registrationKey)
    {
       return new RegistrationImpl(registrationKey, consumer, RegistrationStatus.PENDING, registrationProperties);
    }

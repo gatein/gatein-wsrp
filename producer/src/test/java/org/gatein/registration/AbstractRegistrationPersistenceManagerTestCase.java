@@ -42,7 +42,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
 {
 
    /** . */
-   private Map registrationProperties;
+   private Map<QName, Object> registrationProperties;
 
    public abstract RegistrationPersistenceManager getManager();
 
@@ -56,7 +56,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
 
    public void setUp() throws Exception
    {
-      registrationProperties = new HashMap();
+      registrationProperties = new HashMap<QName, Object>();
       registrationProperties.put(new QName("prop1"), "value1");
       registrationProperties.put(new QName("prop2"), "value2");
    }

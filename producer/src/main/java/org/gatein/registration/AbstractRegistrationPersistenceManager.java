@@ -27,6 +27,7 @@ import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 
+import javax.xml.namespace.QName;
 import java.util.Map;
 
 /**
@@ -94,7 +95,7 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       consumer.removeRegistration(registration);
    }
 
-   public Registration addRegistrationFor(String consumerId, Map registrationProperties) throws RegistrationException
+   public Registration addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
       ParameterValidation.throwIllegalArgExceptionIfNull(registrationProperties, "Registration properties");
@@ -144,7 +145,7 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
 
    protected abstract RegistrationSPI internalRemoveRegistration(String registrationId);
 
-   protected abstract RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties);
+   protected abstract RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties);
 
    protected abstract void internalAddConsumer(ConsumerSPI consumer);
 

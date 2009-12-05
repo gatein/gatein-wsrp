@@ -42,7 +42,7 @@ public class RegistrationManagerTestCase extends TestCase
 {
 
    private RegistrationManager manager;
-   private Map registrationProperties;
+   private Map<QName, Object> registrationProperties;
 
    protected void setUp() throws Exception
    {
@@ -54,7 +54,7 @@ public class RegistrationManagerTestCase extends TestCase
       policy.setManager(manager);
 
       //todo: registration properties setup will need to be updated when property validation is implemented
-      registrationProperties = new HashMap();
+      registrationProperties = new HashMap<QName, Object>();
       registrationProperties.put(new QName("prop1"), "value1");
       registrationProperties.put(new QName("prop2"), "value2");
    }

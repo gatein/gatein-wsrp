@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
 
 /**
  * An interface providing an entry point for WSRP deployers to plug their registration property validation mechanism in
- * {@link org.jboss.portal.registration.policies.DefaultRegistrationPolicy}. Implementations of this interface
+ * {@link org.gatein.registration.policies.DefaultRegistrationPolicy}. Implementations of this interface
  * <strong>MUST</strong> provide a no-argument constructor for instantiation from the class name.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

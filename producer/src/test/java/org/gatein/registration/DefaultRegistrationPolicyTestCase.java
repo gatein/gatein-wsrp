@@ -24,8 +24,8 @@ import java.util.Map;
 public class DefaultRegistrationPolicyTestCase extends TestCase
 {
    DefaultRegistrationPolicy policy;
-   Map registrationProperties;
-   HashMap<QName, PropertyDescription> expectations;
+   Map<QName, Object> registrationProperties;
+   Map<QName, PropertyDescription> expectations;
    private static final String CONSUMER = "consumer";
    private static final QName PROP1 = new QName("prop1");
    private static final QName PROP2 = new QName("prop2");
@@ -45,7 +45,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       policy.setManager(manager);
 
-      registrationProperties = new HashMap();
+      registrationProperties = new HashMap<QName, Object>();
       registrationProperties.put(PROP1, "value1");
       registrationProperties.put(PROP2, "value2");
 
@@ -67,7 +67,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       try
       {
-         policy.validateRegistrationDataFor(Collections.EMPTY_MAP, null);
+         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), null);
          fail("null data cannot be validated");
       }
       catch (IllegalArgumentException e)
@@ -80,7 +80,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
    {
       try
       {
-         policy.validateRegistrationDataFor(Collections.EMPTY_MAP, "foo");
+         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), "foo");
       }
       catch (RegistrationException e)
       {

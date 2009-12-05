@@ -23,6 +23,7 @@
 
 package org.gatein.registration;
 
+import javax.xml.namespace.QName;
 import java.util.Collection;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
 
    void setPersistenceManager(RegistrationPersistenceManager persistenceManager);
 
-   Registration addRegistrationTo(String consumerName, Map registrationProperties, boolean createConsumerIfNeeded)
+   Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, boolean createConsumerIfNeeded)
       throws RegistrationException;
 
    Consumer createConsumer(String name) throws RegistrationException, InvalidConsumerDataException;
@@ -69,13 +70,13 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
 
    ConsumerGroup getConsumerGroup(String groupName) throws RegistrationException;
 
-   Collection getConsumerGroups() throws RegistrationException;
+   Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException;
 
    void removeConsumerGroup(ConsumerGroup group) throws RegistrationException;
 
    void removeConsumerGroup(String name) throws RegistrationException;
 
-   Collection getConsumers() throws RegistrationException;
+   Collection<? extends Consumer> getConsumers() throws RegistrationException;
 
    void clear() throws RegistrationException;
 }

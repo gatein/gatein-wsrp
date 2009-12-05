@@ -27,7 +27,6 @@ import junit.framework.TestCase;
 import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
-import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
 import java.util.HashMap;
@@ -41,14 +40,14 @@ import java.util.Map;
 public class RegistrationTestCase extends TestCase
 {
    private Registration registration;
-   private Map registrationProperties;
+   private Map<QName, Object> registrationProperties;
 
    protected void setUp() throws Exception
    {
       RegistrationManager manager = new RegistrationManagerImpl();
       RegistrationPolicy policy = new DefaultRegistrationPolicy()
       {
-         public void validateRegistrationDataFor(Map<QName, ? extends PropertyDescription> registrationProperties, String consumerIdentity) throws IllegalArgumentException, RegistrationException, DuplicateRegistrationException
+         public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity) throws IllegalArgumentException, RegistrationException, DuplicateRegistrationException
          {
             // accept any registration data here
          }
@@ -57,7 +56,7 @@ public class RegistrationTestCase extends TestCase
       manager.setPersistenceManager(new RegistrationPersistenceManagerImpl());
       policy.setManager(manager);
 
-      registrationProperties = new HashMap();
+      registrationProperties = new HashMap<QName, Object>();
       registrationProperties.put(new QName("prop1"), "value1");
       registrationProperties.put(new QName("prop2"), "value2");
 

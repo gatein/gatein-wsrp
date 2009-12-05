@@ -23,6 +23,7 @@
 
 package org.gatein.registration;
 
+import javax.xml.namespace.QName;
 import java.util.Collection;
 import java.util.Map;
 
@@ -75,7 +76,7 @@ public interface RegistrationPersistenceManager
     */
    Consumer getConsumerById(String consumerId) throws IllegalArgumentException, RegistrationException;
 
-   Registration addRegistrationFor(String consumerId, Map registrationProperties) throws RegistrationException;
+   Registration addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException;
 
    Collection<? extends ConsumerGroup> getConsumerGroups();
 

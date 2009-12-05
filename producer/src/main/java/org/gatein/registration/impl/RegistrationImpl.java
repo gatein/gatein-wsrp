@@ -49,7 +49,7 @@ public class RegistrationImpl implements RegistrationSPI
    private String registrationHandle;
 
 
-   public RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map properties)
+   RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties)
    {
       this.key = key;
       this.consumer = consumer;

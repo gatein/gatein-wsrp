@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class TestRegistrationPolicy implements RegistrationPolicy
 {
-   public void validateRegistrationDataFor(Map<QName, ? extends PropertyDescription> registrationProperties, String consumerIdentity) throws IllegalArgumentException, RegistrationException
+   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity) throws IllegalArgumentException, RegistrationException
    {
    }
 
@@ -53,7 +53,7 @@ public class TestRegistrationPolicy implements RegistrationPolicy
       return null;
    }
 
-   public String getConsumerIdFrom(String consumerName, Map registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
+   public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
    {
       return null;
    }

@@ -27,12 +27,12 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.DuplicateRegistrationException;
 import org.gatein.registration.InvalidConsumerDataException;
-import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
     * @throws DuplicateRegistrationException if a Consumer with the same identity has already registered with the same
     *                                        registration properties.
     */
-   public void validateRegistrationDataFor(Map<QName, ? extends PropertyDescription> registrationProperties, String consumerIdentity)
+   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
       throws IllegalArgumentException, RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registrationProperties, "Registration properties");
@@ -137,9 +137,8 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       {
          // allow the new registration only if the registration properties are different that existing registrations
          // for this consumer...
-         for (Object o : consumer.getRegistrations())
+         for (Registration registration : consumer.getRegistrations())
          {
-            Registration registration = (Registration)o;
             if (registration.hasEqualProperties(registrationProperties))
             {
                throw new DuplicateRegistrationException("Consumer named '" + consumer.getName()
@@ -164,7 +163,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    }
 
    /** Simply returns the given consumer name, trusted (!) to be unique. */
-   public String getConsumerIdFrom(String consumerName, Map registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
+   public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
       return consumerName;
@@ -175,7 +174,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
 
-      Consumer consumer = manager.getConsumerByIdentity(getConsumerIdFrom(consumerName, Collections.EMPTY_MAP));
+      Consumer consumer = manager.getConsumerByIdentity(getConsumerIdFrom(consumerName, Collections.<QName, Object>emptyMap()));
       if (consumer != null)
       {
          throw new DuplicateRegistrationException("A Consumer named '" + consumerName + "' has already been registered.");

@@ -82,7 +82,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       this.persistenceManager = persistenceManager;
    }
 
-   public Registration addRegistrationTo(String consumerName, Map registrationProperties, boolean createConsumerIfNeeded)
+   public Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, boolean createConsumerIfNeeded)
       throws RegistrationException
    {
       // the policy determines the identity of the consumer based on the given information (note that this might be obsoleted by using WS-Security)
@@ -278,7 +278,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       }
    }
 
-   public Collection getConsumerGroups()
+   public Collection<? extends ConsumerGroup> getConsumerGroups()
    {
       return persistenceManager.getConsumerGroups();
    }
@@ -301,7 +301,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       removeConsumerGroup(getConsumerGroup(name));
    }
 
-   public Collection getConsumers()
+   public Collection<? extends Consumer> getConsumers()
    {
       return persistenceManager.getConsumers();
    }
