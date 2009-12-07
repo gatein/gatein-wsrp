@@ -55,7 +55,7 @@ public interface ConsumerGroup
     * @return the consumer collection
     * @throws RegistrationException
     */
-   Collection getConsumers() throws RegistrationException;
+   Collection<Consumer> getConsumers() throws RegistrationException;
 
    /**
     * Return the member Consumer associated with the given identifier

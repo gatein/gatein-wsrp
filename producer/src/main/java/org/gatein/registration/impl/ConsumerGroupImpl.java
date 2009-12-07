@@ -110,7 +110,7 @@ public class ConsumerGroupImpl implements ConsumerGroupSPI
       this.status = status;
    }
 
-   public Collection getConsumers() throws RegistrationException
+   public Collection<Consumer> getConsumers() throws RegistrationException
    {
       return Collections.unmodifiableCollection(consumers.values());
    }
