@@ -177,7 +177,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            registry.createConsumer(selectedId, null);
+            registry.createConsumer(selectedId, null, null);
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
