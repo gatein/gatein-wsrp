@@ -137,12 +137,12 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    // PortletInvoker implementation ************************************************************************************
 
-   public Set getPortlets() throws InvokerUnavailableException
+   public Set<Portlet> getPortlets() throws InvokerUnavailableException
    {
       try
       {
          Map portletMap = producerInfo.getPortletMap();
-         return new LinkedHashSet(portletMap.values());
+         return new LinkedHashSet<Portlet>(portletMap.values());
       }
       catch (Exception e)
       {
@@ -217,14 +217,14 @@ public class WSRPConsumerImpl implements WSRPConsumer
       }
    }
 
-   public List destroyClones(List portletContexts) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException
+   public List<DestroyCloneFailure> destroyClones(List<PortletContext> portletContexts) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContexts, "Portlet identifiers");
 
       int numberOfClones = portletContexts.size();
       if (numberOfClones == 0)
       {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
       }
 
       List<String> handles = new ArrayList<String>(numberOfClones);
@@ -480,6 +480,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
    {
       internalStart();
       producerInfo.setActiveAndSave(true);
+      log.info("Consumer with id '" + getProducerId() + "' activated");
    }
 
    private void internalStart() throws Exception
@@ -496,8 +497,6 @@ public class WSRPConsumerImpl implements WSRPConsumer
             producerInfo.setActiveAndSave(false);
             throw e;
          }
-
-         log.info("Consumer with id '" + getProducerId() + "' activated");
       }
    }
 
