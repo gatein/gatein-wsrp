@@ -42,7 +42,6 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -187,9 +186,10 @@ public class RegistrationManagerImpl implements RegistrationManager
       }
 
       // cascade delete the registrations
-      for (Iterator i = new ArrayList(consumer.getRegistrations()).iterator(); i.hasNext();)
+      ArrayList<Registration> registrations = new ArrayList<Registration>(consumer.getRegistrations());
+      for (Registration reg : registrations)
       {
-         removeRegistration((Registration)i.next());
+         removeRegistration(reg);
       }
 
       // let the registry do the actual deletion

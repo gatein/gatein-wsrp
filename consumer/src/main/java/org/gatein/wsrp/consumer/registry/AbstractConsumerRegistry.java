@@ -265,21 +265,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          producerInfo.setRegistry(this);
 
          createConsumerFrom(producerInfo);
-
-         try
-         {
-            // if the producer is marked as active, activate it fo' real! :)
-            if (producerInfo.isActive())
-            {
-               activateConsumerWith(producerInfo.getId());
-            }
-         }
-         catch (Exception e)
-         {
-            producerInfo.setActive(false);
-            updateProducerInfo(producerInfo);
-         }
-
       }
    }
 
