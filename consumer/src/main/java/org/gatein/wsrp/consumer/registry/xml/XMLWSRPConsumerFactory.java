@@ -173,7 +173,7 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
          }
 
          // consumer didn't exist in the database, so create one and configure it
-         consumer = consumerRegistry.createConsumer(id, expirationCacheSeconds);
+         consumer = consumerRegistry.createConsumer(id, expirationCacheSeconds, null);
 
          return consumer;
       }

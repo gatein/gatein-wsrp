@@ -81,7 +81,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       this.sessionEventBroadcaster = sessionEventBroadcaster;
    }
 
-   public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds)
+   public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "Consumer identifier", "Creating a Consumer");
 
@@ -95,6 +95,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       info.setId(id);
       info.setRegistry(this);
       info.setExpirationCacheSeconds(expirationCacheSeconds);
+      info.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
 
       save(info, "Couldn't create Consumer '" + id + "'");
 

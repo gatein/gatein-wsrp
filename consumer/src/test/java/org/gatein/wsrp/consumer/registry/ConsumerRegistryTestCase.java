@@ -52,7 +52,7 @@ public class ConsumerRegistryTestCase extends TestCase
    public void testCreateAndGet()
    {
       String id = "test";
-      WSRPConsumer consumer = registry.createConsumer(id, null);
+      WSRPConsumer consumer = registry.createConsumer(id, null, null);
       assertNotNull(consumer);
       assertEquals(id, consumer.getProducerId());
       ProducerInfo info = consumer.getProducerInfo();
@@ -89,7 +89,7 @@ public class ConsumerRegistryTestCase extends TestCase
 
    public void testGetProducerInfoByKey()
    {
-      WSRPConsumer consumer = registry.createConsumer("id", null);
+      WSRPConsumer consumer = registry.createConsumer("id", null, null);
       ProducerInfo info = consumer.getProducerInfo();
 
       String key = info.getKey();
@@ -102,11 +102,11 @@ public class ConsumerRegistryTestCase extends TestCase
    {
       String id = "foo";
 
-      registry.createConsumer(id, null);
+      registry.createConsumer(id, null, null);
 
       try
       {
-         registry.createConsumer(id, null);
+         registry.createConsumer(id, null, null);
          fail("Shouldn't be possible to create a consumer with an existing id");
       }
       catch (ConsumerException expected)
@@ -118,7 +118,7 @@ public class ConsumerRegistryTestCase extends TestCase
    {
       String id = "id";
 
-      WSRPConsumer consumer = registry.createConsumer(id, null);
+      WSRPConsumer consumer = registry.createConsumer(id, null, null);
       assertEquals(consumer, registry.getConsumer(id));
 
       String key = consumer.getProducerInfo().getKey();
@@ -133,7 +133,7 @@ public class ConsumerRegistryTestCase extends TestCase
    {
       // create a foo consumer
       String id = "foo";
-      WSRPConsumer consumer = registry.createConsumer(id, null);
+      WSRPConsumer consumer = registry.createConsumer(id, null, null);
       ProducerInfo info = consumer.getProducerInfo();
       String key = info.getKey();
 

@@ -75,10 +75,12 @@ public class MockConsumerRegistry implements ConsumerRegistry
       return null;
    }
 
-   public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds)
+   public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL)
    {
       MockWSRPConsumer consumer = new MockWSRPConsumer(id);
-      consumer.getProducerInfo().setExpirationCacheSeconds(expirationCacheSeconds);
+      ProducerInfo producerInfo = consumer.getProducerInfo();
+      producerInfo.setExpirationCacheSeconds(expirationCacheSeconds);
+      producerInfo.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
       consumers.put(id, consumer);
       return consumer;
    }

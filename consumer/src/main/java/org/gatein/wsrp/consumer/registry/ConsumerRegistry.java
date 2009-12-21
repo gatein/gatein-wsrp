@@ -44,7 +44,7 @@ public interface ConsumerRegistry
 
    FederatingPortletInvoker getFederatingPortletInvoker();
 
-   WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds) throws ConsumerException;
+   WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL) throws ConsumerException;
 
    void persistConsumer(WSRPConsumer consumer) throws ConsumerException;
 
