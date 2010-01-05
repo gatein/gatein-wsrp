@@ -64,7 +64,7 @@ public class ConsumerImpl implements ConsumerSPI
    ConsumerImpl(String identity, String name)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "name", "Consumer");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "identity", "Consumer");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(identity, "identity", "Consumer");
 
       this.name = name;
       this.identity = identity;
