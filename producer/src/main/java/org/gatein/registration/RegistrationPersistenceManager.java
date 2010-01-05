@@ -43,6 +43,13 @@ public interface RegistrationPersistenceManager
    Consumer createConsumer(String consumerId, String consumerName) throws RegistrationException;
 
    /**
+    * Saves changes made to the specified consumer.
+    *
+    * @param consumer
+    */
+   void saveChangesTo(Consumer consumer);
+
+   /**
     * Retrieves the ConsumerGroup identified by the specified name.
     *
     * @param name the name of the group to be retrieved

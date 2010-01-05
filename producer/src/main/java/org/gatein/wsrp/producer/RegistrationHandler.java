@@ -113,6 +113,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       registration.setStatus(RegistrationStatus.VALID);
       Consumer consumer = registration.getConsumer();
       consumer.setConsumerAgent(registrationData.getConsumerAgent());
+      consumer.setStatus(RegistrationStatus.VALID);
       ConsumerCapabilities capabilities = consumer.getCapabilities();
 
       List<String> modeStrings = registrationData.getConsumerModes();
@@ -142,6 +143,8 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       capabilities.setSupportedUserProfileData(registrationData.getCustomUserProfileData());
       capabilities.setSupportedUserScopes(registrationData.getConsumerUserScopes());
       capabilities.setSupportsGetMethod(registrationData.isMethodGetSupported());
+
+      producer.getRegistrationManager().getPersistenceManager().saveChangesTo(consumer);
    }
 
    public ReturnAny deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration
@@ -351,7 +354,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
    {
       List<Property> regProperties = registrationData.getRegistrationProperties();
       Map<QName, Object> properties;
-      if (regProperties != null)
+      if (regProperties != null && !regProperties.isEmpty())
       {
          properties = new HashMap<QName, Object>(regProperties.size());
          for (Property property : regProperties)

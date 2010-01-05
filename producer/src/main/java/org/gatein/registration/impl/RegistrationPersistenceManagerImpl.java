@@ -162,4 +162,10 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    {
       return (ConsumerSPI)getConsumerById(consumerId);
    }
+
+   @Override
+   protected ConsumerSPI internalSaveChangesTo(Consumer consumer)
+   {
+      return (ConsumerSPI)consumer; // nothing to do here, left up to subclasses to implement update in persistent store
+   }
 }
