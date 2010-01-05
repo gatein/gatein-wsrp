@@ -61,6 +61,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private String registrationURL;
    private boolean failed;
    private boolean available;
+   private int msBeforeTimeOut;
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
@@ -203,6 +204,21 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    public void setAvailable(boolean available)
    {
       this.available = available;
+   }
+
+   public void setWSOperationTimeOut(int msBeforeTimeOut)
+   {
+      if (msBeforeTimeOut < 0)
+      {
+         msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
+      }
+
+      this.msBeforeTimeOut = msBeforeTimeOut;
+   }
+
+   public int getWSOperationTimeOut()
+   {
+      return msBeforeTimeOut;
    }
 
    public String getWsdlDefinitionURL()

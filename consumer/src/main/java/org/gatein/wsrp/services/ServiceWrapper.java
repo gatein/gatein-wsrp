@@ -40,7 +40,6 @@ public class ServiceWrapper<T>
 {
    protected T service;
    protected ManageableServiceFactory parentFactory;
-   private static final int TIMEOUT_MS = 10 * 1000; //todo: expose timeout so that it can be changed from the GUI
 
    /**
     * HTTP request timeout property. JAX-WS doesn't standardize that value, so needs to be adapted per used
@@ -61,7 +60,7 @@ public class ServiceWrapper<T>
 
       // set timeout properties for different WS stacks
       BindingProvider bindingProvider = (BindingProvider)service;
-      setTimeout(bindingProvider);
+      setTimeout(bindingProvider, parentFactory);
 
 
       Class tClass = (Class)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -76,18 +75,18 @@ public class ServiceWrapper<T>
       this.parentFactory = parentFactory;
    }
 
-   private static void setTimeout(BindingProvider bindingProvider)
+   private static void setTimeout(BindingProvider bindingProvider, ManageableServiceFactory parentFactory)
    {
       Map<String, Object> requestContext = bindingProvider.getRequestContext();
-      requestContext.put(JBOSS_WS_TIMEOUT, TIMEOUT_MS);
-      requestContext.put(SUN_WS_TIMEOUT, TIMEOUT_MS);
-      requestContext.put(IBM_WS_TIMEOUT, TIMEOUT_MS);
+      requestContext.put(JBOSS_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
+      requestContext.put(SUN_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
+      requestContext.put(IBM_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
    }
 
    public static <T> T getServiceWrapper(Class<T> expectedServiceInterface, Object service, ManageableServiceFactory parentFactory)
    {
       // for now, only set timeouts
-      setTimeout((BindingProvider)service);
+      setTimeout((BindingProvider)service, parentFactory);
       return expectedServiceInterface.cast(service);
    }
 

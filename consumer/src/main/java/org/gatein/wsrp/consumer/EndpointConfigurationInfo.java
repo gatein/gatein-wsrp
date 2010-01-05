@@ -173,4 +173,20 @@ public class EndpointConfigurationInfo
 
       return remoteHostAddress;
    }
+
+   /**
+    * Number of milliseconds before a WS operation is considered as having timed out.
+    *
+    * @param msBeforeTimeOut number of milliseconds to wait for a WS operation to return before timing out. Will be set
+    *                        to {@link ServiceFactory#DEFAULT_TIMEOUT_MS} if negative.
+    */
+   public void setWSOperationTimeOut(int msBeforeTimeOut)
+   {
+      serviceFactory.setWSOperationTimeOut(msBeforeTimeOut);
+   }
+
+   public int getWSOperationTimeOut()
+   {
+      return serviceFactory.getWSOperationTimeOut();
+   }
 }

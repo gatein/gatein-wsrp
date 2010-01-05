@@ -30,6 +30,8 @@ package org.gatein.wsrp.services;
  */
 public interface ServiceFactory
 {
+   int DEFAULT_TIMEOUT_MS = 10000;
+
    <T> T getService(Class<T> clazz) throws Exception;
 
    /**
@@ -73,4 +75,14 @@ public interface ServiceFactory
    void setWsdlDefinitionURL(String wsdlDefinitionURL);
 
    String getWsdlDefinitionURL();
+
+   /**
+    * Number of milliseconds before a WS operation is considered as having timed out.
+    *
+    * @param msBeforeTimeOut number of milliseconds to wait for a WS operation to return before timing out. Will be set
+    *                        to {@link #DEFAULT_TIMEOUT_MS} if negative.
+    */
+   void setWSOperationTimeOut(int msBeforeTimeOut);
+
+   int getWSOperationTimeOut();
 }
