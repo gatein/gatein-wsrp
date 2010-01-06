@@ -49,10 +49,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private String wsdlDefinitionURL;
 
    private final static QName SERVICE = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPService");
-   private final static QName WSRPServiceDescriptionService = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPServiceDescriptionService");
-   private final static QName WSRPBaseService = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPBaseService");
-   private final static QName WSRPPortletManagementService = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPPortletManagementService");
-   private final static QName WSRPRegistrationService = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPRegistrationService");
 
    private Map<Class, Object> services = new ConcurrentHashMap<Class, Object>();
    private String markupURL;
@@ -61,7 +57,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private String registrationURL;
    private boolean failed;
    private boolean available;
-   private int msBeforeTimeOut;
+   private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
@@ -243,22 +239,18 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
          Service service = Service.create(wsdlURL.toURL(), SERVICE);
 
-//         WSRPV1MarkupPortType markupPortType = service.getPort(WSRPBaseService, WSRPV1MarkupPortType.class);
          WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);
          services.put(WSRPV1MarkupPortType.class, markupPortType);
          markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-//         WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPServiceDescriptionService, WSRPV1ServiceDescriptionPortType.class);
          WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPV1ServiceDescriptionPortType.class);
          services.put(WSRPV1ServiceDescriptionPortType.class, sdPort);
          serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-//         WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPPortletManagementService, WSRPV1PortletManagementPortType.class);
          WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPV1PortletManagementPortType.class);
          services.put(WSRPV1PortletManagementPortType.class, managementPortType);
          portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-//         WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPRegistrationService, WSRPV1RegistrationPortType.class);
          WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPV1RegistrationPortType.class);
          services.put(WSRPV1RegistrationPortType.class, registrationPortType);
          registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
