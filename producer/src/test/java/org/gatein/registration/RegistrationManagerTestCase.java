@@ -320,9 +320,6 @@ public class RegistrationManagerTestCase extends TestCase
 
       assertTrue(consumer.getRegistrations().contains(reg));
 
-      // set the consumer status to valid
-      consumer.setStatus(RegistrationStatus.VALID);
-
       manager.removeRegistration(handle);
       assertTrue(!consumer.getRegistrations().contains(reg));
       assertNull(manager.getRegistration(handle));

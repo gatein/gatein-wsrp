@@ -28,6 +28,11 @@ import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 
+import javax.xml.namespace.QName;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 8784 $
@@ -53,24 +58,39 @@ public class ConsumerTestCase extends TestCase
       assertEquals("name", consumer.getName());
    }
 
-   public void testStatus()
+   public void testStatus() throws RegistrationException
    {
       assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
 
-      consumer.setStatus(RegistrationStatus.VALID);
-      assertEquals(RegistrationStatus.VALID, consumer.getStatus());
-   }
+      String name = consumer.getName();
 
-   public void testIllegalStatus()
-   {
-      try
-      {
-         consumer.setStatus(null);
-         fail("Was expecting an IllegalArgumentException to be thrown on setStatus(null)");
-      }
-      catch (IllegalArgumentException expected)
-      {
-      }
+      // adding a registration that isn't validated doesn't change the status
+      Registration registration = manager.addRegistrationTo(name, Collections.<QName, Object>emptyMap(), false);
+      assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
+
+      // but the consumer's status should become valid if the registration becomes so as well
+      registration.setStatus(RegistrationStatus.VALID);
+      assertEquals(RegistrationStatus.VALID, consumer.getStatus());
+
+      // adding a new registration makes the consumer's status pending
+      // need to change the registration props to register this consumer again
+      Map<QName, Object> props = new HashMap<QName, Object>(1);
+      props.put(new QName("prop"), "value");
+      registration = manager.addRegistrationTo(name, props, false);
+      assertEquals(2, consumer.getRegistrations().size());
+      assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
+
+      // and if the new registration is marked as invalid, so does the consumer's status
+      registration.setStatus(RegistrationStatus.INVALID);
+      assertEquals(RegistrationStatus.INVALID, consumer.getStatus());
+
+      // if the registration is returned to pending, then so is the consumer
+      registration.setStatus(RegistrationStatus.PENDING);
+      assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
+
+      // if all the registrations are valid, then so is the consumer
+      registration.setStatus(RegistrationStatus.VALID);
+      assertEquals(RegistrationStatus.VALID, consumer.getStatus());
    }
 
    public void testSetGroup() throws Exception

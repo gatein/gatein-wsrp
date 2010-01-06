@@ -113,7 +113,6 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       registration.setStatus(RegistrationStatus.VALID);
       Consumer consumer = registration.getConsumer();
       consumer.setConsumerAgent(registrationData.getConsumerAgent());
-      consumer.setStatus(RegistrationStatus.VALID);
       ConsumerCapabilities capabilities = consumer.getCapabilities();
 
       List<String> modeStrings = registrationData.getConsumerModes();

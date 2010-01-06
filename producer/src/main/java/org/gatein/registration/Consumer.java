@@ -51,13 +51,6 @@ public interface Consumer
    RegistrationStatus getStatus();
 
    /**
-    * Set the registration status of the consumer entity.
-    *
-    * @param status the registration status
-    */
-   void setStatus(RegistrationStatus status);
-
-   /**
     * Return all the registrations for the specified consumer.
     *
     * @return the consumer registrations

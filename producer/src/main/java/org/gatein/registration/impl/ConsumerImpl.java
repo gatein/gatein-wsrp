@@ -50,7 +50,6 @@ public class ConsumerImpl implements ConsumerSPI
    private String identity;
    private String consumerAgent;
    private Set<Registration> registrations;
-   private RegistrationStatus status;
    private ConsumerGroup group;
    private ConsumerCapabilities capabilities;
    private String key;
@@ -74,7 +73,6 @@ public class ConsumerImpl implements ConsumerSPI
    private void init()
    {
       registrations = new HashSet<Registration>(7);
-      status = RegistrationStatus.PENDING;
       capabilities = new ConsumerCapabilitiesImpl();
    }
 
@@ -142,13 +140,27 @@ public class ConsumerImpl implements ConsumerSPI
 
    public RegistrationStatus getStatus()
    {
-      return status;
-   }
+      if (ParameterValidation.existsAndIsNotEmpty(registrations))
+      {
+         RegistrationStatus result = RegistrationStatus.VALID;
+         for (Registration registration : registrations)
+         {
+            RegistrationStatus status = registration.getStatus();
 
-   public void setStatus(RegistrationStatus status)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(status, "RegistrationStatus");
-      this.status = status;
+            // anytime an invalid registration is found, that makes the consumer invalid as well, no need for further processing
+            if (RegistrationStatus.INVALID == status)
+            {
+               return RegistrationStatus.INVALID;
+            }
+            else if (RegistrationStatus.PENDING == status)
+            {
+               result = status;
+            }
+         }
+
+         return result;
+      }
+      return RegistrationStatus.PENDING;
    }
 
    public Collection<Registration> getRegistrations() throws RegistrationException
@@ -178,12 +190,6 @@ public class ConsumerImpl implements ConsumerSPI
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
       registrations.remove(registration);
-
-      // status should become pending if there are no registrations
-      if (registrations.isEmpty())
-      {
-         setStatus(RegistrationStatus.PENDING);
-      }
    }
 
    public void setGroup(ConsumerGroup group) throws RegistrationException

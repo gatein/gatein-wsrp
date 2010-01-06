@@ -42,7 +42,6 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
 
       ConsumerSPI consumer = internalCreateConsumer(consumerId, consumerName);
-      consumer.setStatus(RegistrationStatus.PENDING);
       internalAddConsumer(consumer);
 
       return consumer;
