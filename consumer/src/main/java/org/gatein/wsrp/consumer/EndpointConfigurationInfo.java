@@ -47,6 +47,7 @@ public class EndpointConfigurationInfo
    /** Access to the WS */
    private transient ServiceFactory serviceFactory;
    private transient String remoteHostAddress;
+   private transient boolean started;
 
    public EndpointConfigurationInfo()
    {
@@ -71,12 +72,20 @@ public class EndpointConfigurationInfo
 
    public void start() throws Exception
    {
-      serviceFactory.start();
+      if (!started)
+      {
+         serviceFactory.start();
+         started = true;
+      }
    }
 
    public void stop() throws Exception
    {
-      serviceFactory.stop();
+      if (started)
+      {
+         serviceFactory.stop();
+         started = false;
+      }
    }
 
    ServiceFactory getServiceFactory()
