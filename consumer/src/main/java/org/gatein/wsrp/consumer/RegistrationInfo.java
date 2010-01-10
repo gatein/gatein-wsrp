@@ -85,9 +85,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    static RegistrationInfo createUndeterminedRegistration(ProducerInfo producerInfo)
    {
-      RegistrationInfo info = new RegistrationInfo(producerInfo);
-      info.setConsumerName(UNDETERMINED_REGISTRATION);
-      return info;
+      return new RegistrationInfo(producerInfo);
    }
 
    public boolean isUndetermined()
@@ -101,9 +99,9 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       this.requiresRegistration = requiresRegistration;
    }
 
-   public RegistrationInfo()
+   RegistrationInfo()
    {
-      persistentConsumerName = WSRPConstants.DEFAULT_CONSUMER_NAME;
+      persistentConsumerName = UNDETERMINED_REGISTRATION;
    }
 
    public RegistrationInfo(RegistrationInfo other)
