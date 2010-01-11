@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -305,7 +305,6 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    public RegistrationProperty setRegistrationPropertyValue(String name, String value)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "registration property name", "RegistrationInfo.setRegistrationPropertyValue");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(value, "registration property value", "RegistrationInfo.setRegistrationPropertyValue");
 
       RegistrationProperty prop = getOrCreateRegistrationPropertiesMap(true).get(name);
       if (prop != null)
@@ -574,11 +573,11 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             {
                // mark the prop as invalid
                RegistrationProperty prop = properties.get(name);
-               prop.setInvalid(Boolean.TRUE, RegistrationProperty.Status.INVALID_VALUE);
+               prop.setStatus(RegistrationProperty.Status.INVALID_VALUE);
 
                // do the same in the result
                prop = result.getRegistrationProperties().get(name);
-               prop.setInvalid(Boolean.TRUE, RegistrationProperty.Status.INEXISTENT);
+               prop.setStatus(RegistrationProperty.Status.INEXISTENT);
             }
             else
             {
@@ -624,7 +623,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             RegistrationPropertyDescription desc = WSRPUtils.convertToRegistrationPropertyDescription(description);
             RegistrationProperty prop = new RegistrationProperty(name, null, WSRPUtils.toString(desc.getLang()), this);
             prop.setDescription(desc);
-            prop.setInvalid(Boolean.TRUE, RegistrationProperty.Status.MISSING_VALUE);
+            prop.setStatus(RegistrationProperty.Status.MISSING_VALUE);
             result.put(name, prop);
          }
 
@@ -664,7 +663,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          for (Object o : persistentRegistrationProperties.values())
          {
             RegistrationProperty prop = (RegistrationProperty)o;
-            prop.setInvalid(Boolean.FALSE, RegistrationProperty.Status.VALID);
+            prop.setStatus(RegistrationProperty.Status.VALID);
          }
       }
 

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -154,20 +154,19 @@ public class EndpointConfigurationInfo
       return result;
    }
 
-   public void refresh() throws InvokerUnavailableException
+   public boolean refresh() throws InvokerUnavailableException
    {
-      if (isRefreshNeeded())
-      {
-         forceRefresh();
-      }
+      return isRefreshNeeded() && forceRefresh();
    }
 
-   void forceRefresh() throws InvokerUnavailableException
+   boolean forceRefresh() throws InvokerUnavailableException
    {
       getService(WSRPV1ServiceDescriptionPortType.class, serviceFactory);
       getService(WSRPV1MarkupPortType.class, serviceFactory);
       getService(WSRPV1PortletManagementPortType.class, serviceFactory);
       getService(WSRPV1RegistrationPortType.class, serviceFactory);
+
+      return true;
    }
 
    public String getRemoteHostAddress()

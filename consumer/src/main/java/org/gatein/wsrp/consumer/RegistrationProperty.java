@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,8 +24,9 @@
 package org.gatein.wsrp.consumer;
 
 import org.gatein.common.util.ParameterValidation;
-import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+
+import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -36,13 +37,12 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
 {
    private Long persistentId;
    private RegistrationPropertyDescription persistentDescription;
-   private Boolean persistentInvalid;
    private String persistentLang;
    private String persistentName;
    private String persistentValue;
+   private Status status;
 
    private transient PropertyChangeListener listener;
-   private transient Status status;
 
    public int compareTo(RegistrationProperty o)
    {
@@ -79,7 +79,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "Name", "RegistrationProperty");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "Lang", "RegistrationProperty");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "listener", "RegistrationProperty");
+      ParameterValidation.throwIllegalArgExceptionIfNull(listener, "listener");
       this.persistentName = name;
       this.persistentLang = lang;
       this.listener = listener;
@@ -160,35 +160,19 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
 
    public Boolean isInvalid()
    {
-      return persistentInvalid;
-   }
-
-   void setInvalid(Boolean invalid)
-   {
-      this.persistentInvalid = invalid;
+      if (UNCHECKED_VALUE.equals(status))
+      {
+         return null;
+      }
+      else
+      {
+         return !VALID.equals(status);
+      }
    }
 
    public boolean isDeterminedInvalid()
    {
-      return persistentInvalid != null && persistentInvalid && !UNCHECKED_VALUE.equals(getStatus());
-   }
-
-   public void setInvalid(Boolean invalid, Status status)
-   {
-      this.persistentInvalid = invalid;
-      if (!invalid)
-      {
-         this.status = VALID;
-      }
-      else
-      {
-         if (status == null || VALID.equals(status))
-         {
-            throw new IllegalArgumentException("Invalid status: " + status + " for an invalid property!");
-         }
-
-         this.status = status;
-      }
+      return !VALID.equals(status) && !UNCHECKED_VALUE.equals(status);
    }
 
    public void setValue(String stringValue)
@@ -198,7 +182,6 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       {
          String oldValue = persistentValue;
          persistentValue = stringValue;
-         persistentInvalid = null;
          if (persistentValue == null)
          {
             status = MISSING_VALUE;

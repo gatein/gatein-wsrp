@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -367,23 +367,27 @@ public class ProducerInfo
 
          RefreshResult result = new RefreshResult(); // success by default!
 
+         boolean didJustRefresh = false;
          try
          {
-            persistentEndpointInfo.refresh();
+            didJustRefresh = persistentEndpointInfo.refresh();
          }
          catch (InvokerUnavailableException e)
          {
             log.debug("Couldn't refresh endpoint information, attempting a second time: " + e);
 
             // try again as refresh on a failed service factory will fail without attempting the refresh
-            persistentEndpointInfo.forceRefresh();
+            didJustRefresh = persistentEndpointInfo.forceRefresh();
             // todo: should we fail fast here?
             // throw new PortletInvokerException("Couldn't refresh endpoint information: " + e.getLocalizedMessage());
          }
          finally
          {
-            // save changes to endpoint
-            registry.updateProducerInfo(this);
+            // save changes to endpoint only if we just refreshed, otherwise unneeded
+            if (didJustRefresh)
+            {
+               registry.updateProducerInfo(this);
+            }
          }
 
          // get the service description from the producer

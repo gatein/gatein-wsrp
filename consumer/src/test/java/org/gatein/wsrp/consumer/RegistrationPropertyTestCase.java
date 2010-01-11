@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2007, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.consumer;
 
@@ -54,6 +54,56 @@ public class RegistrationPropertyTestCase extends TestCase
       prop = new RegistrationProperty("name", VALUE, "en", listener);
    }
 
+   public void testConstructor()
+   {
+      try
+      {
+         new RegistrationProperty(null, VALUE, "en", listener);
+         fail("Should have failed on null name");
+      }
+      catch (Exception e)
+      {
+      }
+
+      try
+      {
+         new RegistrationProperty("name", null, "en", listener);
+      }
+      catch (Exception e)
+      {
+         fail("Shouldn't have failed on null value");
+      }
+
+      try
+      {
+         new RegistrationProperty("name", VALUE, null, listener);
+         fail("Should have failed on null lang");
+      }
+      catch (Exception e)
+      {
+      }
+
+      try
+      {
+         new RegistrationProperty("name", VALUE, "en", null);
+         fail("Should have failed on null listener");
+      }
+      catch (Exception e)
+      {
+      }
+   }
+
+   public void testSetNullValue()
+   {
+      forceValid();
+
+      prop.setValue(null);
+      assertNull(prop.getValue());
+      assertTrue(prop.isInvalid());
+      assertTrue(prop.isDeterminedInvalid());
+      assertEquals(RegistrationProperty.Status.MISSING_VALUE, prop.getStatus());
+   }
+
    public void testGetters()
    {
       assertEquals("name", prop.getName());
@@ -67,7 +117,7 @@ public class RegistrationPropertyTestCase extends TestCase
 
    public void testSetValue()
    {
-      prop.setInvalid(Boolean.FALSE, RegistrationProperty.Status.VALID);
+      forceValid();
 
       // we haven't changed the value, so the status shouldn't have changed
       prop.setValue(VALUE);
@@ -81,40 +131,10 @@ public class RegistrationPropertyTestCase extends TestCase
       assertEquals(RegistrationProperty.Status.UNCHECKED_VALUE, prop.getStatus());
    }
 
-   public void testSetInvalid()
+   /** Force valid status so that we can check that status properly change based on state. */
+   private void forceValid()
    {
-      prop.setInvalid(Boolean.FALSE, RegistrationProperty.Status.VALID);
-      assertEquals(Boolean.FALSE, prop.isInvalid());
-      assertEquals(RegistrationProperty.Status.VALID, prop.getStatus());
-
-      // whatever the status, if we specifiy that the property is valid, its status should be VALID
-      prop.setInvalid(Boolean.FALSE, RegistrationProperty.Status.INEXISTENT);
-      assertEquals(Boolean.FALSE, prop.isInvalid());
-      assertEquals(RegistrationProperty.Status.VALID, prop.getStatus());
-
-      prop.setInvalid(Boolean.FALSE, null);
-      assertEquals(Boolean.FALSE, prop.isInvalid());
-      assertEquals(RegistrationProperty.Status.VALID, prop.getStatus());
-
-      try
-      {
-         prop.setInvalid(true, null);
-         fail("setInvalid should not accept a prop to be set invalid without a proper status");
-      }
-      catch (IllegalArgumentException e)
-      {
-         // expected
-      }
-
-      try
-      {
-         prop.setInvalid(true, RegistrationProperty.Status.VALID);
-         fail("setInvalid should not accept a prop to be set invalid with a VALID status");
-      }
-      catch (IllegalArgumentException e)
-      {
-         // expected
-      }
+      prop.setStatus(RegistrationProperty.Status.VALID);
    }
 
    public void testPropertyChangedEvent()
