@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -38,7 +38,7 @@ import java.util.Locale;
  */
 public class RegistrationPropertyDescription implements PropertyDescription
 {
-   private Long key;
+   private String key;
    private QName name;
    private QName type;
    private String schemaLocation;
@@ -148,12 +148,12 @@ public class RegistrationPropertyDescription implements PropertyDescription
    }
 
 
-   public Long getKey()
+   public String getPersistentKey()
    {
       return key;
    }
 
-   public void setKey(Long key)
+   public void setPersistentKey(String key)
    {
       this.key = key;
    }
