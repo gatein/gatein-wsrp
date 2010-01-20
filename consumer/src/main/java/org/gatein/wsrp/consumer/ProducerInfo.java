@@ -114,6 +114,8 @@ public class ProducerInfo
    private ConsumerRegistry registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
 
+   private transient RegistrationInfo expectedRegistrationInfo;
+
    private Map<String, ItemDescription> customModes;
    private Map<String, ItemDescription> customWindowStates;
 
@@ -309,6 +311,11 @@ public class ProducerInfo
       return requiresInitCookie;
    }
 
+   public RegistrationInfo getExpectedRegistrationInfo()
+   {
+      return expectedRegistrationInfo;
+   }
+
    /**
     * Refreshes the producer's information from the service description if required.
     *
@@ -333,6 +340,10 @@ public class ProducerInfo
          if (result.hasIssues())
          {
             setActive(false);
+
+            // record what the Producer's expectations are
+            expectedRegistrationInfo = new RegistrationInfo(this.persistentRegistrationInfo);
+            expectedRegistrationInfo.refresh(result.getServiceDescription(), getId(), true, true, true);
          }
          else
          {
@@ -341,6 +352,9 @@ public class ProducerInfo
             {
                setActive(true);
             }
+
+            // if we didn't have any issues, then the expected registration info is the one we have
+            expectedRegistrationInfo = persistentRegistrationInfo;
          }
 
          registry.updateProducerInfo(this);

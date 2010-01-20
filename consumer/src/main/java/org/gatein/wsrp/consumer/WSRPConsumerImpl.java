@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -531,9 +531,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
          throw new PortletInvokerException(e);
       }
 
-      RefreshResult refreshResult = producerInfo.detailedRefresh(forceRefresh);
-      sessionHandler.setRequiresInitCookie(producerInfo.getRequiresInitCookie());
-      return refreshResult;
+      return refreshProducerInfo(forceRefresh);
    }
 
    // Service implementation *******************************************************************************************
@@ -588,10 +586,11 @@ public class WSRPConsumerImpl implements WSRPConsumer
       refreshProducerInfo(true);
    }
 
-   private void refreshProducerInfo(boolean forceRefresh) throws PortletInvokerException
+   private RefreshResult refreshProducerInfo(boolean forceRefresh) throws PortletInvokerException
    {
-      producerInfo.refresh(forceRefresh);
+      RefreshResult refreshResult = producerInfo.detailedRefresh(forceRefresh);
       sessionHandler.setRequiresInitCookie(producerInfo.getRequiresInitCookie());
+      return refreshResult;
    }
 
    public void releaseSessions() throws PortletInvokerException

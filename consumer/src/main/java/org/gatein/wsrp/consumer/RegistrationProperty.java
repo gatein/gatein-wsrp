@@ -35,7 +35,7 @@ import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
  */
 public class RegistrationProperty implements Comparable<RegistrationProperty>
 {
-   private Long persistentId;
+   private String persistentId;
    private RegistrationPropertyDescription persistentDescription;
    private String persistentLang;
    private String persistentName;
@@ -122,12 +122,12 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       return result;
    }
 
-   public Long getKey()
+   public String getPersistentKey()
    {
       return persistentId;
    }
 
-   public void setKey(Long key)
+   public void setPersistentKey(String key)
    {
       this.persistentId = key;
    }
@@ -231,8 +231,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       this.listener = listener;
    }
 
-   /** todo: Should be package-only, public for tests... */
-   public static interface PropertyChangeListener
+   static interface PropertyChangeListener
    {
       void propertyValueChanged(RegistrationProperty property, Object oldValue, Object newValue);
    }
