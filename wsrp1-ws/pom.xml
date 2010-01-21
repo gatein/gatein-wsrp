@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
-      <version>1.0.0-Beta06-SNAPSHOT</version>
+      <version>1.0.0-Beta06</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <artifactId>wsrp-wsrp1-ws</artifactId>
