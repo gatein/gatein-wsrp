@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <modelVersion>4.0.0</modelVersion>
 
@@ -46,9 +47,9 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.1.0-Beta02</version.gatein.pc>
-      <version.gatein.common>2.0.0-CR1</version.gatein.common>
-      <version.gatein.wci>2.0.0-Beta02</version.gatein.wci>
+      <version.gatein.pc>2.1.0-CR02</version.gatein.pc>
+      <version.gatein.common>2.0.0-CR03</version.gatein.common>
+      <version.gatein.wci>2.0.0-CR02</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
       <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
@@ -64,7 +65,7 @@
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.0.0-Beta02</version>
+            <version>1.0.0-Beta03</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -30,11 +30,9 @@
    <!-- Facelet portlet view handler-->
 
    <application>
-      <view-handler>
-         org.jboss.portletbridge.application.PortletViewHandler
-      </view-handler>
-      <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
+      <view-handler>org.jboss.portletbridge.application.PortletViewHandler</view-handler>
       <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>
+      <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
       <locale-config>
          <default-locale>en</default-locale>
          <supported-locale>fr</supported-locale>

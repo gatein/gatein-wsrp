@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import org.exoplatform.container.ExoContainerContext;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
@@ -123,7 +124,7 @@ public class ConsumerBean extends ManagedBean
                info.setId(id);
 
                // properly update the registry after change of id
-               registry.updateProducerInfo(info);
+               getRegistry().updateProducerInfo(info);
 
                // we're not using modifyIfNeeded here to avoid double equality check, so we need to set modified manually
                modified = true;
@@ -133,7 +134,7 @@ public class ConsumerBean extends ManagedBean
       else
       {
          // initialization scenario
-         consumer = registry.getConsumer(id);
+         consumer = getRegistry().getConsumer(id);
          if (consumer != null)
          {
             EndpointConfigurationInfo endpoint = getProducerInfo().getEndpointConfigurationInfo();
@@ -174,7 +175,7 @@ public class ConsumerBean extends ManagedBean
       }
       catch (Exception e)
       {
-         registry.deactivateConsumerWith(getId());
+         getRegistry().deactivateConsumerWith(getId());
          beanContext.createErrorMessageFrom("wsdl", e);
       }
    }
@@ -345,7 +346,7 @@ public class ConsumerBean extends ManagedBean
 
    private void saveToRegistry(ProducerInfo prodInfo)
    {
-      registry.updateProducerInfo(prodInfo);
+      getRegistry().updateProducerInfo(prodInfo);
       modified = false;
    }
 
@@ -514,6 +515,15 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isAlreadyExisting(String objectName)
    {
-      return registry.getConsumer(objectName) != null;
+      return getRegistry().getConsumer(objectName) != null;
+   }
+
+   public ConsumerRegistry getRegistry()
+   {
+      if (registry == null)
+      {
+         registry = (ConsumerRegistry)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ConsumerRegistry.class);
+      }
+      return registry;
    }
 }

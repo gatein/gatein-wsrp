@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import org.exoplatform.container.ExoContainerContext;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
@@ -62,6 +63,10 @@ public class ConsumerManagerBean extends ManagedBean
 
    public ConsumerRegistry getRegistry()
    {
+      if (registry == null)
+      {
+         registry = (ConsumerRegistry)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ConsumerRegistry.class);
+      }
       return registry;
    }
 
@@ -83,22 +88,22 @@ public class ConsumerManagerBean extends ManagedBean
    public WSRPConsumer getSelectedConsumer()
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(selectedId, "consumer id", null);
-      return registry.getConsumer(selectedId);
+      return getRegistry().getConsumer(selectedId);
    }
 
    public boolean isConsumersEmpty()
    {
-      return registry.getConfiguredConsumers().isEmpty();
+      return getRegistry().getConfiguredConsumers().isEmpty();
    }
 
    public List<WSRPConsumer> getConsumers()
    {
-      return registry.getConfiguredConsumers();
+      return getRegistry().getConfiguredConsumers();
    }
 
    public String reload()
    {
-      registry.reloadConsumers();
+      getRegistry().reloadConsumers();
       return CONSUMERS;
    }
 
@@ -117,17 +122,17 @@ public class ConsumerManagerBean extends ManagedBean
                   RefreshResult result = internalRefresh(consumer);
                   if (result != null && !result.hasIssues())
                   {
-                     registry.activateConsumerWith(selectedId);
+                     getRegistry().activateConsumerWith(selectedId);
                   }
                }
                else
                {
-                  registry.activateConsumerWith(selectedId);
+                  getRegistry().activateConsumerWith(selectedId);
                }
             }
             else
             {
-               registry.deactivateConsumerWith(selectedId);
+               getRegistry().deactivateConsumerWith(selectedId);
             }
          }
          catch (Exception e)
@@ -152,7 +157,7 @@ public class ConsumerManagerBean extends ManagedBean
 
          try
          {
-            registry.registerOrDeregisterConsumerWith(selectedId, register);
+            getRegistry().registerOrDeregisterConsumerWith(selectedId, register);
             // show consumer configuration
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
@@ -177,7 +182,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            registry.createConsumer(selectedId, null, null);
+            getRegistry().createConsumer(selectedId, null, null);
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
@@ -197,7 +202,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            registry.destroyConsumer(selectedId);
+            getRegistry().destroyConsumer(selectedId);
             return listConsumers();
          }
          catch (Exception e)
@@ -259,18 +264,18 @@ public class ConsumerManagerBean extends ManagedBean
             beanContext.createErrorMessage(statusMessage);
 
             // refresh had issues, we should deactivate this consumer
-            registry.deactivateConsumerWith(consumer.getProducerId());
+            getRegistry().deactivateConsumerWith(consumer.getProducerId());
          }
          else
          {
             // activate the consumer if it's supposed to be active
             if (consumer.isActive())
             {
-               registry.activateConsumerWith(consumer.getProducerId());
+               getRegistry().activateConsumerWith(consumer.getProducerId());
             }
             else
             {
-               registry.deactivateConsumerWith(consumer.getProducerId());
+               getRegistry().deactivateConsumerWith(consumer.getProducerId());
             }
 
             beanContext.createInfoMessage(statusMessage);
@@ -374,6 +379,6 @@ public class ConsumerManagerBean extends ManagedBean
 
    public boolean isAlreadyExisting(String objectName)
    {
-      return registry.getConsumer(objectName) != null;
+      return getRegistry().getConsumer(objectName) != null;
    }
 }

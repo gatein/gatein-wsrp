@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import org.exoplatform.container.ExoContainerContext;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
@@ -56,6 +57,10 @@ public class ProducerBean extends ManagedBean
 
    public ProducerConfigurationService getConfigurationService()
    {
+      if (configurationService == null)
+      {
+         configurationService = (ProducerConfigurationService)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ProducerConfigurationService.class);
+      }
       return configurationService;
    }
 
@@ -66,7 +71,7 @@ public class ProducerBean extends ManagedBean
 
    public ProducerConfiguration getConfiguration()
    {
-      return configurationService.getConfiguration();
+      return getConfigurationService().getConfiguration();
    }
 
    public boolean isRegistrationRequiredForFullDescription()
@@ -175,7 +180,7 @@ public class ProducerBean extends ManagedBean
          {
             getRegRequirements().reloadPolicyFrom(policyClassName, validatorClassName);
          }
-         configurationService.saveConfiguration();
+         getConfigurationService().saveConfiguration();
          beanContext.createInfoMessage("bean_producer_save_success");
       }
       catch (Exception e)
@@ -190,7 +195,7 @@ public class ProducerBean extends ManagedBean
    {
       try
       {
-         configurationService.reloadConfiguration();
+         getConfigurationService().reloadConfiguration();
          beanContext.createInfoMessage("bean_producer_cancel_success");
       }
       catch (Exception e)
