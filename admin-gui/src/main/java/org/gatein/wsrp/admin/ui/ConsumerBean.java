@@ -31,7 +31,6 @@ import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,7 +47,6 @@ public class ConsumerBean extends ManagedBean
 {
    private WSRPConsumer consumer;
    private ConsumerRegistry registry;
-   private Boolean useWSDL = null;
    private ConsumerManagerBean manager;
    private boolean modified;
    private boolean registrationLocallyModified;
@@ -67,11 +65,6 @@ public class ConsumerBean extends ManagedBean
    private static final String UPDATE_SUCCESS = "bean_consumer_update_success";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
 
-   public ConsumerBean()
-   {
-      useWSDL = Boolean.TRUE; // use WSDL by default
-   }
-
    public void setRegistry(ConsumerRegistry registry)
    {
       this.registry = registry;
@@ -85,16 +78,6 @@ public class ConsumerBean extends ManagedBean
    public boolean isModified()
    {
       return modified || getProducerInfo().isModifyRegistrationRequired() || isRegistrationLocallyModified();
-   }
-
-   public boolean isUseWSDL()
-   {
-      return true;
-   }
-
-   public void setUseWSDL(boolean useWSDL)
-   {
-      this.useWSDL = useWSDL ? Boolean.TRUE : Boolean.FALSE;
    }
 
    public boolean isRefreshNeeded()
@@ -484,14 +467,6 @@ public class ConsumerBean extends ManagedBean
    }
 
    // Listeners
-
-   public void useWSDLListener(ValueChangeEvent event)
-   {
-      useWSDL = (Boolean)modifyIfNeeded(useWSDL, event.getNewValue(), "wsdl", false);
-
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
-   }
 
    // todo: valueChangeListener not needed anymore when events on RegistrationProperties work  
 
