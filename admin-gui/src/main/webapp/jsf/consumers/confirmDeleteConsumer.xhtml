@@ -26,7 +26,8 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:jbp="http://www.jboss.org/portal"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+             xmlns:webui="http://jboss.org/gatein">
 
    <ui:param name="title" value=""/>
    <ui:define name="content">
@@ -51,14 +52,18 @@
             <p class="portlet-class">#{i18n.confirm_detete_consumer_proceed}</p>
 
             <h:form id="confirm-delete-form">
-               <h:commandLink id="destroy-link" value="#{i18n.confirm_delete_consumer_submit}"
-                              action="#{consumersMgr.destroyConsumer}"
-                              styleClass="portlet-form-button portlet-section-buttonrow">
-                  <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
-               </h:commandLink>
-               <h:commandButton id="cancel-link" value="#{i18n.confirm_delete_consumer_cancel}"
-                                action="#{consumersMgr.listConsumers}"
-                                styleClass="portlet-form-button portlet-section-buttonrow"/>
+
+            <webui:commandButton id="destroy-link"
+                                   action="destroyConsumer"
+                                   backingBean="#{consumersMgr}"
+                                   value="#{i18n.confirm_delete_consumer_submit}">
+                 <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
+                                   </webui:commandButton>
+
+            <webui:commandButton id="cancel-link"
+                                   action="listConsumers"
+                                   backingBean="#{consumersMgr}"
+                                   value="#{i18n.confirm_delete_consumer_cancel}"/>
             </h:form>
          </div>
       </div>

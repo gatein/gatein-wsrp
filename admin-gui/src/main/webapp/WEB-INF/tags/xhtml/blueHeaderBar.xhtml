@@ -27,21 +27,18 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:c="http://java.sun.com/jstl/core">
 
-<table class="ActionContainer">
-    <tr>
-        <td>
-            <div class="ButtonLeft">
-                <div class="ButtonRight">
-                    <div class="ButtonMiddle">
-                        <h:commandLink id="#{id}" action="#{backingBean[action]}"
-                                        value="#{value}" immediate="#{immediate}">
+        <div class="UIBarStyle">
+            <div class="BarStyle2">
+                <div class="LeftBar">
+                    <div class="RightBar">
+                        <div class="MiddleBar">
+
                             <ui:insert/>
-                                        </h:commandLink>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </td>
-    </tr>
-</table>
 
 </ui:composition>

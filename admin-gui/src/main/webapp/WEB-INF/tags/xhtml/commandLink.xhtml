@@ -33,10 +33,8 @@
             <div class="ButtonLeft">
                 <div class="ButtonRight">
                     <div class="ButtonMiddle">
-                        <h:commandLink id="#{id}" action="#{backingBean[action]}"
-                                        value="#{value}" immediate="#{immediate}">
-                            <ui:insert/>
-                                        </h:commandLink>
+                        <h:commandLink id="#{id}" action="#{actionString}"
+                                        value="#{value}" immediate="#{immediate}"/>
                     </div>
                 </div>
             </div>

@@ -8,4 +8,14 @@
         <tag-name>commandButton</tag-name>
         <source>xhtml/commandButton.xhtml</source>
     </tag>
+
+    <tag>
+        <tag-name>commandLink</tag-name>
+        <source>xhtml/commandLink.xhtml</source>
+    </tag>
+
+    <tag>
+        <tag-name>blueHeaderBar</tag-name>
+        <source>xhtml/blueHeaderBar.xhtml</source>
+    </tag>
 </facelet-taglib>

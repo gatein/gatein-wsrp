@@ -25,7 +25,8 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+             xmlns:webui="http://jboss.org/gatein">
 
    <ui:define name="topnav">
       <h:form id="cons-temp-form" styleClass="cons-temp-form">
@@ -64,86 +65,60 @@
 
    <ui:define name="objectpath">
 
+          <webui:blueHeaderBar>
+              <div class="full-width">
+                  <f:subview id="add-consumer" rendered="#{showAddConsumer eq true}">
+                      <div class="float-left half-width">
+                          <!-- Consumer creation -->
+                          <div class="create-container">
+                              <h:form id="createConsumer" styleClass="createObjectForm">
+                                  <span class="portlet-font">#{i18n.consumers_create_title}</span>
+                                  <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
+                                               styleClass="portlet-form-input-field"
+                                               label="Consumer Name" required="true"/>&#160;&#160;
+
+                                  <webui:commandButton id="createConsumerButton"
+                                                       action="createConsumer"
+                                                       backingBean="#{consumersMgr}"
+                                                       value="#{i18n.consumers_create_submit}"/>
 
 
-
-          <div class="UIBarStyle">
-            <div class="BarStyle2">
-                <div class="LeftBar">
-                    <div class="RightBar">
-                        <div class="MiddleBar">
-                            <div class="full-width">
-                                <f:subview id="add-consumer" rendered="#{showAddConsumer eq true}">
-                                 <div class="float-left half-width">
+                                  <ui:remove>
+                                      <h:message for="consumerName" errorClass="portlet-msg-error"/>
+                                  </ui:remove>
+                              </h:form>
+                          </div>
 
 
+                      </div>
+                  </f:subview>
 
-                                        <!-- Consumer creation -->
-                                        <div class="create-container">
-                                        <h:form id="createConsumer" styleClass="createObjectForm">
-                                            <span class="portlet-font">#{i18n.consumers_create_title}</span>
-                                            <h:inputText value="#{consumersMgr.selectedId}" id="consumerName" styleClass="portlet-form-input-field"
-                                                 label="Consumer Name" required="true"/>&#160;&#160;
+                  <div class="#{showAddConsumer eq true ? 'float-right half-width' : 'full-width'}">
 
-                                            <table class="ActionContainer">
-                                                <tr>
-                                                    <td>
-                                                        <div class="ButtonLeft">
-                                                            <div class="ButtonRight">
-                                                                <div class="ButtonMiddle">
-                                                                    <h:commandLink id="createConsumerButton" action="#{consumersMgr.createConsumer}"
-                                                                                   value="#{i18n.consumers_create_submit}"/>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                      <h:form id="cons-temp-form1">
+                          <div class="UIControlBar">
+                              <c:if test="#{empty title}">
+                           <span
+                                   class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} float-left">
+                              <h:outputFormat value="#{i18n.path_consumers_consumer}">
+                                  <f:param value="#{consumer.id}"/>
+                              </h:outputFormat>
+                              (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
+                               #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
+                           </span>
+                              </c:if>
 
-                                            <ui:remove>
-                                            <h:message for="consumerName" errorClass="portlet-msg-error"/>
-                                            </ui:remove>
-                                        </h:form>
-                                        </div>
+                        <span class="#{!empty title ? 'selected' : 'pathItem'} float-right">
+                           <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
+                                          value="#{i18n.path_consumers_root}"/>
+                        </span>
 
+                          </div>
+                      </h:form>
 
-                                </div>
-                                </f:subview>
-
-                                 <div class="#{showAddConsumer eq true ? 'float-right half-width' : 'full-width'}">
-
-                                 <h:form id="cons-temp-form1">
-                                 <div class="UIControlBar">
-                                     <c:if test="#{empty title}">
-                                       <span
-                                          class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} float-left">
-                                          <h:outputFormat value="#{i18n.path_consumers_consumer}">
-                                             <f:param value="#{consumer.id}"/>
-                                          </h:outputFormat>
-                                          (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
-                                          #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
-                                       </span>
-                                    </c:if>
-
-                                    <span class="#{!empty title ? 'selected' : 'pathItem'} float-right">
-                                       <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
-                                                      value="#{i18n.path_consumers_root}"/>
-                                    </span>
-
-                                 </div>
-                                 </h:form>
-
-                                </div>
-
-                            </div>
-
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+                  </div>
+              </div>
+          </webui:blueHeaderBar>
 
 
    </ui:define>

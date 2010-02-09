@@ -26,7 +26,7 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:c="http://java.sun.com/jstl/core"
-        xmlns:webui="http://jboss.org/gatein">
+             xmlns:webui="http://jboss.org/gatein">
    <ui:param name="title" value=""/>
 
    <ui:define name="content">
@@ -93,20 +93,24 @@
                                                         converter="faces.convert.RegistrationProperty.Status"/>
                                        </h:column>
                                     </h:dataTable>
-                                    <h:commandLink id="cons-update-link" action="#{consumer.update}"
-                                                   value="#{i18n.edit_consumer_registration_update_props}"
-                                                   rendered="#{consumer.registered}"
-                                                   styleClass="portlet-form-button portlet-section-buttonrow"/>
+
+
+                                     <webui:commandButton action="update"
+                                        backingBean="#{consumer}"
+                                        id="cons-update-link"
+                                        value="#{i18n.edit_consumer_registration_update_props}"
+                                       rendered="#{consumer.registered}"/>
                                  </c:when>
                                  <c:otherwise>
                                     #{i18n.edit_consumer_registration_no_props}
                                  </c:otherwise>
                               </c:choose>
-                              <h:commandLink id="modify-reg-link" action="#{consumer.modifyRegistration}"
-                                             value="#{i18n.edit_consumer_registration_modify}"
-                                             rendered="#{consumer.registrationLocallyModified}"
-                                             title="#{i18n.edit_consumer_registration_modify_title}"
-                                             styleClass="portlet-form-button portlet-section-buttonrow"/>
+                                <webui:commandButton action="modifyRegistration"
+                                        backingBean="#{consumer}"
+                                        id="modify-reg-link"
+                                        rendered="#{consumer.registrationLocallyModified}"
+                                         value="#{i18n.edit_consumer_registration_modify}"
+                                                title="#{i18n.edit_consumer_registration_modify_title}"/>
                               <br style="clear:both;"/>
                            </h:panelGroup>
 
@@ -145,10 +149,12 @@
                                        #{i18n.edit_consumer_registration_no_props}
                                     </c:otherwise>
                                  </c:choose>
-                                 <h:commandLink id="edit-reg-link" action="#{consumer.modifyRegistration}"
-                                                value="#{i18n.edit_consumer_registration_modify}"
-                                                title="#{i18n.edit_consumer_registration_modify_title}"
-                                                styleClass="portlet-form-button portlet-section-buttonrow"/>
+
+                                  <webui:commandButton action="modifyRegistration"
+                                        backingBean="#{consumer}"
+                                        id="edit-reg-link"
+                                         value="#{i18n.edit_consumer_registration_modify}"
+                                                title="#{i18n.edit_consumer_registration_modify_title}"/>
                                  <br style="clear:both;"/>
                               </h:panelGroup>
                            </c:if>
@@ -166,10 +172,11 @@
                         #{i18n.edit_consumer_registration_context_handle}
                         <h:outputText
                            value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
-                        <h:commandLink id="erase-cons-link" action="confirmEraseRegistration"
-                                       value="#{i18n.edit_consumer_registration_context_erase}"
-                                       title="#{i18n.edit_consumer_registration_context_erase_title}"
-                                       styleClass="portlet-form-button"/>
+                         <webui:commandLink actionString="confirmEraseRegistration"
+                                        id="erase-cons-link"
+                                        value="#{i18n.edit_consumer_registration_context_erase}"
+                                       title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+
                      </td>
                   </tr>
                </c:if>
@@ -177,12 +184,14 @@
             <tr>
                <th/>
                <td class="portlet-section-buttonrow">
-                   <webui:commandButton action="#{consumer.refreshConsumer}"
+                   <webui:commandButton action="refreshConsumer"
+                                        backingBean="#{consumer}"
                                         id="refresh-cons-link"
                                         value="#{i18n.edit_consumer_refresh}"
                                         title="#{i18n.edit_consumer_refresh_title}"/>
 
-                   <webui:commandButton action="#{consumersMgr.listConsumers}"
+                   <webui:commandButton action="listConsumers"
+                                        backingBean="#{consumersMgr}"
                                         id="list-cons-link"
                                         value="#{i18n.edit_consumer_cancel}"
                                         immediate="true"/>
