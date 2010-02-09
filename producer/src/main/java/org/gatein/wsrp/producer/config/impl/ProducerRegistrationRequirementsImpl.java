@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -316,7 +316,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       {
          log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
          RegistrationPropertyValidator validator;
-         if (validatorClassName != null)
+         if (validatorClassName != null && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
          {
             log.debug("Using registration property validator: " + validatorClassName);
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
