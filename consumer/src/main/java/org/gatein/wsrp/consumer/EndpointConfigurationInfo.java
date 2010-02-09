@@ -147,7 +147,7 @@ public class EndpointConfigurationInfo
    public boolean isRefreshNeeded()
    {
       boolean result = !isAvailable();
-      if (result)
+      if (result && log.isDebugEnabled())
       {
          log.debug("Refresh needed");
       }

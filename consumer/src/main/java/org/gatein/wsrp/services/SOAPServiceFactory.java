@@ -63,7 +63,10 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
-      log.debug("Getting service for class " + clazz);
+      if (log.isDebugEnabled())
+      {
+         log.debug("Getting service for class " + clazz);
+      }
 
       // if we need a refresh, reload information from WSDL
       if (!isAvailable() && !isFailed())
@@ -101,7 +104,10 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          if (portAddress != null)
          {
-            log.debug("Setting the end point to: " + portAddress);
+            if (log.isDebugEnabled())
+            {
+               log.debug("Setting the end point to: " + portAddress);
+            }
             Map<String, Object> requestContext = ((BindingProvider)service).getRequestContext();
             requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
 
