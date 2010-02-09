@@ -25,7 +25,8 @@
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+        xmlns:webui="http://jboss.org/gatein">
    <ui:param name="title" value=""/>
 
    <ui:define name="content">
@@ -176,13 +177,16 @@
             <tr>
                <th/>
                <td class="portlet-section-buttonrow">
-                  <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
-                                   value="#{i18n.edit_consumer_refresh}"
-                                   title="#{i18n.edit_consumer_refresh_title}"
-                                   styleClass="portlet-form-button"/>
-                  <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
-                                 value="#{i18n.edit_consumer_cancel}" immediate="true"
-                                 styleClass="portlet-form-button"/>
+                   <webui:commandButton action="#{consumer.refreshConsumer}"
+                                        id="refresh-cons-link"
+                                        value="#{i18n.edit_consumer_refresh}"
+                                        title="#{i18n.edit_consumer_refresh_title}"/>
+
+                   <webui:commandButton action="#{consumer.listConsumers}"
+                                        id="list-cons-link"
+                                        value="#{i18n.edit_consumer_cancel}"
+                                        immediate="true"/>
+
                </td>
             </tr>
          </table>

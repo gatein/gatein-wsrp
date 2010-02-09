@@ -1,11 +1,15 @@
 .UIWsrpPortlet .UIControlBar {
-    background: url('background/ControlIcon.gif') repeat-x center -222px;
-    border: 1px solid #b7b7b7;
-    height: 23px;
-    line-height: 23px;
-    padding: 0px 10px;
-    margin: 5px 0px;
+    /*background: url('background/ControlIcon.gif') repeat-x center -222px;*/
+    /*border: 1px solid #b7b7b7;*/
+    /*height: 23px;*/
+    line-height: 28px;
+    padding: 4px 10px 0 0;
+    /*margin: 5px 0px;*/
+    font-weight: bold;
+    text-align: right;
 }
+
+/***************************** Consumer Form Style ************************/
 
 .UIWsrpPortlet .cons-temp-form {
     height: 27px;
@@ -26,11 +30,33 @@
 
 .UIWsrpPortlet .create-container .ActionContainer {
     position: absolute;
-    top: -2px;
+    top: 7px;
 }
 
-.ActionButton {
+/***************************** Messages Style ************************/
 
+.portlet-msg-success {
+    color: darkgreen;
+    background: url('background/SelectIcon.gif') no-repeat left top;
+    list-style: none;
+    padding: 0 0 0 20px;
+    font-weight: bold;
+}
+
+.portlet-msg-warn {
+    color: orange;
+    background: url('background/Warning.gif') no-repeat left top;
+    list-style: none;
+    padding: 0 0 0 20px;
+    font-weight: bold;
+}
+
+.portlet-msg-error {
+    color: darkred;
+    background: url('background/Error.gif') no-repeat left top;
+    list-style: none;
+    padding: 0 0 0 20px;
+    font-weight: bold;
 }
 
 /***************************** ActionButton Style ************************/

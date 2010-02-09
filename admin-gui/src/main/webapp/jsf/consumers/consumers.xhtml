@@ -28,36 +28,11 @@
              xmlns:c="http://java.sun.com/jstl/core">
 
     <ui:param name="title" value="#{i18n.consumers_title}"/>
+    <ui:param name="showAddConsumer" value="true"/>
 
     <ui:define name="content">
 
-        <!-- Consumer creation -->
-        <div class="create-container">
-        <h:form id="createConsumer" styleClass="createObjectForm">
-            <span class="portlet-font">#{i18n.consumers_create_title}</span>
-            <h:inputText value="#{consumersMgr.selectedId}" id="consumerName" styleClass="portlet-form-input-field"
-                         required="true"/>&#160;&#160;
 
-            <table class="ActionContainer">
-                <tr>
-                    <td>
-                        <div class="ButtonLeft">
-                            <div class="ButtonRight">
-                                <div class="ButtonMiddle">
-                                    <h:commandLink id="createConsumerButton" action="#{consumersMgr.createConsumer}"
-                                                   value="#{i18n.consumers_create_submit}"/>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <h:message for="consumerName" errorClass="portlet-msg-error"/>
-
-        </h:form>
-        </div>
-        <br/>
 
         <!-- Consumers list -->
         <h:form id="consumer-list-form">
