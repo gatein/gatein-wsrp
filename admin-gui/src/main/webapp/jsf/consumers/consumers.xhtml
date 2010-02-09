@@ -27,87 +27,117 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:c="http://java.sun.com/jstl/core">
 
-   <ui:param name="title" value="#{i18n.consumers_title}"/>
+    <ui:param name="title" value="#{i18n.consumers_title}"/>
 
-   <ui:define name="content">
+    <ui:define name="content">
 
-      <!-- Consumer creation -->
-      <h:form id="createConsumer" styleClass="createObjectForm">
-         <span class="portlet-font">#{i18n.consumers_create_title}</span>
-         <h:inputText value="#{consumersMgr.selectedId}" id="consumerName" styleClass="portlet-form-input-field"
-                      required="true"/>
-         <h:commandButton id="createConsumerButton" action="#{consumersMgr.createConsumer}"
-                          value="#{i18n.consumers_create_submit}" styleClass="portlet-form-button"/>
-         <h:message for="consumerName" errorClass="portlet-msg-error"/>
-      </h:form>
+        <!-- Consumer creation -->
+        <div class="create-container">
+        <h:form id="createConsumer" styleClass="createObjectForm">
+            <span class="portlet-font">#{i18n.consumers_create_title}</span>
+            <h:inputText value="#{consumersMgr.selectedId}" id="consumerName" styleClass="portlet-form-input-field"
+                         required="true"/>&#160;&#160;
 
-      <br/>
+            <table class="ActionContainer">
+                <tr>
+                    <td>
+                        <div class="ButtonLeft">
+                            <div class="ButtonRight">
+                                <div class="ButtonMiddle">
+                                    <h:commandLink id="createConsumerButton" action="#{consumersMgr.createConsumer}"
+                                                   value="#{i18n.consumers_create_submit}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
-      <!-- Consumers list -->
-      <h:form id="consumer-list-form">
-         <h:dataTable id="consumersList" value="#{consumersMgr.consumers}" var="cons"
-                      rendered="#{!consumersMgr.consumersEmpty}"
-                      rowClasses="portlet-section-body,portlet-section-alternate" headerClass="portlet-section-header"
-                      styleClass="datatable objectList" width="100%">
-            <h:column>
-               <f:facet name="header">
-                  #{i18n.consumers_table_column_consumer}
-                  <div style="font-size: 90%; display:inline; font-weight: normal;">
-                     [#{i18n.consumers_table_column_consumer_status} <span
-                     class="active">#{i18n.path_consumers_active}</span>,
-                     <span class="inactive">#{i18n.path_consumers_inactive}</span>,
-                     <span class="needsRefresh">#{i18n.path_consumers_refreshNeeded}</span>]
-                  </div>
-               </f:facet>
+            <h:message for="consumerName" errorClass="portlet-msg-error"/>
 
-               <h:outputText style="display:block; width:100%;"
-                             styleClass="#{cons.active ? 'active' : 'inactive'} #{cons.refreshNeeded ? 'needsRefresh' : ''}"
-                             value="#{cons.producerId} (#{cons.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
+        </h:form>
+        </div>
+        <br/>
+
+        <!-- Consumers list -->
+        <h:form id="consumer-list-form">
+            <h:dataTable id="consumersList" value="#{consumersMgr.consumers}" var="cons"
+                         rendered="#{!consumersMgr.consumersEmpty}"
+                         rowClasses="EvenRow,OddRow"
+                         styleClass="UIGrid ConsumerGrid" width="100%">
+                <h:column>
+                    <f:facet name="header">
+                        #{i18n.consumers_table_column_consumer}
+                        <div style="font-size: 90%; display:inline; font-weight: normal;">
+                            [#{i18n.consumers_table_column_consumer_status} <span
+                                class="active">#{i18n.path_consumers_active}</span>,
+                            <span class="inactive">#{i18n.path_consumers_inactive}</span>,
+                            <span class="needsRefresh">#{i18n.path_consumers_refreshNeeded}</span>]
+                        </div>
+                    </f:facet>
+
+                    <h:outputText style="display:block; width:100%;"
+                                  styleClass="#{cons.active ? 'active' : 'inactive'} #{cons.refreshNeeded ? 'needsRefresh' : ''}"
+                                  value="#{cons.producerId} (#{cons.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
                              #{cons.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}"/>
-            </h:column>
+                </h:column>
 
-            <h:column>
-               <f:facet name="header">#{i18n.consumers_table_column_actions}</f:facet>
+                <h:column>
+                    <f:facet name="header">#{i18n.consumers_table_column_actions}</f:facet>
 
-               <h:commandLink action="#{consumersMgr.configureConsumer}" styleClass="actionConfigure" id="configure">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  #{i18n.consumers_table_action_configure}
-               </h:commandLink>
-               |
-               <h:commandLink action="#{consumersMgr.refreshConsumer}" styleClass="actionRefresh" id="refresh">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  #{i18n.consumers_table_action_refresh}
-               </h:commandLink>
-               |
-               <h:commandLink action="#{consumersMgr.activateConsumer}" id="activate"
-                              styleClass="#{cons.active ? 'actionDeactivate' : 'actionActivate'}">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  <f:param name="activate" value="#{!cons.active}"/>
-                  #{cons.active ? i18n.consumers_table_action_deactivate : i18n.consumers_table_action_activate}
-               </h:commandLink>
-               <h:panelGroup
-                  rendered="#{!cons.refreshNeeded and cons.active and cons.producerInfo.registrationRequired}">
-                  |
-                  <h:commandLink action="#{consumersMgr.registerConsumer}" id="register"
-                                 styleClass="action#{cons.producerInfo.registered ? 'Deregister' : 'Register'}">
-                     <f:param name="id" value="#{cons.producerId}"/>
-                     <f:param name="register" value="#{!cons.producerInfo.registered}"/>
-                     #{cons.producerInfo.registered ? i18n.consumers_table_action_deregister : i18n.consumers_table_action_register}
-                  </h:commandLink>
-               </h:panelGroup>
-               |
-               <h:commandLink action="confirmDeleteConsumer" styleClass="actionDelete" id="delete"
-                              actionListener="#{consumersMgr.selectConsumer}">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  #{i18n.consumers_table_action_delete}
-               </h:commandLink>
-            </h:column>
-         </h:dataTable>
-      </h:form>
+                    <h:commandLink action="#{consumersMgr.configureConsumer}" styleClass="actionConfigure"
+                                   id="configure">
+                        <f:param name="id" value="#{cons.producerId}"/>
+                        #{i18n.consumers_table_action_configure}
+                    </h:commandLink>
+                    |
+                    <h:commandLink action="#{consumersMgr.refreshConsumer}" styleClass="actionRefresh" id="refresh">
+                        <f:param name="id" value="#{cons.producerId}"/>
+                        #{i18n.consumers_table_action_refresh}
+                    </h:commandLink>
+                    |
+                    <h:commandLink action="#{consumersMgr.activateConsumer}" id="activate"
+                                   styleClass="#{cons.active ? 'actionDeactivate' : 'actionActivate'}">
+                        <f:param name="id" value="#{cons.producerId}"/>
+                        <f:param name="activate" value="#{!cons.active}"/>
+                        #{cons.active ? i18n.consumers_table_action_deactivate : i18n.consumers_table_action_activate}
+                    </h:commandLink>
+                    <h:panelGroup
+                            rendered="#{!cons.refreshNeeded and cons.active and cons.producerInfo.registrationRequired}">
+                        |
+                        <h:commandLink action="#{consumersMgr.registerConsumer}" id="register"
+                                       styleClass="action#{cons.producerInfo.registered ? 'Deregister' : 'Register'}">
+                            <f:param name="id" value="#{cons.producerId}"/>
+                            <f:param name="register" value="#{!cons.producerInfo.registered}"/>
+                            #{cons.producerInfo.registered ? i18n.consumers_table_action_deregister : i18n.consumers_table_action_register}
+                        </h:commandLink>
+                    </h:panelGroup>
+                    |
+                    <h:commandLink action="confirmDeleteConsumer" styleClass="actionDelete" id="delete"
+                                   actionListener="#{consumersMgr.selectConsumer}">
+                        <f:param name="id" value="#{cons.producerId}"/>
+                        #{i18n.consumers_table_action_delete}
+                    </h:commandLink>
+                </h:column>
+            </h:dataTable>
+        </h:form>
 
-      <h:form>
-         <h:commandButton id="createConsumerButton" action="#{consumersMgr.reload}"
-                          value="#{i18n.consumers_table_reload}" styleClass="portlet-form-button"/>
-      </h:form>
-   </ui:define>
+        <h:form>
+            <table class="ActionContainer">
+                <tr>
+                    <td>
+                        <div class="ButtonLeft">
+                            <div class="ButtonRight">
+                                <div class="ButtonMiddle">
+                                    <h:commandLink id="createConsumerButton" action="#{consumersMgr.reload}"
+                                                   value="#{i18n.consumers_table_reload}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+        </h:form>
+    </ui:define>
 </ui:decorate>

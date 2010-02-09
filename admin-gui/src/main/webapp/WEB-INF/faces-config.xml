@@ -108,6 +108,11 @@
          <value>#{beanContext}</value>
       </managed-property>
    </managed-bean>
+   <managed-bean>
+      <managed-bean-name>resource</managed-bean-name>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.ResourceBean</managed-bean-class>
+      <managed-bean-scope>application</managed-bean-scope>
+   </managed-bean>
 
    <navigation-rule>
       <navigation-case>

@@ -28,43 +28,61 @@
              xmlns:c="http://java.sun.com/jstl/core">
 
    <ui:define name="topnav">
-      <h:form id="cons-temp-form">
-         <ul class="topnav">
-            <li id="currentTab">#{i18n.nav_tabs_consumers}</li>
-            <li>
-               <h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}" action="producer"/>
-            </li>
-            <ui:remove>
-               <li>
-                  <h:commandLink id="management-link" value="#{i18n.nav_tabs_producer_management}"
-                                 action="management"/>
-               </li>
-            </ui:remove>
-         </ul>
+      <h:form id="cons-temp-form" styleClass="cons-temp-form">
+
+         <div class="TabsContainer">
+             <table class="TabsActionContainer"><tr><td>
+             <div class="UITab GrayTabStyle">
+                <div class="SelectedTab">
+                    <div class="LeftTab">
+                        <div class="RightTab">
+                            <div class="MiddleTab">
+                                #{i18n.nav_tabs_consumers}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             </td><td>
+              <div class="UITab GrayTabStyle">
+                <div class="NormalTab">
+                    <div class="LeftTab">
+                        <div class="RightTab">
+                            <div class="MiddleTab">
+                                 <h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}" action="producer"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+               </td>
+             </tr></table>
+        </div>
+
       </h:form>
    </ui:define>
 
    <ui:define name="objectpath">
       <h:form id="cons-temp-form1">
-         <ul class="objectpath">
-            <li class="#{!empty title ? 'selected' : 'pathItem'}">
+         <div class="UIControlBar">
+            <span class="#{!empty title ? 'selected' : 'pathItem'}">
                <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
                               value="#{i18n.path_consumers_root}"/>
-            </li>
+            </span>
             <c:if test="#{empty title}">
-               <li class="pathSeparator">
+               <span class="pathSeparator">
                   <h:graphicImage url="/img/pathSeparator.png" alt=">"/>
-               </li>
-               <li
+               </span>
+               <span
                   class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''}">
                   <h:outputFormat value="#{i18n.path_consumers_consumer}">
                      <f:param value="#{consumer.id}"/>
                   </h:outputFormat>
                   (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
                   #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
-               </li>
+               </span>
             </c:if>
-         </ul>
+         </div>
       </h:form>
    </ui:define>
 </ui:decorate>

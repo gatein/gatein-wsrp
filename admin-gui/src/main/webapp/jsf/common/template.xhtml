@@ -24,7 +24,13 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jstl/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/styles/style.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/skin/wsrp/DefaultSkin/DefaultStylesheet.css" media="screen"/>
+
+    
    <f:loadBundle basename="Resource" var="i18n"/>
+   <div class="UIWsrpPortlet">
 
    <div class="wsrp-consumers-ui">
       <ui:insert name="topnav">Top navigation</ui:insert>
@@ -35,10 +41,11 @@
          <ui:insert name="objectpath">Object path if needed</ui:insert>
 
          <div class="wsrp-content-container">
-            <c:if test="#{!empty title}">
-               <h3 class="sectionTitle">${title}</h3>
+             <ui:remove>
+             <c:if test="#{!empty title}">
+               <h3 class="UIControlBar">${title}</h3>
             </c:if>
-
+            </ui:remove>
             <!-- Status message -->
             <h:messages id="status" for="status" infoClass="portlet-msg-success" errorClass="portlet-msg-error"
                         fatalClass="portlet-msg-error" warnClass="portlet-msg-alert"/>
@@ -49,4 +56,6 @@
 
       </div>
    </div>
+
+    </div>
 </ui:composition>

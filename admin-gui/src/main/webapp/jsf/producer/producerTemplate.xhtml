@@ -29,18 +29,35 @@
 
    <ui:define name="topnav">
       <h:form id="producer-temp-form">
-         <ul class="topnav">
-            <li>
-               <h:commandLink id="consumersTab" action="consumers" value="#{i18n.nav_tabs_consumers}"/>
-            </li>
-            <li id="currentTab">#{i18n.nav_tabs_producer_config}</li>
-            <ui:remove>
-               <li>
-                  <h:commandLink id="prod-manag-link" value="#{i18n.nav_tabs_producer_management}"
-                                 action="management"/>
-               </li>
-            </ui:remove>
-         </ul>
+
+         <div class="TabsContainer">
+             <table class="TabsActionContainer"><tr><td>
+             <div class="UITab GrayTabStyle">
+                <div class="NormalTab">
+                    <div class="LeftTab">
+                        <div class="RightTab">
+                            <div class="MiddleTab">
+                                <h:commandLink id="consumersTab" action="consumers" value="#{i18n.nav_tabs_consumers}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             </td><td>
+              <div class="UITab GrayTabStyle">
+                <div class="SelectedTab">
+                    <div class="LeftTab">
+                        <div class="RightTab">
+                            <div class="MiddleTab">
+                                 #{i18n.nav_tabs_producer_config}"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+               </td>
+             </tr></table>
+        </div>
       </h:form>
    </ui:define>
 
