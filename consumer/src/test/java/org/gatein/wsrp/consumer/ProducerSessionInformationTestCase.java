@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.consumer;
 
@@ -37,6 +37,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 public class ProducerSessionInformationTestCase extends TestCase
 {
    ProducerSessionInformation info;
+   private static final int SLEEP_TIME = 1500;
 
    protected void setUp() throws Exception
    {
@@ -53,14 +54,14 @@ public class ProducerSessionInformationTestCase extends TestCase
       assertEquals("name=value", info.getUserCookie());
 
       // wait for cookie expiration
-      Thread.sleep(1000);
+      Thread.sleep(SLEEP_TIME);
       assertNull(info.getUserCookie()); // we shouldn't have a cookie now
 
       cookies = new Cookie[]{createCookie("name1", "value1", 1), createCookie("name2", "value2", 3)};
       info.setUserCookie(cookies);
       assertEquals("name1=value1,name2=value2", info.getUserCookie());
 
-      Thread.sleep(1000);
+      Thread.sleep(SLEEP_TIME);
       assertEquals("name2=value2", info.getUserCookie());
 
       try
@@ -94,7 +95,7 @@ public class ProducerSessionInformationTestCase extends TestCase
 
       assertEquals("name1=value1,name2=value2", info.getGroupCookieFor(groupId));
 
-      Thread.sleep(1000);
+      Thread.sleep(SLEEP_TIME);
       assertEquals("name2=value2", info.getGroupCookieFor(groupId));
 
       info.clearGroupCookies();
@@ -119,7 +120,7 @@ public class ProducerSessionInformationTestCase extends TestCase
       assertEquals(sid, info.getSessionIdForPortlet(handle));
       assertEquals(2, info.getNumberOfSessions());
 
-      Thread.sleep(1000);
+      Thread.sleep(SLEEP_TIME);
       assertNull(info.getSessionIdForPortlet(handle));
       assertEquals(sid2, info.getSessionIdForPortlet(handle2));
       assertEquals(1, info.getNumberOfSessions());
@@ -144,7 +145,7 @@ public class ProducerSessionInformationTestCase extends TestCase
       info.replaceUserCookiesWith(other);
       assertEquals("name2=value2", info.getUserCookie());
 
-      Thread.sleep(1000);
+      Thread.sleep(SLEEP_TIME);
       info.replaceUserCookiesWith(other);
       assertNull(info.getUserCookie());
    }
