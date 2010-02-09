@@ -61,6 +61,11 @@ public class RedirectOnNoConsumerNavigationHandler extends NavigationHandler
             }
          }
       }
+      else if (CONSUMERS.equals(outcome))
+      {
+         // remove any remaining consumer id from session as we only want to list them
+         JSFBeanContext.getSessionMap(facesContext).remove(ConsumerManagerBean.SESSION_CONSUMER_ID);
+      }
 
       base.handleNavigation(facesContext, fromAction, outcome);
    }
