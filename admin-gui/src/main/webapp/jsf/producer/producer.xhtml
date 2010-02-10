@@ -25,7 +25,8 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+             xmlns:webui="http://jboss.org/gatein">
 
    <ui:param name="title" value="#{i18n.producer_config_title}"/>
 
@@ -58,18 +59,31 @@
             </h:panelGroup>
 
             <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
-            <h:panelGroup rendered="#{producer.registrationRequired}">
-               <h:outputText styleClass="portlet-area-header" value="#{i18n.producer_config_reg_props}"/>
-               <h:panelGroup styleClass="portlet-area-body">
-                  <c:choose>
-                     <c:when test="#{!empty producer.registrationProperties}">
-                        <h:dataTable id="reg-properties" var="property" width="100%"
-                                     value="#{producer.registrationProperties}"
-                                     rendered="#{producer.registrationRequired}"
-                                     headerClass="portlet-section-header">
+            <f:subview rendered="#{producer.registrationRequired}">
+
+                <webui:blueHeaderBar>
+                 <div class="full-width float-left bold">
+                        #{i18n.producer_config_reg_props}
+                    <div style="position:relative;display:inline">
+                    <div style="position:absolute;top:-5px;left: 10px;font-weight:normal">
+                        <webui:commandButton id="add-reg-prop" action="addRegistrationProperty"
+                                              backingBean="#{producer}"
+                                              value="#{i18n.producer_config_add_reg_prop}"/></div>
+                    </div>
+                </div>
+
+
+                </webui:blueHeaderBar>
+
+
+                  <f:subview rendered="#{!empty producer.registrationProperties}" id="reg-props">
+                      <h:dataTable id="reg-properties" value="#{producer.registrationProperties}" var="property"
+                         rendered="#{producer.registrationRequired}"
+                         rowClasses="EvenRow,OddRow"
+                         styleClass="UIGrid ConsumerGrid" width="100%">
                            <h:column>
                               <f:facet name="header">#{i18n.producer_config_reg_prop_name}</f:facet>
-                              <h:inputText id="name" value="#{property.nameAsString}" size="30"/>
+                              <h:inputText id="name" value="#{property.nameAsString}" size="21"/>
                            </h:column>
                            <h:column>
                               <f:facet name="header">#{i18n.producer_config_reg_prop_type}</f:facet>
@@ -79,41 +93,42 @@
                            </h:column>
                            <h:column>
                               <f:facet name="header">#{i18n.producer_config_reg_prop_label}</f:facet>
-                              <h:inputText id="label" value="#{property.label}" size="50"/>
+                              <h:inputText id="label" value="#{property.label}" size="21"/>
                            </h:column>
                            <h:column>
                               <f:facet name="header">#{i18n.producer_config_reg_prop_hint}</f:facet>
-                              <h:inputText id="hint" value="#{property.hint}" size="50"/>
+                              <h:inputText id="hint" value="#{property.hint}" size="21"/>
                            </h:column>
                            <h:column>
                               <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
                               <h:commandLink id="confirm-delete" action="confirmPropDeletion"
                                              value="#{i18n.producer_config_reg_prop_remove}"
-                                             styleClass="portlet-form-button"
+                                             styleClass="actionDelete"
                                              actionListener="#{producer.selectProperty}">
                                  <f:param name="propName" value="#{property.nameAsString}"/>
                               </h:commandLink>
                            </h:column>
                         </h:dataTable>
-                     </c:when>
-                     <c:otherwise>
-                        <h:outputText value="#{i18n.producer_config_no_reg_props}"/>
-                     </c:otherwise>
-                  </c:choose>
+                      </f:subview>
 
-                  <h:commandLink id="add-reg-prop" action="#{producer.addRegistrationProperty}"
-                                 value="#{i18n.producer_config_add_reg_prop}"
-                                 styleClass="portlet-form-button"/>
-               </h:panelGroup>
-            </h:panelGroup>
+                     <f:subview rendered="#{empty producer.registrationProperties}" id="reg-props-none">
+                        <h:outputText value="#{i18n.producer_config_no_reg_props}"/>
+                     </f:subview>
+
+
+             </f:subview>
+
 
             <h:outputText value="  "/>
             <h:panelGroup styleClass="portlet-section-buttonrow">
-               <h:commandButton id="save-producer" action="#{producer.save}" value="#{i18n.producer_config_save}"
-                                styleClass="portlet-form-button"/>
-               <h:commandButton id="reload-producer" action="#{producer.reloadConfiguration}"
-                                value="#{i18n.producer_config_cancel}"
-                                styleClass="portlet-form-button"/>
+                <webui:commandButton id="reg-save" action="save"
+                                              backingBean="#{producer}"
+                                              value="#{i18n.producer_config_save}" />
+
+                <webui:commandButton id="reg-reload" action="reloadConfiguration"
+                                              backingBean="#{producer}"
+                                              value="#{i18n.producer_config_cancel}"/>
+
             </h:panelGroup>
          </h:panelGrid>
       </h:form>

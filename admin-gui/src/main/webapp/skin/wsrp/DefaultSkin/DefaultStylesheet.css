@@ -11,7 +11,8 @@
 
 /***************************** Consumer Form Style ************************/
 
-.UIWsrpPortlet .cons-temp-form {
+.UIWsrpPortlet .cons-temp-form,
+.UIWsrpPortlet .producer-temp-form{
     height: 27px;
 }
 
@@ -28,9 +29,14 @@
     position: relative;
 }
 
+.UIWsrpPortlet .list-cons-link {
+    text-decoration: underline;
+    color: darkblue;
+}
+
 .UIWsrpPortlet .create-container .ActionContainer {
     position: absolute;
-    top: 7px;
+    margin: 7px 0 0 0;
 }
 
 /***************************** Messages Style ************************/
@@ -41,6 +47,7 @@
     list-style: none;
     padding: 0 0 0 20px;
     font-weight: bold;
+    height: 19px;
 }
 
 .portlet-msg-warn {
@@ -49,6 +56,7 @@
     list-style: none;
     padding: 0 0 0 20px;
     font-weight: bold;
+    height: 19px;
 }
 
 .portlet-msg-error {
@@ -57,6 +65,7 @@
     list-style: none;
     padding: 0 0 0 20px;
     font-weight: bold;
+    height: 19px;
 }
 
 /***************************** ActionButton Style ************************/
@@ -88,12 +97,12 @@
 
 .UIWsrpPortlet .TabsActionContainer {
     position: absolute;
-    bottom: -6px;
+    bottom: -1px;
     width: auto;
 }
 
 .UIWsrpPortlet .TabsContainer {
-    height: 24px;
+    height: 29px;
     position: relative;
 }
 

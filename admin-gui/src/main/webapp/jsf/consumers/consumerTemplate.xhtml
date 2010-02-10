@@ -72,7 +72,7 @@
                           <!-- Consumer creation -->
                           <div class="create-container">
                               <h:form id="createConsumer" styleClass="createObjectForm">
-                                  <span class="portlet-font">#{i18n.consumers_create_title}</span>
+                                  <span class="portlet-font bold">#{i18n.consumers_create_title}</span>&#160;
                                   <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
                                                styleClass="portlet-form-input-field"
                                                label="Consumer Name" required="true"/>&#160;&#160;
@@ -109,7 +109,7 @@
                               </c:if>
 
                         <span class="#{!empty title ? 'selected' : 'pathItem'} float-right">
-                           <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
+                           <h:commandLink id="list-cons-link" class="list-cons-link" action="#{consumersMgr.listConsumers}"
                                           value="#{i18n.path_consumers_root}"/>
                         </span>
 

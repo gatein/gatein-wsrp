@@ -85,6 +85,10 @@
    border: 1px solid #B3C0C7;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .dotted-blue-border {
    font-weight: bold;
    color: #315896;
