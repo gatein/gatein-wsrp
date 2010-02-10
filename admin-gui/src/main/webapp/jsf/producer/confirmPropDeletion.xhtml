@@ -26,7 +26,8 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:jbp="http://www.jboss.org/portal"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+             xmlns:webui="http://jboss.org/gatein">
 
    <ui:param name="title" value=""/>
    <ui:define name="content">
@@ -51,11 +52,12 @@
             <p class="portlet-class">#{i18n.confirm_delete_reg_property_proceed}</p>
 
             <h:form id="confirm-prop-del-form">
-               <h:commandButton id="confirm-delete" value="#{i18n.confirm_delete_reg_property_submit}"
-                                action="#{producer.deleteRegistrationProperty}"
-                                styleClass="portlet-form-button portlet-section-buttonrow"/>
-               <h:commandButton id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}" action="producer"
-                                styleClass="portlet-form-button portlet-section-buttonrow"/>
+               <webui:commandButton id="confirm-delete" value="#{i18n.confirm_delete_reg_property_submit}"
+                                   action="deleteRegistrationProperty"
+                                   backingBean="#{producer}"/>
+
+               <webui:commandLink id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
+                                   actionString="producer"/>
             </h:form>
          </div>
       </div>
