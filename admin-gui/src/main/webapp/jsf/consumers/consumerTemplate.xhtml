@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -32,93 +32,81 @@
       <h:form id="cons-temp-form" styleClass="cons-temp-form">
 
          <div class="TabsContainer">
-             <table class="TabsActionContainer"><tr><td>
-             <div class="UITab GrayTabStyle">
-                <div class="SelectedTab">
-                    <div class="LeftTab">
-                        <div class="RightTab">
-                            <div class="MiddleTab">
-                                #{i18n.nav_tabs_consumers}
-                            </div>
+            <table class="TabsActionContainer">
+               <tr>
+                  <td>
+                     <div class="UITab GrayTabStyle">
+                        <div class="SelectedTab">
+                           <div class="LeftTab">
+                              <div class="RightTab">
+                                 <div class="MiddleTab">
+                                    #{i18n.nav_tabs_consumers}
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-             </td><td>
-              <div class="UITab GrayTabStyle">
-                <div class="NormalTab">
-                    <div class="LeftTab">
-                        <div class="RightTab">
-                            <div class="MiddleTab">
-                                 <h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}" action="producer"/>
-                            </div>
+                     </div>
+                  </td>
+                  <td>
+                     <div class="UITab GrayTabStyle">
+                        <div class="NormalTab">
+                           <div class="LeftTab">
+                              <div class="RightTab">
+                                 <div class="MiddleTab">
+                                    <h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}"
+                                                   action="producer"/>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-               </td>
-             </tr></table>
-        </div>
+                     </div>
+                  </td>
+               </tr>
+            </table>
+         </div>
 
       </h:form>
    </ui:define>
 
    <ui:define name="objectpath">
 
-          <webui:blueHeaderBar>
-              <div class="full-width">
-                  <f:subview id="add-consumer" rendered="#{showAddConsumer eq true}">
-                      <div class="float-left half-width">
-                          <!-- Consumer creation -->
-                          <div class="create-container">
-                              <h:form id="createConsumer" styleClass="createObjectForm">
-                                  <span class="portlet-font bold">#{i18n.consumers_create_title}</span>&#160;
-                                  <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
-                                               styleClass="portlet-form-input-field"
-                                               label="Consumer Name" required="true"/>&#160;&#160;
+      <webui:blueHeaderBar>
+         <div class="full-width">
+            <f:subview id="add-consumer" rendered="#{showAddConsumer eq true}">
+               <div class="float-left half-width">
+                  <!-- Consumer creation -->
+                  <div class="create-container">
+                     <h:form id="createConsumer" styleClass="createObjectForm">
+                        <span class="portlet-font bold">#{i18n.consumers_create_title}</span>&#160;
+                        <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
+                                     styleClass="portlet-form-input-field"
+                                     label="Consumer Name" required="true"/>&#160;&#160;
 
-                                  <webui:commandButton id="createConsumerButton"
-                                                       action="createConsumer"
-                                                       backingBean="#{consumersMgr}"
-                                                       value="#{i18n.consumers_create_submit}"/>
-
-
-                                  <ui:remove>
-                                      <h:message for="consumerName" errorClass="portlet-msg-error"/>
-                                  </ui:remove>
-                              </h:form>
-                          </div>
+                        <webui:commandButton id="createConsumerButton"
+                                             action="createConsumer"
+                                             backingBean="#{consumersMgr}"
+                                             value="#{i18n.consumers_create_submit}"/>
 
 
-                      </div>
-                  </f:subview>
-
-                  <div class="#{showAddConsumer eq true ? 'float-right half-width' : 'full-width'}">
-
-                      <h:form id="cons-temp-form1">
-                          <div class="UIControlBar">
-                              <c:if test="#{empty title}">
-                           <span
-                                   class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} float-left">
-                              <h:outputFormat value="#{i18n.path_consumers_consumer}">
-                                  <f:param value="#{consumer.id}"/>
-                              </h:outputFormat>
-                              (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
-                               #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
-                           </span>
-                              </c:if>
-
-                        <span class="#{!empty title ? 'selected' : 'pathItem'} float-right">
-                           <h:commandLink id="list-cons-link" class="list-cons-link" action="#{consumersMgr.listConsumers}"
-                                          value="#{i18n.path_consumers_root}"/>
-                        </span>
-
-                          </div>
-                      </h:form>
-
+                        <ui:remove>
+                           <h:message for="consumerName" errorClass="portlet-msg-error"/>
+                        </ui:remove>
+                     </h:form>
                   </div>
-              </div>
-          </webui:blueHeaderBar>
+               </div>
+            </f:subview>
+            <c:if test="#{empty showAddConsumer}">
+                    <span
+                       class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} float-left">
+                       <h:outputFormat value="#{i18n.path_consumers_consumer}">
+                          <f:param value="#{consumer.id}"/>
+                       </h:outputFormat>
+                       (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
+                       #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
+                    </span>
+            </c:if>
+         </div>
+      </webui:blueHeaderBar>
 
 
    </ui:define>
