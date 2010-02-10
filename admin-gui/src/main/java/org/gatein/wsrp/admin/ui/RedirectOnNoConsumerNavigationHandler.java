@@ -36,6 +36,9 @@ public class RedirectOnNoConsumerNavigationHandler extends NavigationHandler
    private static final String CONFIGURE_CONSUMER = "configureConsumer";
    private static final String CONSUMERS = "consumers";
 
+   /** must match ConsumerManagerBean in faces-config.xml */
+   private static final String CONSUMERS_MGR = "consumersMgr";
+
    public RedirectOnNoConsumerNavigationHandler(NavigationHandler base)
    {
       this.base = base;
@@ -63,8 +66,9 @@ public class RedirectOnNoConsumerNavigationHandler extends NavigationHandler
       }
       else if (CONSUMERS.equals(outcome))
       {
-         // remove any remaining consumer id from session as we only want to list them
-         JSFBeanContext.getSessionMap(facesContext).remove(ConsumerManagerBean.SESSION_CONSUMER_ID);
+         // ensure that state is properly reset by calling ConsumerManagerBean.listConsumers()
+         ConsumerManagerBean consumersMgr = (ConsumerManagerBean)JSFBeanContext.getSessionMap(facesContext).get(CONSUMERS_MGR);
+         outcome = consumersMgr.listConsumers();
       }
 
       base.handleNavigation(facesContext, fromAction, outcome);
