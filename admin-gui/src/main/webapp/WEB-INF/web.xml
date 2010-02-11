@@ -73,6 +73,11 @@
       <url-pattern>/faces/*</url-pattern>
    </servlet-mapping>
 
+   <error-page>
+      <exception-type>java.lang.Exception</exception-type>
+      <location>/faces/jsf/error.xhtml</location>
+   </error-page>
+
 
 </web-app>
 

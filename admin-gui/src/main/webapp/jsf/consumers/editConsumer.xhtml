@@ -109,8 +109,9 @@
                                         backingBean="#{consumer}"
                                         id="modify-reg-link"
                                         rendered="#{consumer.registrationLocallyModified}"
-                                         value="#{i18n.edit_consumer_registration_modify}"
-                                                title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                        value="#{i18n.edit_consumer_registration_modify}"
+                                        title="#{i18n.edit_consumer_registration_modify_title}"/>
+                              
                               <br style="clear:both;"/>
                            </h:panelGroup>
 
@@ -153,8 +154,9 @@
                                   <webui:commandButton action="modifyRegistration"
                                         backingBean="#{consumer}"
                                         id="edit-reg-link"
-                                         value="#{i18n.edit_consumer_registration_modify}"
-                                                title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                        value="#{i18n.edit_consumer_registration_modify}"
+                                        title="#{i18n.edit_consumer_registration_modify_title}"/>
+
                                  <br style="clear:both;"/>
                               </h:panelGroup>
                            </c:if>
@@ -172,10 +174,23 @@
                         #{i18n.edit_consumer_registration_context_handle}
                         <h:outputText
                            value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
-                         <webui:commandLink actionString="confirmEraseRegistration"
-                                        id="erase-cons-link"
-                                        value="#{i18n.edit_consumer_registration_context_erase}"
-                                       title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+
+                        <table class="ActionContainer">
+                            <tr>
+                                <td>
+                                    <div class="ButtonLeft">
+                                        <div class="ButtonRight">
+                                            <div class="ButtonMiddle">
+                                                <h:commandLink action="confirmEraseRegistration"
+                                                                id="erase-cons-link"
+                                                                value="#{i18n.edit_consumer_registration_context_erase}"
+                                                               title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
 
                      </td>
                   </tr>
@@ -190,11 +205,21 @@
                                         value="#{i18n.edit_consumer_refresh}"
                                         title="#{i18n.edit_consumer_refresh_title}"/>
 
-                   <webui:commandButton action="listConsumers"
-                                        backingBean="#{consumersMgr}"
-                                        id="list-cons-link"
-                                        value="#{i18n.edit_consumer_cancel}"
-                                        immediate="true"/>
+                  <table class="ActionContainer">
+                      <tr>
+                          <td>
+                              <div class="ButtonLeft">
+                                  <div class="ButtonRight">
+                                      <div class="ButtonMiddle">
+                                          <h:commandLink id="list-cons-link-two" action="#{consumersMgr.listConsumers}"
+                                                          value="#{i18n.edit_consumer_cancel}">
+                                           </h:commandLink>
+                                      </div>
+                                  </div>
+                              </div>
+                          </td>
+                      </tr>
+                  </table>
 
                </td>
             </tr>

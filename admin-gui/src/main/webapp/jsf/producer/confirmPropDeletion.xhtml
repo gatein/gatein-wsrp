@@ -56,8 +56,21 @@
                                    action="deleteRegistrationProperty"
                                    backingBean="#{producer}"/>
 
-               <webui:commandLink id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
-                                   actionString="producer"/>
+               <table class="ActionContainer">
+                   <tr>
+                       <td>
+                           <div class="ButtonLeft">
+                               <div class="ButtonRight">
+                                   <div class="ButtonMiddle">
+                                       <h:commandLink id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
+                                                      action="producer"/>
+                                   </div>
+                               </div>
+                           </div>
+                       </td>
+                   </tr>
+               </table>
+
             </h:form>
          </div>
       </div>

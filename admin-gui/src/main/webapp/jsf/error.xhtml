@@ -21,15 +21,16 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<ui:decorate template="managementTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+<ui:decorate template="errorTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core">
+             xmlns:c="http://java.sun.com/jstl/core"
+             xmlns:webui="http://jboss.org/gatein">
 
-   <ui:param name="title" value="Producer Management"/>
+   <ui:param name="title" value="Error"/>
 
    <ui:define name="content">
-      <p>Feature not quite ready yet! Check again in future versions of Portal.</p>
+         An Error Has Occured.
    </ui:define>
-</ui:decorate>                                                                        
+</ui:decorate>
