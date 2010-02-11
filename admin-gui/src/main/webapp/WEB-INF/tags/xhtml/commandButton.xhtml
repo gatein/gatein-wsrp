@@ -22,26 +22,38 @@
   -->
 
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-             xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:c="http://java.sun.com/jstl/core">
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jstl/core">
 
-<table class="ActionContainer">
-    <tr>
-        <td>
+   <table class="ActionContainer">
+      <tr>
+         <td>
             <div class="ButtonLeft">
-                <div class="ButtonRight">
-                    <div class="ButtonMiddle">
-                        <h:commandLink id="#{id}" action="#{backingBean[action]}"
-                                        value="#{value}" immediate="#{immediate}">
-                            <ui:insert/>
-                         </h:commandLink>
-                    </div>
-                </div>
+               <div class="ButtonRight">
+                  <div class="ButtonMiddle">
+                     <c:choose>
+                        <c:when test="#{!empty rendered}">
+                           <!-- direct access to a bean's property via map is a dirty, dirty hack :/ -->
+                           <c:set var="renderedVar" value="#{backingBean[rendered]}" scope="request"/>
+                           <h:commandLink id="#{id}" action="#{backingBean[action]}" value="#{value}"
+                                          rendered="#{empty renderedVar ? '' : renderedVar}"
+                                          immediate="#{immediate}">
+                              <ui:insert/>
+                           </h:commandLink>
+                        </c:when>
+                        <c:otherwise>
+                           <h:commandLink id="#{id}" action="#{backingBean[action]}" value="#{value}"
+                                          immediate="#{immediate}">
+                              <ui:insert/>
+                           </h:commandLink>
+                        </c:otherwise></c:choose>
+                  </div>
+               </div>
             </div>
-        </td>
-    </tr>
-</table>
+         </td>
+      </tr>
+   </table>
 
 </ui:composition>

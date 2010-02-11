@@ -140,6 +140,16 @@ public class ConsumerBean extends ManagedBean
       getProducerInfo().setExpirationCacheSeconds((Integer)modifyIfNeeded(getCache(), cache, "cache", false));
    }
 
+   public Integer getTimeout()
+   {
+      return getProducerInfo().getEndpointConfigurationInfo().getWSOperationTimeOut();
+   }
+
+   public void setTimeout(Integer timeout)
+   {
+      getProducerInfo().getEndpointConfigurationInfo().setWSOperationTimeOut((Integer)modifyIfNeeded(getTimeout(), timeout, "timeout", false));
+   }
+
    public String getWsdl()
    {
       return wsdl;
@@ -292,6 +302,11 @@ public class ConsumerBean extends ManagedBean
    public String update()
    {
       return internalUpdate(true);
+   }
+
+   public String confirmEraseRegistration()
+   {
+      return "confirmEraseRegistration";
    }
 
    private String internalUpdate(boolean showMessage)

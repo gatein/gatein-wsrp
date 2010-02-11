@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -53,24 +53,12 @@
 
             <h:form id="confirm-prop-del-form">
                <webui:commandButton id="confirm-delete" value="#{i18n.confirm_delete_reg_property_submit}"
-                                   action="deleteRegistrationProperty"
-                                   backingBean="#{producer}"/>
+                                    action="deleteRegistrationProperty"
+                                    backingBean="#{producer}"/>
 
-               <table class="ActionContainer">
-                   <tr>
-                       <td>
-                           <div class="ButtonLeft">
-                               <div class="ButtonRight">
-                                   <div class="ButtonMiddle">
-                                       <h:commandLink id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
-                                                      action="producer"/>
-                                   </div>
-                               </div>
-                           </div>
-                       </td>
-                   </tr>
-               </table>
-
+               <webui:commandButton id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
+                                    backingBean="#{producer}"
+                                    action="cancel"/>
             </h:form>
          </div>
       </div>

@@ -49,13 +49,6 @@
                <ui:insert name="objectpath"/>
 
                <div class="wsrp-content-container">
-                  <ui:remove>
-                     <c:if test="#{!empty title}">
-                        <h3>${title}</h3>
-                     </c:if>
-                  </ui:remove>
-
-
                   <!-- Content -->
                   <ui:insert name="content">Content</ui:insert>
                </div>

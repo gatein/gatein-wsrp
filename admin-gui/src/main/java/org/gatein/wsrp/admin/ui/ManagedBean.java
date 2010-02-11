@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -39,6 +39,9 @@ public abstract class ManagedBean
    protected Logger log = Logger.getLogger(getClass());
 
    protected BeanContext beanContext;
+
+   private String cancelOutcome;
+
    public static final String INVALID_NAME = "INVALID_NAME_ERROR";
    public static final String INVALID_PATH = "INVALID_PATH_ERROR";
    public static final String DUPLICATE = "DUPLICATE_ERROR";
@@ -68,6 +71,11 @@ public abstract class ManagedBean
    public void setBeanContext(BeanContext beanContext)
    {
       this.beanContext = beanContext;
+   }
+
+   public void setCancelOutcome(String cancelOutcome)
+   {
+      this.cancelOutcome = cancelOutcome;
    }
 
    public String checkNameValidity(String name, String targetForErrorMessage)
@@ -236,5 +244,14 @@ public abstract class ManagedBean
       {
          return ParameterValidation.XSS_CHECK;
       }
+   }
+
+   /**
+    * Default action: returns to outcome specified by {@link #setCancelOutcome(String)}
+    * @return
+    */
+   public String cancel()
+   {
+      return cancelOutcome;
    }
 }

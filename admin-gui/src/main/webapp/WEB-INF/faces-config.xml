@@ -69,6 +69,10 @@
          <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
          <value>#{beanContext}</value>
       </managed-property>
+      <managed-property>
+         <property-name>cancelOutcome</property-name>
+         <value>consumers</value>
+      </managed-property>
    </managed-bean>
    <managed-bean>
       <managed-bean-name>consumer</managed-bean-name>
@@ -92,6 +96,10 @@
          <property-name>manager</property-name>
          <value>#{consumersMgr}</value>
       </managed-property>
+      <managed-property>
+         <property-name>cancelOutcome</property-name>
+         <value>configureConsumer</value>
+      </managed-property>
    </managed-bean>
    <managed-bean>
       <managed-bean-name>producer</managed-bean-name>
@@ -106,6 +114,10 @@
          <property-name>beanContext</property-name>
          <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
          <value>#{beanContext}</value>
+      </managed-property>
+      <managed-property>
+         <property-name>cancelOutcome</property-name>
+         <value>producer</value>
       </managed-property>
    </managed-bean>
    <managed-bean>
