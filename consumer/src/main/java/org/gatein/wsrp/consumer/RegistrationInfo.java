@@ -317,7 +317,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          prop = new RegistrationProperty(name, value, WSRPUtils.toString(Locale.getDefault()), this);
          getOrCreateRegistrationPropertiesMap(false).put(name, prop);
          setModifiedSinceLastRefresh(true);
-         modifyRegistrationNeeded = true;
+         setModifyRegistrationNeeded(true);
       }
 
       return prop;
@@ -332,7 +332,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          throw new IllegalArgumentException("Cannot remove inexistent registration property '" + name + "'");
       }
       setModifiedSinceLastRefresh(true);
-      modifyRegistrationNeeded = true;
+      setModifyRegistrationNeeded(true);
    }
 
    private Map<String, RegistrationProperty> getOrCreateRegistrationPropertiesMap(boolean forceCreate)
@@ -433,7 +433,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             result.setRegistrationProperties(new HashMap<String, RegistrationProperty>(persistentRegistrationProperties));
          }
          setModifiedSinceLastRefresh(false);
-         modifyRegistrationNeeded = false;
+         setModifyRegistrationNeeded(false);
 
          if (serviceDescription.isRequiresRegistration())
          {
@@ -600,7 +600,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       if (persistentRegistrationHandle != null)
       {
          result.setStatus(RefreshResult.Status.MODIFY_REGISTRATION_REQUIRED);
-         modifyRegistrationNeeded = true;
+         setModifyRegistrationNeeded(true);
       }
       else
       {
@@ -670,7 +670,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       consistentWithProducerExpectations = Boolean.TRUE; // since we have a registration context, we're consistent with the Producer
       requiresRegistration = Boolean.TRUE; // we know we require registration
       setModifiedSinceLastRefresh(false); // our state is clean :)
-      modifyRegistrationNeeded = false;
+      setModifyRegistrationNeeded(false);
    }
 
    public RegistrationContext getRegistrationContext()
@@ -706,7 +706,12 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    public void propertyValueChanged(RegistrationProperty property, Object oldValue, Object newValue)
    {
       setModifiedSinceLastRefresh(true);
-      modifyRegistrationNeeded = true;
+      setModifyRegistrationNeeded(true);
+   }
+
+   private void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)
+   {
+      this.modifyRegistrationNeeded = modifyRegistrationNeeded;
    }
 
    public class RegistrationRefreshResult extends RefreshResult

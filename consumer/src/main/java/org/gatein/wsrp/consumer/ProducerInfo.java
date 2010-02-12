@@ -367,7 +367,7 @@ public class ProducerInfo
    {
       ServiceDescription serviceDescription;
 
-      if (isModifyRegistrationRequired)
+      if (isModifyRegistrationRequired())
       {
          return new RefreshResult(RefreshResult.Status.MODIFY_REGISTRATION_REQUIRED);
       }
@@ -427,7 +427,7 @@ public class ProducerInfo
                if (registrationResult.hasIssues())
                {
                   // if the registration validation has issues, we need to modify our local information
-                  isModifyRegistrationRequired = true;
+                  setModifyRegistrationRequired(true);
                   setActiveAndSave(false);
                }
                else
@@ -1090,7 +1090,7 @@ public class ProducerInfo
             persistentRegistrationInfo.setRegistrationValidInternalState();
 
             // registration is not modified anymore :)
-            isModifyRegistrationRequired = false;
+            setModifyRegistrationRequired(false);
 
             // update state
             persistentRegistrationInfo.setRegistrationState(registrationState.value);
