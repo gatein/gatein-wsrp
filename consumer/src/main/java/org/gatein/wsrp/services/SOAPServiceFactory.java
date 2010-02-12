@@ -250,6 +250,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       try
       {
+         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
          URI wsdlURL = new URI(wsdlDefinitionURL);
 
          Service service = Service.create(wsdlURL.toURL(), SERVICE);
