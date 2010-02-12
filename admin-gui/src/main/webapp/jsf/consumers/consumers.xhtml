@@ -96,10 +96,23 @@
       </h:form>
 
       <h:form>
-
-         <webui:commandButton id="createConsumerButton" value="#{i18n.consumers_table_reload}"
+         <table class="ActionContainer">
+                  <tr>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="reloadConsumersButton" action="#{consumersMgr.reload}"
+                                                  value="#{i18n.consumers_table_reload}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                  </tr>
+               </table>
+         <ui:remove><webui:commandButton id="reloadConsumersButton" value="#{i18n.consumers_table_reload}"
                                    action="reload"
-                                   backingBean="#{consumersMgr}"/>
+                                   backingBean="#{consumersMgr}"/></ui:remove>
 
       </h:form>
    </ui:define>

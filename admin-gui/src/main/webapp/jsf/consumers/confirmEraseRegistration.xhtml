@@ -52,14 +52,38 @@
             <p class="portlet-class">#{i18n.confirm_delete_registration_proceed}</p>
 
             <h:form id="confirm-erase-form">
+               <table class="ActionContainer">
+                  <tr>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="submit" action="#{consumer.eraseLocalRegistration}"
+                                                  value="#{i18n.confirm_delete_registration_submit}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="cancel" action="#{consumer.cancel}"
+                                                  value="#{i18n.confirm_delete_registration_cancel}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                  </tr>
+               </table>
 
-               <webui:commandButton id="submit" value="#{i18n.confirm_delete_registration_submit}"
+               <ui:remove><webui:commandButton id="submit" value="#{i18n.confirm_delete_registration_submit}"
                                     action="eraseLocalRegistration"
                                     backingBean="#{consumer}"/>
 
                <webui:commandButton id="cancel" value="#{i18n.confirm_delete_registration_cancel}"
                                     backingBean="#{consumer}"
-                                    action="cancel"/>
+                                    action="cancel"/></ui:remove>
             </h:form>
          </div>
       </div>

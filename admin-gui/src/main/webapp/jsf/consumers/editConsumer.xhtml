@@ -102,23 +102,55 @@
                                     </h:dataTable>
 
 
-                                    <webui:commandButton action="update"
+                                    <table class="ActionContainer">
+                                       <tr>
+                                          <td>
+                                             <div class="ButtonLeft">
+                                                <div class="ButtonRight">
+                                                   <div class="ButtonMiddle">
+                                                      <h:commandLink id="cons-update-link" action="#{consumer.update}"
+                                                                     value="#{i18n.edit_consumer_registration_update_props}"
+                                                                     rendered="#{consumer.registered}"/>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </table>
+
+                                    <ui:remove><webui:commandButton action="update"
                                                          backingBean="#{consumer}"
                                                          id="cons-update-link"
                                                          value="#{i18n.edit_consumer_registration_update_props}"
-                                                         rendered="registered"/>
+                                                         rendered="registered"/></ui:remove>
                                  </c:when>
                                  <c:otherwise>
                                     #{i18n.edit_consumer_registration_no_props}
                                  </c:otherwise>
                               </c:choose>
-                              <webui:commandButton action="modifyRegistration"
+                              <table class="ActionContainer">
+                                       <tr>
+                                          <td>
+                                             <div class="ButtonLeft">
+                                                <div class="ButtonRight">
+                                                   <div class="ButtonMiddle">
+                                                      <h:commandLink id="modify-reg-link" action="#{consumer.modifyRegistration}"
+                                                                     value="#{i18n.edit_consumer_registration_modify}"
+                                                                     title="#{i18n.edit_consumer_registration_modify_title}"
+                                                                     rendered="#{consumer.registrationLocallyModified}"/>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </table>
+                              <ui:remove><webui:commandButton action="modifyRegistration"
                                                    backingBean="#{consumer}"
                                                    id="modify-reg-link"
                                                    rendered="registrationLocallyModified"
                                                    value="#{i18n.edit_consumer_registration_modify}"
                                                    title="#{i18n.edit_consumer_registration_modify_title}"/>
-
+                              </ui:remove>
                               <br style="clear:both;"/>
                            </h:panelGroup>
 
@@ -158,11 +190,26 @@
                                     </c:otherwise>
                                  </c:choose>
 
-                                 <webui:commandButton action="modifyRegistration"
+                                 <table class="ActionContainer">
+                                       <tr>
+                                          <td>
+                                             <div class="ButtonLeft">
+                                                <div class="ButtonRight">
+                                                   <div class="ButtonMiddle">
+                                                      <h:commandLink id="edit-reg-link" action="#{consumer.modifyRegistration}"
+                                                                     value="#{i18n.edit_consumer_registration_modify}"
+                                                                     title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 <ui:remove><webui:commandButton action="modifyRegistration"
                                                       backingBean="#{consumer}"
                                                       id="edit-reg-link"
                                                       value="#{i18n.edit_consumer_registration_modify}"
-                                                      title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                                      title="#{i18n.edit_consumer_registration_modify_title}"/></ui:remove>
 
                                  <br style="clear:both;"/>
                               </h:panelGroup>
@@ -181,10 +228,25 @@
                         #{i18n.edit_consumer_registration_context_handle}
                         <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
 
-                        <webui:commandButton id="erase-cons-link" action="confirmEraseRegistration"
+                        <table class="ActionContainer">
+                           <tr>
+                              <td>
+                                 <div class="ButtonLeft">
+                                    <div class="ButtonRight">
+                                       <div class="ButtonMiddle">
+                                          <h:commandLink id="erase-cons-link" action="confirmEraseRegistration"
+                                                         value="#{i18n.edit_consumer_registration_context_erase}"
+                                                         title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </td>
+                           </tr>
+                        </table>
+                        <ui:remove><webui:commandButton id="erase-cons-link" action="confirmEraseRegistration"
                                              backingBean="#{consumer}"
                                              value="#{i18n.edit_consumer_registration_context_erase}"
-                                             title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+                                             title="#{i18n.edit_consumer_registration_context_erase_title}"/></ui:remove>
 
                      </td>
                   </tr>
@@ -193,14 +255,31 @@
             <tr>
                <th/>
                <td class="portlet-section-buttonrow">
-                  <webui:commandButton action="refreshConsumer"
-                                       backingBean="#{consumer}"
-                                       id="refresh-cons-link"
-                                       value="#{i18n.edit_consumer_refresh}"
-                                       title="#{i18n.edit_consumer_refresh_title}"/>
-
-                  <webui:commandButton id="list-cons-link-two" action="listConsumers" backingBean="#{consumersMgr}"
-                                       value="#{i18n.edit_consumer_cancel}"/>
+                  <table class="ActionContainer">
+                     <tr>
+                        <td>
+                           <div class="ButtonLeft">
+                              <div class="ButtonRight">
+                                 <div class="ButtonMiddle">
+                                    <h:commandLink id="refresh-cons-link" action="#{consumer.refreshConsumer}"
+                                                   value="#{i18n.edit_consumer_refresh}"
+                                                   title="#{i18n.edit_consumer_refresh_title}"/>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                        <td>
+                           <div class="ButtonLeft">
+                              <div class="ButtonRight">
+                                 <div class="ButtonMiddle">
+                                    <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
+                                                   value="#{i18n.edit_consumer_cancel}"/>
+                                 </div>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                  </table>
                </td>
             </tr>
          </table>

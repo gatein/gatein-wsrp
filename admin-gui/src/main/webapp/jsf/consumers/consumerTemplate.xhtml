@@ -82,13 +82,26 @@
                                      styleClass="portlet-form-input-field"
                                      label="Consumer Name" required="true"/>&#160;&#160;
 
-                        <webui:commandButton id="createConsumerButton"
-                                             action="createConsumer"
-                                             backingBean="#{consumersMgr}"
-                                             value="#{i18n.consumers_create_submit}"/>
-
+                        <table class="ActionContainer">
+                  <tr>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="createConsumerButton" action="#{consumersMgr.createConsumer}"
+                                                  value="#{i18n.consumers_create_submit}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                  </tr>
+               </table>
 
                         <ui:remove>
+                           <webui:commandButton id="createConsumerButton"
+                                                action="createConsumer"
+                                                backingBean="#{consumersMgr}"
+                                                value="#{i18n.consumers_create_submit}"/>
                            <h:message for="consumerName" errorClass="portlet-msg-error"/>
                         </ui:remove>
                      </h:form>
