@@ -248,6 +248,7 @@ public abstract class ManagedBean
 
    /**
     * Default action: returns to outcome specified by {@link #setCancelOutcome(String)}
+    *
     * @return
     */
    public String cancel()

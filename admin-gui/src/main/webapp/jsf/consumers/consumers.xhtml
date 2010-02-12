@@ -97,22 +97,22 @@
 
       <h:form>
          <table class="ActionContainer">
-                  <tr>
-                     <td>
-                        <div class="ButtonLeft">
-                           <div class="ButtonRight">
-                              <div class="ButtonMiddle">
-                                 <h:commandLink id="reloadConsumersButton" action="#{consumersMgr.reload}"
-                                                  value="#{i18n.consumers_table_reload}"/>
-                              </div>
-                           </div>
+            <tr>
+               <td>
+                  <div class="ButtonLeft">
+                     <div class="ButtonRight">
+                        <div class="ButtonMiddle">
+                           <h:commandLink id="reloadConsumersButton" action="#{consumersMgr.reload}"
+                                          value="#{i18n.consumers_table_reload}"/>
                         </div>
-                     </td>
-                  </tr>
-               </table>
+                     </div>
+                  </div>
+               </td>
+            </tr>
+         </table>
          <ui:remove><webui:commandButton id="reloadConsumersButton" value="#{i18n.consumers_table_reload}"
-                                   action="reload"
-                                   backingBean="#{consumersMgr}"/></ui:remove>
+                                         action="reload"
+                                         backingBean="#{consumersMgr}"/></ui:remove>
 
       </h:form>
    </ui:define>

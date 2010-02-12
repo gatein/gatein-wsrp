@@ -67,22 +67,23 @@
                      <div class="add-prop-container">
                         <div class="add-prop-button">
                            <table class="ActionContainer">
-                  <tr>
-                     <td>
-                        <div class="ButtonLeft">
-                           <div class="ButtonRight">
-                              <div class="ButtonMiddle">
-                                 <h:commandLink id="add-reg-prop" action="#{producer.addRegistrationProperty}"
-                                                  value="#{i18n.producer_config_add_reg_prop}"/>
-                              </div>
-                           </div>
-                        </div>
-                     </td>
-                  </tr>
-               </table>
+                              <tr>
+                                 <td>
+                                    <div class="ButtonLeft">
+                                       <div class="ButtonRight">
+                                          <div class="ButtonMiddle">
+                                             <h:commandLink id="add-reg-prop"
+                                                            action="#{producer.addRegistrationProperty}"
+                                                            value="#{i18n.producer_config_add_reg_prop}"/>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </td>
+                              </tr>
+                           </table>
                            <ui:remove><webui:commandButton id="add-reg-prop" action="addRegistrationProperty"
-                                                backingBean="#{producer}"
-                                                value="#{i18n.producer_config_add_reg_prop}"/>
+                                                           backingBean="#{producer}"
+                                                           value="#{i18n.producer_config_add_reg_prop}"/>
                            </ui:remove>
                         </div>
                      </div>
@@ -144,7 +145,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="reg-save" action="#{producer.save}"
-                                                  value="#{i18n.producer_config_save}"/>
+                                                value="#{i18n.producer_config_save}"/>
                               </div>
                            </div>
                         </div>
@@ -154,7 +155,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="reg-reload" action="#{producer.reloadConfiguration}"
-                                                  value="#{i18n.producer_config_cancel}"/>
+                                                value="#{i18n.producer_config_cancel}"/>
                               </div>
                            </div>
                         </div>
@@ -162,12 +163,12 @@
                   </tr>
                </table>
                <ui:remove><webui:commandButton id="reg-save" action="save"
-                                    backingBean="#{producer}"
-                                    value="#{i18n.producer_config_save}"/>
+                                               backingBean="#{producer}"
+                                               value="#{i18n.producer_config_save}"/>
 
-               <webui:commandButton id="reg-reload" action="reloadConfiguration"
-                                    backingBean="#{producer}"
-                                    value="#{i18n.producer_config_cancel}"/></ui:remove>
+                  <webui:commandButton id="reg-reload" action="reloadConfiguration"
+                                       backingBean="#{producer}"
+                                       value="#{i18n.producer_config_cancel}"/></ui:remove>
 
             </h:panelGroup>
          </h:panelGrid>

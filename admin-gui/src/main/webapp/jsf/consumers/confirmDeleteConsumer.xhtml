@@ -25,7 +25,6 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:jbp="http://www.jboss.org/portal"
              xmlns:c="http://java.sun.com/jstl/core"
              xmlns:webui="http://jboss.org/gatein">
 
@@ -59,7 +58,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="destroy-link" action="#{consumersMgr.destroyConsumer}"
-                                                  value="#{i18n.confirm_delete_consumer_submit}">
+                                                value="#{i18n.confirm_delete_consumer_submit}">
                                     <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
                                  </h:commandLink>
                               </div>
@@ -71,7 +70,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="cancel-link" action="#{consumersMgr.listConsumers}"
-                                                  value="#{i18n.confirm_delete_consumer_cancel}"/>
+                                                value="#{i18n.confirm_delete_consumer_cancel}"/>
                               </div>
                            </div>
                         </div>
@@ -81,16 +80,16 @@
 
 
                <ui:remove><webui:commandButton id="destroy-link"
-                                    action="destroyConsumer"
-                                    backingBean="#{consumersMgr}"
-                                    value="#{i18n.confirm_delete_consumer_submit}">
+                                               action="destroyConsumer"
+                                               backingBean="#{consumersMgr}"
+                                               value="#{i18n.confirm_delete_consumer_submit}">
                   <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
                </webui:commandButton>
 
-               <webui:commandButton id="cancel-link"
-                                    action="listConsumers"
-                                    backingBean="#{consumersMgr}"
-                                    value="#{i18n.confirm_delete_consumer_cancel}"/></ui:remove>
+                  <webui:commandButton id="cancel-link"
+                                       action="listConsumers"
+                                       backingBean="#{consumersMgr}"
+                                       value="#{i18n.confirm_delete_consumer_cancel}"/></ui:remove>
             </h:form>
          </div>
       </div>

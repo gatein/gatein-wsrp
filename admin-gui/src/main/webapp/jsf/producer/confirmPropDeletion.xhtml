@@ -25,7 +25,6 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:jbp="http://www.jboss.org/portal"
              xmlns:c="http://java.sun.com/jstl/core"
              xmlns:webui="http://jboss.org/gatein">
 
@@ -59,7 +58,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="confirm-delete" action="#{producer.deleteRegistrationProperty}"
-                                                  value="#{i18n.confirm_delete_reg_property_submit}"/>
+                                                value="#{i18n.confirm_delete_reg_property_submit}"/>
                               </div>
                            </div>
                         </div>
@@ -69,7 +68,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="cancel-delete" action="#{producer.cancel}"
-                                                  value="#{i18n.confirm_delete_reg_property_cancel}"/>
+                                                value="#{i18n.confirm_delete_reg_property_cancel}"/>
                               </div>
                            </div>
                         </div>
@@ -77,12 +76,12 @@
                   </tr>
                </table>
                <ui:remove><webui:commandButton id="confirm-delete" value="#{i18n.confirm_delete_reg_property_submit}"
-                                    action="deleteRegistrationProperty"
-                                    backingBean="#{producer}"/>
+                                               action="deleteRegistrationProperty"
+                                               backingBean="#{producer}"/>
 
-               <webui:commandButton id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
-                                    backingBean="#{producer}"
-                                    action="cancel"/></ui:remove>
+                  <webui:commandButton id="cancel-delete" value="#{i18n.confirm_delete_reg_property_cancel}"
+                                       backingBean="#{producer}"
+                                       action="cancel"/></ui:remove>
             </h:form>
          </div>
       </div>

@@ -25,7 +25,6 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:jbp="http://www.jboss.org/portal"
              xmlns:c="http://java.sun.com/jstl/core"
              xmlns:webui="http://jboss.org/gatein">
 
@@ -59,7 +58,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="submit" action="#{consumer.eraseLocalRegistration}"
-                                                  value="#{i18n.confirm_delete_registration_submit}"/>
+                                                value="#{i18n.confirm_delete_registration_submit}"/>
                               </div>
                            </div>
                         </div>
@@ -69,7 +68,7 @@
                            <div class="ButtonRight">
                               <div class="ButtonMiddle">
                                  <h:commandLink id="cancel" action="#{consumer.cancel}"
-                                                  value="#{i18n.confirm_delete_registration_cancel}"/>
+                                                value="#{i18n.confirm_delete_registration_cancel}"/>
                               </div>
                            </div>
                         </div>
@@ -78,12 +77,12 @@
                </table>
 
                <ui:remove><webui:commandButton id="submit" value="#{i18n.confirm_delete_registration_submit}"
-                                    action="eraseLocalRegistration"
-                                    backingBean="#{consumer}"/>
+                                               action="eraseLocalRegistration"
+                                               backingBean="#{consumer}"/>
 
-               <webui:commandButton id="cancel" value="#{i18n.confirm_delete_registration_cancel}"
-                                    backingBean="#{consumer}"
-                                    action="cancel"/></ui:remove>
+                  <webui:commandButton id="cancel" value="#{i18n.confirm_delete_registration_cancel}"
+                                       backingBean="#{consumer}"
+                                       action="cancel"/></ui:remove>
             </h:form>
          </div>
       </div>

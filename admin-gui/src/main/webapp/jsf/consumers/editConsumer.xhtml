@@ -129,21 +129,22 @@
                                  </c:otherwise>
                               </c:choose>
                               <table class="ActionContainer">
-                                       <tr>
-                                          <td>
-                                             <div class="ButtonLeft">
-                                                <div class="ButtonRight">
-                                                   <div class="ButtonMiddle">
-                                                      <h:commandLink id="modify-reg-link" action="#{consumer.modifyRegistration}"
-                                                                     value="#{i18n.edit_consumer_registration_modify}"
-                                                                     title="#{i18n.edit_consumer_registration_modify_title}"
-                                                                     rendered="#{consumer.registrationLocallyModified}"/>
-                                                   </div>
-                                                </div>
+                                 <tr>
+                                    <td>
+                                       <div class="ButtonLeft">
+                                          <div class="ButtonRight">
+                                             <div class="ButtonMiddle">
+                                                <h:commandLink id="modify-reg-link"
+                                                               action="#{consumer.modifyRegistration}"
+                                                               value="#{i18n.edit_consumer_registration_modify}"
+                                                               title="#{i18n.edit_consumer_registration_modify_title}"
+                                                               rendered="#{consumer.registrationLocallyModified}"/>
                                              </div>
-                                          </td>
-                                       </tr>
-                                    </table>
+                                          </div>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </table>
                               <ui:remove><webui:commandButton action="modifyRegistration"
                                                    backingBean="#{consumer}"
                                                    id="modify-reg-link"
@@ -191,20 +192,21 @@
                                  </c:choose>
 
                                  <table class="ActionContainer">
-                                       <tr>
-                                          <td>
-                                             <div class="ButtonLeft">
-                                                <div class="ButtonRight">
-                                                   <div class="ButtonMiddle">
-                                                      <h:commandLink id="edit-reg-link" action="#{consumer.modifyRegistration}"
-                                                                     value="#{i18n.edit_consumer_registration_modify}"
-                                                                     title="#{i18n.edit_consumer_registration_modify_title}"/>
-                                                   </div>
+                                    <tr>
+                                       <td>
+                                          <div class="ButtonLeft">
+                                             <div class="ButtonRight">
+                                                <div class="ButtonMiddle">
+                                                   <h:commandLink id="edit-reg-link"
+                                                                  action="#{consumer.modifyRegistration}"
+                                                                  value="#{i18n.edit_consumer_registration_modify}"
+                                                                  title="#{i18n.edit_consumer_registration_modify_title}"/>
                                                 </div>
                                              </div>
-                                          </td>
-                                       </tr>
-                                    </table>
+                                          </div>
+                                       </td>
+                                    </tr>
+                                 </table>
                                  <ui:remove><webui:commandButton action="modifyRegistration"
                                                       backingBean="#{consumer}"
                                                       id="edit-reg-link"
