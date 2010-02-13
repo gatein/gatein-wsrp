@@ -241,15 +241,7 @@ public class ProducerInfo
 
    public boolean isRegistered()
    {
-      Boolean valid = persistentRegistrationInfo.isRegistrationValid();
-      if (valid == null)
-      {
-         return persistentRegistrationInfo.getRegistrationHandle() != null;
-      }
-      else
-      {
-         return valid;
-      }
+      return persistentRegistrationInfo.isRegistered();
    }
 
    public boolean isRegistrationRequired()
@@ -1074,39 +1066,42 @@ public class ProducerInfo
       {
          persistentEndpointInfo.refresh();
 
-         try
+         if (isModifyRegistrationRequired())
          {
-            RegistrationContext registrationContext = getRegistrationContext();
-            Holder<byte[]> registrationState = new Holder<byte[]>();
+            try
+            {
+               RegistrationContext registrationContext = getRegistrationContext();
+               Holder<byte[]> registrationState = new Holder<byte[]>();
 
-            // invocation
-            persistentEndpointInfo.getRegistrationService().modifyRegistration(
-               registrationContext,
-               persistentRegistrationInfo.getRegistrationData(),
-               registrationState,
-               new Holder<List<Extension>>());
+               // invocation
+               persistentEndpointInfo.getRegistrationService().modifyRegistration(
+                  registrationContext,
+                  persistentRegistrationInfo.getRegistrationData(),
+                  registrationState,
+                  new Holder<List<Extension>>());
 
-            // force refresh of internal RegistrationInfo state
-            persistentRegistrationInfo.setRegistrationValidInternalState();
+               // force refresh of internal RegistrationInfo state
+               persistentRegistrationInfo.setRegistrationValidInternalState();
 
-            // registration is not modified anymore :)
-            setModifyRegistrationRequired(false);
+               // registration is not modified anymore :)
+               setModifyRegistrationRequired(false);
 
-            // update state
-            persistentRegistrationInfo.setRegistrationState(registrationState.value);
+               // update state
+               persistentRegistrationInfo.setRegistrationState(registrationState.value);
 
-            log.info("Consumer with id '" + persistentId + "' sucessfully modified its registration.");
+               log.info("Consumer with id '" + persistentId + "' sucessfully modified its registration.");
 
-            // reset cache to be able to see new offered portlets on the next refresh
-            invalidateCache();
-         }
-         catch (Exception e)
-         {
-            throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
-         }
-         finally
-         {
-            registry.updateProducerInfo(this);
+               // reset cache to be able to see new offered portlets on the next refresh
+               invalidateCache();
+            }
+            catch (Exception e)
+            {
+               throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
+            }
+            finally
+            {
+               registry.updateProducerInfo(this);
+            }
          }
       }
       else

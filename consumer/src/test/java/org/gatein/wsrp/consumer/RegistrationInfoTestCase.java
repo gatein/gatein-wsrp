@@ -24,6 +24,7 @@
 package org.gatein.wsrp.consumer;
 
 import junit.framework.TestCase;
+import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
 import org.oasis.wsrp.v1.Property;
@@ -44,6 +45,7 @@ public class RegistrationInfoTestCase extends TestCase
 {
    private RegistrationInfo info;
    private static final String producerId = "test";
+   private static final RegistrationContext FAKE_REGISTRATION_CONTEXT = WSRPTypeFactory.createRegistrationContext("handle");
 
    protected void setUp() throws Exception
    {
@@ -67,6 +69,8 @@ public class RegistrationInfoTestCase extends TestCase
       assertNull(info.isRegistrationRequired());
       // and we don't know if the registration is valid
       assertNull(info.isRegistrationValid());
+      // and we are not registered
+      assertFalse(info.isRegistered());
 
       assertFalse(info.isModifiedSinceLastRefresh());
       assertFalse(info.isModifyRegistrationNeeded());
@@ -90,6 +94,56 @@ public class RegistrationInfoTestCase extends TestCase
       }
    }
 
+   public void testRegistration()
+   {
+      register();
+
+      assertEquals(FAKE_REGISTRATION_CONTEXT.getRegistrationHandle(), info.getRegistrationHandle());
+      assertEquals(FAKE_REGISTRATION_CONTEXT.getRegistrationState(), info.getRegistrationState());
+
+      assertTrue(info.isRegistered());
+      assertFalse(info.isModifiedSinceLastRefresh());
+      assertFalse(info.isModifyRegistrationNeeded());
+      assertTrue(info.isConsistentWithProducerExpectations());
+
+      assertFalse(info.isRefreshNeeded());
+
+      assertTrue(info.isRegistrationRequired());
+      assertTrue(info.isRegistrationValid());
+      assertFalse(info.isRegistrationDeterminedNotRequired());
+      assertTrue(info.isRegistrationDeterminedRequired());
+      assertFalse(info.isUndetermined());
+   }
+
+   public void testIsModifyRegistrationNeeded()
+   {
+      String key = "foo";
+
+      // if we're not registered, then modifying registration is never needed
+      assertFalse(info.isRegistered());
+      info.setRegistrationPropertyValue(key, "bar");
+      assertFalse(info.isModifyRegistrationNeeded());
+
+      register();
+
+      // if we try to set the property to the same value, nothing should change
+      info.setRegistrationPropertyValue(key, "bar");
+      assertFalse(info.isModifiedSinceLastRefresh());
+      assertFalse(info.isModifyRegistrationNeeded());
+
+      // but if we set the property to a different value, then we need to modify the registration
+      info.setRegistrationPropertyValue(key, "new");
+      assertTrue(info.isModifiedSinceLastRefresh());
+      assertTrue(info.isModifyRegistrationNeeded());
+   }
+
+   private void register()
+   {
+      // setting a registration context should simulate a successful registration
+      info.setRegistrationContext(FAKE_REGISTRATION_CONTEXT);
+      info.setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME);
+   }
+
    public void testSimpleSetGetRegistrationProperty()
    {
       String key = "foo";
@@ -98,7 +152,7 @@ public class RegistrationInfoTestCase extends TestCase
       // check status
       assertNull(info.isConsistentWithProducerExpectations());
       assertTrue(info.isModifiedSinceLastRefresh());
-      assertTrue(info.isModifyRegistrationNeeded());
+      assertFalse(info.isModifyRegistrationNeeded()); // since we were not registered, modification of registration shouldn't be needed
 
       Map properties = info.getRegistrationProperties();
       assertFalse(properties.isEmpty());
@@ -133,6 +187,8 @@ public class RegistrationInfoTestCase extends TestCase
       assertNull("Property value has changed since last refresh, status should be unknown", prop.isInvalid());
       assertEquals("Property value has changed since last refresh, status should be unknown",
          RegistrationProperty.Status.UNCHECKED_VALUE, prop.getStatus());
+      assertTrue(info.isModifiedSinceLastRefresh());
+      assertTrue(info.isModifyRegistrationNeeded());
    }
 
    public void testRefreshNoRegistration()
@@ -203,11 +259,10 @@ public class RegistrationInfoTestCase extends TestCase
 
    public void testRefreshRegistrationDefaultRegistrationExtraLocalInfoWhileRegistered()
    {
+      register();
+
       // set a registration property
       info.setRegistrationPropertyValue("foo", "bar");
-
-      // simulate being registered
-      info.setRegistrationHandle("blah");
 
       // we were registered so we need to call modifyRegistration, force check of extra props
       RegistrationInfo.RegistrationRefreshResult result = info.refresh(
@@ -257,13 +312,12 @@ public class RegistrationInfoTestCase extends TestCase
 
    public void testRefreshRegistrationRegistrationNoLocalInfoWhileRegistered()
    {
+      register();
+
       // producer requests 2 registration properties
       ServiceDescription sd = createServiceDescription(true, 2);
 
-      // simulate registration
-      info.setRegistrationHandle("blah");
-
-      RegistrationInfo.RegistrationRefreshResult result = info.refresh(sd, producerId, false, false, false);
+      RegistrationInfo.RegistrationRefreshResult result = info.refresh(sd, producerId, false, true, false);
       assertNotNull(result);
       assertTrue(result.hasIssues());
       assertEquals(RefreshResult.Status.MODIFY_REGISTRATION_REQUIRED, result.getStatus());
@@ -368,15 +422,18 @@ public class RegistrationInfoTestCase extends TestCase
 
       info.setRegistrationPropertyValue("prop0", "value0");
       assertTrue(info.isModifiedSinceLastRefresh());
-      assertTrue(info.isModifyRegistrationNeeded());
+      assertFalse(info.isModifyRegistrationNeeded()); // not registered, so modifying registration is not needed
+
       RegistrationData registrationData = info.getRegistrationData();
       checkRegistrationData(registrationData, "value0");
 
       // check that setRegistrationValidInternalState properly updates RegistrationData if required
       info.setRegistrationPropertyValue("prop0", "value1");
       assertTrue(info.isModifiedSinceLastRefresh());
-      assertTrue(info.isModifyRegistrationNeeded());
-      info.setRegistrationValidInternalState();
+      assertFalse(info.isModifyRegistrationNeeded());
+
+      register();
+
       assertFalse(info.isModifiedSinceLastRefresh());
       assertFalse(info.isModifyRegistrationNeeded());
       List<Property> properties = info.getRegistrationData().getRegistrationProperties();
@@ -401,7 +458,7 @@ public class RegistrationInfoTestCase extends TestCase
       info.refresh(createServiceDescription(true, 1), producerId, true, true, false);
 
       // simulate successful registration
-      info.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("handle"));
+      info.setRegistrationContext(FAKE_REGISTRATION_CONTEXT);
 
       assertTrue(info.isRegistrationRequired());
       assertTrue(info.isRegistrationValid());
@@ -422,7 +479,7 @@ public class RegistrationInfoTestCase extends TestCase
    public void testRefreshRegisteredWithoutPropsAndProducerNowSendsProps()
    {
       // simulate successful registration
-      info.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("handle"));
+      info.setRegistrationContext(FAKE_REGISTRATION_CONTEXT);
       assertTrue(info.isRegistrationRequired());
       assertTrue(info.isRegistrationValid());
 

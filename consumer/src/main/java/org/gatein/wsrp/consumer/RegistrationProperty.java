@@ -181,6 +181,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       if ((persistentValue != null && !persistentValue.equals(stringValue)) || (persistentValue == null && stringValue != null))
       {
          String oldValue = persistentValue;
+         Status oldStatus = status;
          persistentValue = stringValue;
          if (persistentValue == null)
          {
@@ -192,7 +193,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
          }
 
          // notify listeners
-         notifyListener(oldValue, persistentValue);
+         notifyListener(oldValue, persistentValue, oldStatus);
       }
    }
 
@@ -217,13 +218,10 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       this.status = status;
    }
 
-   private void notifyListener(String oldValue, String newValue)
+   private void notifyListener(String oldValue, String newValue, Status oldStatus)
    {
-      // listener can be null, especially when props are unfrozen from Hibernate
-      if (listener != null)
-      {
-         listener.propertyValueChanged(this, oldValue, newValue);
-      }
+      ParameterValidation.throwIllegalArgExceptionIfNull(listener, "PropertyChangeListener");
+      listener.propertyValueChanged(this, oldStatus, oldValue, newValue);
    }
 
    public void setListener(PropertyChangeListener listener)
@@ -233,6 +231,14 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
 
    static interface PropertyChangeListener
    {
-      void propertyValueChanged(RegistrationProperty property, Object oldValue, Object newValue);
+      /**
+       * Only called if an actual change occurred, i.e. oldvalue is guaranteed to be different from newValue
+       *
+       * @param property
+       * @param previousStatus
+       * @param oldValue
+       * @param newValue
+       */
+      void propertyValueChanged(RegistrationProperty property, Status previousStatus, Object oldValue, Object newValue);
    }
 }

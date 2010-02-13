@@ -316,8 +316,6 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          // todo: deal with language more appropriately
          prop = new RegistrationProperty(name, value, WSRPUtils.toString(Locale.getDefault()), this);
          getOrCreateRegistrationPropertiesMap(false).put(name, prop);
-         setModifiedSinceLastRefresh(true);
-         setModifyRegistrationNeeded(true);
       }
 
       return prop;
@@ -689,7 +687,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public boolean isModifyRegistrationNeeded()
    {
-      return modifyRegistrationNeeded || isModifiedSinceLastRefresh();
+      return modifyRegistrationNeeded;
    }
 
    public boolean isModifiedSinceLastRefresh()
@@ -702,16 +700,32 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       this.modifiedSinceLastRefresh = modifiedSinceLastRefresh;
    }
 
-   /** todo: Should be package-only, public for tests... */
-   public void propertyValueChanged(RegistrationProperty property, Object oldValue, Object newValue)
+   public void propertyValueChanged(RegistrationProperty property, RegistrationProperty.Status previousStatus, Object oldValue, Object newValue)
    {
       setModifiedSinceLastRefresh(true);
-      setModifyRegistrationNeeded(true);
+
+      if (previousStatus != null && !RegistrationProperty.Status.MISSING_VALUE.equals(previousStatus) && !RegistrationProperty.Status.UNCHECKED_VALUE.equals(previousStatus))
+      {
+         setModifyRegistrationNeeded(true);
+      }
    }
 
    private void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)
    {
       this.modifyRegistrationNeeded = modifyRegistrationNeeded;
+   }
+
+   public boolean isRegistered()
+   {
+      Boolean valid = isRegistrationValid();
+      if (valid == null)
+      {
+         return getRegistrationHandle() != null;
+      }
+      else
+      {
+         return valid;
+      }
    }
 
    public class RegistrationRefreshResult extends RefreshResult

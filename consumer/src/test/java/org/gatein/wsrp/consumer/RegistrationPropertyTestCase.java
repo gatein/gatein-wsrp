@@ -43,7 +43,7 @@ public class RegistrationPropertyTestCase extends TestCase
    {
       boolean called;
 
-      public void propertyValueChanged(RegistrationProperty property, Object oldValue, Object newValue)
+      public void propertyValueChanged(RegistrationProperty property, RegistrationProperty.Status previousStatus, Object oldValue, Object newValue)
       {
          called = (prop == property) && VALUE.equals(oldValue) && NEW_VALUE.equals(newValue);
       }
