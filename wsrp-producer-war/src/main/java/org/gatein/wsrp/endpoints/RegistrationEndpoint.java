@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -100,8 +100,12 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
 
       RegistrationState result = producer.modifyRegistration(modifyRegistration);
 
-      registrationState.value = result.getRegistrationState();
-      extensions.value = result.getExtensions();
+      // it is possible (if not likely) that result of modifyRegistration be null
+      if (result != null)
+      {
+         registrationState.value = result.getRegistrationState();
+         extensions.value = result.getExtensions();
+      }
    }
 
    public List<Extension> deregister(
