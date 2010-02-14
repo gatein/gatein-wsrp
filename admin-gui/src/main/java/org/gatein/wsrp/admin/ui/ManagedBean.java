@@ -23,8 +23,9 @@
 
 package org.gatein.wsrp.admin.ui;
 
-import org.apache.log4j.Logger;
 import org.gatein.common.util.ParameterValidation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
  */
 public abstract class ManagedBean
 {
-   protected Logger log = Logger.getLogger(getClass());
+   protected Logger log = LoggerFactory.getLogger(getClass());
 
    protected BeanContext beanContext;
 

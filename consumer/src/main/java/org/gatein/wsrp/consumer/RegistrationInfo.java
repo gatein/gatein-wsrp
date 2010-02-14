@@ -249,10 +249,10 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public boolean hasLocalInfo()
    {
-      return persistentRegistrationHandle != null || isRegistrationPropertiesEmpty();
+      return persistentRegistrationHandle != null || isRegistrationPropertiesExisting();
    }
 
-   public boolean isRegistrationPropertiesEmpty()
+   public boolean isRegistrationPropertiesExisting()
    {
       return persistentRegistrationProperties != null && !persistentRegistrationProperties.isEmpty();
    }

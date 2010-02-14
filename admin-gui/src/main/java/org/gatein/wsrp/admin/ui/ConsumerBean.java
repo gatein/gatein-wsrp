@@ -31,7 +31,6 @@ import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
-import javax.faces.event.ValueChangeEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -49,11 +48,8 @@ public class ConsumerBean extends ManagedBean
    private ConsumerRegistry registry;
    private ConsumerManagerBean manager;
    private boolean modified;
-   private boolean registrationLocallyModified;
-
    private String wsdl;
 
-   private transient RegistrationInfo expectedRegistrationInfo;
    private static final String CANNOT_FIND_CONSUMER = "bean_consumer_cannot_find_consumer";
    private static final String CANNOT_UPDATE_CONSUMER = "bean_consumer_cannot_update_consumer";
    private static final String CANNOT_REFRESH_CONSUMER = "bean_consumer_cannot_refresh_consumer";
@@ -210,14 +206,17 @@ public class ConsumerBean extends ManagedBean
       }
    }
 
-   public boolean isRegistrationModified()
+   public boolean isDisplayExpectedNeeded()
    {
-      return getProducerInfo().isModifyRegistrationRequired();
+      ProducerInfo producerInfo = getProducerInfo();
+
+      // only show expected registration info if it is different from the one we currently have
+      return producerInfo.isModifyRegistrationRequired() && producerInfo.getRegistrationInfo() != producerInfo.getExpectedRegistrationInfo();
    }
 
    public boolean isRegistrationLocallyModified()
    {
-      return isRegistered() && registrationLocallyModified;
+      return isRegistered() && getProducerInfo().getRegistrationInfo().isModifiedSinceLastRefresh();
    }
 
    public boolean isRegistrationChecked()
@@ -244,33 +243,21 @@ public class ConsumerBean extends ManagedBean
       return getProducerInfo().hasLocalRegistrationInfo();
    }
 
-   public boolean isRegistrationPropertiesEmpty()
+   public boolean isRegistrationPropertiesExisting()
    {
       RegistrationInfo regInfo = getProducerInfo().getRegistrationInfo();
-      return regInfo == null || regInfo.isRegistrationPropertiesEmpty();
+      return regInfo == null || regInfo.isRegistrationPropertiesExisting();
    }
 
-   public boolean isExpectedRegistrationPropertiesEmpty()
+   public boolean isExpectedRegistrationPropertiesExisting()
    {
       RegistrationInfo info = getExpectedRegistrationInfo();
-      if (info != null)
-      {
-         return info.isRegistrationPropertiesEmpty();
-      }
-      else
-      {
-         return true;
-      }
+      return info != null && info.isRegistrationPropertiesExisting();
    }
 
    private RegistrationInfo getExpectedRegistrationInfo()
    {
-      if (expectedRegistrationInfo == null)
-      {
-         expectedRegistrationInfo = beanContext.getFromSession(ConsumerManagerBean.EXPECTED_REG_INFO_KEY, RegistrationInfo.class);
-      }
-
-      return expectedRegistrationInfo;
+      return getProducerInfo().getExpectedRegistrationInfo();
    }
 
    public List<RegistrationProperty> getRegistrationProperties()
@@ -405,7 +392,7 @@ public class ConsumerBean extends ManagedBean
                {
                   IllegalStateException e =
                      new IllegalStateException("Registration not locally modified: there should be expected registration from producer!");
-                  log.debug(e);
+                  log.debug("Couldn't modify registration", e);
                   throw e;
                }
             }
@@ -418,8 +405,6 @@ public class ConsumerBean extends ManagedBean
                info.setRegistrationInfo(newReg);
                info.modifyRegistration();
                newReg.setModifiedSinceLastRefresh(false);
-
-               registrationLocallyModified = false;
 
                beanContext.createInfoMessage(MODIFY_REG_SUCCESS);
             }
@@ -479,23 +464,6 @@ public class ConsumerBean extends ManagedBean
       }
 
       return oldValue;
-   }
-
-   // Listeners
-
-   // todo: valueChangeListener not needed anymore when events on RegistrationProperties work  
-
-   public void regPropListener(ValueChangeEvent event)
-   {
-      if (!registrationLocallyModified)
-      {
-         // only mark as locally modified if we had a previous value
-         Object oldValue = normalizeStringIfNeeded(event.getOldValue());
-         if (oldValue != null)
-         {
-            registrationLocallyModified = isOldAndNewDifferent(oldValue, event.getNewValue());
-         }
-      }
    }
 
    protected String getObjectTypeName()

@@ -185,7 +185,7 @@ public class ProducerBean extends ManagedBean
       }
       catch (Exception e)
       {
-         log.debug(e);
+         log.debug("Couldn't save producer", e);
          beanContext.createErrorMessage("bean_producer_cannot_save", e.getLocalizedMessage());
       }
       return PRODUCER;
@@ -200,7 +200,7 @@ public class ProducerBean extends ManagedBean
       }
       catch (Exception e)
       {
-         log.debug(e);
+         log.debug("Couldn't reload producer configuration", e);
          beanContext.createErrorMessage("bean_producer_cannot_reload", e.getLocalizedMessage());
       }
       return PRODUCER;
