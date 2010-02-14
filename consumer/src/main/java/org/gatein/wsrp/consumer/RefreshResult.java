@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,8 +23,10 @@
 
 package org.gatein.wsrp.consumer;
 
-import static org.gatein.wsrp.consumer.RefreshResult.Status.*;
 import org.oasis.wsrp.v1.ServiceDescription;
+
+import static org.gatein.wsrp.consumer.RefreshResult.Status.BYPASSED;
+import static org.gatein.wsrp.consumer.RefreshResult.Status.SUCCESS;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -75,7 +77,7 @@ public class RefreshResult
 
    public boolean didRefreshHappen()
    {
-      return SUCCESS.equals(status) || FAILURE.equals(status);
+      return !BYPASSED.equals(status);
    }
 
    public boolean hasIssues()
