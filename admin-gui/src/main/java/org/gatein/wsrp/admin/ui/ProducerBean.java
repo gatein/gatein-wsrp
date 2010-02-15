@@ -57,6 +57,7 @@ public class ProducerBean extends ManagedBean
 
    public ProducerConfigurationService getConfigurationService()
    {
+      // todo: fix this, the configuration service needs to be injected more cleanly
       if (configurationService == null)
       {
          configurationService = (ProducerConfigurationService)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ProducerConfigurationService.class);

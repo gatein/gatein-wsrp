@@ -478,6 +478,7 @@ public class ConsumerBean extends ManagedBean
 
    public ConsumerRegistry getRegistry()
    {
+      // todo: fix this, the registry needs to be injected more cleanly
       if (registry == null)
       {
          registry = (ConsumerRegistry)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ConsumerRegistry.class);

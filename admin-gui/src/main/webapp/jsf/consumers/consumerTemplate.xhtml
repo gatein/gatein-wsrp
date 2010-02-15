@@ -110,14 +110,16 @@
                </div>
             </f:subview>
             <c:if test="#{empty showAddConsumer}">
-                    <span
-                       class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} float-left">
-                       <h:outputFormat value="#{i18n.path_consumers_consumer}">
-                          <f:param value="#{consumer.id}"/>
-                       </h:outputFormat>
-                       (#{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive})
-                       #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
-                    </span>
+               <strong>
+                  <h:outputFormat value="#{i18n.path_consumers_consumer}">
+                     <f:param value="#{consumer.id}"/>
+                  </h:outputFormat>
+               </strong>
+               <span
+                  class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} swatch">
+                  #{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive}
+                  #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
+               </span>
             </c:if>
          </div>
       </webui:blueHeaderBar>

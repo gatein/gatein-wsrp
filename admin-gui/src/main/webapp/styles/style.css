@@ -213,6 +213,16 @@
    vertical-align: top;
 }
 
+.wsrp-consumers-ui .swatch {
+   border: 1px solid #aaa;
+   border-right-color: #555;
+   border-bottom-color: #555;
+   -moz-border-radius: 4px;
+   -webkit-border-radius: 4px;
+   margin: 1px;
+   padding: 2px 4px;
+}
+
 .wsrp-consumers-ui .active {
    background-color: #C7DDB7;
    font-weight: bold;
