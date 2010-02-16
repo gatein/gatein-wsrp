@@ -299,7 +299,7 @@
    background: #dcf0d0;
 }
 
-.wsrp-consumers-ui .registration-prop-table.inactive, .wsrp-consumers-ui span.inactive {
+.wsrp-consumers-ui .registration-prop-table.inactive {
    border: 1px solid #EBD1B8;
 }
 
