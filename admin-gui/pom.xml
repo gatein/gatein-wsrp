@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
@@ -79,12 +80,6 @@
          <groupId>com.sun.facelets</groupId>
          <artifactId>jsf-facelets</artifactId>
          <version>1.1.15</version>
-      </dependency>
-      <dependency>
-         <groupId>org.exoplatform.kernel</groupId>
-         <artifactId>exo.kernel.container</artifactId>
-         <scope>provided</scope>
-         <version>2.2.0-Beta06</version>
       </dependency>
    </dependencies>
 

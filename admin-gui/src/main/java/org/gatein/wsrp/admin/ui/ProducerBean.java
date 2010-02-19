@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.admin.ui;
 
-import org.exoplatform.container.ExoContainerContext;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
@@ -57,11 +56,6 @@ public class ProducerBean extends ManagedBean
 
    public ProducerConfigurationService getConfigurationService()
    {
-      // todo: fix this, the configuration service needs to be injected more cleanly
-      if (configurationService == null)
-      {
-         configurationService = (ProducerConfigurationService)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ProducerConfigurationService.class);
-      }
       return configurationService;
    }
 

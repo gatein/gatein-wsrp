@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.admin.ui;
 
-import org.exoplatform.container.ExoContainerContext;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
@@ -63,11 +62,6 @@ public class ConsumerManagerBean extends ManagedBean
 
    public ConsumerRegistry getRegistry()
    {
-      // todo: fix this, the registry needs to be injected more cleanly
-      if (registry == null)
-      {
-         registry = (ConsumerRegistry)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(ConsumerRegistry.class);
-      }
       return registry;
    }
 
