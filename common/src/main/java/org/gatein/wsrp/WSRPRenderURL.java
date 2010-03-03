@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,10 +24,10 @@
 package org.gatein.wsrp;
 
 import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.StateString;
+import org.gatein.pc.api.WindowState;
 
 import java.util.Map;
 
@@ -74,7 +74,7 @@ public class WSRPRenderURL extends WSRPPortletURL implements RenderURL
 
    public Map<String, String[]> getPublicNavigationalStateChanges()
    {
-      throw new UnsupportedOperationException("getPublicNavigationalStateChanges is not currently supported!"); // todo: fix me
+      return null; // todo: fix me
    }
 
    protected void appendEnd(StringBuffer sb)
