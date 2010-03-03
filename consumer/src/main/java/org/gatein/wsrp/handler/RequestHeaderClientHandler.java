@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -50,9 +50,11 @@ import java.util.Set;
  */
 public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContext>
 {
-   private static final ThreadLocal local = new ThreadLocal();
+   private static final ThreadLocal<CurrentInfo> local = new ThreadLocal<CurrentInfo>();
    private static final RFC2109Spec cookieParser = new RFC2109Spec();
    private static final Logger log = LoggerFactory.getLogger(RequestHeaderClientHandler.class);
+   private static final String SET_COOKIE = "Set-Cookie";
+   private static final String COOKIE = "Cookie";
 
    public Set<QName> getHeaders()
    {
@@ -125,7 +127,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
       if (cookie.length() != 0)
       {
-         mimeHeaders.setHeader("Cookie", cookie.toString());
+         mimeHeaders.setHeader(COOKIE, cookie.toString());
       }
 
       return true;
@@ -136,7 +138,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       SOAPMessageContext smc = (SOAPMessageContext)msgContext;
       SOAPMessage message = smc.getMessage();
       MimeHeaders mimeHeaders = message.getMimeHeaders();
-      String[] cookieValues = mimeHeaders.getHeader("Set-Cookie");
+      String[] cookieValues = mimeHeaders.getHeader(SET_COOKIE);
 
       if (cookieValues != null)
       {
@@ -288,7 +290,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
    public static void setCurrentGroupId(String groupId)
    {
-      CurrentInfo currentInfo = (CurrentInfo)local.get();
+      CurrentInfo currentInfo = local.get();
       if (currentInfo == null)
       {
          throw new IllegalStateException("Cannot set current group id when the current info hasn't been initialized.");
@@ -298,7 +300,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
    private static CurrentInfo getCurrentInfo(boolean createIfNeeded)
    {
-      CurrentInfo info = (CurrentInfo)local.get();
+      CurrentInfo info = local.get();
       if (info == null && createIfNeeded)
       {
          info = new CurrentInfo(null, new ProducerSessionInformation());

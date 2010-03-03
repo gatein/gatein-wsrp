@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,10 +23,16 @@
 
 package org.gatein.wsrp.services;
 
+import org.gatein.wsrp.handler.RequestHeaderClientHandler;
+
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.lang.reflect.ParameterizedType;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +55,9 @@ public class ServiceWrapper<T>
    private static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
    private static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
 
+   private static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
+   private static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
+
    protected ServiceWrapper(Object service, ManageableServiceFactory parentFactory)
    {
       if (service == null)
@@ -60,7 +69,7 @@ public class ServiceWrapper<T>
 
       // set timeout properties for different WS stacks
       BindingProvider bindingProvider = (BindingProvider)service;
-      setTimeout(bindingProvider, parentFactory);
+      setTimeout(bindingProvider.getRequestContext(), parentFactory);
 
 
       Class tClass = (Class)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -75,18 +84,50 @@ public class ServiceWrapper<T>
       this.parentFactory = parentFactory;
    }
 
-   private static void setTimeout(BindingProvider bindingProvider, ManageableServiceFactory parentFactory)
+   private static void setTimeout(Map<String, Object> requestContext, ManageableServiceFactory parentFactory)
    {
-      Map<String, Object> requestContext = bindingProvider.getRequestContext();
-      requestContext.put(JBOSS_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
-      requestContext.put(SUN_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
-      requestContext.put(IBM_WS_TIMEOUT, parentFactory.getWSOperationTimeOut());
+      int timeout = parentFactory.getWSOperationTimeOut();
+      requestContext.put(JBOSS_WS_TIMEOUT, timeout);
+      requestContext.put(SUN_WS_TIMEOUT, timeout);
+      requestContext.put(IBM_WS_TIMEOUT, timeout);
    }
 
-   public static <T> T getServiceWrapper(Class<T> expectedServiceInterface, Object service, ManageableServiceFactory parentFactory)
+   public static <T> T getServiceWrapper(Class<T> expectedServiceInterface, Object service, String portAddress, ManageableServiceFactory parentFactory)
    {
-      // for now, only set timeouts
-      setTimeout((BindingProvider)service, parentFactory);
+      BindingProvider bindingProvider = (BindingProvider)service;
+      Map<String, Object> requestContext = bindingProvider.getRequestContext();
+
+      // set timeout
+      setTimeout(requestContext, parentFactory);
+
+      // set port address
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
+
+      // Set org.jboss.ws.core.StubExt.PROPERTY_CHUNKED_ENCODING_SIZE to 0 to deactive chunked encoding for
+      // better interoperability as Oracle's producer doesn't support it, for example.
+      // See https://jira.jboss.org/jira/browse/JBWS-2884 and
+      // http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Chunked_encoding_setup
+      requestContext.put(JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE, 0);
+
+      // Add client side handler via JAX-WS API
+      Binding binding = bindingProvider.getBinding();
+      List<Handler> handlerChain = binding.getHandlerChain();
+      if (handlerChain != null)
+      {
+         // if we already have a handler chain, just add the request hearder handler if it's not already in there
+         if (!handlerChain.contains(REQUEST_HEADER_CLIENT_HANDLER))
+         {
+            handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
+         }
+      }
+      else
+      {
+         // otherwise, create a handler chain and add our handler to it
+         handlerChain = new ArrayList<Handler>(1);
+         handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
+      }
+      binding.setHandlerChain(handlerChain);
+
       return expectedServiceInterface.cast(service);
    }
 

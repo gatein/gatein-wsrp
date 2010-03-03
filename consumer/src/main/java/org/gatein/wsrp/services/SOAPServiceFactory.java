@@ -59,7 +59,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean failed;
    private boolean available;
    private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
-   private static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
@@ -108,16 +107,8 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             {
                log.debug("Setting the end point to: " + portAddress);
             }
-            Map<String, Object> requestContext = ((BindingProvider)service).getRequestContext();
-            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
 
-            // Set org.jboss.ws.core.StubExt.PROPERTY_CHUNKED_ENCODING_SIZE to 0 to deactive chunked encoding for
-            // better interoperability as Oracle's producer doesn't support it, for example.
-            // See https://jira.jboss.org/jira/browse/JBWS-2884 and
-            // http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Chunked_encoding_setup
-            requestContext.put(JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE, 0);
-
-            T result = ServiceWrapper.getServiceWrapper(clazz, service, this);
+            T result = ServiceWrapper.getServiceWrapper(clazz, service, portAddress, this);
 
             // if we managed to retrieve a service, we're probably available
             setFailed(false);
