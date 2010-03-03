@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -41,11 +41,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages session informations on behalf of a consumer.
@@ -63,10 +63,10 @@ public class SessionHandler implements SessionEventListener
    private CookieProtocol requiresInitCookie;
 
    /** The prefix used to isolate WSRP-related session information in the actual session object. */
-   private static final String SESSION_ID_PREFIX = "org.jboss.portal.wsrp.session.";
+   private static final String SESSION_ID_PREFIX = "org.gatein.wsrp.session.";
 
    /** session id -> ProducerSessionInformation */
-   private Map<String, ProducerSessionInformation> sessionInfos = new HashMap<String, ProducerSessionInformation>(); // todo: thread-safe?
+   private Map<String, ProducerSessionInformation> sessionInfos = new ConcurrentHashMap<String, ProducerSessionInformation>(); // todo: thread-safe?
 
    /**
     * Constructs a new SessionHandler.
@@ -216,7 +216,10 @@ public class SessionHandler implements SessionEventListener
    {
       ProducerSessionInformation sessionInfo = getProducerSessionInformation(invocation, true);
       ProducerSessionInformation currentSessionInfo = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      sessionInfo.replaceUserCookiesWith(currentSessionInfo);
+      if (sessionInfo != currentSessionInfo)
+      {
+         sessionInfo.replaceUserCookiesWith(currentSessionInfo);
+      }
    }
 
    ProducerSessionInformation getProducerSessionInformation(PortletInvocation invocation)
