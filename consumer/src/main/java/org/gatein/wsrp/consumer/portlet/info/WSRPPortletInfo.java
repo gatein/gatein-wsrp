@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -68,6 +68,8 @@ import java.util.Set;
 public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 {
 
+   public static final String PRODUCER_NAME_META_INFO_KEY = "producer-name";
+
    private WSRPCapabilitiesInfo capabilities;
    private MetaInfo metaInfo;
    private boolean usesMethodGet;
@@ -90,7 +92,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 
       createCapabilitiesInfo(portletDescription);
 
-      createMetaInfo(portletDescription);
+      createMetaInfo(portletDescription, originatingProducerInfo.getId());
 
       createWSRPInfo(portletDescription, originatingProducerInfo.getId());
 
@@ -361,7 +363,7 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       capabilities.setMediaTypes(mediaTypes);
    }
 
-   private void createMetaInfo(PortletDescription portletDescription)
+   private void createMetaInfo(PortletDescription portletDescription, String producerId)
    {
       final Map<String, org.gatein.common.i18n.LocalizedString> metaInfos = new HashMap<String, org.gatein.common.i18n.LocalizedString>();
       metaInfos.put(MetaInfo.DESCRIPTION, getPortalLocalizedStringOrNullFrom(portletDescription.getDescription()));
@@ -395,6 +397,8 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       }
 
       metaInfos.put(MetaInfo.KEYWORDS, new org.gatein.common.i18n.LocalizedString(keywordsString, locale));
+
+      metaInfos.put(PRODUCER_NAME_META_INFO_KEY, new org.gatein.common.i18n.LocalizedString(producerId, locale));
 
       metaInfo = new WSRPMetaInfo(metaInfos);
    }
