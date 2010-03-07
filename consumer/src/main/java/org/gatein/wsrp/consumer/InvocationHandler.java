@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer;
 
+import org.gatein.common.net.URLTools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
@@ -147,14 +148,9 @@ public abstract class InvocationHandler
 
    protected String getNamespaceFrom(WindowContext windowContext)
    {
-      // todo: use URLTools.EncodeForHTMLId when it's available in common
       if (windowContext != null)
       {
-         String id = windowContext.getId();
-         id = id.replace('=', '_');
-         id = id.replace('/', '_');
-         id = id.replace('.', '_');
-         return id.replace('+', '_');
+         return URLTools.safeEncodeForHTMLId(windowContext.getId());
       }
 
       return null;
