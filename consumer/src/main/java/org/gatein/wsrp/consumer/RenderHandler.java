@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -65,6 +65,7 @@ public class RenderHandler extends InvocationHandler
    private static final String SEPARATOR = "_";
 
    private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
+   private static final ResourceURLRewriter RESOURCE_REWRITER = new ResourceURLRewriter();
 
    public RenderHandler(WSRPConsumerImpl consumer)
    {
@@ -198,8 +199,7 @@ public class RenderHandler extends InvocationHandler
       }
 
       // means that the producer generated the URLs, so handle resources...
-      ResourceURLRewriter rewriter = new ResourceURLRewriter();
-      return URLTools.replaceURLsBy(markup, rewriter);
+      return URLTools.replaceURLsBy(markup, RESOURCE_REWRITER);
    }
 
    private org.gatein.pc.api.cache.CacheControl createCacheControl(MarkupContext markupContext)
@@ -279,8 +279,7 @@ public class RenderHandler extends InvocationHandler
       }
    }
 
-   // @todo: public for tests
-   public static class ResourceURLRewriter extends URLTools.URLReplacementGenerator
+   static class ResourceURLRewriter extends URLTools.URLReplacementGenerator
    {
       public String getReplacementFor(int currentIndex, URLTools.URLMatch currentMatch)
       {
