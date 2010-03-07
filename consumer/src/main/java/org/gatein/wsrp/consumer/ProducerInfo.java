@@ -228,7 +228,7 @@ public class ProducerInfo
 
    public RegistrationInfo getRegistrationInfo()
    {
-      // update parent since it might not be set when unfrozen from Hibernate
+      // update parent since it might not be set when unfrozen from persistence
       persistentRegistrationInfo.setParent(this);
       return persistentRegistrationInfo;
    }
