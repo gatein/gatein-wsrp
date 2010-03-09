@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -33,6 +33,7 @@ import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.oasis.wsrp.v1.GetMarkup;
 import org.oasis.wsrp.v1.InvalidHandle;
@@ -170,7 +171,7 @@ public class RenderRequestProcessor extends RequestProcessor
    {
       String result = renderString.replaceAll(namespace, WSRPRewritingConstants.WSRP_REWRITE_TOKEN);
 
-      result = URLTools.replaceURLsBy(result, new AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
+      result = URLTools.replaceURLsBy(result, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
       return result;
    }
 }

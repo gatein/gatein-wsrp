@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,13 +23,13 @@
 
 package org.gatein.wsrp;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.common.text.FastURLDecoder;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.ContainerURL;
 import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.ParametersStateString;
-import org.gatein.pc.api.PortletURL;
 import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
@@ -47,7 +47,7 @@ import java.util.Set;
  * @version $Revision: 13470 $
  * @since 2.4 (Apr 28, 2006)
  */
-public abstract class WSRPPortletURL implements PortletURL
+public abstract class WSRPPortletURL implements ContainerURL
 {
    private static final Logger log = LoggerFactory.getLogger(WSRPPortletURL.class);
 
@@ -73,6 +73,7 @@ public abstract class WSRPPortletURL implements PortletURL
    protected String extra;
    /** Remember position of extra parameters wrt end token */
    private boolean extraParamsAfterEndToken = false;
+   protected StateString navigationalState;
 
    public static void setStrict(boolean strict)
    {
@@ -80,43 +81,42 @@ public abstract class WSRPPortletURL implements PortletURL
       log.debug("Using " + (strict ? "strict" : "lenient") + " rewriting parameters validation mode.");
    }
 
-   public static WSRPPortletURL create(PortletURL portletURL, boolean secure)
+   public static WSRPPortletURL create(ContainerURL containerURL, boolean secure)
    {
-      if (portletURL == null)
+      if (containerURL == null)
       {
          throw new IllegalArgumentException("Cannot construct a WSRPPortletURL from a null PortletURL!");
       }
 
-      Mode mode = portletURL.getMode();
-      WindowState windowState = portletURL.getWindowState();
+      Mode mode = containerURL.getMode();
+      WindowState windowState = containerURL.getWindowState();
+      StateString navigationalState = containerURL.getNavigationalState();
 
       WSRPPortletURL url;
-      if (portletURL instanceof ActionURL)
+      if (containerURL instanceof ActionURL)
       {
-         StateString interactionState = ((ActionURL)portletURL).getInteractionState();
-         StateString navigationalState = ((ActionURL)portletURL).getNavigationalState();
+         StateString interactionState = ((ActionURL)containerURL).getInteractionState();
          url = new WSRPActionURL(mode, windowState, secure, navigationalState, interactionState);
       }
-      else if (portletURL instanceof RenderURL)
+      else if (containerURL instanceof RenderURL)
       {
-         StateString navigationalState = ((RenderURL)portletURL).getNavigationalState();
-         url = new WSRPRenderURL(mode, windowState, secure, navigationalState);
+         url = new WSRPRenderURL(mode, windowState, secure, navigationalState, ((RenderURL)containerURL).getPublicNavigationalStateChanges());
       }
-      else if (portletURL instanceof ResourceURL)
+      else if (containerURL instanceof ResourceURL)
       {
-//         url = new WSRPResourceURL(mode, windowState, secure, ((ResourceURL) portletURL).getResourceURL(), false);
-         // todo: implement!
-         throw new NotYetImplemented("ResourceURL support not quite yet implemented!");
+         ResourceURL resource = (ResourceURL)containerURL;
+         url = new WSRPResourceURL(mode, windowState, secure, navigationalState, resource.getResourceState(),
+            resource.getResourceId(), resource.getCacheability());
       }
       else
       {
-         throw new IllegalArgumentException("Unknown PortletURL type: " + portletURL.getClass().getName());
+         throw new IllegalArgumentException("Unknown PortletURL type: " + containerURL.getClass().getName());
       }
 
       // if we're in relaxed mode, we need to deal with extra params as well
-      if (strict && portletURL instanceof WSRPPortletURL)
+      if (strict && containerURL instanceof WSRPPortletURL)
       {
-         WSRPPortletURL other = (WSRPPortletURL)portletURL;
+         WSRPPortletURL other = (WSRPPortletURL)containerURL;
          url.setParams(other.extraParams, other.toString());
          url.setExtra(other.extra);
       }
@@ -274,11 +274,12 @@ public abstract class WSRPPortletURL implements PortletURL
       return create(encodedURL, Collections.<String>emptySet(), Collections.<String>emptySet());
    }
 
-   protected WSRPPortletURL(Mode mode, WindowState windowState, boolean secure)
+   protected WSRPPortletURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState)
    {
       this.mode = mode;
       this.windowState = windowState;
       this.secure = secure;
+      this.navigationalState = navigationalState;
    }
 
    protected WSRPPortletURL()
@@ -329,6 +330,14 @@ public abstract class WSRPPortletURL implements PortletURL
       {
          secure = Boolean.valueOf(paramValue);
          params.remove(WSRPRewritingConstants.SECURE_URL);
+      }
+
+      // navigational state
+      paramValue = getRawParameterValueFor(params, WSRPRewritingConstants.NAVIGATIONAL_STATE);
+      if (paramValue != null)
+      {
+         navigationalState = new OpaqueStateString(paramValue);
+         params.remove(WSRPRewritingConstants.NAVIGATIONAL_STATE);
       }
    }
 
@@ -385,6 +394,11 @@ public abstract class WSRPPortletURL implements PortletURL
       if (windowState != null)
       {
          createURLParameter(sb, WSRPRewritingConstants.WINDOW_STATE, WSRPUtils.getWSRPNameFromJSR168WindowState(windowState));
+      }
+
+      if (navigationalState != null)
+      {
+         createURLParameter(sb, WSRPRewritingConstants.NAVIGATIONAL_STATE, navigationalState.getStringValue());
       }
 
       // todo: not sure how to deal with authenticated
@@ -563,5 +577,10 @@ public abstract class WSRPPortletURL implements PortletURL
    public void setExtra(String extra)
    {
       this.extra = extra;
+   }
+
+   public StateString getNavigationalState()
+   {
+      return navigationalState;
    }
 }

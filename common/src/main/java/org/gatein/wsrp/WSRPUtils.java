@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,6 +24,7 @@
 package org.gatein.wsrp;
 
 import org.gatein.common.i18n.LocaleFormat;
+import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ConversionException;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.ActionURL;
@@ -478,5 +479,53 @@ public class WSRPUtils
       LocalizedString localizedString = new LocalizedString(wsrpLocalizedString.getValue(), locale);
       localizedString.setResourceName(wsrpLocalizedString.getResourceName());
       return localizedString;
+   }
+
+   /**
+    * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+    * @version $Revision$
+    */
+   public static class AbsoluteURLReplacementGenerator extends URLTools.URLReplacementGenerator
+   {
+      private String serverAddress;
+
+      public AbsoluteURLReplacementGenerator(HttpServletRequest request)
+      {
+         serverAddress = URLTools.getServerAddressFrom(request);
+      }
+
+      public String getReplacementFor(int i, URLTools.URLMatch urlMatch)
+      {
+         return getAbsoluteURLFor(urlMatch.getURLAsString());
+      }
+
+      /**
+       * todo: public only for tests
+       *
+       * @param url
+       * @return
+       */
+      public String getAbsoluteURLFor(String url)
+      {
+         return getAbsoluteURLFor(url, true, serverAddress);
+      }
+
+      public static String getAbsoluteURLFor(String url, boolean checkWSRPToken, String serverAddress)
+      {
+         // We don't encode URL through this API when it is a wsrp URL
+         if (checkWSRPToken && url.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
+         {
+            return url;
+         }
+
+         if (!URLTools.isNetworkURL(url) && url.startsWith(URLTools.SLASH))
+         {
+            return serverAddress + url;
+         }
+         else
+         {
+            return url;
+         }
+      }
    }
 }

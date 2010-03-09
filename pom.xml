@@ -47,8 +47,8 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.1.0-CR05</version.gatein.pc>
-      <version.gatein.common>2.0.0-CR03</version.gatein.common>
+      <version.gatein.pc>2.1.0-CR06-SNAPSHOT</version.gatein.pc>
+      <version.gatein.common>2.0.0-CR04-SNAPSHOT</version.gatein.common>
       <version.gatein.wci>2.0.0-CR02</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
@@ -163,6 +163,7 @@
       <module>test</module>
       <module>producer</module>
       <module>consumer</module>
+      <!--<module>consumer-proxy</module>-->
       <module>admin-gui</module>
       <module>wsrp-producer-war</module>
       <module>hibernate-impl</module>

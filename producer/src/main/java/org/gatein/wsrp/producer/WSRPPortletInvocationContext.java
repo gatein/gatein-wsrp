@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,15 +23,11 @@
 
 package org.gatein.wsrp.producer;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.common.net.URLTools;
 import org.gatein.common.util.MarkupInfo;
 import org.gatein.pc.api.ContainerURL;
-import org.gatein.pc.api.PortletURL;
-import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.invocation.PortletInvocation;
-import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.PortalContext;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.pc.api.spi.SecurityContext;
@@ -41,7 +37,9 @@ import org.gatein.pc.portlet.impl.spi.AbstractClientContext;
 import org.gatein.pc.portlet.impl.spi.AbstractPortletInvocationContext;
 import org.gatein.pc.portlet.impl.spi.AbstractServerContext;
 import org.gatein.wsrp.WSRPPortletURL;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +55,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    private SecurityContext securityContext;
    private PortalContext portalContext;
    private UserContext userContext;
-   private InstanceContext instanceContext;
+   private WSRPInstanceContext instanceContext;
    private WindowContext windowContext;
 
    private static final String EQ = "=";
@@ -67,7 +65,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    private HttpServletResponse response;
 
    public WSRPPortletInvocationContext(MarkupInfo markupInfo, SecurityContext securityContext, PortalContext portalContext, UserContext userContext,
-                                       InstanceContext instanceContext, WindowContext windowContext)
+                                       WSRPInstanceContext instanceContext, WindowContext windowContext)
    {
       super(markupInfo);
 
@@ -97,7 +95,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
       if (url != null && !url.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
       {
          // make root relative URLs absolute. Optimization: we don't recheck the precense of the WSRP token.
-         url = new AbsoluteURLReplacementGenerator(getClientRequest()).getAbsoluteURLFor(url, false);
+         url = WSRPUtils.AbsoluteURLReplacementGenerator.getAbsoluteURLFor(url, false, URLTools.getServerAddressFrom(getClientRequest()));
 
          // properly encode the URL
          url = URLTools.encodeXWWWFormURL(url);
@@ -132,19 +130,15 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    {
       if (containerURL != null)
       {
-         if (containerURL instanceof PortletURL)
+         Boolean wantSecureBool = urlFormat.getWantSecure();
+         boolean wantSecure = (wantSecureBool != null ? wantSecureBool : false);
+         WSRPPortletURL url = WSRPPortletURL.create(containerURL, wantSecure);
+         if (url instanceof WSRPResourceURL)
          {
-            PortletURL portletURL = (PortletURL)containerURL;
-
-            Boolean wantSecureBool = urlFormat.getWantSecure();
-            boolean wantSecure = (wantSecureBool != null ? wantSecureBool : false);
-            return WSRPPortletURL.create(portletURL, wantSecure).toString();
+            WSRPResourceURL resourceURL = (WSRPResourceURL)url;
+            resourceURL.buildURLWith(request, instanceContext.getPortletContext());
          }
-         else if (containerURL instanceof ResourceURL)
-         {
-            ResourceURL resourceURL = (ResourceURL)containerURL;
-            throw new NotYetImplemented("ResourceURL support not implemented. Requested URL: " + resourceURL);
-         }
+         return url.toString();
       }
       return null;
    }

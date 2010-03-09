@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,28 +23,26 @@
 
 package org.gatein.wsrp;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.StateString;
+import org.gatein.pc.api.WindowState;
 
 import java.util.Map;
 
 /**
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12803 $
  */
 public class WSRPActionURL extends WSRPPortletURL implements ActionURL
 {
-
-   private StateString navigationalState;
    private StateString interactionState;
 
    protected WSRPActionURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, StateString interactionState)
    {
-      super(mode, windowState, secure);
-      this.navigationalState = navigationalState;
+      super(mode, windowState, secure, navigationalState);
       this.interactionState = interactionState;
    }
 
@@ -63,23 +61,11 @@ public class WSRPActionURL extends WSRPPortletURL implements ActionURL
          interactionState = new OpaqueStateString(paramValue);
          params.remove(WSRPRewritingConstants.INTERACTION_STATE);
       }
-
-      paramValue = getRawParameterValueFor(params, WSRPRewritingConstants.NAVIGATIONAL_STATE);
-      if (paramValue != null)
-      {
-         navigationalState = new OpaqueStateString(paramValue);
-         params.remove(WSRPRewritingConstants.NAVIGATIONAL_STATE);
-      }
    }
 
    protected String getURLType()
    {
       return WSRPRewritingConstants.URL_TYPE_BLOCKING_ACTION;
-   }
-
-   public StateString getNavigationalState()
-   {
-      return navigationalState;
    }
 
    public StateString getInteractionState()
@@ -92,11 +78,6 @@ public class WSRPActionURL extends WSRPPortletURL implements ActionURL
       if (interactionState != null)
       {
          createURLParameter(sb, WSRPRewritingConstants.INTERACTION_STATE, interactionState.getStringValue());
-      }
-
-      if (navigationalState != null)
-      {
-         createURLParameter(sb, WSRPRewritingConstants.NAVIGATIONAL_STATE, navigationalState.getStringValue());
       }
    }
 }

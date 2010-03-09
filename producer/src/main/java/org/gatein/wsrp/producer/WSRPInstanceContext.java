@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -84,7 +84,7 @@ class WSRPInstanceContext implements InstanceContext
       return wasModified;
    }
 
-   public PortletContext getPortletContext()
+   PortletContext getPortletContext()
    {
       return context;
    }

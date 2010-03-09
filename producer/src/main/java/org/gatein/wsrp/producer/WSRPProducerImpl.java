@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -444,25 +444,9 @@ public class WSRPProducerImpl implements WSRPProducer
    private boolean isRemotable(Portlet portlet)
    {
       Map<String, RuntimeOptionInfo> runtimeOptions = portlet.getInfo().getRuntimeOptionsInfo();
-      RuntimeOptionInfo runtimeOptionInfo = runtimeOptions.get(RuntimeOptionInfo.ORG_JBOSS_PORTLETCONTAINER_REMOTABLE);
+      RuntimeOptionInfo runtimeOptionInfo = runtimeOptions.get(RuntimeOptionInfo.REMOTABLE_RUNTIME_OPTION);
 
       return runtimeOptionInfo != null && "true".equals(runtimeOptionInfo.getValues().get(0));
-
-      /*WSRPInfo wsrpInfo = portletInfo.getAttachment(WSRPInfo.class);
-      if (wsrpInfo != null)
-      {
-         Boolean remotable = wsrpInfo.isRemotable();
-         log.debug("Portlet " + portlet.getContext() + " remotable: " + remotable);
-         if (remotable != null)
-         {
-            return remotable.booleanValue();
-         }
-      }
-      if (isRemotableByDefault() != null)
-      {
-         return isRemotableByDefault().booleanValue();
-      }
-      return false;*/
    }
 
    public List<String> getSupportedLocales()

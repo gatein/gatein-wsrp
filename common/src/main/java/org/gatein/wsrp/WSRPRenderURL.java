@@ -24,7 +24,6 @@
 package org.gatein.wsrp;
 
 import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
@@ -33,17 +32,18 @@ import java.util.Map;
 
 /**
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11404 $
  */
 public class WSRPRenderURL extends WSRPPortletURL implements RenderURL
 {
+   private Map<String, String[]> publicNSChanges;
 
-   private StateString navigationalState;
-
-   protected WSRPRenderURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState)
+   protected WSRPRenderURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, Map<String, String[]> publicNavigationalStateChanges)
    {
-      super(mode, windowState, secure);
-      this.navigationalState = navigationalState;
+      super(mode, windowState, secure, navigationalState);
+
+      this.publicNSChanges = publicNavigationalStateChanges;
    }
 
    protected WSRPRenderURL()
@@ -55,11 +55,12 @@ public class WSRPRenderURL extends WSRPPortletURL implements RenderURL
    {
       super.dealWithSpecificParams(params, originalURL);
 
-      String paramValue = getRawParameterValueFor(params, WSRPRewritingConstants.NAVIGATIONAL_STATE);
+      /*String paramValue = getRawParameterValueFor(params, WSRP2RewritingConstants.NAVIGATIONAL_VALUES);
       if (paramValue != null)
       {
-         navigationalState = new OpaqueStateString(paramValue);
-      }
+         publicNSChanges = decodePublicNS(paramValue);
+         params.remove(WSRP2RewritingConstants.NAVIGATIONAL_VALUES);
+      }*/
    }
 
    protected String getURLType()
@@ -67,21 +68,19 @@ public class WSRPRenderURL extends WSRPPortletURL implements RenderURL
       return WSRPRewritingConstants.URL_TYPE_RENDER;
    }
 
-   public StateString getNavigationalState()
-   {
-      return navigationalState;
-   }
-
    public Map<String, String[]> getPublicNavigationalStateChanges()
    {
-      return null; // todo: fix me
+      return publicNSChanges;
    }
 
    protected void appendEnd(StringBuffer sb)
    {
-      if (navigationalState != null)
+      /*
+      // todo: publicNS must be encoded according to rules found at:
+      // http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-spec-os-01.html#_wsrp-navigationalValues
+      if(publicNSChanges != null)
       {
-         createURLParameter(sb, WSRPRewritingConstants.NAVIGATIONAL_STATE, navigationalState.getStringValue());
-      }
+         createURLParameter(sb, WSRP2RewritingConstants.NAVIGATIONAL_VALUES, encodePublicNS(publicNSChanges));
+      }*/
    }
 }
