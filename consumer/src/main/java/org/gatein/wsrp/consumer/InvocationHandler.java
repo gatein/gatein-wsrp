@@ -23,13 +23,13 @@
 
 package org.gatein.wsrp.consumer;
 
-import org.gatein.common.net.URLTools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.WindowContext;
+import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.oasis.wsrp.v1.InvalidCookie;
 import org.oasis.wsrp.v1.InvalidRegistration;
 import org.oasis.wsrp.v1.InvalidSession;
@@ -150,7 +150,8 @@ public abstract class InvocationHandler
    {
       if (windowContext != null)
       {
-         return URLTools.safeEncodeForHTMLId(windowContext.getId());
+         // MUST match namespace generation used in PortletResponseImpl.getNamespace in portlet module...
+         return PortletUtils.generateNamespaceFrom(windowContext.getId());
       }
 
       return null;
