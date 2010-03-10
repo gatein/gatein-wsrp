@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -176,9 +176,9 @@ public final class WSRPRewritingConstants
    /** Encoded version of REWRITE_PARAMETER_CLOSE */
    static final String ENC_CLOSE = "%7D";
 
-   /* Constants for Resource URL processing */
-   public static final String FAKE_RESOURCE_START = "JBP_RES_REW=";
-   public static final String FAKE_RESOURCE_REQ_REW = "JBP_REQ_REW";
+   /* Constants for Resource URL processing todo: remove? */
+   public static final String FAKE_RESOURCE_START = "GTN_RES_REW=";
+   public static final String FAKE_RESOURCE_REQ_REW = "GTN_REQ_REW";
    public static final String FAKE_RESOURCE_URL = FAKE_RESOURCE_START + "{wsrp-url}" + FAKE_RESOURCE_REQ_REW + "{wsrp-requiresRewrite}";
 
    private WSRPRewritingConstants()
