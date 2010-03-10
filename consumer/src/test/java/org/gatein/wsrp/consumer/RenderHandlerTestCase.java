@@ -40,7 +40,7 @@ public class RenderHandlerTestCase extends TestCase
          "&ns=_next%3D%2Fdk%2Fskat%2Fportal%2Ffront%2Fportlets%2Fexample%2Findex.jsp" +
          "&is=_action%3D%252Fdk%252Fskat%252Fportal%252Ffront%252Fportlets%252Fexample%252FprocessLink" +
          "%26jbpns_2fdefault_2fTest_2fEXAMPLE_2fEXAMPLEsnpbjname%3DChris\">Press to use default name.</a>";
-      String result = URLTools.replaceURLsBy(markup, new RenderHandler.ResourceURLRewriter());
+      String result = URLTools.replaceURLsBy(markup, new RenderHandler.WSRPURLRewriter());
       assertEquals(markup, result);*/
    }
 }

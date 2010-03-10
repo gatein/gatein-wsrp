@@ -25,6 +25,7 @@ package org.gatein.wsrp;
 
 import org.gatein.common.net.URLTools;
 import org.gatein.common.net.media.MediaType;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.ResourceURL;
@@ -55,10 +56,12 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    private boolean requiresRewrite = false;
    private URL resourceURL;
 
-   private static final Map<String, MediaType> SUPPORTED_RESOURCE_TYPES = new HashMap<String, MediaType>(8);
+   private static final Map<String, MediaType> SUPPORTED_RESOURCE_TYPES = new HashMap<String, MediaType>(11);
 
    static
    {
+      SUPPORTED_RESOURCE_TYPES.put("html", MediaType.TEXT_HTML);
+      SUPPORTED_RESOURCE_TYPES.put("htm", MediaType.TEXT_HTML);
       SUPPORTED_RESOURCE_TYPES.put("css", MediaType.TEXT_CSS);
       SUPPORTED_RESOURCE_TYPES.put("js", MediaType.TEXT_JAVASCRIPT);
       SUPPORTED_RESOURCE_TYPES.put("png", MediaType.create("image/png"));
@@ -203,19 +206,13 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
     */
    public void buildURLWith(HttpServletRequest request, PortletContext portletContext)
    {
-      String url = URLTools.getServerAddressFrom(request) + URLTools.SLASH + portletContext.getApplicationName();
-
-      if (resourceId != null)
-      {
-         url += resourceId;
-      }
-
+      String url = createAbsoluteURLFrom(resourceId, URLTools.getServerAddressFrom(request), portletContext.getApplicationName());
       try
       {
          resourceURL = new URL(url);
          String extension = URLTools.getFileExtensionOrNullFrom(resourceURL);
          MediaType type = SUPPORTED_RESOURCE_TYPES.get(extension);
-         if (MediaType.TEXT_CSS.equals(type) || MediaType.TEXT_JAVASCRIPT.equals(type))
+         if (MediaType.TEXT_CSS.equals(type) || MediaType.TEXT_JAVASCRIPT.equals(type) || MediaType.TEXT_HTML.equals(type))
          {
             requiresRewrite = true;
          }
@@ -226,6 +223,31 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       }
 
       log.info("Attempted to build resource URL that could be accessed directly from consumer: " + resourceURL);
+   }
+
+   public static String createAbsoluteURLFrom(String initial, String serverAddress, String portletApplicationName)
+   {
+      String url = serverAddress;
+
+      if (portletApplicationName != null)
+      {
+         url += URLTools.SLASH + portletApplicationName;
+      }
+
+      if (!ParameterValidation.isNullOrEmpty(initial))
+      {
+         if (initial.startsWith(URLTools.SLASH))
+         {
+            url += initial;
+         }
+         else
+         {
+            url += URLTools.SLASH + initial;
+         }
+      }
+
+      return url;
+
    }
 
    /**

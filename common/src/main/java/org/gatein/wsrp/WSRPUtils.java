@@ -481,6 +481,24 @@ public class WSRPUtils
       return localizedString;
    }
 
+   public static String getAbsoluteURLFor(String url, boolean checkWSRPToken, String serverAddress)
+   {
+      // We don't encode URL through this API when it is a wsrp URL
+      if (checkWSRPToken && url.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
+      {
+         return url;
+      }
+
+      if (!URLTools.isNetworkURL(url) && url.startsWith(URLTools.SLASH))
+      {
+         return serverAddress + url;
+      }
+      else
+      {
+         return url;
+      }
+   }
+
    /**
     * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
     * @version $Revision$
@@ -507,25 +525,7 @@ public class WSRPUtils
        */
       public String getAbsoluteURLFor(String url)
       {
-         return getAbsoluteURLFor(url, true, serverAddress);
-      }
-
-      public static String getAbsoluteURLFor(String url, boolean checkWSRPToken, String serverAddress)
-      {
-         // We don't encode URL through this API when it is a wsrp URL
-         if (checkWSRPToken && url.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
-         {
-            return url;
-         }
-
-         if (!URLTools.isNetworkURL(url) && url.startsWith(URLTools.SLASH))
-         {
-            return serverAddress + url;
-         }
-         else
-         {
-            return url;
-         }
+         return WSRPUtils.getAbsoluteURLFor(url, true, serverAddress);
       }
    }
 }

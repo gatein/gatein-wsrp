@@ -94,8 +94,8 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    {
       if (url != null && !url.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
       {
-         // make root relative URLs absolute. Optimization: we don't recheck the precense of the WSRP token.
-         url = WSRPUtils.AbsoluteURLReplacementGenerator.getAbsoluteURLFor(url, false, URLTools.getServerAddressFrom(getClientRequest()));
+         // make root relative URLs absolute. Optimization: we don't recheck the presence of the WSRP token.
+         url = WSRPUtils.getAbsoluteURLFor(url, false, URLTools.getServerAddressFrom(getClientRequest()));
 
          // properly encode the URL
          url = URLTools.encodeXWWWFormURL(url);
