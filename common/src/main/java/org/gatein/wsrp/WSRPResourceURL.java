@@ -92,13 +92,10 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    {
       if (resourceURL != null)
       {
-         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, resourceURL.toExternalForm());
+         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, URLTools.encodeXWWWFormURL(resourceURL.toExternalForm()));
       }
 
-      if (requiresRewrite)
-      {
-         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE, "true");
-      }
+      createURLParameter(sb, WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE, requiresRewrite ? "true" : "false");
    }
 
    @Override
@@ -123,9 +120,13 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          try
          {
+            // todo: deal with resourceId properly, right now just use resourceURL if any
+            resourceId = paramValue; // keep the encoded value as it will be used in URLs
+
             paramValue = URLTools.decodeXWWWFormURL(paramValue);
 
             resourceURL = new URL(paramValue);
+
             String extension = URLTools.getFileExtensionOrNullFrom(resourceURL);
 
             MediaType mediaType = SUPPORTED_RESOURCE_TYPES.get(extension);
@@ -149,9 +150,36 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       }
    }
 
+   /**
+    * @return
+    * @deprecated
+    */
+   public URL getResourceURL()
+   {
+      return resourceURL;
+   }
+
+   /**
+    * @param resourceURL
+    * @deprecated
+    */
+   public void setResourceURL(URL resourceURL)
+   {
+      this.resourceURL = resourceURL;
+   }
+
    public String getResourceId()
    {
       return resourceId;
+   }
+
+   /**
+    * @param resourceId
+    * @deprecated
+    */
+   public void setResourceId(String resourceId)
+   {
+      this.resourceId = resourceId;
    }
 
    public StateString getResourceState()
@@ -196,5 +224,16 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          throw new IllegalArgumentException("Malformed URL: " + url, e);
       }
+
+      log.info("Attempted to build resource URL that could be accessed directly from consumer: " + resourceURL);
+   }
+
+   /**
+    * @return
+    * @deprecated
+    */
+   public boolean requiresRewrite()
+   {
+      return requiresRewrite;
    }
 }

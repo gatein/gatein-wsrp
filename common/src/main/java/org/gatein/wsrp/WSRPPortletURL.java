@@ -24,7 +24,7 @@
 package org.gatein.wsrp;
 
 import org.gatein.common.text.FastURLDecoder;
-import org.gatein.common.util.Tools;
+import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.ActionURL;
 import org.gatein.pc.api.ContainerURL;
 import org.gatein.pc.api.Mode;
@@ -126,7 +126,10 @@ public abstract class WSRPPortletURL implements ContainerURL
 
    public static WSRPPortletURL create(String encodedURL, Set<String> customModes, Set<String> customWindowStates)
    {
-      log.debug("Trying to build a WSRPPortletURL from <" + encodedURL + ">");
+      if (log.isDebugEnabled())
+      {
+         log.debug("Trying to build a WSRPPortletURL from <" + encodedURL + ">");
+      }
 
       if (encodedURL == null || encodedURL.length() == 0)
       {
@@ -204,8 +207,8 @@ public abstract class WSRPPortletURL implements ContainerURL
       {
          throw new IllegalArgumentException(encodedURL + " contains a doubly encoded &!");
       }
-      encodedURL = Tools.replace(encodedURL, ENCODED_AMPERSAND, PARAM_SEPARATOR);
-      encodedURL = Tools.replace(encodedURL, AMPERSAND, PARAM_SEPARATOR);
+      encodedURL = TextTools.replace(encodedURL, ENCODED_AMPERSAND, PARAM_SEPARATOR);
+      encodedURL = TextTools.replace(encodedURL, AMPERSAND, PARAM_SEPARATOR);
 
       // remove url type param name and extract value
       encodedURL = encodedURL.substring(URL_TYPE_END);
@@ -223,7 +226,10 @@ public abstract class WSRPPortletURL implements ContainerURL
       }
       else if (encodedURL.startsWith(WSRPRewritingConstants.URL_TYPE_RESOURCE))
       {
-         log.debug("Using experimental resource URL support...");
+         if (log.isDebugEnabled())
+         {
+            log.debug("Using experimental resource URL support...");
+         }
          urlType = WSRPRewritingConstants.URL_TYPE_RESOURCE;
          url = new WSRPResourceURL();
       }

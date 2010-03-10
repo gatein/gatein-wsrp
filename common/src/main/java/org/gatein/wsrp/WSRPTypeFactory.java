@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,8 +23,8 @@
 
 package org.gatein.wsrp;
 
+import org.gatein.common.text.TextTools;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.common.util.Tools;
 import org.gatein.pc.api.ActionURL;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.OpaqueStateString;
@@ -716,8 +716,8 @@ public class WSRPTypeFactory
    private static String createTemplate(PortletInvocationContext context, PortletURL url, Boolean secure)
    {
       String template = context.renderURL(url, new URLFormat(secure, null, null, true));
-      template = Tools.replace(template, WSRPRewritingConstants.ENC_OPEN, WSRPRewritingConstants.REWRITE_PARAMETER_OPEN);
-      template = Tools.replace(template, WSRPRewritingConstants.ENC_CLOSE, WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
+      template = TextTools.replace(template, WSRPRewritingConstants.ENC_OPEN, WSRPRewritingConstants.REWRITE_PARAMETER_OPEN);
+      template = TextTools.replace(template, WSRPRewritingConstants.ENC_CLOSE, WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
       return template;
    }
 

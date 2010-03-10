@@ -29,6 +29,7 @@ import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 
 import java.util.HashSet;
@@ -51,10 +52,13 @@ public class WSRPPortletURLTestCase extends TestCase
    public void testResource()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif" +
-         "&amp;wsrp-requiresRewrite=true/wsrp_rewrite";
+         "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
-      assertEquals("wsrp_rewrite?wsrp-urlType=resource&wsrp-url=http://test.com/images/test.gif&wsrp-requiresRewrite=true/wsrp_rewrite", url.toString());
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+      assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
    }
 
    /** Declare a secure interaction back to the Portlet */
