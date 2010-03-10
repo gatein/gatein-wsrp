@@ -184,18 +184,18 @@ public class RenderHandler extends InvocationHandler
 
    private String processMarkup(String markup, PortletInvocation invocation, boolean needsRewriting)
    {
-
       if (needsRewriting)
       {
          // fix-me: how to deal with fragment header? => interceptor?
+
+         // Replace rewrite token by namespace
          String prefix = getNamespaceFrom(invocation.getWindowContext());
          markup = TextTools.replace(markup, WSRPRewritingConstants.WSRP_REWRITE_TOKEN, prefix);
+
          URLFormat format = new URLFormat(invocation.getSecurityContext().isSecure(),
             invocation.getSecurityContext().isAuthenticated(), true, true);
 
-         /*WSRPURLRewriter rewriter = new WSRPURLRewriter(invocation.getContext(), format, consumer);
-         markup = URLTools.replaceURLsBy(markup, rewriter);*/
-
+         // replace URL marked for rewriting by proper ones 
          markup = TextTools.replaceBoundedString(markup, WSRPRewritingConstants.BEGIN_WSRP_REWRITE,
             WSRPRewritingConstants.END_WSRP_REWRITE, new ResourceURLStringReplacementGenerator(invocation.getContext(), format, consumer), true, false);
       }
@@ -265,40 +265,32 @@ public class RenderHandler extends InvocationHandler
 
             WSRPResourceURL resource = (WSRPResourceURL)portletURL;
 
-            // get the parsed URL and add gtnresource to it so that the consumer can know it needs to be intercepted
+            // get the parsed URL and add marker to it so that the consumer can know it needs to be intercepted
             URL url = resource.getResourceURL();
+            String query = url.getQuery();
+            if (ParameterValidation.isNullOrEmpty(query))
+            {
+               query = WSRPRewritingConstants.GTNRESOURCE;
+            }
+            else
+            {
+               query = "+" + WSRPRewritingConstants.GTNRESOURCE;
+            }
+
             try
             {
-               String query = url.getQuery();
-               if (ParameterValidation.isNullOrEmpty(query))
-               {
-                  query = "gtnresource";
-               }
-               else
-               {
-                  query = "+gtnresource";
-               }
                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(),
                   url.getPath(), query, url.getRef());
 
                // set the resulting URI as the new resource ID, must be encoded as it will be used in URLs
-               String s = URLTools.safeEncodeForHTMLId(uri.toString());
-               s = s.replace('-', '_');
+               String s = URLTools.encodeXWWWFormURL(uri.toString());
                resource.setResourceId(s);
             }
             catch (Exception e)
             {
-               e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+               throw new IllegalArgumentException("Cannot parse specified Resource as a URI: " + url);
             }
-
-
-            /*// todo: this is a hack to circumvent frameworks that don't properly request resource encoding (icefaces)
-            if (resource.getResourceURL().toExternalForm().startsWith(SLASH))
-            {
-               return info.getEndpointConfigurationInfo().getRemoteHostAddress() + match;
-            }*/
          }
-
 
          return context.renderURL(portletURL, format);
       }
