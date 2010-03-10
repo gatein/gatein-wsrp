@@ -180,6 +180,7 @@ public final class WSRPRewritingConstants
    public static final String FAKE_RESOURCE_START = "GTN_RES_REW=";
    public static final String FAKE_RESOURCE_REQ_REW = "GTN_REQ_REW";
    public static final String FAKE_RESOURCE_URL = FAKE_RESOURCE_START + "{wsrp-url}" + FAKE_RESOURCE_REQ_REW + "{wsrp-requiresRewrite}";
+   public static final String GTNRESOURCE = "gtnresource";
 
    private WSRPRewritingConstants()
    {
