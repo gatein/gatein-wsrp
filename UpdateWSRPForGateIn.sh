@@ -32,18 +32,26 @@ echo Using GateIn home at: $GATEIN_EAR_HOME
 
 # Use this if you want to extract most recent version of WSRP module from the maven-metadata-local.xml <version> tag
 # Looks at wsrp-common Maven metadat and only process 5 lines at most (to avoid retrieving several values)
-# Deprecated solution, see below.
-# export CURRENT_WSRP=`sed -n -e '5 s/.*<version>\(.*\)<\/version>.*/\1/p' $HOME/.m2/repository/org/gatein/wsrp/wsrp-common/maven-metadata-local.xml`
+# This allows to always use the most recent version regardless of what version might already be deployed
+export MOST_RECENT_WSRP=`sed -n -e '5 s/.*<version>\(.*\)<\/version>.*/\1/p' $HOME/.m2/repository/org/gatein/wsrp/wsrp-common/maven-metadata-local.xml`
 
-# extract most recent version of WSRP module from existing files
+# extract the current version of WSRP module from existing files
 CURRENT_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9]-.*-.*\).jar/\1/p'`
-echo Current WSRP version: \'$CURRENT_WSRP\'
 
+echo Current WSRP version: \'$CURRENT_WSRP\'
+echo Most recent WSRP version: \'$MOST_RECENT_WSRP\'
 echo
+
+# get the list of jar files we need to replace in lib
+current=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$CURRENT_WSRP'.jar/\1/p'`
+
+# remove existing files so that we don't end up with duplicate (and conflicting) files if most recent and current
+# version don't match
+rm -f $GATEIN_EAR_HOME/lib/wsrp*
 
 # extract which WSRP libs are currently needed by GateIn and replace them with a fresh version from local repository
 echo Deploying JAR files:
-for lib in `ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$CURRENT_WSRP'.jar/\1/p'`
+for lib in $current
 do
    echo Copying $lib-$CURRENT_WSRP.jar to $GATEIN_EAR_HOME/lib/
    cp $HOME/.m2/repository/org/gatein/wsrp/$lib/$CURRENT_WSRP/$lib-$CURRENT_WSRP.jar $GATEIN_EAR_HOME/lib/
@@ -51,9 +59,15 @@ done
 
 echo
 
+# get the list of war files we need to replace in $GATEIN_EAR_HOME
+current=`ls $GATEIN_EAR_HOME/wsrp* | sed -n 's/.*\/\(.*\).war/\1/p'`
+
+# remove existing files
+rm -f $GATEIN_EAR_HOME/wsrp*
+
 # deal with producer and admin GUI WARs separately as they are put elsewhere and without version name
 echo Deploying WAR files:
-for war in `ls $GATEIN_EAR_HOME/wsrp* | sed -n 's/.*\/\(.*\).war/\1/p'`
+for war in $current
 do
    echo Copying $war-$CURRENT_WSRP.war to $GATEIN_EAR_HOME/$war.war
    cp $HOME/.m2/repository/org/gatein/wsrp/$war/$CURRENT_WSRP/$war-$CURRENT_WSRP.war $GATEIN_EAR_HOME/$war.war
