@@ -48,7 +48,7 @@
       <resource-bundle>Resource</resource-bundle>
       <portlet-info>
          <title>WSRP Configuration</title>
-         <keywords>Administration,WSRP</keywords>
+         <keywords>Administration</keywords>
       </portlet-info>
    </portlet>
 </portlet-app>
