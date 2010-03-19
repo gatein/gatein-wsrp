@@ -125,18 +125,14 @@ public class RenderHandlerTestCase extends TestCase
 
    private void processMarkupAndCheck(String markup, String expected)
    {
-      String result = null;
-      for (int i = 0; i < 100000; i++)
-      {
-         result = RenderHandler.processMarkup(
-            markup,
-            NAMESPACE,
-            CONTEXT,
-            PORTLET_CONTEXT,
-            FORMAT,
-            CONSUMER
-         );
-      }
+      String result = RenderHandler.processMarkup(
+         markup,
+         NAMESPACE,
+         CONTEXT,
+         PORTLET_CONTEXT,
+         FORMAT,
+         CONSUMER
+      );
       assertEquals(expected, result);
    }
 
