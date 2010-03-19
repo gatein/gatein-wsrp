@@ -126,6 +126,11 @@ public abstract class WSRPPortletURL implements ContainerURL
 
    public static WSRPPortletURL create(String encodedURL, Set<String> customModes, Set<String> customWindowStates)
    {
+      return create(encodedURL, customModes, customWindowStates, false);
+   }
+
+   public static WSRPPortletURL create(String encodedURL, Set<String> customModes, Set<String> customWindowStates, boolean noBoundaries)
+   {
       if (log.isDebugEnabled())
       {
          log.debug("Trying to build a WSRPPortletURL from <" + encodedURL + ">");
@@ -140,60 +145,63 @@ public abstract class WSRPPortletURL implements ContainerURL
       boolean extraAfterEnd = false;
       String extra = null;
 
-      // URL needs to start wsrp_rewrite? and end with /wsrp_rewrite in strict validation mode
-      if (!encodedURL.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
+      if (!noBoundaries)
       {
-         throw new IllegalArgumentException(encodedURL + " does not start with " + WSRPRewritingConstants.BEGIN_WSRP_REWRITE);
-      }
-      if (!encodedURL.endsWith(WSRPRewritingConstants.END_WSRP_REWRITE))
-      {
-         // first remove prefix only (as suffix is not at the end of the string)
-         encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH);
-
-         // end token should be marked by the first / in the URL and extract it
-         int endTokenIndex = encodedURL.indexOf('/');
-         if (endTokenIndex < 0)
+         // URL needs to start wsrp_rewrite? and end with /wsrp_rewrite in strict validation mode
+         if (!encodedURL.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE))
          {
-            throw new IllegalArgumentException(originalURL + " does not contain " + WSRPRewritingConstants.END_WSRP_REWRITE);
+            throw new IllegalArgumentException(encodedURL + " does not start with " + WSRPRewritingConstants.BEGIN_WSRP_REWRITE);
          }
-
-         encodedURL = encodedURL.substring(0, endTokenIndex)
-            + encodedURL.substring(endTokenIndex + WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
-
-         /*
-         we need to deal with the case when a WSRP URL is concatenated to a context path using something similar to:
-         renderResponse.encodeURL(renderRequest.getContextPath()) in which case, there should be a slash still present.
-         How to process further depends on whether we're in strict mode or not...
-         */
-         int concatenationIndex = encodedURL.indexOf('/');
-
-         if (strict && concatenationIndex != endTokenIndex)
+         if (!encodedURL.endsWith(WSRPRewritingConstants.END_WSRP_REWRITE))
          {
-            // in strict mode, the only character available after the end token is the concatenating slash
-            throw new IllegalArgumentException(encodedURL + " does not end with "
-               + WSRPRewritingConstants.END_WSRP_REWRITE + " or does not appear to be a valid concatenation of URLs.");
+            // first remove prefix only (as suffix is not at the end of the string)
+            encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH);
+
+            // end token should be marked by the first / in the URL and extract it
+            int endTokenIndex = encodedURL.indexOf('/');
+            if (endTokenIndex < 0)
+            {
+               throw new IllegalArgumentException(originalURL + " does not contain " + WSRPRewritingConstants.END_WSRP_REWRITE);
+            }
+
+            encodedURL = encodedURL.substring(0, endTokenIndex)
+               + encodedURL.substring(endTokenIndex + WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
+
+            /*
+            we need to deal with the case when a WSRP URL is concatenated to a context path using something similar to:
+            renderResponse.encodeURL(renderRequest.getContextPath()) in which case, there should be a slash still present.
+            How to process further depends on whether we're in strict mode or not...
+            */
+            int concatenationIndex = encodedURL.indexOf('/');
+
+            if (strict && concatenationIndex != endTokenIndex)
+            {
+               // in strict mode, the only character available after the end token is the concatenating slash
+               throw new IllegalArgumentException(encodedURL + " does not end with "
+                  + WSRPRewritingConstants.END_WSRP_REWRITE + " or does not appear to be a valid concatenation of URLs.");
+            }
+            else
+            {
+               // deal with extra characters: this should only happen when the URL is concatenated to form a longer one
+               // hence, it should be possible to have param-value pairs followed by a slash '/' then characters.
+               // Anything after the slash will be kept as is, uninterpreted.
+               if (concatenationIndex != -1)
+               {
+                  String tmp = encodedURL;
+                  encodedURL = encodedURL.substring(0, concatenationIndex);
+                  extra = tmp.substring(concatenationIndex);
+               }
+
+               // remember that we should position the extra params after the end token
+               extraAfterEnd = true;
+            }
          }
          else
          {
-            // deal with extra characters: this should only happen when the URL is concatenated to form a longer one
-            // hence, it should be possible to have param-value pairs followed by a slash '/' then characters.
-            // Anything after the slash will be kept as is, uninterpreted.
-            if (concatenationIndex != -1)
-            {
-               String tmp = encodedURL;
-               encodedURL = encodedURL.substring(0, concatenationIndex);
-               extra = tmp.substring(concatenationIndex);
-            }
-
-            // remember that we should position the extra params after the end token
-            extraAfterEnd = true;
+            // remove prefix and suffix
+            encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH,
+               encodedURL.length() - WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
          }
-      }
-      else
-      {
-         // remove prefix and suffix
-         encodedURL = encodedURL.substring(WSRPRewritingConstants.WSRP_REWRITE_PREFIX_LENGTH,
-            encodedURL.length() - WSRPRewritingConstants.WSRP_REWRITE_SUFFIX_LENGTH);
       }
 
       // next param should be the url type

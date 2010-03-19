@@ -33,13 +33,14 @@ package org.gatein.wsrp;
 public final class WSRPRewritingConstants
 {
 
-   private static final String WSRP_REWRITE = "wsrp_rewrite";
+   public static final String WSRP_REWRITE = "wsrp_rewrite";
 
+   public static final String BEGIN_WSRP_REWRITE_END = "?";
    /**
     * 10.2.1 <p>All portlet URLs (i.e. those the Consumer needs to rewrite) are demarcated in the markup by a token
     * (wsrp_rewrite) both at the start (with a "?" appended to clearly delimit the start of the name/value pairs).</p>
     */
-   public static final String BEGIN_WSRP_REWRITE = WSRP_REWRITE + "?";
+   public static final String BEGIN_WSRP_REWRITE = WSRP_REWRITE + BEGIN_WSRP_REWRITE_END;
 
    public static final int WSRP_REWRITE_PREFIX_LENGTH = 13;
 
@@ -154,6 +155,7 @@ public final class WSRPRewritingConstants
     */
    public static final String SECURE_URL = "wsrp-secureURL";
 
+   public static final String WSRP_REWRITE_TOKEN_END = "_";
    /**
     * 10.3.1 Consumer Rewriting (Namespace encoding) <p>The Portlet can prefix the token with "wsrp_rewrite_". The
     * Consumer will locate such markers and MUST replace them with a prefix that is unique to this instance of this
@@ -162,7 +164,7 @@ public final class WSRPRewritingConstants
     * is legal for at least the JavaScript and VBScript scripting languages and CSS class names. This permits the
     * independent testing of most generated markup fragments.</p>
     */
-   public static final String WSRP_REWRITE_TOKEN = WSRP_REWRITE + "_";
+   public static final String WSRP_REWRITE_TOKEN = WSRP_REWRITE + WSRP_REWRITE_TOKEN_END;
 
    /** Opening token for URL parameters. See 10.2.2. */
    public static final String REWRITE_PARAMETER_OPEN = "{";
@@ -177,9 +179,13 @@ public final class WSRPRewritingConstants
    static final String ENC_CLOSE = "%7D";
 
    /* Constants for Resource URL processing todo: remove? */
-   public static final String FAKE_RESOURCE_START = "GTN_RES_REW=";
-   public static final String FAKE_RESOURCE_REQ_REW = "GTN_REQ_REW";
-   public static final String FAKE_RESOURCE_URL = FAKE_RESOURCE_START + "{wsrp-url}" + FAKE_RESOURCE_REQ_REW + "{wsrp-requiresRewrite}";
+   public static final String RESOURCE_URL_DELIMITER = "*";
+   public static final String FAKE_RESOURCE_START = WSRP_REWRITE + RESOURCE_URL_DELIMITER;
+   public static final String FAKE_RESOURCE_REQ_REW = RESOURCE_URL_DELIMITER;
+   public static final String WSRP_URL = REWRITE_PARAMETER_OPEN + RESOURCE_URL + REWRITE_PARAMETER_CLOSE;
+   public static final String WSRP_REQUIRES_REWRITE = REWRITE_PARAMETER_OPEN + RESOURCE_REQUIRES_REWRITE + REWRITE_PARAMETER_CLOSE;
+   public static final String FAKE_RESOURCE_URL = FAKE_RESOURCE_START + WSRP_URL + RESOURCE_URL_DELIMITER +
+      WSRP_REQUIRES_REWRITE + END_WSRP_REWRITE;
    public static final String GTNRESOURCE = "gtnresource";
 
    private WSRPRewritingConstants()

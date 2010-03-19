@@ -63,7 +63,6 @@ public class RenderHandler extends InvocationHandler
 {
 
    private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
-   public static final ResourceURLRewriter GENERATOR = new ResourceURLRewriter();
 
    protected RenderHandler(WSRPConsumerImpl consumer)
    {
@@ -195,23 +194,7 @@ public class RenderHandler extends InvocationHandler
    {
       // fix-me: how to deal with fragment header? => interceptor?
 
-      // Replace rewrite token by namespace
-      markup = TextTools.replace(markup, WSRPRewritingConstants.WSRP_REWRITE_TOKEN, namespace + '_');
-
-      markup = URLTools.replaceURLsBy(markup, GENERATOR);
-
-      // replace URL marked for rewriting by proper ones
       markup = TextTools.replaceBoundedString(
-         markup,
-         WSRPRewritingConstants.BEGIN_WSRP_REWRITE,
-         WSRPRewritingConstants.END_WSRP_REWRITE,
-         new OldResourceURLStringReplacementGenerator(context, target, format, consumer.getProducerInfo()),
-         true,
-         false
-      );
-
-/*
-       markup = TextTools.replaceBoundedString(
          markup,
          WSRPRewritingConstants.WSRP_REWRITE,
          WSRPRewritingConstants.END_WSRP_REWRITE,
@@ -220,7 +203,6 @@ public class RenderHandler extends InvocationHandler
          false,
          true
       );
-*/
 
       return markup;
    }
@@ -261,47 +243,6 @@ public class RenderHandler extends InvocationHandler
       return result;
    }
 
-   static class OldResourceURLStringReplacementGenerator implements TextTools.StringReplacementGenerator
-   {
-      private final PortletInvocationContext context;
-      private final URLFormat format;
-      private final Set<String> supportedCustomModes;
-      private final Set<String> supportedCustomWindowStates;
-      private final String serverAddress;
-      private final String portletApplicationName;
-
-      private OldResourceURLStringReplacementGenerator(PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
-      {
-         this.context = context;
-         this.format = format;
-         supportedCustomModes = info.getSupportedCustomModes();
-         supportedCustomWindowStates = info.getSupportedCustomWindowStates();
-         serverAddress = info.getEndpointConfigurationInfo().getRemoteHostAddress();
-         portletApplicationName = target.getApplicationName();
-      }
-
-      public String getReplacementFor(String match)
-      {
-         WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates);
-         if (portletURL instanceof WSRPResourceURL)
-         {
-            WSRPResourceURL resource = (WSRPResourceURL)portletURL;
-            String replacement = getResourceURL(match, resource);
-
-            // if the URL starts with /, prepend the remote host address and the portlet application name so that we
-            // can attempt to create a remotely available URL
-            if (replacement.startsWith(URLTools.SLASH))
-            {
-               replacement = WSRPResourceURL.createAbsoluteURLFrom(replacement, serverAddress, portletApplicationName);
-            }
-
-            return replacement;
-         }
-         return context.renderURL(portletURL, format);
-      }
-   }
-
-/*
    static class ResourceURLStringReplacementGenerator implements TextTools.StringReplacementGenerator
    {
       private final PortletInvocationContext context;
@@ -331,7 +272,6 @@ public class RenderHandler extends InvocationHandler
             // we have a resource URL coming from a template so extract URL
             int index = match.lastIndexOf(WSRPRewritingConstants.RESOURCE_URL_DELIMITER);
 
-            */
 /*
             // todo: right now, no need to extract value of require rewrite..
             String requireRewriteStr = match.substring(index + URL_DELIMITER_LENGTH);
@@ -340,8 +280,7 @@ public class RenderHandler extends InvocationHandler
             {
                // FIX-ME: do something
                log.debug("Required re-writing but this is not yet implemented...");
-            }*//*
-
+            }*/
 
             match = match.substring(URL_DELIMITER_LENGTH, index);
             return URLTools.decodeXWWWFormURL(match);
@@ -370,7 +309,6 @@ public class RenderHandler extends InvocationHandler
 
                return replacement;
 
-               */
 /*
                todo: use this code to reactivate primitive use of resources
                // get the parsed URL and add marker to it so that the consumer can know it needs to be intercepted
@@ -397,7 +335,7 @@ public class RenderHandler extends InvocationHandler
                catch (Exception e)
                {
                   throw new IllegalArgumentException("Cannot parse specified Resource as a URI: " + url);
-               }*//*
+               }*/
 
             }
 
@@ -408,36 +346,6 @@ public class RenderHandler extends InvocationHandler
             // match is not something we know how to process
             return match;
          }
-      }
-   }
-*/
-
-   static class ResourceURLRewriter extends URLTools.URLReplacementGenerator
-   {
-      public String getReplacementFor(int currentIndex, URLTools.URLMatch currentMatch)
-      {
-         String urlAsString = currentMatch.getURLAsString();
-         int beginning = urlAsString.indexOf(WSRPRewritingConstants.FAKE_RESOURCE_START);
-         if (beginning != -1)
-         {
-            int index = urlAsString.lastIndexOf(WSRPRewritingConstants.FAKE_RESOURCE_REQ_REW);
-
-            /*String requireRewriteStr = urlAsString.substring(
-               index + WSRPRewritingConstants.FAKE_RESOURCE_REQ_REW.length(),
-               urlAsString.indexOf(WSRPRewritingConstants.END_WSRP_REWRITE)
-            );
-            boolean requireRewrite = Boolean.valueOf(requireRewriteStr);
-            if (requireRewrite)
-            {
-               // FIX-ME: do something
-               log.debug("Required re-writing but this is not yet implemented...");
-            }*/
-
-            urlAsString = urlAsString.substring(WSRPRewritingConstants.FAKE_RESOURCE_START.length(), index);
-            return URLTools.decodeXWWWFormURL(urlAsString);
-         }
-
-         return urlAsString;
       }
    }
 
