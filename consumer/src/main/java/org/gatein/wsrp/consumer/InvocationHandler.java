@@ -62,7 +62,7 @@ public abstract class InvocationHandler
    private static final int MAXIMUM_RETRY_NUMBER = 3;
 
 
-   public InvocationHandler(WSRPConsumerImpl consumer)
+   protected InvocationHandler(WSRPConsumerImpl consumer)
    {
       this.consumer = consumer;
    }
@@ -146,7 +146,7 @@ public abstract class InvocationHandler
       return response;
    }
 
-   protected String getNamespaceFrom(WindowContext windowContext)
+   static String getNamespaceFrom(WindowContext windowContext)
    {
       if (windowContext != null)
       {

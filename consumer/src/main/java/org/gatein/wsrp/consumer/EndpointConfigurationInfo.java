@@ -54,7 +54,7 @@ public class EndpointConfigurationInfo
       serviceFactory = new SOAPServiceFactory();
    }
 
-   EndpointConfigurationInfo(ServiceFactory serviceFactory)
+   protected EndpointConfigurationInfo(ServiceFactory serviceFactory)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(serviceFactory, "ServiceFactory");
       this.serviceFactory = serviceFactory;
