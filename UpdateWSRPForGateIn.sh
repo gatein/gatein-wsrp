@@ -23,6 +23,8 @@
 # application server.
 # @author Chris Laprun
 
+mvn clean install
+
 if [ -z "$GATEIN_EAR_HOME" -o ! -d "$GATEIN_EAR_HOME" ]
 then
    echo Please set GATEIN_EAR_HOME to point to the repository on your application that contains gatein.ear
@@ -30,20 +32,18 @@ then
 fi
 echo Using GateIn home at: $GATEIN_EAR_HOME
 
-# Use this if you want to extract most recent version of WSRP module from the maven-metadata-local.xml <version> tag
-# Looks at wsrp-common Maven metadat and only process 5 lines at most (to avoid retrieving several values)
-# This allows to always use the most recent version regardless of what version might already be deployed
-export MOST_RECENT_WSRP=`sed -n -e '5 s/.*<version>\(.*\)<\/version>.*/\1/p' $HOME/.m2/repository/org/gatein/wsrp/wsrp-common/maven-metadata-local.xml`
+# Retrieve the current WSRP version as specified in the POM file
+export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n -e 's/.*<version>\(.*\)<\/.*/\1/p'`
 
 # extract the current version of WSRP module from existing files
-CURRENT_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9]-.*-.*\).jar/\1/p'`
+DEPLOYED_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9]-.*-.*\).jar/\1/p'`
 
+echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
 echo Current WSRP version: \'$CURRENT_WSRP\'
-echo Most recent WSRP version: \'$MOST_RECENT_WSRP\'
 echo
 
 # get the list of jar files we need to replace in lib
-current=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$CURRENT_WSRP'.jar/\1/p'`
+current=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$DEPLOYED_WSRP'.jar/\1/p'`
 
 # remove existing files so that we don't end up with duplicate (and conflicting) files if most recent and current
 # version don't match
