@@ -43,9 +43,15 @@ public final class WSRPConstants
 {
    // JMX **************************************************************************************************************
    /** JMX object name for the Portal web app registry */
-   public static final String WEB_APP_REGISTRY_OBJECT_NAME = "portal:service=WebAppRegistry";
+   @Deprecated public static final String WEB_APP_REGISTRY_OBJECT_NAME = "portal:service=WebAppRegistry";
    /** JMX object name for the WSRP Producer */
-   public static final String WSRP_PRODUCER_OBJECT_NAME = "portletcontainer.wsrp:service=WSRPProducer";
+   @Deprecated public static final String WSRP_PRODUCER_OBJECT_NAME = "portletcontainer.wsrp:service=WSRPProducer";
+
+   /**
+    * The version of the WSRP service. This should match the maven version of the module. Right now, checked via
+    * the UpdateWSRPForGatein.sh script.
+    */
+   public static final String WSRP_SERVICE_VERSION = "1.0.1-GA-SNAPSHOT";
 
    // Window State Names ***********************************************************************************************
 

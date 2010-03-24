@@ -23,11 +23,9 @@
 # application server.
 # @author Chris Laprun
 
-mvn clean install
-
 if [ -z "$GATEIN_EAR_HOME" -o ! -d "$GATEIN_EAR_HOME" ]
 then
-   echo Please set GATEIN_EAR_HOME to point to the repository on your application that contains gatein.ear
+   echo \=\=\> Please set GATEIN_EAR_HOME to point to the repository on your application that contains gatein.ear
    exit
 fi
 echo Using GateIn home at: $GATEIN_EAR_HOME
@@ -39,8 +37,22 @@ export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n
 DEPLOYED_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9]-.*-.*\).jar/\1/p'`
 
 echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
-echo Current WSRP version: \'$CURRENT_WSRP\'
+echo Current WSRP version in project POM: \'$CURRENT_WSRP\'
 echo
+
+# Check that WSRP service version as defined by WSRPConstants.WSRP_SERVICE_VERSION is in sync with project POM
+WSRP_SERVICE_VERSION=`grep WSRP_SERVICE_VERSION common/src/main/java/org/gatein/wsrp/WSRPConstants.java | sed -n -e 's/.*"\(.*\)".*/\1/p'`
+if [ $WSRP_SERVICE_VERSION != $CURRENT_WSRP ]
+then
+   echo \=\=\> Please update WSRPConstants.WSRP_SERVICE_VERSION \($WSRP_SERVICE_VERSION\) as it doesn\'t match the value in the project POM
+   exit
+fi
+
+# If we have no argument, build. If you don't want to build just add an argument (value irrelevant) when calling the script
+if [ $# -eq 0 ]
+then
+   mvn clean install
+fi
 
 # get the list of jar files we need to replace in lib
 current=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$DEPLOYED_WSRP'.jar/\1/p'`
