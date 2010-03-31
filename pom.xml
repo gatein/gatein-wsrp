@@ -101,11 +101,6 @@
             <artifactId>common-common</artifactId>
             <version>${version.gatein.common}</version>
          </dependency>
-         <dependency>
-            <groupId>org.gatein.common</groupId>
-            <artifactId>common-mc</artifactId>
-            <version>${version.gatein.common}</version>
-         </dependency>
 
          <dependency>
             <groupId>org.gatein.pc</groupId>
