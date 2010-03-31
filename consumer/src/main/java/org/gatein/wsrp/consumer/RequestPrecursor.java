@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -68,7 +68,10 @@ class RequestPrecursor
       // retrieve handle
       portletContext = WSRPUtils.convertToWSRPPortletContext(WSRPConsumerImpl.getPortletContext(invocation));
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(getPortletHandle(), PORTLET_HANDLE, null);
-      log.debug("About to invoke on portlet: " + getPortletHandle());
+      if (log.isDebugEnabled())
+      {
+         log.debug("About to invoke on portlet: " + getPortletHandle());
+      }
 
       // create runtime context
       SecurityContext securityContext = invocation.getSecurityContext();
@@ -126,7 +129,10 @@ class RequestPrecursor
          }
       }
 
-      log.debug(WSRPUtils.toString(markupParams));
+      if (log.isDebugEnabled())
+      {
+         log.debug(WSRPUtils.toString(markupParams));
+      }
    }
 
    public String getPortletHandle()

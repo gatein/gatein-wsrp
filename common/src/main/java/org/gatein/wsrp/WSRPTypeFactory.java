@@ -26,15 +26,17 @@ package org.gatein.wsrp;
 import org.gatein.common.text.TextTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.ActionURL;
+import org.gatein.pc.api.ContainerURL;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.PortletStateType;
-import org.gatein.pc.api.PortletURL;
 import org.gatein.pc.api.RenderURL;
+import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.WindowState;
+import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.oasis.wsrp.v1.BlockingInteractionResponse;
 import org.oasis.wsrp.v1.CacheControl;
@@ -82,6 +84,8 @@ import org.oasis.wsrp.v1.UserContext;
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
+
+import static org.gatein.wsrp.WSRPRewritingConstants.*;
 
 /**
  * Creates minimally valid instances of WSRP types, populated with default values where possible, as per
@@ -646,22 +650,22 @@ public class WSRPTypeFactory
    {
       public StateString getInteractionState()
       {
-         return new OpaqueStateString(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.INTERACTION_STATE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
+         return new OpaqueStateString(REWRITE_PARAMETER_OPEN + INTERACTION_STATE + REWRITE_PARAMETER_CLOSE);
       }
 
       public StateString getNavigationalState()
       {
-         return new OpaqueStateString(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.NAVIGATIONAL_STATE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
+         return getTemplateNS();
       }
 
       public Mode getMode()
       {
-         return Mode.create(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.MODE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE, true);
+         return getTemplateMode();
       }
 
       public WindowState getWindowState()
       {
-         return WindowState.create(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.WINDOW_STATE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE, true);
+         return getTemplateWindowState();
       }
    };
 
@@ -669,7 +673,7 @@ public class WSRPTypeFactory
    {
       public StateString getNavigationalState()
       {
-         return new OpaqueStateString(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.NAVIGATIONAL_STATE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
+         return getTemplateNS();
       }
 
       public Map<String, String[]> getPublicNavigationalStateChanges()
@@ -680,14 +684,65 @@ public class WSRPTypeFactory
 
       public Mode getMode()
       {
-         return Mode.create(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.MODE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE, true);
+         return getTemplateMode();
       }
 
       public WindowState getWindowState()
       {
-         return WindowState.create(WSRPRewritingConstants.REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.WINDOW_STATE + WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE, true);
+         return getTemplateWindowState();
       }
    };
+
+   private static ResourceURL RESOURCE_URL = new WSRPResourceURL()
+   {
+      public String getResourceId()
+      {
+         return REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.RESOURCE_URL + REWRITE_PARAMETER_CLOSE;
+      }
+
+      public StateString getResourceState()
+      {
+         // todo: fix-me
+         return null;
+      }
+
+      public CacheLevel getCacheability()
+      {
+         // todo: fix-me
+         return null;
+      }
+
+      public Mode getMode()
+      {
+         return getTemplateMode();
+      }
+
+      public WindowState getWindowState()
+      {
+         return getTemplateWindowState();
+      }
+
+      public StateString getNavigationalState()
+      {
+         return getTemplateNS();
+      }
+   };
+
+   private static StateString getTemplateNS()
+   {
+      return new OpaqueStateString(REWRITE_PARAMETER_OPEN + NAVIGATIONAL_STATE + REWRITE_PARAMETER_CLOSE);
+   }
+
+   private static WindowState getTemplateWindowState()
+   {
+      return WindowState.create(REWRITE_PARAMETER_OPEN + WINDOW_STATE + REWRITE_PARAMETER_CLOSE, true);
+   }
+
+   private static Mode getTemplateMode()
+   {
+      return Mode.create(REWRITE_PARAMETER_OPEN + MODE + REWRITE_PARAMETER_CLOSE, true);
+   }
+
 
    /**
     * defaultTemplate(xsd:string)?, blockingActionTemplate(xsd:string)?, renderTemplate(xsd:string)?,
@@ -707,13 +762,13 @@ public class WSRPTypeFactory
       templates.setSecureRenderTemplate(createTemplate(context, RENDER_URL, Boolean.TRUE));
 
       //fix-me: deal with resources properly, create fake ones for now
-      templates.setResourceTemplate(WSRPRewritingConstants.FAKE_RESOURCE_URL);
-      templates.setSecureResourceTemplate(WSRPRewritingConstants.FAKE_RESOURCE_URL);
+      templates.setResourceTemplate(createTemplate(context, RESOURCE_URL, false));
+      templates.setSecureResourceTemplate(createTemplate(context, RESOURCE_URL, true));
 
       return templates;
    }
 
-   private static String createTemplate(PortletInvocationContext context, PortletURL url, Boolean secure)
+   private static String createTemplate(PortletInvocationContext context, ContainerURL url, Boolean secure)
    {
       String template = context.renderURL(url, new URLFormat(secure, null, null, true));
       template = TextTools.replace(template, WSRPRewritingConstants.ENC_OPEN, WSRPRewritingConstants.REWRITE_PARAMETER_OPEN);

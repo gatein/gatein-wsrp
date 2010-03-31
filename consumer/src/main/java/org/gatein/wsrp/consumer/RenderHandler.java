@@ -189,6 +189,9 @@ public class RenderHandler extends InvocationHandler
    {
       // fix-me: how to deal with fragment header? => interceptor?
 
+      // todo: remove, this is a work-around for GTNWSRP-12
+      markup = markup.replaceFirst("%3ftimeout%3d.*%2f", "%2f");
+
       markup = MarkupProcessor.replaceBoundedString(
          markup,
          WSRPRewritingConstants.WSRP_REWRITE,

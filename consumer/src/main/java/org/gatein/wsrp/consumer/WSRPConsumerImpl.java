@@ -34,6 +34,7 @@ import org.gatein.pc.api.invocation.ActionInvocation;
 import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
+import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.state.DestroyCloneFailure;
@@ -87,6 +88,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 {
    private ActionHandler actionHandler;
    private RenderHandler renderHandler;
+   private ResourceHandler resourceHandler;
    private SessionHandler sessionHandler;
 
    private ProducerInfo producerInfo;
@@ -128,6 +130,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       actionHandler = new ActionHandler(this);
       renderHandler = new RenderHandler(this);
       sessionHandler = new SessionHandler(this);
+      resourceHandler = new ResourceHandler(this);
    }
 
    public ProducerInfo getProducerInfo()
@@ -177,6 +180,10 @@ public class WSRPConsumerImpl implements WSRPConsumer
       else if (invocation instanceof ActionInvocation)
       {
          handler = actionHandler;
+      }
+      else if (invocation instanceof ResourceInvocation)
+      {
+         handler = resourceHandler;
       }
       else
       {

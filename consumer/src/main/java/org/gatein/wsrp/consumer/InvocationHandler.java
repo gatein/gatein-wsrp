@@ -93,21 +93,27 @@ public abstract class InvocationHandler
       // as long as we don't get a non-null response and we're allowed to try again, try to perform the request
       while (response == null && retryCount++ <= MAXIMUM_RETRY_NUMBER)
       {
-         log.debug("performRequest: " + retryCount + " attempt(s) out of " + MAXIMUM_RETRY_NUMBER + " possible");
+         if (log.isDebugEnabled())
+         {
+            log.debug("performRequest: " + retryCount + " attempt(s) out of " + MAXIMUM_RETRY_NUMBER + " possible");
+         }
          SessionHandler sessionHandler = consumer.getSessionHandler();
 
          // prepare everything for the request
          updateRegistrationContext(request);
          RuntimeContext runtimeContext = getRuntimeContextFrom(request);
 
-         WindowContext windowContext = invocation.getWindowContext();
-         runtimeContext.setNamespacePrefix(getNamespaceFrom(windowContext));
+         if (runtimeContext != null)
+         {
+            WindowContext windowContext = invocation.getWindowContext();
+            runtimeContext.setNamespacePrefix(getNamespaceFrom(windowContext));
 
-         InstanceContext instanceContext = invocation.getInstanceContext();
-         runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
+            InstanceContext instanceContext = invocation.getInstanceContext();
+            runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
 
-         updateUserContext(request, consumer.getUserContextFrom(invocation, runtimeContext));
-         consumer.setTemplatesIfNeeded(invocation, runtimeContext);
+            updateUserContext(request, consumer.getUserContextFrom(invocation, runtimeContext));
+            consumer.setTemplatesIfNeeded(invocation, runtimeContext);
+         }
 
          try
          {
@@ -142,7 +148,10 @@ public abstract class InvocationHandler
             "properly transmitted. Look at server.log for clues as to what happened..."));
       }
 
-      log.debug("performRequest finished. Response is " + (response != null ? response.getClass().getName() : null));
+      if (log.isDebugEnabled())
+      {
+         log.debug("performRequest finished. Response is " + (response != null ? response.getClass().getName() : null));
+      }
       return response;
    }
 

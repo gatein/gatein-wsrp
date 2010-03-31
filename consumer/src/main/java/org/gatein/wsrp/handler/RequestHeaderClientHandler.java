@@ -24,11 +24,7 @@
 package org.gatein.wsrp.handler;
 
 import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.cookie.MalformedCookieException;
-import org.apache.commons.httpclient.cookie.RFC2109Spec;
 import org.gatein.wsrp.consumer.ProducerSessionInformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MimeHeaders;
@@ -51,10 +47,10 @@ import java.util.Set;
 public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static final ThreadLocal<CurrentInfo> local = new ThreadLocal<CurrentInfo>();
-   private static final RFC2109Spec cookieParser = new RFC2109Spec();
+   /*private static final RFC2109Spec cookieParser = new RFC2109Spec();
    private static final Logger log = LoggerFactory.getLogger(RequestHeaderClientHandler.class);
    private static final String SET_COOKIE = "Set-Cookie";
-   private static final String COOKIE = "Cookie";
+   private static final String COOKIE = "Cookie";*/
 
    public Set<QName> getHeaders()
    {
@@ -127,7 +123,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
       if (cookie.length() != 0)
       {
-         mimeHeaders.setHeader(COOKIE, cookie.toString());
+         mimeHeaders.setHeader(CookieUtil.COOKIE, cookie.toString());
       }
 
       return true;
@@ -138,13 +134,27 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       SOAPMessageContext smc = (SOAPMessageContext)msgContext;
       SOAPMessage message = smc.getMessage();
       MimeHeaders mimeHeaders = message.getMimeHeaders();
-      String[] cookieValues = mimeHeaders.getHeader(SET_COOKIE);
+      String[] cookieValues = mimeHeaders.getHeader(CookieUtil.SET_COOKIE);
 
+      String endpointAddress = (String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
       if (cookieValues != null)
       {
-         String cookieValue = coalesceCookies(cookieValues);
+         if (endpointAddress == null)
+         {
+            throw new NullPointerException("Was expecting an endpoint address but none was provided in the MessageContext");
+         }
 
-         Cookie[] cookies = extractCookies((String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY), cookieValue);
+         URL hostURL;
+         try
+         {
+            hostURL = new URL(endpointAddress);
+         }
+         catch (MalformedURLException e)
+         {
+            // should not happen
+            throw new IllegalArgumentException(endpointAddress + " is not a valid URL for the endpoint address.");
+         }
+         Cookie[] cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;
@@ -165,95 +175,6 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       }
 
       return true;
-   }
-
-   /**
-    * Coalesce several Set-Cookie headers into one and returning the resulting concatenated String.
-    *
-    * @param cookieValues the array containing the values of the different Set-Cookie headers to be coalesced
-    * @return the concatenated value that could be used as one Set-Cookie header
-    */
-   private String coalesceCookies(String[] cookieValues)
-   {
-      assert cookieValues != null;
-
-      StringBuffer logBuffer = null;
-      if (log.isDebugEnabled())
-      {
-         logBuffer = new StringBuffer(128);
-         logBuffer.append("Cookie headers:\n");
-      }
-
-      int cookieNumber = cookieValues.length;
-      StringBuffer cookieBuffer = new StringBuffer(cookieNumber * 128);
-      String cookieValue;
-      for (int i = 0; i < cookieNumber; i++)
-      {
-         cookieValue = cookieValues[i];
-         cookieBuffer.append(cookieValue);
-
-         // multiple cookies are separated by commas: http://www.ietf.org/rfc/rfc2109.txt, 4.2.2
-         if (i < cookieNumber - 1)
-         {
-            cookieBuffer.append(',');
-         }
-
-         if (log.isDebugEnabled())
-         {
-            logBuffer.append("\t").append(i).append(":\t").append(cookieValue).append("\n");
-         }
-      }
-
-      if (log.isDebugEnabled())
-      {
-         log.debug(logBuffer.toString());
-      }
-
-      return cookieBuffer.toString();
-   }
-
-   private Cookie[] extractCookies(String endpointAddress, String cookieValue)
-   {
-      if (endpointAddress == null)
-      {
-         throw new NullPointerException("Was expecting an endpoint address but none was provided in the MessageContext");
-      }
-
-      URL hostURL;
-      try
-      {
-         hostURL = new URL(endpointAddress);
-      }
-      catch (MalformedURLException e)
-      {
-         // should not happen
-         throw new IllegalArgumentException(endpointAddress + " is not a valid URL for the endpoint address.");
-      }
-
-      Cookie[] cookies;
-      try
-      {
-         String host = hostURL.getHost();
-         int port = hostURL.getPort();
-         if (port == -1)
-         {
-            port = 80; // if the port is not set in the endpoint address, assume it's 80.
-         }
-         String path = hostURL.getPath();
-         boolean secure = hostURL.getProtocol().endsWith("s"); // todo: is that correct?
-
-         cookies = cookieParser.parse(host, port, path, secure, cookieValue);
-
-         for (Cookie cookie : cookies)
-         {
-            cookieParser.validate(host, port, path, secure, cookie);
-         }
-      }
-      catch (MalformedCookieException e)
-      {
-         throw new IllegalArgumentException("Malformed cookie: " + cookieValue);
-      }
-      return cookies;
    }
 
    public static void setCurrentInfo(String groupId, ProducerSessionInformation sessionInformation)

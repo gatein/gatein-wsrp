@@ -61,25 +61,7 @@ public class MarkupProcessor
 
    public String getReplacementFor(String match, String prefix, String suffix)
    {
-      if (match.startsWith(WSRPRewritingConstants.RESOURCE_URL_DELIMITER))
-      {
-         // we have a resource URL coming from a template so extract URL
-         int index = match.lastIndexOf(WSRPRewritingConstants.RESOURCE_URL_DELIMITER);
-
-/*
-            // todo: right now, no need to extract value of require rewrite..
-            String requireRewriteStr = match.substring(index + URL_DELIMITER_LENGTH);
-            boolean requireRewrite = Boolean.valueOf(requireRewriteStr);
-            if (requireRewrite)
-            {
-               // FIX-ME: do something
-               log.debug("Required re-writing but this is not yet implemented...");
-            }*/
-
-         match = match.substring(URL_DELIMITER_LENGTH, index);
-         return URLTools.decodeXWWWFormURL(match);
-      }
-      else if (prefix.equals(match))
+      if (prefix.equals(match))
       {
          return namespace;
       }
@@ -92,45 +74,11 @@ public class MarkupProcessor
          if (portletURL instanceof WSRPResourceURL)
          {
             WSRPResourceURL resource = (WSRPResourceURL)portletURL;
-            String replacement = getResourceURL(match, resource);
 
-            // if the URL starts with /, prepend the remote host address and the portlet application name so that we
-            // can attempt to create a remotely available URL
-            if (replacement.startsWith(URLTools.SLASH))
-            {
-               replacement = WSRPResourceURL.createAbsoluteURLFrom(replacement, serverAddress, portletApplicationName);
-            }
-
-            return replacement;
-
-/*
-               todo: use this code to reactivate primitive use of resources
-               // get the parsed URL and add marker to it so that the consumer can know it needs to be intercepted
-               URL url = resource.getResourceURL();
-               String query = url.getQuery();
-               if (ParameterValidation.isNullOrEmpty(query))
-               {
-                  query = WSRPRewritingConstants.GTNRESOURCE;
-               }
-               else
-               {
-                  query = "+" + WSRPRewritingConstants.GTNRESOURCE;
-               }
-
-               try
-               {
-                  URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(),
-                     url.getPath(), query, url.getRef());
-
-                  // set the resulting URI as the new resource ID, must be encoded as it will be used in URLs
-                  String s = URLTools.encodeXWWWFormURL(uri.toString());
-                  resource.setResourceId(s);
-               }
-               catch (Exception e)
-               {
-                  throw new IllegalArgumentException("Cannot parse specified Resource as a URI: " + url);
-               }*/
-
+            // bridge the WSRP 1 resources with JSR-286-style
+            // set the URL as the new resource ID, must be encoded as it will be used in URLs
+            String s = URLTools.encodeXWWWFormURL(resource.getResourceURL().toExternalForm());
+            resource.setResourceId(s);
          }
 
          return context.renderURL(portletURL, format);

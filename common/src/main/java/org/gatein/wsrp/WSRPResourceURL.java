@@ -203,6 +203,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
     *
     * @param request
     * @param portletContext
+    * @deprecated should be removed when WSRP 2 is implemented
     */
    public void buildURLWith(HttpServletRequest request, PortletContext portletContext)
    {

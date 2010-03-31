@@ -275,7 +275,10 @@ public class SessionHandler implements SessionEventListener
       invalidateSession(invocation);
 
       // set the session id to null
-      runtimeContext.setSessionID(null);
+      if (runtimeContext != null)
+      {
+         runtimeContext.setSessionID(null);
+      }
    }
 
    private void invalidateSession(PortletInvocation invocation)
