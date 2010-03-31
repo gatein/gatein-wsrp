@@ -59,6 +59,7 @@ public class WSRPPortletURLTestCase extends TestCase
       WSRPResourceURL resource = (WSRPResourceURL)url;
       assertFalse(resource.requiresRewrite());
       assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
+      assertEquals("http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif", resource.getResourceId());
    }
 
    /** Declare a secure interaction back to the Portlet */

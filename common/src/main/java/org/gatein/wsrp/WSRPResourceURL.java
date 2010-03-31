@@ -95,7 +95,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    {
       if (resourceURL != null)
       {
-         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, URLTools.encodeXWWWFormURL(resourceURL.toExternalForm()));
+         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, getResourceId());
       }
 
       createURLParameter(sb, WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE, requiresRewrite ? "true" : "false");
@@ -173,6 +173,10 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 
    public String getResourceId()
    {
+      if (resourceId == null && resourceURL != null)
+      {
+         resourceId = URLTools.encodeXWWWFormURL(resourceURL.toExternalForm());
+      }
       return resourceId;
    }
 

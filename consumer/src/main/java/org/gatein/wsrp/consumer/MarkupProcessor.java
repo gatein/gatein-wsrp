@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.consumer;
 
-import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.spi.PortletInvocationContext;
@@ -71,16 +70,6 @@ public class MarkupProcessor
          match = match.substring(WSRPRewritingConstants.BEGIN_WSRP_REWRITE_END.length());
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
-         if (portletURL instanceof WSRPResourceURL)
-         {
-            WSRPResourceURL resource = (WSRPResourceURL)portletURL;
-
-            // bridge the WSRP 1 resources with JSR-286-style
-            // set the URL as the new resource ID, must be encoded as it will be used in URLs
-            String s = URLTools.encodeXWWWFormURL(resource.getResourceURL().toExternalForm());
-            resource.setResourceId(s);
-         }
-
          return context.renderURL(portletURL, format);
       }
       else
