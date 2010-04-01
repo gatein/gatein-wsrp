@@ -114,6 +114,11 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<Extension> extensions)
       throws InvalidRegistration, OperationFailed
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      RegistrationContext rc = new RegistrationContext();
+      rc.setRegistrationHandle(registrationHandle);
+      rc.setRegistrationState(registrationState);
+
+      producer.deregister(rc);
+      return null;
    }
 }
