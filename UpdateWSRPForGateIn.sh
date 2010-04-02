@@ -34,7 +34,7 @@ echo Using GateIn home at: $GATEIN_EAR_HOME
 export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n -e 's/.*<version>\(.*\)<\/.*/\1/p'`
 
 # extract the current version of WSRP module from existing files
-DEPLOYED_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9]-.*-.*\).jar/\1/p'`
+DEPLOYED_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9].*\).jar/\1/p'`
 
 echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
 echo Current WSRP version in project POM: \'$CURRENT_WSRP\'
