@@ -102,18 +102,14 @@
                   <div class="ButtonLeft">
                      <div class="ButtonRight">
                         <div class="ButtonMiddle">
-                           <h:commandLink id="reloadConsumersButton" action="#{consumersMgr.reload}"
-                                          value="#{i18n.consumers_table_reload}"/>
+                           <h:commandButton id="reloadConsumersButton" action="#{consumersMgr.reload}"
+                                            value="#{i18n.consumers_table_reload}"/>
                         </div>
                      </div>
                   </div>
                </td>
             </tr>
          </table>
-         <ui:remove><webui:commandButton id="reloadConsumersButton" value="#{i18n.consumers_table_reload}"
-                                         action="reload"
-                                         backingBean="#{consumersMgr}"/></ui:remove>
-
       </h:form>
    </ui:define>
 </ui:decorate>

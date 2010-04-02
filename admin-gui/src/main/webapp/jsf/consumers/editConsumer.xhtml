@@ -258,9 +258,9 @@
                <div class="ButtonLeft">
                   <div class="ButtonRight">
                      <div class="ButtonMiddle">
-                        <h:commandLink id="refresh-cons-link" action="#{consumer.refreshConsumer}"
-                                       value="#{i18n.edit_consumer_refresh}"
-                                       title="#{i18n.edit_consumer_refresh_title}"/>
+                        <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
+                                         value="#{i18n.edit_consumer_refresh}"
+                                         title="#{i18n.edit_consumer_refresh_title}"/>
                      </div>
                   </div>
                </div>
@@ -269,7 +269,7 @@
                <div class="ButtonLeft">
                   <div class="ButtonRight">
                      <div class="ButtonMiddle">
-                        <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}"
+                        <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}" immediate="true"
                                        value="#{i18n.edit_consumer_cancel}"/>
                      </div>
                   </div>
