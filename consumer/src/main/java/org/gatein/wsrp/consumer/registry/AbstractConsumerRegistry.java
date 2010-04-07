@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -274,10 +274,12 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       for (WSRPConsumer consumer : getConsumers())
       {
          // if producer is not active, it shouldn't be registered with the federating portlet invoker, hence do not
-         // unregister it.
-         if (consumer.getProducerInfo().isActive())
+         // unregister it. We have changed how consumers are registered (active consumers are not automatically
+         // registered anymore), we also need to check if the consumer is known by the federating portlet invoker... 
+         String producerId = consumer.getProducerId();
+         if (consumer.getProducerInfo().isActive() && federatingPortletInvoker.getFederatedInvoker(producerId) != null)
          {
-            federatingPortletInvoker.unregisterInvoker(consumer.getProducerId());
+            federatingPortletInvoker.unregisterInvoker(producerId);
          }
 
          try
@@ -389,6 +391,12 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    protected abstract void delete(ProducerInfo info);
 
+   /**
+    * Persists the changes made to ProducerInfo.
+    *
+    * @param producerInfo
+    * @return the previous value of the ProducerInfo's id if it has changed, <code>null</code> otherwise
+    */
    protected abstract String update(ProducerInfo producerInfo);
 
    protected abstract Iterator<ProducerInfo> getProducerInfosFromStorage();
