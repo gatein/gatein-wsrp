@@ -30,7 +30,7 @@
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
-   <version>1.0.1-GA-SNAPSHOT</version>
+   <version>1.1.0-GA-SNAPSHOT</version>
 
    <packaging>pom</packaging>
 
