@@ -51,7 +51,7 @@ public final class WSRPConstants
     * The version of the WSRP service. This should match the maven version of the module. Right now, checked via
     * the UpdateWSRPForGatein.sh script.
     */
-   public static final String WSRP_SERVICE_VERSION = "1.0.1-GA-SNAPSHOT";
+   public static final String WSRP_SERVICE_VERSION = "1.0.1-CR02-SNAPSHOT";
 
    // Window State Names ***********************************************************************************************
 
