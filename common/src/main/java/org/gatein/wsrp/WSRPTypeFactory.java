@@ -98,6 +98,8 @@ import static org.gatein.wsrp.WSRPRewritingConstants.*;
  */
 public class WSRPTypeFactory
 {
+   private static final String REQUIRE_REWRITE_URL_PARAM = "&" + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + "=" + WSRPRewritingConstants.WSRP_REQUIRES_REWRITE;
+
    private WSRPTypeFactory()
    {
    }
@@ -773,6 +775,13 @@ public class WSRPTypeFactory
       String template = context.renderURL(url, new URLFormat(secure, null, null, true));
       template = TextTools.replace(template, WSRPRewritingConstants.ENC_OPEN, WSRPRewritingConstants.REWRITE_PARAMETER_OPEN);
       template = TextTools.replace(template, WSRPRewritingConstants.ENC_CLOSE, WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
+
+      // fix for GTNWSRP-22
+      if (RESOURCE_URL == url)
+      {
+         template += REQUIRE_REWRITE_URL_PARAM;
+      }
+
       return template;
    }
 
