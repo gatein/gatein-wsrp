@@ -28,6 +28,7 @@ import org.gatein.common.io.IOTools;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.util.MultiValuedPropertyMap;
+import org.gatein.common.util.Tools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
@@ -116,6 +117,8 @@ public class ResourceHandler extends InvocationHandler
       }
 
       int length = urlConnection.getContentLength();
+      // if length is not known, use a default value
+      length = (length > 0 ? length : Tools.DEFAULT_BUFFER_SIZE * 8);
       byte[] bytes = IOTools.getBytes(urlConnection.getInputStream(), length);
 
       ContentResponse result;
