@@ -39,7 +39,7 @@ import java.util.Date;
 public class CookieUtil
 {
    private static final RFC2109Spec cookieParser = new RFC2109Spec();
-   private static final Logger log = LoggerFactory.getLogger(RequestHeaderClientHandler.class);
+   private static final Logger log = LoggerFactory.getLogger(CookieUtil.class);
    public static final String SET_COOKIE = "Set-Cookie";
    public static final String COOKIE = "Cookie";
 
@@ -133,15 +133,23 @@ public class CookieUtil
       result.setComment(cookie.getComment());
       result.setDomain(cookie.getDomain());
 
-      long maxAgeLong = cookie.getExpiryDate().getTime() - new Date().getTime();
+      Date expiryDate = cookie.getExpiryDate();
       int maxAge;
-      if (maxAgeLong >= Integer.MAX_VALUE)
+      if (expiryDate != null)
       {
-         maxAge = Integer.MAX_VALUE;
+         long maxAgeLong = expiryDate.getTime() - new Date().getTime();
+         if (maxAgeLong >= Integer.MAX_VALUE)
+         {
+            maxAge = Integer.MAX_VALUE;
+         }
+         else
+         {
+            maxAge = (int)maxAgeLong;
+         }
       }
       else
       {
-         maxAge = (int)maxAgeLong;
+         maxAge = -1; // to specify that cookie should not be persisted but removed with the session
       }
       result.setMaxAge(maxAge);
 
