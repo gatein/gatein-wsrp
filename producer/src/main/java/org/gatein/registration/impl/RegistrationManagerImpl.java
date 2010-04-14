@@ -107,7 +107,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       // check with policy if we allow the consumer
       policy.validateConsumerName(name);
 
-      String identity = policy.getConsumerIdFrom(name, Collections.EMPTY_MAP);
+      String identity = policy.getConsumerIdFrom(name, Collections.<QName, Object>emptyMap());
 
       Consumer consumer = persistenceManager.createConsumer(identity, name);
 

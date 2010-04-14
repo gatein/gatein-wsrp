@@ -29,6 +29,7 @@ import org.gatein.registration.RegistrationPolicyChangeListener;
 import org.gatein.registration.RegistrationPropertyChangeListener;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
+import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -301,7 +302,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
                throw new IllegalArgumentException("Policy class does not implement RegistrationPolicy!");
             }
             RegistrationPolicy policy = (RegistrationPolicy)policyClass.newInstance();
-            setPolicy(policy);
+
+            // wrap policy so that we can perform minimal sanitization of values
+            RegistrationPolicyWrapper wrapper = new RegistrationPolicyWrapper(policy);
+
+            setPolicy(wrapper);
          }
          catch (ClassNotFoundException e)
          {

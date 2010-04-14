@@ -162,11 +162,10 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       return null;
    }
 
-   /** Simply returns the given consumer name, trusted (!) to be unique. */
+   /** Compute a simple, safe id based on the provided consumer name trusted (!) to be unique. */
    public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
-      return consumerName;
+      return RegistrationPolicyWrapper.sanitizeConsumerName(consumerName);
    }
 
    /** Rejects registration if a Consumer with the specified name already exists. */
