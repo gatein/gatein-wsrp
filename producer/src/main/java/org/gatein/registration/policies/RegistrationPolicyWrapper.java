@@ -47,6 +47,11 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       this.delegate = delegate;
    }
 
+   public RegistrationPolicy getDelegate()
+   {
+      return delegate;
+   }
+
    public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
       throws IllegalArgumentException, RegistrationException
    {
