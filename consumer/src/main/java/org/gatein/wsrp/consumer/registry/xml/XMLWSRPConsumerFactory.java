@@ -209,7 +209,7 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
 
       ProducerInfo prodInfo = consumer.getProducerInfo();
 
-      if ("endpoint-config".equals(localName) || "endpoint-wsdl-url".equals(localName))
+      if ("endpoint-wsdl-url".equals(localName))
       {
          return prodInfo.getEndpointConfigurationInfo();
       }

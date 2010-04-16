@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.gatein.org/xml/ns/gatein_wsrp_consumer_1_0"
+           xmlns="http://www.gatein.org/xml/ns/gatein_wsrp_consumer_1_0"
+           xmlns:xml="http://www.w3.org/XML/1998/namespace"
+           xmlns:wcc="http://www.gatein.org/xml/ns/gatein_wsrp_consumer_1_0"
+           elementFormDefault="qualified"
+           version="1.0">
+
+   <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+
+   <xs:element name="deployments">
+      <xs:annotation>
+         <xs:documentation>Root element. Contains deployment elements.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="deployment" type="wcc:Deployment" minOccurs="0" maxOccurs="unbounded"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:complexType name="Deployment">
+      <xs:annotation>
+         <xs:documentation>Deployment related information. Currently, the only deployment information relates to
+            WSRP remote producers.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="wsrp-producer" type="wcc:WSRPProducer" maxOccurs="1" minOccurs="1"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="WSRPProducer">
+      <xs:annotation>
+         <xs:documentation>Information on a remote WSRP producer identified by the mandatory id attribute.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="endpoint-wsdl-url" type="xs:anyURI">
+            <xs:annotation>
+               <xs:documentation>
+                  The URL of the WSDL description of the producer's WSRP services. Mutally exclusive with
+                  endpoint-config.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="registration-data" type="wcc:RegistrationData" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>
+                  Container for registration information.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               The producer identifier. This should be unique for a given Portal deployment. The identifier is used to
+               identify the portlet provider in the management interface.
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="expiration-cache" type="wcc:positiveIntegerOrMinusOne" use="required">
+         <xs:annotation>
+            <xs:documentation>The period of producer information (such as list of offered portlets) cache refreshing in
+               seconds.
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ws-timeout" type="wcc:positiveIntegerOrMinusOne" use="optional">
+         <xs:annotation>
+            <xs:documentation>Timeout in milliseconds for WS operations (optional).
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+
+   <xs:simpleType name="positiveIntegerOrMinusOne" id="positiveIntegerOrMinusOne">
+      <xs:annotation>
+         <xs:documentation>
+            Type for cache or timeout information. Positive or null integer, allowing -1 as a value to indicate that
+            cache should not
+            be used.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:integer">
+         <xs:minInclusive value="-1"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="RegistrationData">
+      <xs:sequence>
+         <xs:element name="consumer-name" type="xs:string" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>
+                  An optional name (preferably unique) that identifies the Consumer. An example of such a name would be
+                  the Consumer's URL. If no consumer-name is provided, one will be automatically generated by JBoss
+                  Portal.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="property" type="wcc:Property" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>
+                  Optional registration properties required by the remote producer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="Property">
+      <xs:annotation>
+         <xs:documentation>
+            Registration property.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  Name of the property.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="lang" type="xs:language">
+            <xs:annotation>
+               <xs:documentation>
+                  Language the property is in.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="value" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  Value of the property.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+</xs:schema>
