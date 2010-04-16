@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.gatein.wsrp.consumer.registry.xml;
 
 import org.gatein.common.util.ParameterValidation;
@@ -28,6 +28,7 @@ import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+import org.gatein.wsrp.services.ServiceFactory;
 import org.jboss.util.StringPropertyReplacer;
 import org.jboss.xb.binding.GenericObjectModelFactory;
 import org.jboss.xb.binding.UnmarshallingContext;
@@ -172,8 +173,23 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
             }
          }
 
+         String wsTimeout = attrs.getValue("ws-timeout");
+         Integer wsTimeoutMS = ServiceFactory.DEFAULT_TIMEOUT_MS;
+         if (wsTimeout != null)
+         {
+            try
+            {
+               wsTimeoutMS = new Integer(wsTimeout);
+            }
+            catch (NumberFormatException e)
+            {
+               log.info("Ignoring bad WS timeout value " + wsTimeout + " for producer '" + id + "'");
+            }
+         }
+
          // consumer didn't exist in the database, so create one and configure it
          consumer = consumerRegistry.createConsumer(id, expirationCacheSeconds, null);
+         consumer.getProducerInfo().getEndpointConfigurationInfo().setWSOperationTimeOut(wsTimeoutMS);
 
          return consumer;
       }
