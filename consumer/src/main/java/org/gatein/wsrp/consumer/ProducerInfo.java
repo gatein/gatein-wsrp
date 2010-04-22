@@ -427,7 +427,7 @@ public class ProducerInfo
                   // we might be in a situation where the producer changed the registration back to the initial state
                   // which is, granted, pretty rare... attempt modifyRegistration
                   log.debug("modifyRegistration was called after OperationFailedFault when a check of registration data didn't reveal any issue...");
-                  modifyRegistration();
+                  modifyRegistration(true);
                }
 
                result.setRegistrationResult(registrationResult);
@@ -1062,11 +1062,16 @@ public class ProducerInfo
 
    public void modifyRegistration() throws PortletInvokerException
    {
+      modifyRegistration(false);
+   }
+
+   private void modifyRegistration(boolean force) throws PortletInvokerException
+   {
       if (persistentRegistrationInfo.getRegistrationHandle() != null)
       {
          persistentEndpointInfo.refresh();
 
-         if (isModifyRegistrationRequired())
+         if (force || isModifyRegistrationRequired())
          {
             try
             {
