@@ -40,14 +40,6 @@ echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
 echo Current WSRP version in project POM: \'$CURRENT_WSRP\'
 echo
 
-# Check that WSRP service version as defined by WSRPConstants.WSRP_SERVICE_VERSION is in sync with project POM
-WSRP_SERVICE_VERSION=`grep WSRP_SERVICE_VERSION common/src/main/java/org/gatein/wsrp/WSRPConstants.java | sed -n -e 's/.*"\(.*\)".*/\1/p'`
-if [ $WSRP_SERVICE_VERSION != $CURRENT_WSRP ]
-then
-   echo \=\=\> Please update WSRPConstants.WSRP_SERVICE_VERSION \($WSRP_SERVICE_VERSION\) as it doesn\'t match the value in the project POM
-   exit
-fi
-
 # If we have no argument, build. If you don't want to build just add an argument (value irrelevant) when calling the script
 if [ $# -eq 0 ]
 then

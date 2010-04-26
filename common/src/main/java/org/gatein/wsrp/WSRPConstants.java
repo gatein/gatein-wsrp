@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -26,12 +26,14 @@ package org.gatein.wsrp;
 import org.gatein.pc.api.spi.PortalContext;
 
 import javax.xml.namespace.QName;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -43,15 +45,32 @@ public final class WSRPConstants
 {
    // JMX **************************************************************************************************************
    /** JMX object name for the Portal web app registry */
-   @Deprecated public static final String WEB_APP_REGISTRY_OBJECT_NAME = "portal:service=WebAppRegistry";
+   @Deprecated
+   public static final String WEB_APP_REGISTRY_OBJECT_NAME = "portal:service=WebAppRegistry";
    /** JMX object name for the WSRP Producer */
-   @Deprecated public static final String WSRP_PRODUCER_OBJECT_NAME = "portletcontainer.wsrp:service=WSRPProducer";
+   @Deprecated
+   public static final String WSRP_PRODUCER_OBJECT_NAME = "portletcontainer.wsrp:service=WSRPProducer";
 
    /**
-    * The version of the WSRP service. This should match the maven version of the module. Right now, checked via
-    * the UpdateWSRPForGatein.sh script.
+    * The version of the WSRP service. This should match the maven version of the module. Right now, checked via the
+    * UpdateWSRPForGatein.sh script.
     */
-   public static final String WSRP_SERVICE_VERSION = "1.1.0-CR02-SNAPSHOT";
+   public static final String WSRP_SERVICE_VERSION;
+
+   static
+   {
+      Properties props = new Properties();
+      try
+      {
+         props.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("wsrp.properties"));
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException("Could not load wsrp.properties.");
+      }
+      WSRP_SERVICE_VERSION = props.getProperty("wsrp.service.version");
+   }
+
 
    // Window State Names ***********************************************************************************************
 
