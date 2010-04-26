@@ -42,10 +42,7 @@ public class MarkupProcessor
    private final URLFormat format;
    private final Set<String> supportedCustomModes;
    private final Set<String> supportedCustomWindowStates;
-   private final String serverAddress;
-   private final String portletApplicationName;
    private final String namespace;
-   public static final int URL_DELIMITER_LENGTH = WSRPRewritingConstants.RESOURCE_URL_DELIMITER.length();
 
    protected MarkupProcessor(String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
    {
@@ -54,8 +51,6 @@ public class MarkupProcessor
       this.format = format;
       supportedCustomModes = info.getSupportedCustomModes();
       supportedCustomWindowStates = info.getSupportedCustomWindowStates();
-      serverAddress = info.getEndpointConfigurationInfo().getRemoteHostAddress();
-      portletApplicationName = target.getApplicationName();
    }
 
    public String getReplacementFor(String match, String prefix, String suffix)

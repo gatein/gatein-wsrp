@@ -47,10 +47,6 @@ import java.util.Set;
 public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static final ThreadLocal<CurrentInfo> local = new ThreadLocal<CurrentInfo>();
-   /*private static final RFC2109Spec cookieParser = new RFC2109Spec();
-   private static final Logger log = LoggerFactory.getLogger(RequestHeaderClientHandler.class);
-   private static final String SET_COOKIE = "Set-Cookie";
-   private static final String COOKIE = "Cookie";*/
 
    public Set<QName> getHeaders()
    {
