@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.consumer;
 
-import org.gatein.common.util.ParameterValidation;
+import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.wsrp.WSRPPortletURL;
@@ -36,7 +36,7 @@ import java.util.Set;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class MarkupProcessor
+public class MarkupProcessor implements TextTools.StringReplacementGenerator
 {
    private final PortletInvocationContext context;
    private final URLFormat format;
@@ -86,138 +86,5 @@ public class MarkupProcessor
 
       // right now the resourceURL should be output as is, because it will be used directly but it really should be encoded
       return resourceURL;
-   }
-
-   /**
-    * TODO: This is a copy of the TextTools.replaceBoundedString method found in common module, copied here to avoid
-    * having to release a new version of the module TODO: REMOVE when a new version of common is released.
-    *
-    * @param initial
-    * @param prefix
-    * @param suffix
-    * @param generator
-    * @param replaceIfBoundedStringEmpty
-    * @param keepBoundaries
-    * @param suffixIsOptional
-    * @return
-    */
-   public static String replaceBoundedString(final String initial, final String prefix, final String suffix, final MarkupProcessor generator,
-                                             final boolean replaceIfBoundedStringEmpty, final boolean keepBoundaries, final boolean suffixIsOptional)
-   {
-      if (ParameterValidation.isNullOrEmpty(initial))
-      {
-         return initial;
-      }
-
-      ParameterValidation.throwIllegalArgExceptionIfNull(generator, "StringReplacementGenerator");
-
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(prefix, "prefix", "Tools.replaceBoundedString");
-
-      StringBuilder tmp = new StringBuilder(initial);
-      int prefixIndex = tmp.indexOf(prefix);
-      final int prefixLength = prefix.length();
-      boolean suffixAbsent = suffix == null;
-
-      // nothing to do if didn't ask for an optional suffix and we have one and it's not present in our string
-      if (!suffixIsOptional && suffix != null && tmp.indexOf(suffix) == -1)
-      {
-         return initial;
-      }
-
-      // loop as long as we can find an instance of prefix in the String
-      while (prefixIndex != -1)
-      {
-         int suffixIndex;
-         if (suffixAbsent)
-         {
-            // replace prefix with replacement
-            if (keepBoundaries)
-            {
-               // just insert replacement for prefix
-               tmp.insert(prefixIndex + prefixLength, generator.getReplacementFor(prefix, prefix, suffix));
-            }
-            else
-            {
-               // delete prefix then insert remplacement instead
-               tmp.delete(prefixIndex, prefixIndex + prefixLength);
-               tmp.insert(prefixIndex, generator.getReplacementFor(prefix, prefix, suffix));
-            }
-
-            // new lookup starting position
-            prefixIndex = tmp.indexOf(prefix, prefixIndex + prefixLength);
-         }
-         else
-         {
-            // look for suffix
-            suffixIndex = tmp.indexOf(suffix, prefixIndex);
-
-            if (suffixIndex == -1)
-            {
-               // we haven't found suffix in the rest of the String so don't look for it again
-               suffixAbsent = true;
-               continue;
-            }
-            else
-            {
-               if (suffixIsOptional)
-               {
-                  // if suffix is optional, look for potential next prefix instance that we'd need to replace
-                  int nextPrefixIndex = tmp.indexOf(prefix, prefixIndex + prefixLength);
-
-                  if (nextPrefixIndex != -1 && nextPrefixIndex <= suffixIndex)
-                  {
-                     // we've found an in-between prefix, use it as the suffix for the current match
-                     // delete prefix then insert remplacement instead
-                     tmp.delete(prefixIndex, prefixIndex + prefixLength);
-                     String replacement = generator.getReplacementFor(prefix, prefix, suffix);
-                     tmp.insert(prefixIndex, replacement);
-
-                     prefixIndex = nextPrefixIndex - prefixLength + replacement.length();
-                     continue;
-                  }
-               }
-
-               // we don't care about empty bounded strings or prefix and suffix don't delimit an empty String => replace!
-               if (replaceIfBoundedStringEmpty || suffixIndex != prefixIndex + prefixLength)
-               {
-                  String match = tmp.substring(prefixIndex + prefixLength, suffixIndex);
-                  if (keepBoundaries)
-                  {
-                     if (suffix != null)
-                     {
-                        // delete only match
-                        tmp.delete(prefixIndex + prefixLength, suffixIndex);
-                     }
-                     else
-                     {
-                        // delete nothing
-                     }
-                     tmp.insert(prefixIndex + prefixLength, generator.getReplacementFor(match, prefix, suffix));
-                  }
-                  else
-                  {
-                     int suffixLength = suffix != null ? suffix.length() : 0;
-
-                     if (suffix != null)
-                     {
-                        // if we have a suffix, delete everything between start of prefix and end of suffix
-                        tmp.delete(prefixIndex, suffixIndex + suffixLength);
-                     }
-                     else
-                     {
-                        // only delete prefix
-                        tmp.delete(prefixIndex, prefixIndex + prefixLength);
-                     }
-                     tmp.insert(prefixIndex, generator.getReplacementFor(match, prefix, suffix));
-                  }
-               }
-            }
-
-            prefixIndex = tmp.indexOf(prefix, prefixIndex + prefixLength);
-
-         }
-      }
-
-      return tmp.toString();
    }
 }

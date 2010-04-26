@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer;
 
+import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.cache.CacheScope;
@@ -192,7 +193,7 @@ public class RenderHandler extends InvocationHandler
       // todo: remove, this is a work-around for GTNWSRP-12
       markup = markup.replaceFirst("%3ftimeout%3d.*%2f", "%2f");
 
-      markup = MarkupProcessor.replaceBoundedString(
+      markup = TextTools.replaceBoundedString(
          markup,
          WSRPRewritingConstants.WSRP_REWRITE,
          WSRPRewritingConstants.END_WSRP_REWRITE,

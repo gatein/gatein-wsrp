@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <modelVersion>4.0.0</modelVersion>
 
@@ -47,7 +48,7 @@
 
    <properties>
       <version.gatein.pc>2.1.0-GA</version.gatein.pc>
-      <version.gatein.common>2.0.0-GA</version.gatein.common>
+      <version.gatein.common>2.0.1-GA-SNAPSHOT</version.gatein.common>
       <version.gatein.wci>2.0.0-GA</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
