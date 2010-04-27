@@ -82,5 +82,17 @@
             <filtering>true</filtering>
          </resource>
       </resources>
+      <plugins>
+         <!-- WORKAROUND for : http://jira.codehaus.org/browse/MRESOURCES-104 -->
+         <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <configuration>
+               <delimiters>
+                  <delimiter>${*}</delimiter>
+               </delimiters>
+               <useDefaultDelimiters>false</useDefaultDelimiters>
+            </configuration>
+         </plugin>
+      </plugins>
    </build>
 </project>

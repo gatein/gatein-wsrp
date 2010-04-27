@@ -35,7 +35,7 @@ public class WSRPConstantsTestCase extends TestCase
    {
       // should be equals to the interpolated ${project.version} value, "1.1.0-CR02-SNAPSHOT" when written 
       // assertEquals("1.1.0-CR02-SNAPSHOT", WSRPConstants.WSRP_SERVICE_VERSION);
-//      System.out.println("WSRPConstants.WSRP_SERVICE_VERSION = " + WSRPConstants.WSRP_SERVICE_VERSION);
-//      assertFalse(WSRPConstants.WSRP_SERVICE_VERSION.equals("${project.version}"));
+      System.out.println("WSRPConstants.WSRP_SERVICE_VERSION = " + WSRPConstants.WSRP_SERVICE_VERSION);
+      assertFalse(WSRPConstants.WSRP_SERVICE_VERSION.equals("${project.version}"));
    }
 }
