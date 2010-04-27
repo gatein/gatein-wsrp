@@ -37,7 +37,7 @@
    <parent>
       <groupId>org.gatein</groupId>
       <artifactId>gatein-parent</artifactId>
-      <version>1.0.0-GA</version>
+      <version>1.0.1-GA</version>
    </parent>
 
    <scm>
@@ -47,9 +47,9 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.1.0-GA</version.gatein.pc>
-      <version.gatein.common>2.0.1-GA-SNAPSHOT</version.gatein.common>
-      <version.gatein.wci>2.0.0-GA</version.gatein.wci>
+      <version.gatein.pc>2.1.1-GA</version.gatein.pc>
+      <version.gatein.common>2.0.2-GA</version.gatein.common>
+      <version.gatein.wci>2.0.1-GA</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
       <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
@@ -64,7 +64,7 @@
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.0.0-GA</version>
+            <version>1.0.2-GA</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
@@ -165,26 +165,26 @@
 
    <repositories>
       <repository>
-         <id>repository.jboss.org</id>
-         <name>JBoss Repository</name>
+         <id>jboss-public-repository-group</id>
+         <name>JBoss Public Maven Repository Group</name>
+         <url>https://repository.jboss.org/nexus/content/groups/public/</url>
          <layout>default</layout>
-         <url>http://repository.jboss.org/maven2/</url>
-         <snapshots>
-            <enabled>false</enabled>
-         </snapshots>
-      </repository>
-      <repository>
-         <id>snapshots.jboss.org</id>
-         <name>JBoss Snapshots Repository</name>
-         <layout>default</layout>
-         <url>http://snapshots.jboss.org/maven2/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+         </releases>
          <snapshots>
             <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
          </snapshots>
-         <releases>
-            <enabled>false</enabled>
-         </releases>
       </repository>
    </repositories>
+   <pluginRepositories>
+      <pluginRepository>
+         <id>maven2-repository.dev.java.net</id>
+         <name>Java.net Repository for Maven</name>
+         <url>http://download.java.net/maven/2/</url>
+      </pluginRepository>
+   </pluginRepositories>
 
 </project>
