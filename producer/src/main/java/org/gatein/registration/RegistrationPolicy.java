@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -48,10 +48,13 @@ public interface RegistrationPolicy
     *                               property value (Object) mappings
     * @param consumerIdentity       the Consumer identity (as returned by {@link #getConsumerIdFrom(String,
     *                               java.util.Map)}) for which the registration properties must be ascertained
+    * @param expectations           a Map containing the registration expectations of the producer
+    * @param manager                the RegistrationManager in which context this RegistrationPolicy is invoked
     * @throws IllegalArgumentException if any of the registration properties is invalid for the specified Consumer
     * @throws RegistrationException    if an exception occured in the registration service
     */
-   void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
+   void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity,
+                                    final Map<QName, ? extends PropertyDescription> expectations, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException;
 
    /**
@@ -100,10 +103,11 @@ public interface RegistrationPolicy
     * names must be unique.
     *
     * @param consumerName the name of the Consumer as passed during the registration process
+    * @param manager      the RegistrationManager in which context this RegistrationPolicy is invoked
     * @throws IllegalArgumentException if the specified Consumer name if <code>null</code> or empty
     * @throws RegistrationException    if an exception occurred in the Registration service
     */
-   void validateConsumerName(String consumerName)
+   void validateConsumerName(String consumerName, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException;
 
    /**
@@ -111,32 +115,10 @@ public interface RegistrationPolicy
     * created.
     *
     * @param groupName the name of the ConsumerGroup to be created
+    * @param manager   the RegistrationManager in which context this RegistrationPolicy is invoked
     * @throws IllegalArgumentException if the specified ConsumerGroup name if <code>null</code> or empty
     * @throws RegistrationException    if an exception occurred in the Registration service
     */
-   void validateConsumerGroupName(String groupName) throws IllegalArgumentException, RegistrationException;
+   void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
 
-   /**
-    * Retrieves the RegistrationManager with which this RegistrationPolicy is associated.
-    *
-    * @return the RegistrationManager with which this RegistrationPolicy is associated.
-    */
-   RegistrationManager getManager();
-
-   /**
-    * Associates this RegistrationPolicy with the specified RegistrationManager. This method should not be called
-    * directly by client code as it used in the wiring process of the Registration service.
-    *
-    * @param manager the RegistrationManager with which this RegistrationPolicy should be associated.
-    */
-   void setManager(RegistrationManager manager);
-
-   /**
-    * Define what the expectations are as far as acceptable registration properties go.
-    *
-    * @param registrationPropertyDescriptions
-    *         a map of containing the description of expected registrations
-    * @since 2.6.3
-    */
-   void setExpectations(Map<QName, ? extends PropertyDescription> registrationPropertyDescriptions);
 }

@@ -68,7 +68,6 @@ public class RegistrationManagerImpl implements RegistrationManager
    public void setPolicy(RegistrationPolicy policy)
    {
       this.policy = policy;
-      policy.setManager(this);
    }
 
    public RegistrationPersistenceManager getPersistenceManager()
@@ -81,14 +80,14 @@ public class RegistrationManagerImpl implements RegistrationManager
       this.persistenceManager = persistenceManager;
    }
 
-   public Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, boolean createConsumerIfNeeded)
+   public Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, final Map<QName, ? extends PropertyDescription> expectations, boolean createConsumerIfNeeded)
       throws RegistrationException
    {
       // the policy determines the identity of the consumer based on the given information (note that this might be obsoleted by using WS-Security)
       String identity = policy.getConsumerIdFrom(consumerName, registrationProperties);
 
       // validate the registration information
-      policy.validateRegistrationDataFor(registrationProperties, identity);
+      policy.validateRegistrationDataFor(registrationProperties, identity, expectations, this);
 
       Consumer consumer = getOrCreateConsumer(identity, createConsumerIfNeeded, consumerName);
 
@@ -105,7 +104,7 @@ public class RegistrationManagerImpl implements RegistrationManager
    public Consumer createConsumer(String name) throws RegistrationException, InvalidConsumerDataException
    {
       // check with policy if we allow the consumer
-      policy.validateConsumerName(name);
+      policy.validateConsumerName(name, this);
 
       String identity = policy.getConsumerIdFrom(name, Collections.<QName, Object>emptyMap());
 
@@ -127,13 +126,13 @@ public class RegistrationManagerImpl implements RegistrationManager
       // check with the policy if we allow the group name in case we need to create it
       if (createGroupIfNeeded)
       {
-         policy.validateConsumerGroupName(groupName);
+         policy.validateConsumerGroupName(groupName, this);
       }
 
       // check with policy if we allow the consumer name in case we need to create it
       if (createConsumerIfNeeded)
       {
-         policy.validateConsumerName(consumerName);
+         policy.validateConsumerName(consumerName, this);
       }
 
       ConsumerGroup group = getConsumerGroup(groupName);
@@ -170,7 +169,7 @@ public class RegistrationManagerImpl implements RegistrationManager
    public ConsumerGroup createConsumerGroup(String groupName) throws RegistrationException
    {
       // check with the policy if we allow the group
-      policy.validateConsumerGroupName(groupName);
+      policy.validateConsumerGroupName(groupName, this);
 
       return persistenceManager.createConsumerGroup(groupName);
    }
@@ -330,7 +329,11 @@ public class RegistrationManagerImpl implements RegistrationManager
     */
    public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> registrationProperties)
    {
-      log.debug("Registration properties have changed, existing registrations will be invalidated...");
+      if (log.isDebugEnabled())
+      {
+         log.debug("Registration properties have changed, existing registrations will be invalidated...");
+      }
+
       Collection registrations = persistenceManager.getRegistrations();
       for (Object registration : registrations)
       {
@@ -345,9 +348,6 @@ public class RegistrationManagerImpl implements RegistrationManager
 
 //         reg.clearAssociatedState(); //todo: do we need to clear the associated state? If we do, should we wait until current operations are done?
       }
-
-      // make policy aware of new registration properties
-      policy.setExpectations(registrationProperties);
    }
 
    /**

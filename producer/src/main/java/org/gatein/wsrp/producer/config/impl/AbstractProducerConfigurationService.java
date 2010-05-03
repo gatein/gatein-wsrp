@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -67,12 +67,13 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       // reload
       loadConfiguration();
 
-      // restore listeners
+      // restore listeners and trigger them
       if (listeners != null)
       {
          for (ProducerConfigurationChangeListener listener : listeners)
          {
             configuration.addChangeListener(listener);
+            listener.usingStrictModeChangedTo(configuration.isUsingStrictMode());
          }
       }
       registrationRequirements = configuration.getRegistrationRequirements();
@@ -83,6 +84,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
             for (RegistrationPropertyChangeListener listener : propertyListeners)
             {
                registrationRequirements.addRegistrationPropertyChangeListener(listener);
+               listener.propertiesHaveChanged(registrationRequirements.getRegistrationProperties());
             }
          }
          if (policyListeners != null)
@@ -90,6 +92,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
             for (RegistrationPolicyChangeListener listener : policyListeners)
             {
                registrationRequirements.addRegistrationPolicyChangeListener(listener);
+               listener.policyUpdatedTo(registrationRequirements.getPolicy());
             }
          }
       }

@@ -1,5 +1,24 @@
 /*
- * Copyright (c) 2007, Your Corporation. All Rights Reserved.
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
 package org.gatein.registration;
@@ -30,6 +49,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
    private static final QName PROP1 = new QName("prop1");
    private static final QName PROP2 = new QName("prop2");
    private static final QName PROP3 = new QName("prop3");
+   private RegistrationManager manager;
 
    @Override
    protected void setUp() throws Exception
@@ -38,26 +58,23 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       policy.setValidator(new DefaultRegistrationPropertyValidator());
 
-      RegistrationManager manager = new RegistrationManagerImpl();
+      manager = new RegistrationManagerImpl();
       manager.setPolicy(policy);
       manager.setPersistenceManager(new RegistrationPersistenceManagerImpl());
       manager.createConsumer(CONSUMER);
-
-      policy.setManager(manager);
 
       registrationProperties = new HashMap<QName, Object>();
       registrationProperties.put(PROP1, "value1");
       registrationProperties.put(PROP2, "value2");
 
       expectations = new HashMap<QName, PropertyDescription>();
-      policy.setExpectations(expectations);
    }
 
    public void testValidateRegistrationDataForNull() throws RegistrationException
    {
       try
       {
-         policy.validateRegistrationDataFor(null, "foo");
+         policy.validateRegistrationDataFor(null, "foo", expectations, manager);
          fail("null data cannot be validated");
       }
       catch (IllegalArgumentException e)
@@ -67,7 +84,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       try
       {
-         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), null);
+         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), null, expectations, manager);
          fail("null data cannot be validated");
       }
       catch (IllegalArgumentException e)
@@ -80,7 +97,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
    {
       try
       {
-         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), "foo");
+         policy.validateRegistrationDataFor(Collections.<QName, Object>emptyMap(), "foo", expectations, manager);
       }
       catch (RegistrationException e)
       {
@@ -96,7 +113,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       try
       {
-         policy.validateRegistrationDataFor(registrationProperties, CONSUMER);
+         policy.validateRegistrationDataFor(registrationProperties, CONSUMER, expectations, manager);
          fail("Missing prop3 should have been detected");
       }
       catch (RegistrationException e)
@@ -111,7 +128,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       try
       {
-         policy.validateRegistrationDataFor(registrationProperties, CONSUMER);
+         policy.validateRegistrationDataFor(registrationProperties, CONSUMER, expectations, manager);
          fail("Extra prop2 should have been detected");
       }
       catch (RegistrationException e)
@@ -129,7 +146,7 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
 
       try
       {
-         policy.validateRegistrationDataFor(registrationProperties, CONSUMER);
+         policy.validateRegistrationDataFor(registrationProperties, CONSUMER, expectations, manager);
          fail("Should have detected null value for prop1");
       }
       catch (RegistrationException e)

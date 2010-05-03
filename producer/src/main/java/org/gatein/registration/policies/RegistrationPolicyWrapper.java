@@ -52,10 +52,10 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       return delegate;
    }
 
-   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
+   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity, final Map<QName, ? extends PropertyDescription> expectations, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
-      delegate.validateRegistrationDataFor(registrationProperties, consumerIdentity);
+      delegate.validateRegistrationDataFor(registrationProperties, consumerIdentity, expectations, manager);
    }
 
    public String createRegistrationHandleFor(String registrationId)
@@ -76,31 +76,16 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       return delegate.getConsumerIdFrom(sanitizeConsumerName(consumerName), registrationProperties);
    }
 
-   public void validateConsumerName(String consumerName)
+   public void validateConsumerName(String consumerName, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
-      delegate.validateConsumerName(consumerName);
+      delegate.validateConsumerName(consumerName, manager);
    }
 
-   public void validateConsumerGroupName(String groupName)
+   public void validateConsumerGroupName(String groupName, RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
-      delegate.validateConsumerGroupName(groupName);
-   }
-
-   public RegistrationManager getManager()
-   {
-      return delegate.getManager();
-   }
-
-   public void setManager(RegistrationManager manager)
-   {
-      delegate.setManager(manager);
-   }
-
-   public void setExpectations(Map<QName, ? extends PropertyDescription> registrationPropertyDescriptions)
-   {
-      delegate.setExpectations(registrationPropertyDescriptions);
+      delegate.validateConsumerGroupName(groupName, manager);
    }
 
    static String sanitizeConsumerName(String consumerName)

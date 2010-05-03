@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -52,25 +52,35 @@ import java.util.Set;
  */
 public class DefaultRegistrationPolicy implements RegistrationPolicy
 {
-   private RegistrationManager manager;
    private RegistrationPropertyValidator validator;
-   private Map<QName, ? extends PropertyDescription> expectations;
    private static final Logger log = LoggerFactory.getLogger(DefaultRegistrationPolicy.class);
 
-
-   public RegistrationManager getManager()
+   @Override
+   public boolean equals(Object o)
    {
-      return manager;
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      DefaultRegistrationPolicy that = (DefaultRegistrationPolicy)o;
+
+      if (!validator.equals(that.validator))
+      {
+         return false;
+      }
+
+      return true;
    }
 
-   public void setManager(RegistrationManager manager)
+   @Override
+   public int hashCode()
    {
-      this.manager = manager;
-   }
-
-   public void setExpectations(Map<QName, ? extends PropertyDescription> registrationPropertyDescriptions)
-   {
-      this.expectations = registrationPropertyDescriptions;
+      return validator.hashCode();
    }
 
    /**
@@ -80,7 +90,8 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
     * @throws DuplicateRegistrationException if a Consumer with the same identity has already registered with the same
     *                                        registration properties.
     */
-   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity)
+   public void validateRegistrationDataFor(Map<QName, Object> registrationProperties, String consumerIdentity,
+                                           final Map<QName, ? extends PropertyDescription> expectations, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registrationProperties, "Registration properties");
@@ -169,7 +180,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    }
 
    /** Rejects registration if a Consumer with the specified name already exists. */
-   public void validateConsumerName(String consumerName) throws IllegalArgumentException, RegistrationException
+   public void validateConsumerName(String consumerName, final RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
 
@@ -181,7 +192,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    }
 
    /** Rejects name if a ConsumerGroup with the specified name already exists. */
-   public void validateConsumerGroupName(String groupName) throws IllegalArgumentException, RegistrationException
+   public void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
       // this is already the behavior in the RegistrationPersistenceManager so no need to do anything
    }
