@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -71,7 +71,8 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
 
    public RegistrationContext register(RegistrationData registrationData) throws MissingParameters, OperationFailed
    {
-      if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
+      ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
+      if (registrationRequirements.isRegistrationRequired())
       {
          WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
          String consumerName = registrationData.getConsumerName();
@@ -88,7 +89,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
             // check that the consumer agent is valid before trying to register
             RegistrationUtils.validateConsumerAgent(consumerAgent);
 
-            registration = producer.getRegistrationManager().addRegistrationTo(consumerName, createRegistrationProperties(registrationData), true);
+            registration = producer.getRegistrationManager().addRegistrationTo(consumerName, createRegistrationProperties(registrationData), registrationRequirements.getRegistrationProperties(), true);
             updateRegistrationInformation(registration, registrationData);
          }
          catch (Exception e)
@@ -218,7 +219,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
 
             // check that the given registration properties are acceptable according to expectations and policy
             ProducerRegistrationRequirements req = producer.getProducerRegistrationRequirements();
-            req.getPolicy().validateRegistrationDataFor(properties, consumerName);
+            req.getPolicy().validateRegistrationDataFor(properties, consumerName, req.getRegistrationProperties(), producer.getRegistrationManager());
 
             registration.updateProperties(properties);
             updateRegistrationInformation(registration, registrationData);

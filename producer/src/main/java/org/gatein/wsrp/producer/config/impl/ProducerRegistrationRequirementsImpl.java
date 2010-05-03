@@ -260,22 +260,23 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setPolicy(RegistrationPolicy policy)
    {
-      this.policy = policy;
-
-      if (policy != null)
+      if (ParameterValidation.isOldAndNewDifferent(this.policy, policy))
       {
-         policyClassName = policy.getClass().getName();
+         this.policy = policy;
 
-         if (policy instanceof DefaultRegistrationPolicy)
+         if (policy != null)
          {
-            DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)policy;
-            validatorClassName = registrationPolicy.getValidator().getClass().getName();
+            policyClassName = policy.getClass().getName();
+
+            if (policy instanceof DefaultRegistrationPolicy)
+            {
+               DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)policy;
+               validatorClassName = registrationPolicy.getValidator().getClass().getName();
+            }
          }
 
-         this.policy.setExpectations(registrationProperties);
+         notifyRegistrationPolicyChangeListeners();
       }
-
-      notifyRegistrationPolicyChangeListeners();
    }
 
    public RegistrationPolicy getPolicy()

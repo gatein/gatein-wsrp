@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,8 @@
 
 package org.gatein.registration;
 
+import org.gatein.wsrp.registration.PropertyDescription;
+
 import javax.xml.namespace.QName;
 import java.util.Collection;
 import java.util.Map;
@@ -44,7 +46,7 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
 
    void setPersistenceManager(RegistrationPersistenceManager persistenceManager);
 
-   Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, boolean createConsumerIfNeeded)
+   Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, final Map<QName, ? extends PropertyDescription> expectations, boolean createConsumerIfNeeded)
       throws RegistrationException;
 
    Consumer createConsumer(String name) throws RegistrationException, InvalidConsumerDataException;
