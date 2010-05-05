@@ -154,6 +154,7 @@
    <modules>
       <module>api</module>
       <module>wsrp1-ws</module>
+      <module>wsrp2-ws</module>
       <module>common</module>
       <module>test</module>
       <module>producer</module>
