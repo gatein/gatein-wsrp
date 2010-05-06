@@ -31,7 +31,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>wsrp-wsrp1-ws</artifactId>
    <packaging>jar</packaging>
-   <name>GateIn WSRP Generated JAX-WS Classes</name>
+   <name>GateIn WSRP v1 Generated JAX-WS Classes</name>
 
    <dependencies>
       <dependency>
