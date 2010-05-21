@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,11 @@
 
 package org.gatein.wsrp.producer;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.MarkupInfo;
 import org.gatein.common.util.ParameterValidation;
@@ -38,31 +43,36 @@ import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.api.state.AccessMode;
+import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMimeTypeFault;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedModeFault;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
-import org.oasis.wsrp.v1.UnsupportedWindowStateFault;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionParams;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMimeTypeFault;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedModeFault;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
+import org.oasis.wsrp.v2.UnsupportedWindowStateFault;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -138,9 +148,41 @@ public abstract class RequestProcessor
       markupRequest = createMarkupRequestFrom(markupTypes, params, portlet);
 
       // prepare information for invocation
-      StateString navigationalState = createNavigationalState(params.getNavigationalState());
+      NavigationalContext navigationalContext = params.getNavigationalContext();
+      if(navigationalContext != null)
+      {
+         StateString navigationalState = createNavigationalState(navigationalContext.getOpaqueValue());
+         invocation.setNavigationalState(navigationalState);
 
-      final org.oasis.wsrp.v1.UserContext wsrpUserContext = getUserContext();
+         // GTNWSRP-38: public NS
+         List<NamedString> publicParams = navigationalContext.getPublicValues();
+         if(ParameterValidation.existsAndIsNotEmpty(publicParams))
+         {
+            Map<String, String[]> publicNS = new HashMap<String, String[]>(publicParams.size());
+            for (NamedString publicParam : publicParams)
+            {
+               String paramName = publicParam.getName();
+               String[] values = publicNS.get(paramName);
+               if(ParameterValidation.existsAndIsNotEmpty(values))
+               {
+                  int valuesNb = values.length;
+                  String[] newValues = new String[valuesNb + 1];
+                  System.arraycopy(values, 0, newValues, 0, valuesNb);
+                  newValues[valuesNb] = publicParam.getValue();
+                  publicNS.put(paramName, newValues);
+               }
+               else
+               {
+                  values = new String[] {publicParam.getValue()};
+                  publicNS.put(paramName, values);
+               }
+            }
+            invocation.setPublicNavigationalState(publicNS);
+         }
+      }
+
+
+      final org.oasis.wsrp.v2.UserContext wsrpUserContext = getUserContext();
       checkUserContext(wsrpUserContext);
 
       SecurityContext securityContext = createSecurityContext(params, runtimeContext, wsrpUserContext);
@@ -157,7 +199,6 @@ public abstract class RequestProcessor
       invocation.setTarget(portlet.getContext());
       invocation.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(markupRequest.getWindowState()));
       invocation.setMode(WSRPUtils.getJSR168PortletModeFromWSRPName(markupRequest.getMode()));
-      invocation.setNavigationalState(navigationalState);
 
       context.contextualize(invocation);
       setInvocation(invocation);
@@ -171,7 +212,7 @@ public abstract class RequestProcessor
 
    abstract PortletContext getPortletContext();
 
-   abstract org.oasis.wsrp.v1.UserContext getUserContext();
+   abstract org.oasis.wsrp.v2.UserContext getUserContext();
 
    abstract String getContextName();
 
@@ -331,7 +372,7 @@ public abstract class RequestProcessor
       return defaultValue;
    }
 
-   private void checkUserContext(org.oasis.wsrp.v1.UserContext wsrpUserContext) throws MissingParameters
+   private void checkUserContext(org.oasis.wsrp.v2.UserContext wsrpUserContext) throws MissingParameters
    {
       if (wsrpUserContext != null)
       {
@@ -342,7 +383,8 @@ public abstract class RequestProcessor
 
    private void checkForSessionIDs(RuntimeContext runtimeContext) throws OperationFailed
    {
-      if (runtimeContext.getSessionID() != null)
+      SessionParams sessionParams = runtimeContext.getSessionParams();
+      if (sessionParams != null && sessionParams.getSessionID() != null)
       {
          MarkupHandler.throwOperationFaultOnSessionOperation();
       }
@@ -385,7 +427,7 @@ public abstract class RequestProcessor
       };
    }
 
-   private UserContext createUserContext(final org.oasis.wsrp.v1.UserContext userContext,
+   private UserContext createUserContext(final org.oasis.wsrp.v2.UserContext userContext,
                                          String preferredLocale, final List<String> supportedLocales)
    {
       // todo: investigate ways to cache this information?
@@ -458,7 +500,7 @@ public abstract class RequestProcessor
    // fix-me: check that the correct semantics is used.
 
    private SecurityContext createSecurityContext(final MarkupParams params, final RuntimeContext runtimeContext,
-                                                 final org.oasis.wsrp.v1.UserContext wsrpUserContext)
+                                                 final org.oasis.wsrp.v2.UserContext wsrpUserContext)
    {
       return new SecurityContext()
       {

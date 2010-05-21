@@ -32,10 +32,12 @@ import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.api.SessionEventListener;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
-import org.oasis.wsrp.v1.CookieProtocol;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.SessionContext;
+import org.gatein.wsrp.servlet.UserAccess;
+import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SessionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,7 +178,7 @@ public class SessionHandler implements SessionEventListener
    {
       try
       {
-         consumer.getMarkupService().initCookie(consumer.getRegistrationContext());
+         consumer.getMarkupService().initCookie(consumer.getRegistrationContext(), UserAccess.getUserContext());
       }
       catch (InvalidRegistration invalidRegistration)
       {
@@ -198,7 +200,13 @@ public class SessionHandler implements SessionEventListener
       if (producerSessionInfo != null)
       {
          String sessionId = producerSessionInfo.getSessionIdForPortlet(portletHandle);
-         runtimeContext.setSessionID(sessionId);
+         SessionParams sessionParams = runtimeContext.getSessionParams();
+         if(sessionParams == null)
+         {
+            sessionParams = new SessionParams();
+            runtimeContext.setSessionParams(sessionParams);
+         }
+         sessionParams.setSessionID(sessionId);
       }
    }
 
@@ -277,7 +285,7 @@ public class SessionHandler implements SessionEventListener
       // set the session id to null
       if (runtimeContext != null)
       {
-         runtimeContext.setSessionID(null);
+         runtimeContext.setSessionParams(null);
       }
    }
 
@@ -351,7 +359,7 @@ public class SessionHandler implements SessionEventListener
       {
          try
          {
-            consumer.getMarkupService().releaseSessions(consumer.getRegistrationContext(), idsToRelease);
+            consumer.getMarkupService().releaseSessions(consumer.getRegistrationContext(), idsToRelease, UserAccess.getUserContext());
          }
          catch (InvalidRegistration invalidRegistration)
          {

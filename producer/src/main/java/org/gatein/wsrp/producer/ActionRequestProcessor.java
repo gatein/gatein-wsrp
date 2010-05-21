@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ActionInvocation;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -33,21 +34,24 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.InteractionParams;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PerformBlockingInteraction;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.StateChange;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
-import org.oasis.wsrp.v1.UpdateResponse;
+import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
+import org.oasis.wsrp.v2.UpdateResponse;
+
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -89,7 +93,7 @@ class ActionRequestProcessor extends RequestProcessor
       return performBlockingInteraction.getPortletContext();
    }
 
-   org.oasis.wsrp.v1.UserContext getUserContext()
+   org.oasis.wsrp.v2.UserContext getUserContext()
    {
       return performBlockingInteraction.getUserContext();
    }
@@ -132,8 +136,11 @@ class ActionRequestProcessor extends RequestProcessor
          UpdateResponse updateResponse = WSRPTypeFactory.createUpdateResponse();
          updateResponse.setNewMode(WSRPUtils.convertJSR168PortletModeNameToWSRPName(getNewStateOrNull(renderResult, true)));
          updateResponse.setNewWindowState(WSRPUtils.convertJSR168WindowStateNameToWSRPName(getNewStateOrNull(renderResult, false)));
-         StateString ns = renderResult.getNavigationalState();
-         updateResponse.setNavigationalState(ns != null ? ns.getStringValue() : null);
+         NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContextOrNull(
+            renderResult.getNavigationalState(),
+            renderResult.getPublicNavigationalStateUpdates()
+         );
+         updateResponse.setNavigationalContext(navigationalContext);
 
          // deal with implicit cloning and state modification
          if (instanceContext.wasModified())

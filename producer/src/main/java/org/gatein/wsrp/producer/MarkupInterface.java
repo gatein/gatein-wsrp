@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,27 +23,27 @@
 
 package org.gatein.wsrp.producer;
 
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.BlockingInteractionResponse;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InitCookie;
-import org.oasis.wsrp.v1.InvalidCookie;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidSession;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.MarkupResponse;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PerformBlockingInteraction;
-import org.oasis.wsrp.v1.PortletStateChangeRequired;
-import org.oasis.wsrp.v1.ReleaseSessions;
-import org.oasis.wsrp.v1.ReturnAny;
-import org.oasis.wsrp.v1.UnsupportedLocale;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InitCookie;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.MarkupResponse;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletStateChangeRequired;
+import org.oasis.wsrp.v2.ReleaseSessions;
+import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

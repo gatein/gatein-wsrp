@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,35 +23,35 @@
 
 package org.gatein.wsrp;
 
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.AccessDeniedFault;
-import org.oasis.wsrp.v1.Fault;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InconsistentParametersFault;
-import org.oasis.wsrp.v1.InvalidCookie;
-import org.oasis.wsrp.v1.InvalidCookieFault;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidHandleFault;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidRegistrationFault;
-import org.oasis.wsrp.v1.InvalidSession;
-import org.oasis.wsrp.v1.InvalidSessionFault;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.InvalidUserCategoryFault;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.MissingParametersFault;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletStateChangeRequired;
-import org.oasis.wsrp.v1.PortletStateChangeRequiredFault;
-import org.oasis.wsrp.v1.UnsupportedLocale;
-import org.oasis.wsrp.v1.UnsupportedLocaleFault;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMimeTypeFault;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedModeFault;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
-import org.oasis.wsrp.v1.UnsupportedWindowStateFault;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.AccessDeniedFault;
+import org.oasis.wsrp.v2.Fault;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InconsistentParametersFault;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidCookieFault;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidHandleFault;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidRegistrationFault;
+import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.InvalidSessionFault;
+import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.InvalidUserCategoryFault;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.MissingParametersFault;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.PortletStateChangeRequired;
+import org.oasis.wsrp.v2.PortletStateChangeRequiredFault;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedLocaleFault;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMimeTypeFault;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedModeFault;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
+import org.oasis.wsrp.v2.UnsupportedWindowStateFault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

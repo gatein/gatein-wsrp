@@ -44,7 +44,7 @@
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-wsrp1-ws</artifactId>
+         <artifactId>wsrp-wsrp2-ws</artifactId>
       </dependency>
 
       <dependency>

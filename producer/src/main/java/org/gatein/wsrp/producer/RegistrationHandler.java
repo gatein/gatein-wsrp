@@ -37,17 +37,17 @@ import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidRegistrationFault;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.ModifyRegistration;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.RegistrationState;
-import org.oasis.wsrp.v1.ReturnAny;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidRegistrationFault;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.RegistrationState;
+import org.oasis.wsrp.v2.ReturnAny;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -140,7 +140,6 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          capabilities.setSupportedWindowStates(windowStates);
       }
 
-      capabilities.setSupportedUserProfileData(registrationData.getCustomUserProfileData());
       capabilities.setSupportedUserScopes(registrationData.getConsumerUserScopes());
       capabilities.setSupportsGetMethod(registrationData.isMethodGetSupported());
 
@@ -360,7 +359,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          for (Property property : regProperties)
          {
             // todo: should be more detailed here... use the language, allow other value types...
-            QName propName = new QName(property.getName());
+            QName propName = property.getName();
             String propValue = property.getStringValue();
             if (producer.getProducerRegistrationRequirements().acceptValueFor(propName, propValue))
             {

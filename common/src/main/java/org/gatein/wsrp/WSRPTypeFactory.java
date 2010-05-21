@@ -38,50 +38,54 @@ import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.spi.PortletInvocationContext;
-import org.oasis.wsrp.v1.BlockingInteractionResponse;
-import org.oasis.wsrp.v1.CacheControl;
-import org.oasis.wsrp.v1.ClientData;
-import org.oasis.wsrp.v1.ClonePortlet;
-import org.oasis.wsrp.v1.DestroyFailed;
-import org.oasis.wsrp.v1.DestroyPortlets;
-import org.oasis.wsrp.v1.DestroyPortletsResponse;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.GetPortletDescription;
-import org.oasis.wsrp.v1.GetPortletProperties;
-import org.oasis.wsrp.v1.GetPortletPropertyDescription;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.InitCookie;
-import org.oasis.wsrp.v1.InteractionParams;
-import org.oasis.wsrp.v1.LocalizedString;
-import org.oasis.wsrp.v1.MarkupContext;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.MarkupResponse;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.ModifyRegistration;
-import org.oasis.wsrp.v1.PerformBlockingInteraction;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PortletDescriptionResponse;
-import org.oasis.wsrp.v1.PortletPropertyDescriptionResponse;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.PropertyList;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ReleaseSessions;
-import org.oasis.wsrp.v1.ResetProperty;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.ServiceDescription;
-import org.oasis.wsrp.v1.SessionContext;
-import org.oasis.wsrp.v1.SetPortletProperties;
-import org.oasis.wsrp.v1.StateChange;
-import org.oasis.wsrp.v1.Templates;
-import org.oasis.wsrp.v1.UpdateResponse;
-import org.oasis.wsrp.v1.UploadContext;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.CacheControl;
+import org.oasis.wsrp.v2.ClientData;
+import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.DestroyPortlets;
+import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.gatein.wsrp.spec.v2.ErrorCodes;
+import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.GetPortletDescription;
+import org.oasis.wsrp.v2.GetPortletProperties;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.InitCookie;
+import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.LocalizedString;
+import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MarkupResponse;
+import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletDescriptionResponse;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ReleaseSessions;
+import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SetPortletProperties;
+import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.Templates;
+import org.oasis.wsrp.v2.UpdateResponse;
+import org.oasis.wsrp.v2.UploadContext;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +93,7 @@ import static org.gatein.wsrp.WSRPRewritingConstants.*;
 
 /**
  * Creates minimally valid instances of WSRP types, populated with default values where possible, as per
- * wsrp_v1_types.xsd. See <a href="http://jira.jboss.com/jira/browse/JBPORTAL-808">JBPORTAL-808</a> for more
+ * wsrp_v2_types.xsd. See <a href="http://jira.jboss.com/jira/browse/JBPORTAL-808">JBPORTAL-808</a> for more
  * information.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -350,7 +354,7 @@ public class WSRPTypeFactory
     * secureClientCommunication(xsd:boolean), locales(xsd:string)+, mimeTypes(xsd:string)+, mode(xsd:string),
     * windowState(xsd:string), clientData({@link ClientData})?, navigationalState(xsd:string)?,
     * markupCharacterSets(xsd:string)*, validateTag(xsd:string)?, validNewModes(xsd:string)*,
-    * validNewWindowStates(xsd:string)*, extensions({@link Extension})*
+    * validNewWindowStates(xsd:string)*, extensions({@link org.oasis.wsrp.v2.Extension})*
     *
     * @return
     */
@@ -408,7 +412,7 @@ public class WSRPTypeFactory
    }
 
    /**
-    * portletHandle(xsd:string), portletState(xsd:base64Binary)?, extensions({@link Extension})*
+    * portletHandle(xsd:string), portletState(xsd:base64Binary)?, extensions({@link org.oasis.wsrp.v2.Extension})*
     *
     * @param portletHandle
     * @return
@@ -525,7 +529,7 @@ public class WSRPTypeFactory
       }
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
-      markupContext.setMarkupString(markupString);
+      markupContext.setItemString(markupString);
       return markupContext;
    }
 
@@ -550,7 +554,7 @@ public class WSRPTypeFactory
       }
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
-      markupContext.setMarkupBinary(markupBinary);
+      markupContext.setItemBinary(markupBinary);
       return markupContext;
    }
 
@@ -637,7 +641,14 @@ public class WSRPTypeFactory
     */
    public static Property createProperty(String name, String lang, String stringValue)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "name", "Property");
+      // QName.valueOf validates name
+      QName qName = QName.valueOf(name);
+      return createProperty(qName, lang, stringValue);
+   }
+
+   public static Property createProperty(QName name, String lang, String stringValue)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "language", "Property");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(stringValue, "String value", "Property");
 
@@ -861,10 +872,12 @@ public class WSRPTypeFactory
     */
    public static PropertyDescription createPropertyDescription(String name, QName type)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(name, "PropertyDescription name");
+      // QName.valueOf(name) validates name
+      QName qName = QName.valueOf(name);
+
       ParameterValidation.throwIllegalArgExceptionIfNull(type, "PropertyDescription type");
       PropertyDescription description = new PropertyDescription();
-      description.setName(name);
+      description.setName(qName);
       description.setType(type);
       return description;
    }
@@ -963,43 +976,6 @@ public class WSRPTypeFactory
       return createGetPortletPropertyDescription(null, createPortletContext(portletHandle), null, null);
    }
 
-
-   /**
-    * portletHandle(xsd:string), reason(xsd:string)
-    *
-    * @param portletHandle
-    * @param reason
-    * @return
-    * @since 2.6
-    */
-   public static DestroyFailed createDestroyFailed(String portletHandle, String reason)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "Portlet handle", "DestroyFailed");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(reason, "Reason for failure", "DestroyFailed");
-      // todo: check reason should be a fault code from Section 13 of spec but this is not clear...
-      DestroyFailed destroyFailed = new DestroyFailed();
-      destroyFailed.setPortletHandle(portletHandle);
-      destroyFailed.setReason(reason);
-      return destroyFailed;
-   }
-
-   /**
-    * destroyFailed(DestroyFailed)*, extensions(Extension)*
-    *
-    * @param destroyFailed
-    * @return
-    * @since 2.6
-    */
-   public static DestroyPortletsResponse createDestroyPortletsResponse(List<DestroyFailed> destroyFailed)
-   {
-      DestroyPortletsResponse destroyPortletsResponse = new DestroyPortletsResponse();
-      if (ParameterValidation.existsAndIsNotEmpty(destroyFailed))
-      {
-         destroyPortletsResponse.getDestroyFailed().addAll(destroyFailed);
-      }
-      return destroyPortletsResponse;
-   }
-
    /**
     * registrationContext(RegistrationContext)?, portletContext(PortletContext), userContext(UserContext)?,
     * propertyList(PropertyList)
@@ -1095,10 +1071,11 @@ public class WSRPTypeFactory
     */
    public static ResetProperty createResetProperty(String name)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "Property name", "ResetProperty");
+      // QName.valueOf(name) validates name
+      QName qName = QName.valueOf(name);
 
       ResetProperty resetProperty = new ResetProperty();
-      resetProperty.setName(name);
+      resetProperty.setName(qName);
       return resetProperty;
    }
 
@@ -1182,5 +1159,84 @@ public class WSRPTypeFactory
          markupType.getLocales().addAll(localeNames);
       }
       return markupType;
+   }
+
+   /**
+    * reason(LocalizedString)?, resourceList(ResourceList)?, extensions(Extension)*
+    * errorCode(ErrorCodes)
+    * portletHandles(xsd:string)+
+    * @param portletHandles
+    * @param reason
+    * @return
+    */
+   public static FailedPortlets createFailedPortlets(Collection<String> portletHandles, String reason)
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
+      {
+         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(reason, "Reason for failure", "createFailedPortlets");
+         FailedPortlets failedPortlets = new FailedPortlets();
+         failedPortlets.getPortletHandles().addAll(portletHandles);
+         if (reason != null)
+         {
+            failedPortlets.setReason(createLocalizedString(reason));
+         }
+         failedPortlets.setErrorCode(ErrorCodes.OperationFailed);
+         
+         return failedPortlets;
+      }
+
+      throw new IllegalArgumentException("Must provide non-null, non-empty portlet handle list.");
+   }
+
+   /**
+    * failedPortlets(FailedPortlets)*, extensions(Extension)*
+    * @param failedPortlets
+    * @return
+    */
+   public static DestroyPortletsResponse createDestroyPortletsResponse(List<FailedPortlets> failedPortlets)
+   {
+      DestroyPortletsResponse dpr = new DestroyPortletsResponse();
+      if(ParameterValidation.existsAndIsNotEmpty(failedPortlets))
+      {
+         dpr.getFailedPortlets().addAll(failedPortlets);
+      }
+      return dpr;
+   }
+
+   public static NavigationalContext createNavigationalContextOrNull(StateString navigationalState, Map<String, String[]> publicNavigationalState)
+   {
+      if (navigationalState != null || publicNavigationalState != null)
+      {
+         NavigationalContext context = new NavigationalContext();
+         if (navigationalState != null)
+         {
+            String state = navigationalState.getStringValue();
+            if (!StateString.JBPNS_PREFIX.equals(state))  // fix-me: see JBPORTAL-900
+            {
+               context.setOpaqueValue(state);
+            }
+         }
+
+         if(ParameterValidation.existsAndIsNotEmpty(publicNavigationalState))
+         {
+            // todo: public NS GTNWSRP-38
+            for (Map.Entry<String, String[]> entry : publicNavigationalState.entrySet())
+            {
+               String name = entry.getKey();
+               NamedString namedString;
+               for (String value : entry.getValue())
+               {
+                  namedString = new NamedString();
+                  namedString.setName(name);
+                  namedString.setValue(value);
+                  context.getPublicValues().add(namedString);
+               }
+            }
+         }
+
+         return context;
+      }
+
+      return null;
    }
 }

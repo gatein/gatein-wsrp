@@ -35,19 +35,19 @@ import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MarkupContext;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -88,7 +88,7 @@ public class RenderRequestProcessor extends RequestProcessor
       return getMarkup.getPortletContext();
    }
 
-   org.oasis.wsrp.v1.UserContext getUserContext()
+   org.oasis.wsrp.v2.UserContext getUserContext()
    {
       return getMarkup.getUserContext();
    }
@@ -140,7 +140,7 @@ public class RenderRequestProcessor extends RequestProcessor
          markupContext = WSRPTypeFactory.createMarkupContext(markupRequest.getMediaTypeWithCharset(), markupBinary);
       }
       markupContext.setLocale(markupRequest.getLocale());
-      markupContext.setRequiresUrlRewriting(Boolean.TRUE);
+      markupContext.setRequiresRewriting(Boolean.TRUE);
       markupContext.setPreferredTitle(portletDescription.getTitle().getValue());
 
       // cache information

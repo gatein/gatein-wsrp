@@ -1,3 +1,4 @@
+#!/bin/sh
 # JBoss, a division of Red Hat
 # Copyright 2010, Red Hat Middleware, LLC, and individual
 # contributors as indicated by the @authors tag. See the
@@ -19,9 +20,11 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # This script allows for faster deployment of WSRP libraries to whatever version of GateIn is already deployed on an
 # application server.
 # @author Chris Laprun
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 if [ -z "$GATEIN_EAR_HOME" -o ! -d "$GATEIN_EAR_HOME" ]
 then

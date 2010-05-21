@@ -38,11 +38,11 @@ import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.oasis.wsrp.v1.InteractionParams;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.NamedString;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.StateChange;
+import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.StateChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -256,7 +256,7 @@ public class WSRPUtils
       return desiredLocales;
    }
 
-   public static PortletContext convertToPortalPortletContext(org.oasis.wsrp.v1.PortletContext portletContext)
+   public static PortletContext convertToPortalPortletContext(org.oasis.wsrp.v2.PortletContext portletContext)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
       String handle = portletContext.getPortletHandle();
@@ -283,13 +283,13 @@ public class WSRPUtils
     * @param portletContext
     * @return Since 2.6
     */
-   public static org.oasis.wsrp.v1.PortletContext convertToWSRPPortletContext(PortletContext portletContext)
+   public static org.oasis.wsrp.v2.PortletContext convertToWSRPPortletContext(PortletContext portletContext)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
       String id = portletContext.getId();
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "portlet id", "PortletContext");
 
-      org.oasis.wsrp.v1.PortletContext result = WSRPTypeFactory.createPortletContext(id);
+      org.oasis.wsrp.v2.PortletContext result = WSRPTypeFactory.createPortletContext(id);
       if (portletContext instanceof StatefulPortletContext)
       {
          StatefulPortletContext context = (StatefulPortletContext)portletContext;
@@ -368,7 +368,8 @@ public class WSRPUtils
             sb.append("(secure)");
          }
          sb.append("[M=").append(params.getMode()).append("][WS=").append(params.getWindowState()).append("]")
-            .append("[NS=").append(params.getNavigationalState()).append("]");
+            .append("[private NS=").append(params.getNavigationalContext().getOpaqueValue()).append("]")
+            .append("[public NS=").append(params.getNavigationalContext().getPublicValues()).append("]");
          return sb.toString();
       }
       return null;
@@ -438,14 +439,14 @@ public class WSRPUtils
       return propDesc;
    }
 
-   public static org.oasis.wsrp.v1.LocalizedString convertToWSRPLocalizedString(LocalizedString regLocalizedString)
+   public static org.oasis.wsrp.v2.LocalizedString convertToWSRPLocalizedString(LocalizedString regLocalizedString)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(regLocalizedString, "LocalizedString");
       return WSRPTypeFactory.createLocalizedString(toString(regLocalizedString.getLocale()),
          regLocalizedString.getResourceName(), regLocalizedString.getValue());
    }
 
-   private static LocalizedString getLocalizedStringOrNull(org.oasis.wsrp.v1.LocalizedString wsrpLocalizedString)
+   private static LocalizedString getLocalizedStringOrNull(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
    {
       if (wsrpLocalizedString == null)
       {
@@ -462,7 +463,7 @@ public class WSRPUtils
     * @return
     * @since 2.6
     */
-   public static LocalizedString convertToLocalizedString(org.oasis.wsrp.v1.LocalizedString wsrpLocalizedString)
+   public static LocalizedString convertToLocalizedString(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(wsrpLocalizedString, "WSRP LocalizedString");
       String lang = wsrpLocalizedString.getLang();

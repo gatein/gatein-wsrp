@@ -43,12 +43,12 @@ import org.gatein.pc.api.info.SecurityInfo;
 import org.gatein.pc.api.info.WindowStateInfo;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.oasis.wsrp.v1.LocalizedString;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PortletPropertyDescriptionResponse;
-import org.oasis.wsrp.v1.PropertyDescription;
+import org.oasis.wsrp.v2.LocalizedString;
+import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.PropertyDescription;
 
 import javax.xml.namespace.QName;
 import java.util.Collection;
@@ -165,8 +165,8 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
                   prefInfos = new HashMap<String, PreferenceInfo>(descs.size());
                   for (PropertyDescription desc : descs)
                   {
-                     String key = desc.getName();
-                     prefInfos.put(key, new WSRPPreferenceInfo(key, getPortalLocalizedStringOrNullFrom(desc.getLabel()),
+                     String keyAsString = desc.getName().toString();
+                     prefInfos.put(keyAsString, new WSRPPreferenceInfo(keyAsString, getPortalLocalizedStringOrNullFrom(desc.getLabel()),
                         getPortalLocalizedStringOrNullFrom(desc.getHint())));
                   }
                }

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -38,18 +38,18 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.oasis.wsrp.v1.CookieProtocol;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -227,7 +227,7 @@ class
 
       // keywords
       // metaInfo contains comma-separated keywords: we need to extract them into a list
-      org.oasis.wsrp.v1.LocalizedString concatenatedKeywords =
+      org.oasis.wsrp.v2.LocalizedString concatenatedKeywords =
          Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.KEYWORDS), desiredLocales);
       if (concatenatedKeywords != null)
       {

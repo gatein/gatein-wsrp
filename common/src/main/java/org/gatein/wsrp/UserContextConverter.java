@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -26,14 +26,14 @@ package org.gatein.wsrp;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.spi.UserContext;
-import org.oasis.wsrp.v1.Contact;
-import org.oasis.wsrp.v1.EmployerInfo;
-import org.oasis.wsrp.v1.Online;
-import org.oasis.wsrp.v1.PersonName;
-import org.oasis.wsrp.v1.Postal;
-import org.oasis.wsrp.v1.Telecom;
-import org.oasis.wsrp.v1.TelephoneNum;
-import org.oasis.wsrp.v1.UserProfile;
+import org.oasis.wsrp.v2.Contact;
+import org.oasis.wsrp.v2.EmployerInfo;
+import org.oasis.wsrp.v2.Online;
+import org.oasis.wsrp.v2.PersonName;
+import org.oasis.wsrp.v2.Postal;
+import org.oasis.wsrp.v2.Telecom;
+import org.oasis.wsrp.v2.TelephoneNum;
+import org.oasis.wsrp.v2.UserProfile;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -58,17 +58,17 @@ public class UserContextConverter
    {
    }
 
-   public static UserContext createPortalUserContextFrom(org.oasis.wsrp.v1.UserContext userContext,
+   public static UserContext createPortalUserContextFrom(org.oasis.wsrp.v2.UserContext userContext,
                                                          List<String> desiredLocales, String preferredLocale)
    {
       return new WSRPMappedUserContext(userContext, desiredLocales, preferredLocale);
    }
 
-   public static org.oasis.wsrp.v1.UserContext createWSRPUserContextFrom(UserContext userContext,
+   public static org.oasis.wsrp.v2.UserContext createWSRPUserContextFrom(UserContext userContext,
                                                                          String userContextKey,
                                                                          List<String> userCategories)
    {
-      org.oasis.wsrp.v1.UserContext wsrpUserContext = WSRPTypeFactory.createUserContext(userContextKey);
+      org.oasis.wsrp.v2.UserContext wsrpUserContext = WSRPTypeFactory.createUserContext(userContextKey);
       wsrpUserContext.setProfile(createUserProfileFrom(userContext));
       if (ParameterValidation.existsAndIsNotEmpty(userCategories))
       {
@@ -174,7 +174,7 @@ public class UserContextConverter
    }
 
    /**
-    * Builds a Portal {@link org.gatein.pc.api.spi.UserContext} from a WSRP {@link org.oasis.wsrp.v1.UserContext}.
+    * Builds a Portal {@link org.gatein.pc.api.spi.UserContext} from a WSRP {@link org.oasis.wsrp.v2.UserContext}.
     *
     * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
     * @since 2.4 (May 8, 2006)
@@ -186,7 +186,7 @@ public class UserContextConverter
       private Locale locale;
       private String id;
 
-      public WSRPMappedUserContext(org.oasis.wsrp.v1.UserContext userContext, List<String> desiredLocales, String preferredLocale)
+      public WSRPMappedUserContext(org.oasis.wsrp.v2.UserContext userContext, List<String> desiredLocales, String preferredLocale)
       {
          this.desiredLocales = desiredLocales;
          this.locale = WSRPUtils.getLocale(preferredLocale);

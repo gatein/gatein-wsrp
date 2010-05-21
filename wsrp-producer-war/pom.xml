@@ -46,6 +46,10 @@
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-wsrp2-ws</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-common</artifactId>
       </dependency>
 

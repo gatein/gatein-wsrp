@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.consumer;
 
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v2.ServiceDescription;
 
 import static org.gatein.wsrp.consumer.RefreshResult.Status.BYPASSED;
 import static org.gatein.wsrp.consumer.RefreshResult.Status.SUCCESS;

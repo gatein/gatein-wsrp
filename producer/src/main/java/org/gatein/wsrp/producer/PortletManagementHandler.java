@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,9 @@
 
 package org.gatein.wsrp.producer;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.pc.api.InvalidPortletIdException;
 import org.gatein.pc.api.NoSuchPortletException;
@@ -41,33 +44,33 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.ClonePortlet;
-import org.oasis.wsrp.v1.DestroyFailed;
-import org.oasis.wsrp.v1.DestroyPortlets;
-import org.oasis.wsrp.v1.DestroyPortletsResponse;
-import org.oasis.wsrp.v1.GetPortletDescription;
-import org.oasis.wsrp.v1.GetPortletProperties;
-import org.oasis.wsrp.v1.GetPortletPropertyDescription;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InconsistentParametersFault;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidHandleFault;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PortletDescriptionResponse;
-import org.oasis.wsrp.v1.PortletPropertyDescriptionResponse;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.PropertyList;
-import org.oasis.wsrp.v1.ResetProperty;
-import org.oasis.wsrp.v1.SetPortletProperties;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.DestroyPortlets;
+import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.GetPortletDescription;
+import org.oasis.wsrp.v2.GetPortletProperties;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InconsistentParametersFault;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidHandleFault;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletDescriptionResponse;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.SetPortletProperties;
+import org.oasis.wsrp.v2.UserContext;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -210,8 +213,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(destroyPortlets.getRegistrationContext());
 
-      List<org.gatein.pc.api.PortletContext> portletContexts =
-         new ArrayList<org.gatein.pc.api.PortletContext>(handles.size());
+      List<org.gatein.pc.api.PortletContext> portletContexts = new ArrayList<org.gatein.pc.api.PortletContext>(handles.size());
       for (String handle : handles)
       {
          portletContexts.add(org.gatein.pc.api.PortletContext.createPortletContext(handle));
@@ -222,21 +224,29 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
          RegistrationLocal.setRegistration(registration);
          List<DestroyCloneFailure> failuresList = producer.getPortletInvoker().destroyClones(portletContexts);
          int failuresNumber = failuresList.size();
-         List<DestroyFailed> destroyFailed;
+         List<FailedPortlets> failedPortlets;
          if (failuresNumber > 0)
          {
-            destroyFailed = new ArrayList<DestroyFailed>(failuresNumber);
+            // for each reason of failure, record the associated portlet handles, expecting one portlet handle per message
+            Multimap<String,String> reasonToHandles = HashMultimap.create(failuresNumber, 1);
             for (DestroyCloneFailure failure : failuresList)
             {
-               destroyFailed.add(WSRPTypeFactory.createDestroyFailed(failure.getPortletId(), failure.getMessage()));
+               reasonToHandles.put(failure.getMessage(), failure.getPortletId());
+            }
+
+            // create a FailedPortlets object for each reason
+            failedPortlets = new ArrayList<FailedPortlets>(reasonToHandles.size());
+            for (String reason : reasonToHandles.keys())
+            {
+               failedPortlets.add(WSRPTypeFactory.createFailedPortlets(reasonToHandles.get(reason), reason));
             }
          }
          else
          {
-            destroyFailed = null;
+            failedPortlets = null;
          }
 
-         return WSRPTypeFactory.createDestroyPortletsResponse(destroyFailed);
+         return WSRPTypeFactory.createDestroyPortletsResponse(failedPortlets);
       }
       catch (PortletInvokerException e)
       {
@@ -287,10 +297,11 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
                String value = property.getStringValue();
 
                // todo: deal with XML values...
-               List<Element> values = property.getAny();
-               String lang = property.getLang(); // todo: deal with language?
+               // List<Object> values = property.getAny();
+               // todo: deal with language?
+               // String lang = property.getLang(); 
 
-               changes.add(PropertyChange.newUpdate(property.getName(), value));
+               changes.add(PropertyChange.newUpdate(property.getName().toString(), value));
             }
          }
 
@@ -298,7 +309,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
          {
             for (ResetProperty resetProperty : resetProperties)
             {
-               changes.add(PropertyChange.newReset(resetProperty.getName()));
+               changes.add(PropertyChange.newReset(resetProperty.getName().toString()));
             }
          }
 

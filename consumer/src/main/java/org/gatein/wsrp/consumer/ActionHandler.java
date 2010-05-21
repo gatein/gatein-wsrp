@@ -42,16 +42,17 @@ import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.BlockingInteractionResponse;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.InteractionParams;
-import org.oasis.wsrp.v1.NamedString;
-import org.oasis.wsrp.v1.PerformBlockingInteraction;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.UpdateResponse;
-import org.oasis.wsrp.v1.UploadContext;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UpdateResponse;
+import org.oasis.wsrp.v2.UploadContext;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.io.BufferedInputStream;
@@ -248,10 +249,16 @@ public class ActionHandler extends InvocationHandler
             result.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(newWindowState));
          }
          // navigational state
-         String navigationalState = updateResponse.getNavigationalState();
-         if (navigationalState != null)
+         NavigationalContext navigationalContext = updateResponse.getNavigationalContext();
+         if (navigationalContext != null)
          {
-            result.setNavigationalState(new OpaqueStateString(navigationalState));
+            String navigationalState = navigationalContext.getOpaqueValue();
+            if (navigationalState != null) // todo: check meaning of empty private NS
+            {
+               result.setNavigationalState(new OpaqueStateString(navigationalState));
+            }
+
+            // todo: public NS GTNWSRP-38
          }
 
          // check if the portlet was cloned
@@ -264,6 +271,8 @@ public class ActionHandler extends InvocationHandler
             String handle = portletContext.getPortletHandle();
             if (!originalContext.getPortletHandle().equals(handle))
             {
+               // todo: GTNWSRP-36 If the Producer returns a new portletHandle without returning a new sessionID, the Consumer MUST
+               // associate the current sessionID with the new portletHandle rather than the previous portletHandle.
                log.debug("Portlet '" + requestPrecursor.getPortletHandle() + "' was implicitely cloned. New handle is '"
                   + handle + "'");
                StateEvent event = new StateEvent(WSRPUtils.convertToPortalPortletContext(portletContext), StateEvent.Type.PORTLET_CLONED_EVENT);

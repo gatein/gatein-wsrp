@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -28,8 +28,8 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.PropertyDescription;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.PropertyDescription;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class Utils
       return desc;
    }
 
-   private static LocalizedString getLocalizedStringOrNull(org.oasis.wsrp.v1.LocalizedString wsrpLocalizedString)
+   private static LocalizedString getLocalizedStringOrNull(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
    {
       if (wsrpLocalizedString == null)
       {
@@ -125,7 +125,7 @@ public class Utils
     * @return
     * @since 2.6
     */
-   public static LocalizedString convertToLocalizedString(org.oasis.wsrp.v1.LocalizedString wsrpLocalizedString)
+   public static LocalizedString convertToLocalizedString(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(wsrpLocalizedString, "WSRP LocalizedString");
       String lang = wsrpLocalizedString.getLang();
@@ -149,7 +149,7 @@ public class Utils
     * @return
     * @since 2.6
     */
-   public static org.oasis.wsrp.v1.LocalizedString convertToWSRPLocalizedString(LocalizedString regLocalizedString)
+   public static org.oasis.wsrp.v2.LocalizedString convertToWSRPLocalizedString(LocalizedString regLocalizedString)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(regLocalizedString, "LocalizedString");
       return WSRPTypeFactory.createLocalizedString(WSRPUtils.toString(regLocalizedString.getLocale()),
@@ -167,7 +167,7 @@ public class Utils
     *         <code>null</code> if no such value can be found.
     * @since 2.6
     */
-   public static org.oasis.wsrp.v1.LocalizedString convertToWSRPLocalizedString(org.gatein.common.i18n.LocalizedString localizedString,
+   public static org.oasis.wsrp.v2.LocalizedString convertToWSRPLocalizedString(org.gatein.common.i18n.LocalizedString localizedString,
                                                                                 List<String> desiredLocales)
    {
       if (localizedString == null)

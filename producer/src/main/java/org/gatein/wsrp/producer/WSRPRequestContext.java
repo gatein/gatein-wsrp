@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -26,9 +26,9 @@ package org.gatein.wsrp.producer;
 import org.apache.commons.fileupload.FileUpload;
 import org.gatein.common.util.ParameterMap;
 import org.gatein.pc.api.spi.RequestContext;
-import org.oasis.wsrp.v1.InteractionParams;
-import org.oasis.wsrp.v1.NamedString;
-import org.oasis.wsrp.v1.UploadContext;
+import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.UploadContext;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -21,4 +21,5 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:wsrp:v1:types", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package org.oasis.wsrp.v1;
+@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:wsrp:v1:types", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package org.oasis.wsrp.v1;

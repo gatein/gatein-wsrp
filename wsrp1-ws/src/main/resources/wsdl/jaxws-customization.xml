@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<bindings
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   wsdlLocation="wsrp_v1_interfaces.wsdl"
+   xmlns="http://java.sun.com/xml/ns/jaxws">
+
+   <!-- Access Denied Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='releaseSessions']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='initCookie']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='AccessDenied']">
+      <class name="V1AccessDenied"/>
+   </bindings>
+
+
+   <!-- OperationFailed Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='releaseSessions']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='initCookie']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='destroyPortlets']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='register']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='deregister']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='modifyRegistration']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_ServiceDescription_PortType']/wsdl:operation[@name='getServiceDescription']/wsdl:fault[@name='OperationFailed']">
+      <class name="V1OperationFailed"/>
+   </bindings>
+
+
+   <!-- InvalidUserCategory Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='InvalidUserCategory']">
+      <class name="V1InvalidUserCategory"/>
+   </bindings>
+
+   <!-- InconsistentParameters Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='destroyPortlets']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='InconsistentParameters']">
+      <class name="V1InconsistentParameters"/>
+   </bindings>
+
+
+   <!-- InvalidRegistration Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='releaseSessions']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='initCookie']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='destroyPortlets']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='deregister']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='modifyRegistration']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_ServiceDescription_PortType']/wsdl:operation[@name='getServiceDescription']/wsdl:fault[@name='InvalidRegistration']">
+      <class name="V1InvalidRegistration"/>
+   </bindings>
+
+   <!-- MissingParameters Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='releaseSessions']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='destroyPortlets']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='register']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Registration_PortType']/wsdl:operation[@name='modifyRegistration']/wsdl:fault[@name='MissingParameters']">
+      <class name="V1MissingParameters"/>
+   </bindings>
+
+   <!-- InvalidHandle Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletDescription']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='clonePortlet']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='setPortletProperties']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletProperties']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_PortletManagement_PortType']/wsdl:operation[@name='getPortletPropertyDescription']/wsdl:fault[@name='InvalidHandle']">
+      <class name="V1InvalidHandle"/>
+   </bindings>
+
+   <!-- InvalidHandle Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='PortletStateChangeRequired']">
+      <class name="V1PortletStateChangeRequired"/>
+   </bindings>
+
+   <!-- InvalidCookie Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidCookie']">
+      <class name="V1InvalidCookie"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InvalidCookie']">
+      <class name="V1InvalidCookie"/>
+   </bindings>
+
+   <!-- InvalidSession Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='InvalidSession']">
+      <class name="V1InvalidSession"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='InvalidSession']">
+      <class name="V1InvalidSession"/>
+   </bindings>
+
+   <!-- UnsupportedMode Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='UnsupportedMode']">
+      <class name="V1UnsupportedMode"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='UnsupportedMode']">
+      <class name="V1UnsupportedMode"/>
+   </bindings>
+
+   <!-- UnsupportedWindowState Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='UnsupportedWindowState']">
+      <class name="V1UnsupportedWindowState"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='UnsupportedWindowState']">
+      <class name="V1UnsupportedWindowState"/>
+   </bindings>
+
+   <!-- UnsupportedLocale Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='UnsupportedLocale']">
+      <class name="V1UnsupportedLocale"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='UnsupportedLocale']">
+      <class name="V1UnsupportedLocale"/>
+   </bindings>
+
+   <!-- UnsupportedMimeType Fault class customization -->
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='getMarkup']/wsdl:fault[@name='UnsupportedMimeType']">
+      <class name="V1UnsupportedMimeType"/>
+   </bindings>
+   <bindings
+      node="wsdl:definitions/wsdl:portType[@name='WSRP_v1_Markup_PortType']/wsdl:operation[@name='performBlockingInteraction']/wsdl:fault[@name='UnsupportedMimeType']">
+      <class name="V1UnsupportedMimeType"/>
+   </bindings>
+
+</bindings>
+

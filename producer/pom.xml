@@ -36,7 +36,7 @@
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-wsrp1-ws</artifactId>
+         <artifactId>wsrp-wsrp2-ws</artifactId>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
@@ -87,6 +87,11 @@
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-jdk14</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>com.google.collections</groupId>
+         <artifactId>google-collections</artifactId>
+         <version>1.0</version>
       </dependency>
    </dependencies>
 

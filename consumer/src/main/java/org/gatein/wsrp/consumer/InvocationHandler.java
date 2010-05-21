@@ -30,12 +30,12 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
-import org.oasis.wsrp.v1.InvalidCookie;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidSession;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

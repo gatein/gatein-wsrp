@@ -29,15 +29,16 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    private String persistentConsumerName;
    private String persistentRegistrationHandle;
    private byte[] persistentRegistrationState;
-   private Map<String, RegistrationProperty> persistentRegistrationProperties;
+   private Map<QName, RegistrationProperty> persistentRegistrationProperties;
 
    private transient Boolean requiresRegistration;
    private transient Boolean consistentWithProducerExpectations;
@@ -119,10 +120,10 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
       if (other.persistentRegistrationProperties != null)
       {
-         this.persistentRegistrationProperties = new HashMap<String, RegistrationProperty>(other.persistentRegistrationProperties.size());
+         this.persistentRegistrationProperties = new HashMap<QName, RegistrationProperty>(other.persistentRegistrationProperties.size());
          for (RegistrationProperty otherProp : other.persistentRegistrationProperties.values())
          {
-            String name = otherProp.getName();
+            QName name = otherProp.getName();
             RegistrationProperty prop = new RegistrationProperty(name, otherProp.getValue(), otherProp.getLang(), this);
             prop.setStatus(otherProp.getStatus());
             this.persistentRegistrationProperties.put(name, prop);
@@ -298,13 +299,27 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public RegistrationProperty getRegistrationProperty(String name)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "registration property name", "RegistrationInfo.getRegistrationProperty");
+      QName qName = QName.valueOf(name);
+
+      return getRegistrationProperty(qName);
+   }
+
+   public RegistrationProperty getRegistrationProperty(QName name)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "registration property name");
       return getRegistrationProperties(false).get(name);
    }
 
    public RegistrationProperty setRegistrationPropertyValue(String name, String value)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "registration property name", "RegistrationInfo.setRegistrationPropertyValue");
+      QName qName = QName.valueOf(name);
+
+      return setRegistrationPropertyValue(qName, value);
+   }
+
+   public RegistrationProperty setRegistrationPropertyValue(QName name, String value)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "registration property name");
 
       RegistrationProperty prop = getOrCreateRegistrationPropertiesMap(true).get(name);
       if (prop != null)
@@ -323,8 +338,15 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public void removeRegistrationProperty(String name)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "registration property name", "RegistrationInfo.removeRegistrationProperty");
-      Map<String, RegistrationProperty> propertiesMap = getOrCreateRegistrationPropertiesMap(false);
+      QName qName = QName.valueOf(name);
+
+      removeRegistrationProperty(qName);
+   }
+
+   public void removeRegistrationProperty(QName name)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "registration property name");
+      Map<QName, RegistrationProperty> propertiesMap = getOrCreateRegistrationPropertiesMap(false);
       if (propertiesMap == null || propertiesMap.remove(name) == null)
       {
          throw new IllegalArgumentException("Cannot remove inexistent registration property '" + name + "'");
@@ -333,24 +355,24 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       setModifyRegistrationNeeded(true);
    }
 
-   private Map<String, RegistrationProperty> getOrCreateRegistrationPropertiesMap(boolean forceCreate)
+   private Map<QName, RegistrationProperty> getOrCreateRegistrationPropertiesMap(boolean forceCreate)
    {
       if (forceCreate && persistentRegistrationProperties == null)
       {
-         persistentRegistrationProperties = new HashMap<String, RegistrationProperty>();
+         persistentRegistrationProperties = new HashMap<QName, RegistrationProperty>();
       }
 
       return persistentRegistrationProperties;
    }
 
-   public Map<String, RegistrationProperty> getRegistrationProperties()
+   public Map<QName, RegistrationProperty> getRegistrationProperties()
    {
       return getRegistrationProperties(true);
    }
 
-   private Map<String, RegistrationProperty> getRegistrationProperties(boolean immutable)
+   private Map<QName, RegistrationProperty> getRegistrationProperties(boolean immutable)
    {
-      Map<String, RegistrationProperty> properties = getOrCreateRegistrationPropertiesMap(false);
+      Map<QName, RegistrationProperty> properties = getOrCreateRegistrationPropertiesMap(false);
       if (properties != null)
       {
          if (immutable)
@@ -373,7 +395,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       this.persistentRegistrationProperties = registrationProperties;
    }
 
-   public Set getRegistrationPropertyNames()
+   Set<QName> getRegistrationPropertyNames()
    {
       return getRegistrationProperties().keySet();
    }
@@ -428,7 +450,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          // if we're not merging, we need to copy the current properties so that we can collect validation results.
          if (!mergeWithLocalInfo)
          {
-            result.setRegistrationProperties(new HashMap<String, RegistrationProperty>(persistentRegistrationProperties));
+            result.setRegistrationProperties(new HashMap<QName, RegistrationProperty>(persistentRegistrationProperties));
          }
          setModifiedSinceLastRefresh(false);
          setModifyRegistrationNeeded(false);
@@ -446,16 +468,16 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
                List<PropertyDescription> propertyDescriptions = regPropDescs.getPropertyDescriptions();
                if (propertyDescriptions != null && !propertyDescriptions.isEmpty())
                {
-                  Map<String, RegistrationProperty> descriptionsMap = getRegistrationPropertyDescriptionsFromWSRP(propertyDescriptions);
+                  Map<QName, RegistrationProperty> descriptionsMap = getRegistrationPropertyDescriptionsFromWSRP(propertyDescriptions);
 
                   // check that we don't have unexpected registration properties and if so, mark them as invalid or remove them
-                  Set<String> expectedNames = descriptionsMap.keySet();
+                  Set<QName> expectedNames = descriptionsMap.keySet();
                   checkForExtraProperties(producerId, result, expectedNames, persistentRegistrationProperties, !mergeWithLocalInfo);
 
                   // Merge existing properties
                   for (RegistrationProperty prop : descriptionsMap.values())
                   {
-                     String name = prop.getName();
+                     QName name = prop.getName();
                      RegistrationProperty existing = getRegistrationProperty(name);
                      if (existing != null)
                      {
@@ -527,13 +549,13 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    private void handleNoRequiredRegistrationProperties(String producerId, RegistrationRefreshResult result, boolean keepExtra, boolean forceCheckOfExtraProps)
    {
       log.debug("The producer didn't require any specific registration properties");
-      Map<String, RegistrationProperty> properties = getOrCreateRegistrationPropertiesMap(false);
+      Map<QName, RegistrationProperty> properties = getOrCreateRegistrationPropertiesMap(false);
       if (properties != null && !properties.isEmpty())
       {
          if (forceCheckOfExtraProps || !hasRegisteredIfNeeded())
          {
             log.debug("Registration data is available when none is expected by the producer");
-            checkForExtraProperties(producerId, result, Collections.<String>emptySet(), properties, keepExtra);
+            checkForExtraProperties(producerId, result, Collections.<QName>emptySet(), properties, keepExtra);
          }
          else
          {
@@ -555,16 +577,16 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
     * @param expectedNames
     * @param properties
     */
-   private void checkForExtraProperties(String producerId, RegistrationRefreshResult result, Set<String> expectedNames, Map<String, RegistrationProperty> properties, boolean keepExtra)
+   private void checkForExtraProperties(String producerId, RegistrationRefreshResult result, Set<QName> expectedNames, Map<QName, RegistrationProperty> properties, boolean keepExtra)
    {
-      Set<String> unexpected = new HashSet<String>(properties.keySet());
+      Set<QName> unexpected = new HashSet<QName>(properties.keySet());
       unexpected.removeAll(expectedNames);
       if (!unexpected.isEmpty())
       {
          StringBuffer message = new StringBuffer("Unexpected registration properties:\n");
          int size = unexpected.size();
          int index = 0;
-         for (String name : unexpected)
+         for (QName name : unexpected)
          {
             message.append("'").append(name).append("'");
             if (keepExtra)
@@ -610,14 +632,14 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
     * @param descriptions
     * @return
     */
-   private Map<String, RegistrationProperty> getRegistrationPropertyDescriptionsFromWSRP(List<PropertyDescription> descriptions)
+   private Map<QName, RegistrationProperty> getRegistrationPropertyDescriptionsFromWSRP(List<PropertyDescription> descriptions)
    {
-      if (descriptions != null)
+      if (ParameterValidation.existsAndIsNotEmpty(descriptions))
       {
-         Map<String, RegistrationProperty> result = new HashMap<String, RegistrationProperty>(descriptions.size());
+         Map<QName, RegistrationProperty> result = new HashMap<QName, RegistrationProperty>(descriptions.size());
          for (PropertyDescription description : descriptions)
          {
-            String name = description.getName();
+            QName name = description.getName();
             RegistrationPropertyDescription desc = WSRPUtils.convertToRegistrationPropertyDescription(description);
             RegistrationProperty prop = new RegistrationProperty(name, null, WSRPUtils.toString(desc.getLang()), this);
             prop.setDescription(desc);
@@ -730,19 +752,19 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public class RegistrationRefreshResult extends RefreshResult
    {
-      private Map<String, RegistrationProperty> registrationProperties;
+      private Map<QName, RegistrationProperty> registrationProperties;
 
       public RegistrationRefreshResult()
       {
          super();
       }
 
-      public Map<String, RegistrationProperty> getRegistrationProperties()
+      public Map<QName, RegistrationProperty> getRegistrationProperties()
       {
          return registrationProperties;
       }
 
-      public void setRegistrationProperties(Map<String, RegistrationProperty> registrationProperties)
+      public void setRegistrationProperties(Map<QName, RegistrationProperty> registrationProperties)
       {
          this.registrationProperties = registrationProperties;
       }

@@ -34,13 +34,15 @@ import org.gatein.pc.api.spi.UserContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.MarkupParams;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.RuntimeContext;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Extracts basic required elements for all invocation requests.
@@ -119,15 +121,12 @@ class RequestPrecursor
          Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState);
       String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
       markupParams.setClientData(WSRPTypeFactory.createClientData(userAgent));
+
+      // navigational state
       StateString navigationalState = invocation.getNavigationalState();
-      if (navigationalState != null)
-      {
-         String state = navigationalState.getStringValue();
-         if (!StateString.JBPNS_PREFIX.equals(state))  // fix-me: see JBPORTAL-900
-         {
-            markupParams.setNavigationalState(state);
-         }
-      }
+      Map<String,String[]> publicNavigationalState = invocation.getPublicNavigationalState();
+      NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContextOrNull(navigationalState, publicNavigationalState);
+      markupParams.setNavigationalContext(navigationalContext);
 
       if (log.isDebugEnabled())
       {

@@ -26,6 +26,8 @@ package org.gatein.wsrp.consumer;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
+import javax.xml.namespace.QName;
+
 import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
 
 /**
@@ -38,7 +40,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
    private String persistentId;
    private RegistrationPropertyDescription persistentDescription;
    private String persistentLang;
-   private String persistentName;
+   private QName persistentName;
    private String persistentValue;
    private Status status;
 
@@ -46,7 +48,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
 
    public int compareTo(RegistrationProperty o)
    {
-      return persistentName.compareTo(o.persistentName);
+      return persistentName.toString().compareTo(o.persistentName.toString());
    }
 
    public enum Status
@@ -77,7 +79,12 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
 
    public RegistrationProperty(String name, String stringValue, String lang, PropertyChangeListener listener)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "Name", "RegistrationProperty");
+      this(QName.valueOf(name), stringValue, lang, listener);
+   }
+
+   public RegistrationProperty(QName name, String stringValue, String lang, PropertyChangeListener listener)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "Name");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "Lang", "RegistrationProperty");
       ParameterValidation.throwIllegalArgExceptionIfNull(listener, "listener");
       this.persistentName = name;
@@ -132,14 +139,14 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>
       this.persistentId = key;
    }
 
-   public String getName()
+   public QName getName()
    {
       return persistentName;
    }
 
-   public void setName(String name)
+   public void setName(QName name)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "Name", "RegistrationProperty");
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "Name");
       this.persistentName = name;
    }
 

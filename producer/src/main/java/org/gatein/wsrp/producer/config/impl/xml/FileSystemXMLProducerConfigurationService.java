@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,8 +24,10 @@
 package org.gatein.wsrp.producer.config.impl.xml;
 
 import org.gatein.common.net.URLTools;
+//import org.jboss.xb.binding.Marshaller;
 import org.jboss.xb.binding.ObjectModelProvider;
 import org.jboss.xb.binding.XercesXsMarshaller;
+import org.jboss.xb.binding.sunday.marshalling.MarshallerImpl;
 import org.jboss.xb.binding.sunday.unmarshalling.DefaultSchemaResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,6 +185,7 @@ public class FileSystemXMLProducerConfigurationService extends SimpleXMLProducer
       Reader xsReader = new InputStreamReader(is);
 
       // create an instance of XML Schema marshaller
+//      MarshallerImpl marshaller = new MarshallerImpl(); // todo: replace XercesXsMarshaller by this
       XercesXsMarshaller marshaller = new XercesXsMarshaller();
 
       marshaller.setSchemaResolver(RESOLVER);

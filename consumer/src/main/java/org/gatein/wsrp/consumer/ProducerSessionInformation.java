@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,7 +27,7 @@ import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Tools;
 import org.gatein.wsrp.WSRPConstants;
-import org.oasis.wsrp.v1.SessionContext;
+import org.oasis.wsrp.v2.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

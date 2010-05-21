@@ -36,8 +36,8 @@ import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.handler.CookieUtil;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UserContext;
 
 import java.net.URL;
 import java.net.URLConnection;

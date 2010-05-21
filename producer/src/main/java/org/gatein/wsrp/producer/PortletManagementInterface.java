@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,24 +23,24 @@
 
 package org.gatein.wsrp.producer;
 
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.ClonePortlet;
-import org.oasis.wsrp.v1.DestroyPortlets;
-import org.oasis.wsrp.v1.DestroyPortletsResponse;
-import org.oasis.wsrp.v1.GetPortletDescription;
-import org.oasis.wsrp.v1.GetPortletProperties;
-import org.oasis.wsrp.v1.GetPortletPropertyDescription;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.PortletDescriptionResponse;
-import org.oasis.wsrp.v1.PortletPropertyDescriptionResponse;
-import org.oasis.wsrp.v1.PropertyList;
-import org.oasis.wsrp.v1.SetPortletProperties;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.DestroyPortlets;
+import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.GetPortletDescription;
+import org.oasis.wsrp.v2.GetPortletProperties;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescriptionResponse;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.SetPortletProperties;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

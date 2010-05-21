@@ -36,25 +36,29 @@ import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 import org.gatein.wsrp.servlet.UserAccess;
-import org.oasis.wsrp.v1.CookieProtocol;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.ItemDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PortletPropertyDescriptionResponse;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ResourceList;
-import org.oasis.wsrp.v1.ServiceDescription;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
+import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.EventDescription;
+import org.oasis.wsrp.v2.ExportDescription;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.ExtensionDescription;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ItemDescription;
+import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.ModelTypes;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ResourceList;
+import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.Holder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -771,41 +775,49 @@ public class ProducerInfo
          Holder<Boolean> requiresRegistration = new Holder<Boolean>();
          Holder<List<PortletDescription>> offeredPortlets = new Holder<List<PortletDescription>>();
          Holder<List<ItemDescription>> userCategoryDescriptions = new Holder<List<ItemDescription>>();
-         Holder<List<ItemDescription>> userProfileItemDescriptions = new Holder<List<ItemDescription>>();
          Holder<List<ItemDescription>> windowStateDescriptions = new Holder<List<ItemDescription>>();
          Holder<List<ItemDescription>> modeDescriptions = new Holder<List<ItemDescription>>();
-         Holder<CookieProtocol> initCookie = new Holder<CookieProtocol>();
+         Holder<CookieProtocol> requiresInitCookie = new Holder<CookieProtocol>();
          Holder<ModelDescription> registrationPropertyDescription = new Holder<ModelDescription>();
          Holder<List<String>> locales = new Holder<List<String>>();
          Holder<ResourceList> resourceList = new Holder<ResourceList>();
+         Holder<List<EventDescription>> eventDescriptions = new Holder<List<EventDescription>>();
+         Holder<ModelTypes> schemaTypes = new Holder<ModelTypes>();
+         Holder<List<String>> supportedOptions = new Holder<List<String>>();
+         Holder<ExportDescription> exportDescription = new Holder<ExportDescription>();
+         Holder<Boolean> mayReturnRegistrationState = new Holder<Boolean>();
 
          // invocation
          persistentEndpointInfo.getServiceDescriptionService().getServiceDescription(
             asUnregistered ? null : getRegistrationContext(),
             WSRPConstants.getDefaultLocales(), // todo: deal with locales better
+            null, // todo: provide a way to only request info on some portlets?
+            UserAccess.getUserContext(),
             requiresRegistration,
             offeredPortlets,
             userCategoryDescriptions,
-            userProfileItemDescriptions,
+            new Holder<List<ExtensionDescription>>(),
             windowStateDescriptions,
             modeDescriptions,
-            initCookie,
+            requiresInitCookie,
             registrationPropertyDescription,
             locales,
             resourceList,
+            eventDescriptions,
+            schemaTypes,
+            supportedOptions,
+            exportDescription,
+            mayReturnRegistrationState,
             new Holder<List<Extension>>());
 
+         // TODO: fix-me
          serviceDescription = WSRPTypeFactory.createServiceDescription(requiresRegistration.value);
          serviceDescription.setRegistrationPropertyDescription(registrationPropertyDescription.value);
-         serviceDescription.setRequiresInitCookie(initCookie.value);
+         serviceDescription.setRequiresInitCookie(requiresInitCookie.value);
          serviceDescription.setResourceList(resourceList.value);
          if (ParameterValidation.existsAndIsNotEmpty(modeDescriptions.value))
          {
             serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
-         }
-         if (ParameterValidation.existsAndIsNotEmpty(userProfileItemDescriptions.value))
-         {
-            serviceDescription.getCustomUserProfileItemDescriptions().addAll(userProfileItemDescriptions.value);
          }
          if (ParameterValidation.existsAndIsNotEmpty(windowStateDescriptions.value))
          {
@@ -896,7 +908,7 @@ public class ProducerInfo
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);
       try
       {
-         WSRPV1PortletManagementPortType service = getEndpointConfigurationInfo().getPortletManagementService();
+         WSRPV2PortletManagementPortType service = getEndpointConfigurationInfo().getPortletManagementService();
 
          Holder<ModelDescription> modelDescription = new Holder<ModelDescription>();
          Holder<ResourceList> resourceList = new Holder<ResourceList>();
@@ -982,17 +994,13 @@ public class ProducerInfo
 
                   // invocation
                   persistentEndpointInfo.getRegistrationService().register(
-                     registrationData.getConsumerName(),
-                     registrationData.getConsumerAgent(),
-                     registrationData.isMethodGetSupported(),
-                     registrationData.getConsumerModes(),
-                     registrationData.getConsumerWindowStates(),
-                     registrationData.getConsumerUserScopes(),
-                     registrationData.getCustomUserProfileData(),
-                     registrationData.getRegistrationProperties(),
+                     registrationData,
+                     null, // todo: support leasing?
+                     UserAccess.getUserContext(),
+                     registrationState,
+                     new Holder<Lifetime>(),
                      new Holder<List<Extension>>(),
-                     registrationHandle,
-                     registrationState
+                     registrationHandle
                   );
 
                   RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registrationHandle.value);
@@ -1038,10 +1046,7 @@ public class ProducerInfo
          try
          {
             RegistrationContext registrationContext = getRegistrationContext();
-            persistentEndpointInfo.getRegistrationService().deregister(
-               registrationContext.getRegistrationHandle(),
-               registrationContext.getRegistrationState(),
-               new ArrayList<Extension>());
+            persistentEndpointInfo.getRegistrationService().deregister(registrationContext, UserAccess.getUserContext());
             log.info("Consumer with id '" + persistentId + "' deregistered.");
          }
          catch (Exception e)
@@ -1082,7 +1087,9 @@ public class ProducerInfo
                persistentEndpointInfo.getRegistrationService().modifyRegistration(
                   registrationContext,
                   persistentRegistrationInfo.getRegistrationData(),
+                  UserAccess.getUserContext(),
                   registrationState,
+                  new Holder<Lifetime>(),
                   new Holder<List<Extension>>());
 
                // force refresh of internal RegistrationInfo state

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,14 +23,14 @@
 
 package org.gatein.wsrp.producer;
 
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.ModifyRegistration;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.RegistrationState;
-import org.oasis.wsrp.v1.ReturnAny;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.RegistrationState;
+import org.oasis.wsrp.v2.ReturnAny;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

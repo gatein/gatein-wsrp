@@ -44,4 +44,30 @@
          <version>1.0-MR1</version>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.jboss.ws.plugins</groupId>
+            <artifactId>maven-jaxws-tools-plugin</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+            <configuration>
+               <wsdls>
+                  <wsdl>${basedir}/src/main/resources/wsdl/wsrp-1.0-services.wsdl</wsdl>
+               </wsdls>
+               <targetPackage>org.oasis.wsrp.v1</targetPackage>
+               <bindingFiles>
+                  <bindingFile>${basedir}/src/main/resources/wsdl/jaxb-customization.xml</bindingFile>
+               </bindingFiles>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>wsconsume</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
 </project>

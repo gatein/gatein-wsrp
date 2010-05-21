@@ -51,18 +51,20 @@ import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.servlet.UserAccess;
-import org.oasis.wsrp.v1.DestroyFailed;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.PropertyList;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ResetProperty;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
-import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
-import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionParams;
+import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
+import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
+import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
+import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,8 +215,8 @@ public class WSRPConsumerImpl implements WSRPConsumer
          Holder<String> handle = new Holder<String>();
          Holder<byte[]> portletState = new Holder<byte[]>();
          getPortletManagementService().clonePortlet(getRegistrationContext(),
-            WSRPUtils.convertToWSRPPortletContext(portletContext), UserAccess.getUserContext(), handle, portletState,
-            new Holder<List<Extension>>()
+            WSRPUtils.convertToWSRPPortletContext(portletContext), UserAccess.getUserContext(), null, handle,
+            portletState, new Holder<Lifetime>(), new Holder<List<Extension>>()
          );
          return WSRPUtils.convertToPortalPortletContext(handle.value, portletState.value);
       }
@@ -241,26 +243,37 @@ public class WSRPConsumerImpl implements WSRPConsumer
          String id = context.getId();
          handles.add(id);
       }
-      log.debug("Attempting to destroy clones: " + handles);
+      if (log.isDebugEnabled())
+      {
+         log.debug("Attempting to destroy clones: " + handles);
+      }
 
       try
       {
-         Holder<List<DestroyFailed>> destroyFailed = new Holder<List<DestroyFailed>>();
+         Holder<List<FailedPortlets>> failedPortlets = new Holder<List<FailedPortlets>>();
 
-         getPortletManagementService().destroyPortlets(getRegistrationContext(), handles, destroyFailed, new Holder<List<Extension>>());
+         getPortletManagementService().destroyPortlets(getRegistrationContext(), handles, UserAccess.getUserContext(),
+            failedPortlets, new Holder<List<Extension>>());
 
-         List<DestroyFailed> failures = destroyFailed.value;
+         List<FailedPortlets> failures = failedPortlets.value;
          List<DestroyCloneFailure> result = Collections.emptyList();
          if (failures != null)
          {
             result = new ArrayList<DestroyCloneFailure>(failures.size());
             // list all the failures and successes
-            for (DestroyFailed failure : failures)
+            for (FailedPortlets failure : failures)
             {
-               String handle = failure.getPortletHandle();
-               result.add(new DestroyCloneFailure(handle, failure.getReason()));
-               handles.remove(handle);
-               log.debug("Couldn't destroy clone '" + handle + "'");
+               List<String> portletHandles = failure.getPortletHandles();
+               String reason = failure.getReason().getValue();
+               for (String portletHandle : portletHandles)
+               {
+                  result.add(new DestroyCloneFailure(portletHandle, reason));
+                  if (log.isDebugEnabled())
+                  {
+                     log.debug("Couldn't destroy clone '" + portletHandles + "'");
+                  }
+               }
+               handles.removeAll(portletHandles);
             }
          }
 
@@ -313,7 +326,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
             for (Property prop : props)
             {
-               String name = prop.getName();
+               String name = prop.getName().toString();
                String value = prop.getStringValue();
                List<String> list = new ArrayList<String>();
                list.add(value);
@@ -389,6 +402,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
             propertyList,
             handle,
             portletState,
+            new Holder<Lifetime>(),
             new Holder<List<Extension>>()
          );
          PortletContext newPortletContext = PortletContext.createPortletContext(handle.value, portletState.value);
@@ -564,25 +578,25 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return producerInfo.getEndpointConfigurationInfo();
    }
 
-   public WSRPV1ServiceDescriptionPortType getServiceDescriptionService() throws PortletInvokerException
+   public WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getServiceDescriptionService();
    }
 
-   public WSRPV1MarkupPortType getMarkupService() throws PortletInvokerException
+   public WSRPV2MarkupPortType getMarkupService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getMarkupService();
    }
 
-   public WSRPV1PortletManagementPortType getPortletManagementService() throws PortletInvokerException
+   public WSRPV2PortletManagementPortType getPortletManagementService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getPortletManagementService();
    }
 
-   public WSRPV1RegistrationPortType getRegistrationService() throws PortletInvokerException
+   public WSRPV2RegistrationPortType getRegistrationService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getRegistrationService();
@@ -623,12 +637,13 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    // fix-me!
 
-   org.oasis.wsrp.v1.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   org.oasis.wsrp.v2.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // first decide if we need to pass the user context...
       WSRPPortletInfo info = getPortletInfo(invocation);
 
-      if (info != null && info.isUserContextStoredInSession() && runtimeContext.getSessionID() != null)
+      SessionParams sessionParams = runtimeContext.getSessionParams();
+      if (info != null && info.isUserContextStoredInSession() && sessionParams != null && sessionParams.getSessionID() != null)
       {
          return null; // the user context is most likely in the session already
       }
@@ -653,8 +668,9 @@ public class WSRPConsumerImpl implements WSRPConsumer
       // todo: could store templates in producer session info to avoid to re-generate them all the time?
       WSRPPortletInfo info = getPortletInfo(invocation);
 
+      SessionParams sessionParams = runtimeContext.getSessionParams();
       if (info != null && info.isDoesUrlTemplateProcessing()
-         && (!info.isTemplatesStoredInSession() || runtimeContext.getSessionID() == null))
+         && (!info.isTemplatesStoredInSession() || sessionParams == null || sessionParams.getSessionID() == null))
       {
          // we need to supply the templates since the portlet does URL processing and either doesn't store
          // templates in the session or no session has been established yet

@@ -37,15 +37,15 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.oasis.wsrp.v1.CacheControl;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.MarkupContext;
-import org.oasis.wsrp.v1.MarkupResponse;
-import org.oasis.wsrp.v1.PortletContext;
-import org.oasis.wsrp.v1.RuntimeContext;
-import org.oasis.wsrp.v1.SessionContext;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v2.CacheControl;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupResponse;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -88,8 +88,8 @@ public class RenderHandler extends InvocationHandler
          requestPrecursor.getPortletHandle());
 
       MarkupContext markupContext = markupResponse.getMarkupContext();
-      String markup = markupContext.getMarkupString();
-      byte[] binary = markupContext.getMarkupBinary();
+      String markup = markupContext.getItemString();
+      byte[] binary = markupContext.getItemBinary();
       if (markup != null && binary != null)
       {
          return new ErrorResponse(new IllegalArgumentException("Markup response cannot contain both string and binary " +
@@ -98,9 +98,9 @@ public class RenderHandler extends InvocationHandler
 
       if (markup == null && binary == null)
       {
-         if (markupContext.isUseCachedMarkup())
+         if (markupContext.isUseCachedItem())
          {
-            //todo: deal with cache
+            //todo: deal with cache GTNWSRP-40
          }
          else
          {
@@ -111,7 +111,7 @@ public class RenderHandler extends InvocationHandler
 
       if (markup != null && markup.length() > 0)
       {
-         if (Boolean.TRUE.equals(markupContext.isRequiresUrlRewriting()))
+         if (Boolean.TRUE.equals(markupContext.isRequiresRewriting()))
          {
             markup = processMarkup(
                markup,

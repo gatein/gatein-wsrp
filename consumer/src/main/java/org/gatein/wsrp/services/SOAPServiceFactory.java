@@ -24,10 +24,10 @@
 package org.gatein.wsrp.services;
 
 import org.gatein.common.util.ParameterValidation;
-import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
-import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
-import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
+import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
+import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
+import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
+import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,21 +78,21 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       //
       String portAddress = null;
       boolean isMandatoryInterface = false;
-      if (WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz))
+      if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz))
       {
          portAddress = serviceDescriptionURL;
          isMandatoryInterface = true;
       }
-      else if (WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
+      else if (WSRPV2MarkupPortType.class.isAssignableFrom(clazz))
       {
          portAddress = markupURL;
          isMandatoryInterface = true;
       }
-      else if (WSRPV1RegistrationPortType.class.isAssignableFrom(clazz))
+      else if (WSRPV2RegistrationPortType.class.isAssignableFrom(clazz))
       {
          portAddress = registrationURL;
       }
-      else if (WSRPV1PortletManagementPortType.class.isAssignableFrom(clazz))
+      else if (WSRPV2PortletManagementPortType.class.isAssignableFrom(clazz))
       {
          portAddress = portletManagementURL;
       }
@@ -246,20 +246,20 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
          Service service = Service.create(wsdlURL.toURL(), SERVICE);
 
-         WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);
-         services.put(WSRPV1MarkupPortType.class, markupPortType);
+         WSRPV2MarkupPortType markupPortType = service.getPort(WSRPV2MarkupPortType.class);
+         services.put(WSRPV2MarkupPortType.class, markupPortType);
          markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-         WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPV1ServiceDescriptionPortType.class);
-         services.put(WSRPV1ServiceDescriptionPortType.class, sdPort);
+         WSRPV2ServiceDescriptionPortType sdPort = service.getPort(WSRPV2ServiceDescriptionPortType.class);
+         services.put(WSRPV2ServiceDescriptionPortType.class, sdPort);
          serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-         WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPV1PortletManagementPortType.class);
-         services.put(WSRPV1PortletManagementPortType.class, managementPortType);
+         WSRPV2PortletManagementPortType managementPortType = service.getPort(WSRPV2PortletManagementPortType.class);
+         services.put(WSRPV2PortletManagementPortType.class, managementPortType);
          portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-         WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPV1RegistrationPortType.class);
-         services.put(WSRPV1RegistrationPortType.class, registrationPortType);
+         WSRPV2RegistrationPortType registrationPortType = service.getPort(WSRPV2RegistrationPortType.class);
+         services.put(WSRPV2RegistrationPortType.class, registrationPortType);
          registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
          setFailed(false);

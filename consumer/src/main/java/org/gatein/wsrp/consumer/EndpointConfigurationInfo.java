@@ -27,10 +27,10 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.wsrp.services.SOAPServiceFactory;
 import org.gatein.wsrp.services.ServiceFactory;
-import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
-import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
-import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
+import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
+import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
+import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
+import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,24 +101,24 @@ public class EndpointConfigurationInfo
       return serviceFactory;
    }
 
-   WSRPV1ServiceDescriptionPortType getServiceDescriptionService() throws InvokerUnavailableException
+   WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws InvokerUnavailableException
    {
-      return getService(WSRPV1ServiceDescriptionPortType.class);
+      return getService(WSRPV2ServiceDescriptionPortType.class);
    }
 
-   WSRPV1MarkupPortType getMarkupService() throws InvokerUnavailableException
+   WSRPV2MarkupPortType getMarkupService() throws InvokerUnavailableException
    {
-      return getService(WSRPV1MarkupPortType.class);
+      return getService(WSRPV2MarkupPortType.class);
    }
 
-   WSRPV1PortletManagementPortType getPortletManagementService() throws InvokerUnavailableException
+   WSRPV2PortletManagementPortType getPortletManagementService() throws InvokerUnavailableException
    {
-      return getService(WSRPV1PortletManagementPortType.class);
+      return getService(WSRPV2PortletManagementPortType.class);
    }
 
-   WSRPV1RegistrationPortType getRegistrationService() throws InvokerUnavailableException
+   WSRPV2RegistrationPortType getRegistrationService() throws InvokerUnavailableException
    {
-      return getService(WSRPV1RegistrationPortType.class);
+      return getService(WSRPV2RegistrationPortType.class);
    }
 
    private <T> T getService(Class<T> clazz) throws InvokerUnavailableException
@@ -161,10 +161,10 @@ public class EndpointConfigurationInfo
 
    boolean forceRefresh() throws InvokerUnavailableException
    {
-      getService(WSRPV1ServiceDescriptionPortType.class, serviceFactory);
-      getService(WSRPV1MarkupPortType.class, serviceFactory);
-      getService(WSRPV1PortletManagementPortType.class, serviceFactory);
-      getService(WSRPV1RegistrationPortType.class, serviceFactory);
+      getService(WSRPV2ServiceDescriptionPortType.class, serviceFactory);
+      getService(WSRPV2MarkupPortType.class, serviceFactory);
+      getService(WSRPV2PortletManagementPortType.class, serviceFactory);
+      getService(WSRPV2RegistrationPortType.class, serviceFactory);
 
       return true;
    }

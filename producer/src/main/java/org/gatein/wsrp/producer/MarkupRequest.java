@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,7 +27,7 @@ import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.Portlet;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.MarkupType;
+import org.oasis.wsrp.v2.MarkupType;
 
 import java.util.HashSet;
 import java.util.List;

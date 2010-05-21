@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2009, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -58,34 +58,34 @@
    <!-- WSRP Endpoints -->
    <servlet>
       <servlet-name>ServiceDescriptionService</servlet-name>
-      <servlet-class>org.gatein.wsrp.endpoints.ServiceDescriptionEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.v2.ServiceDescriptionEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV1ServiceDescriptionPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>MarkupService</servlet-name>
-      <servlet-class>org.gatein.wsrp.endpoints.MarkupEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.v2.MarkupEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v1.WSRPV1MarkupPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV1MarkupPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>RegistrationService</servlet-name>
-      <servlet-class>org.gatein.wsrp.endpoints.RegistrationEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.v2.RegistrationEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v1.WSRPV1RegistrationPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV1RegistrationPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
       <servlet-name>PortletManagementService</servlet-name>
-      <servlet-class>org.gatein.wsrp.endpoints.PortletManagementEndpoint</servlet-class>
+      <servlet-class>org.gatein.wsrp.endpoints.v2.PortletManagementEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v1.WSRPV1PortletManagementPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV1PortletManagementPortType</param-value>
       </init-param>
    </servlet>
 
