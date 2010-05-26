@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2009, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.consumer;
 
@@ -27,28 +27,30 @@ import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
 import org.gatein.wsrp.test.protocol.v1.RegistrationBehavior;
 import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
 import org.gatein.wsrp.test.support.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidRegistrationFault;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ResourceList;
-import org.oasis.wsrp.v1.UserContext;
+import org.oasis.wsrp.v1.V1AccessDenied;
+import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InconsistentParameters;
+import org.oasis.wsrp.v1.V1InvalidHandle;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1InvalidRegistrationFault;
+import org.oasis.wsrp.v1.V1InvalidUserCategory;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1OperationFailedFault;
+import org.oasis.wsrp.v1.V1PortletContext;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1Property;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1ResourceList;
+import org.oasis.wsrp.v1.V1UserContext;
+import org.oasis.wsrp.v2.RegistrationContext;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -354,7 +356,7 @@ public class ProducerInfoTestCase extends TestCase
    private static class TestPortletManagementBehavior extends PortletManagementBehavior
    {
       @Override
-      public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") org.oasis.wsrp.v1.PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales, @WebParam(mode = WebParam.Mode.OUT, name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<PortletDescription> portletDescription, @WebParam(mode = WebParam.Mode.OUT, name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ResourceList> resourceList, @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions) throws MissingParameters, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, AccessDenied, OperationFailed
+      public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales, @WebParam(name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1PortletDescription> portletDescription, @WebParam(name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1ResourceList> resourceList, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<List<V1Extension>> extensions) throws V1AccessDenied, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1MissingParameters, V1OperationFailed
       {
          super.getPortletDescription(registrationContext, portletContext, userContext, desiredLocales, portletDescription, resourceList, extensions);
          portletDescription.value = createPortletDescription("test2", null);
@@ -368,9 +370,9 @@ public class ProducerInfoTestCase extends TestCase
       private static final String ORIGINAL_VALUE = "value";
 
       @Override
-      public void register(@WebParam(name = "consumerName", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerName, @WebParam(name = "consumerAgent", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerAgent, @WebParam(name = "methodGetSupported", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") boolean methodGetSupported, @WebParam(name = "consumerModes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerModes, @WebParam(name = "consumerWindowStates", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerWindowStates, @WebParam(name = "consumerUserScopes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerUserScopes, @WebParam(name = "customUserProfileData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> customUserProfileData, @WebParam(name = "registrationProperties", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<Property> registrationProperties, @WebParam(mode = WebParam.Mode.INOUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions, @WebParam(mode = WebParam.Mode.OUT, name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<String> registrationHandle, @WebParam(mode = WebParam.Mode.OUT, name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<byte[]> registrationState) throws MissingParameters, OperationFailed
+      public void register(@WebParam(name = "consumerName", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerName, @WebParam(name = "consumerAgent", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerAgent, @WebParam(name = "methodGetSupported", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") boolean methodGetSupported, @WebParam(name = "consumerModes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerModes, @WebParam(name = "consumerWindowStates", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerWindowStates, @WebParam(name = "consumerUserScopes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerUserScopes, @WebParam(name = "customUserProfileData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> customUserProfileData, @WebParam(name = "registrationProperties", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<V1Property> registrationProperties, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.INOUT) Holder<List<V1Extension>> extensions, @WebParam(name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<String> registrationHandle, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState) throws V1MissingParameters, V1OperationFailed
       {
-         Property prop = checkRegistrationData(registrationProperties);
+         V1Property prop = checkRegistrationData(registrationProperties);
 
          String value = prop.getStringValue();
          if (ORIGINAL_VALUE.equals(value) && PROP_NAME.equals(prop.getName()))
@@ -379,25 +381,25 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
+         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED,
             value + " is not a valid value for " + PROP_NAME, null);
       }
 
       @Override
-      public void modifyRegistration(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext, @WebParam(name = "registrationData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationData registrationData, @WebParam(mode = WebParam.Mode.OUT, name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<byte[]> registrationState, @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions) throws MissingParameters, InvalidRegistration, OperationFailed
+      public void modifyRegistration(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext, @WebParam(name = "registrationData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationData registrationData, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<List<V1Extension>> extensions) throws V1InvalidRegistration, V1MissingParameters, V1OperationFailed
       {
          incrementCallCount();
 
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
+         WSRP1ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
 
          if (!RegistrationBehavior.REGISTRATION_HANDLE.equals(registrationContext.getRegistrationHandle()))
          {
-            WSRPExceptionFactory.<InvalidRegistration, InvalidRegistrationFault>throwWSException(WSRPExceptionFactory.INVALID_REGISTRATION, "Invalid registration", null);
+            WSRP1ExceptionFactory.<V1InvalidRegistration, V1InvalidRegistrationFault>throwWSException(WSRP1ExceptionFactory.INVALID_REGISTRATION, "Invalid registration", null);
          }
 
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
+         WSRP1ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
 
-         Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
+         V1Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
 
          String value = prop.getStringValue();
          if (MODIFIED_VALUE.equals(value) && PROP_NAME.equals(prop.getName()))
@@ -405,16 +407,16 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, value
+         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, value
             + " is not a valid value for " + PROP_NAME, null);
       }
 
-      private Property checkRegistrationData(List<Property> registrationProperties) throws OperationFailed
+      private V1Property checkRegistrationData(List<V1Property> registrationProperties) throws V1OperationFailed
       {
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
+         WSRP1ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
 
-         Property prop = registrationProperties.get(0);
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
+         V1Property prop = registrationProperties.get(0);
+         WSRP1ExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
          return prop;
       }
    }

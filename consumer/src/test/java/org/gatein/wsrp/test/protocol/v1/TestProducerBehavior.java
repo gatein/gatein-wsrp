@@ -1,34 +1,34 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.test.protocol.v1;
 
 import org.gatein.common.net.media.MediaType;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
-import org.oasis.wsrp.v1.LocalizedString;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.PortletDescription;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
+import org.oasis.wsrp.v1.V1LocalizedString;
+import org.oasis.wsrp.v1.V1MarkupType;
+import org.oasis.wsrp.v1.V1PortletDescription;
 
 /**
  * Provides a base class for Producer behavior used in Consumer testing.
@@ -60,11 +60,11 @@ public abstract class TestProducerBehavior
       return callCount;
    }
 
-   public PortletDescription createPortletDescription(String portletHandle, String suffix)
+   public V1PortletDescription createPortletDescription(String portletHandle, String suffix)
    {
-      PortletDescription portletDesc = new PortletDescription();
+      V1PortletDescription portletDesc = new V1PortletDescription();
       portletDesc.setPortletHandle(portletHandle);
-      MarkupType markupType = new MarkupType();
+      V1MarkupType markupType = new V1MarkupType();
       markupType.setMimeType(MediaType.TEXT_HTML.getValue());
       markupType.getModes().add(WSRPConstants.VIEW_MODE);
       markupType.getWindowStates().add(WSRPConstants.NORMAL_WINDOW_STATE);
@@ -86,9 +86,9 @@ public abstract class TestProducerBehavior
     * @param value
     * @return
     */
-   public static LocalizedString createLocalizedString(String value)
+   public static V1LocalizedString createLocalizedString(String value)
    {
-      return WSRPTypeFactory.createLocalizedString(value);
+      return WSRP1TypeFactory.createLocalizedString(value);
    }
 
    /** Produces String from LocalizedString */

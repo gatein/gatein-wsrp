@@ -29,20 +29,20 @@ import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.services.ServiceFactory;
 import org.gatein.wsrp.test.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
-import org.oasis.wsrp.v1.AccessDenied;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.InconsistentParameters;
-import org.oasis.wsrp.v1.InvalidCookie;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidSession;
-import org.oasis.wsrp.v1.InvalidUserCategory;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.UnsupportedLocale;
-import org.oasis.wsrp.v1.UnsupportedMimeType;
-import org.oasis.wsrp.v1.UnsupportedMode;
-import org.oasis.wsrp.v1.UnsupportedWindowState;
+import org.oasis.wsrp.v1.V1AccessDenied;
+import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1InconsistentParameters;
+import org.oasis.wsrp.v1.V1InvalidCookie;
+import org.oasis.wsrp.v1.V1InvalidHandle;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1InvalidSession;
+import org.oasis.wsrp.v1.V1InvalidUserCategory;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1UnsupportedLocale;
+import org.oasis.wsrp.v1.V1UnsupportedMimeType;
+import org.oasis.wsrp.v1.V1UnsupportedMode;
+import org.oasis.wsrp.v1.V1UnsupportedWindowState;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
@@ -218,10 +218,10 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       }
 
       @Override
-      protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup)
-         throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied, InconsistentParameters,
-         InvalidHandle, UnsupportedLocale, UnsupportedMode, OperationFailed, MissingParameters, InvalidUserCategory,
-         InvalidRegistration, UnsupportedMimeType
+      protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, V1GetMarkup getMarkup)
+         throws V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1AccessDenied, V1InconsistentParameters,
+         V1InvalidHandle, V1UnsupportedLocale, V1UnsupportedMode, V1OperationFailed, V1MissingParameters, V1InvalidUserCategory,
+         V1InvalidRegistration, V1UnsupportedMimeType
       {
          return MARKUP;
       }

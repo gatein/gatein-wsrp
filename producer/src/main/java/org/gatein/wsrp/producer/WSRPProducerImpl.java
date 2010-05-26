@@ -36,6 +36,7 @@ import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.ClonePortlet;
@@ -91,7 +92,7 @@ import java.util.Set;
  * @version $Revision: 12286 $
  * @since 2.4
  */
-public class WSRPProducerImpl implements WSRPProducer
+public class WSRPProducerImpl implements WSRP2Producer
 {
    /** logger used for logging ;) */
    private static final Logger log = LoggerFactory.getLogger(WSRPProducerImpl.class);

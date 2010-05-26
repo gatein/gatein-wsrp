@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -33,8 +33,7 @@ import org.gatein.wsrp.producer.config.ProducerConfigurationService;
  * @version $Revision: 12020 $
  * @since 2.4
  */
-public interface WSRPProducer extends ServiceDescriptionInterface, MarkupInterface, PortletManagementInterface,
-   RegistrationInterface, ProducerConfigurationChangeListener
+public interface WSRPProducer extends ProducerConfigurationChangeListener
 {
    /**
     * Retrieves the RegistrationManager used by this WSRPProducer.

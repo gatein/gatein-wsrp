@@ -21,13 +21,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.spec.v1;
+package org.gatein.wsrp.producer.v1;
+
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1ModifyRegistration;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1RegistrationState;
+import org.oasis.wsrp.v1.V1ReturnAny;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2ToV1Converter
+public interface V1RegistrationInterface
 {
-   
+   V1RegistrationContext register(V1RegistrationData register) throws V1MissingParameters, V1OperationFailed;
+
+   V1ReturnAny deregister(V1RegistrationContext deregister) throws V1OperationFailed, V1InvalidRegistration;
+
+   V1RegistrationState modifyRegistration(V1ModifyRegistration modifyRegistration) throws V1MissingParameters,
+      V1OperationFailed, V1InvalidRegistration;
 }

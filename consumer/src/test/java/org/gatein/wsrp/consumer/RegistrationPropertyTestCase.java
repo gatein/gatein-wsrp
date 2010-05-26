@@ -58,7 +58,7 @@ public class RegistrationPropertyTestCase extends TestCase
    {
       try
       {
-         new RegistrationProperty(null, VALUE, "en", listener);
+         new RegistrationProperty((String)null, VALUE, "en", listener);
          fail("Should have failed on null name");
       }
       catch (Exception e)

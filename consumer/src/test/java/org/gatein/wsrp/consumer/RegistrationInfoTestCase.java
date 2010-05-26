@@ -26,12 +26,14 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.spec.v1.V2V1Converter;
 import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
-import org.oasis.wsrp.v1.Property;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ServiceDescription;
 
+import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -146,7 +148,7 @@ public class RegistrationInfoTestCase extends TestCase
 
    public void testSimpleSetGetRegistrationProperty()
    {
-      String key = "foo";
+      QName key = QName.valueOf("{urn:foo:ns}foo");
       info.setRegistrationPropertyValue(key, "bar");
 
       // check status
@@ -505,6 +507,6 @@ public class RegistrationInfoTestCase extends TestCase
 
    private ServiceDescription createServiceDescription(boolean requiresRegistration, int numberOfProperties)
    {
-      return ServiceDescriptionBehavior.createServiceDescription(requiresRegistration, numberOfProperties);
+      return V2V1Converter.toV2ServiceDescription(ServiceDescriptionBehavior.createServiceDescription(requiresRegistration, numberOfProperties));
    }
 }

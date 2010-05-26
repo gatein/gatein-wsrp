@@ -1,41 +1,41 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.test.protocol.v1;
 
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
-import org.oasis.wsrp.v1.CookieProtocol;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.ItemDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.ResourceList;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
+import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1ItemDescription;
+import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ResourceList;
+import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
 
 import javax.jws.WebParam;
@@ -54,18 +54,18 @@ import java.util.Set;
  */
 public class ServiceDescriptionBehavior extends TestProducerBehavior implements WSRPV1ServiceDescriptionPortType
 {
-   protected ServiceDescription serviceDescription;
-   private static final ServiceDescription DEFAULT_SERVICE_DESCRIPTION = WSRPTypeFactory.createServiceDescription(false);
+   protected V1ServiceDescription serviceDescription;
+   private static final V1ServiceDescription DEFAULT_SERVICE_DESCRIPTION = WSRP1TypeFactory.createServiceDescription(false);
    public static final ServiceDescriptionBehavior DEFAULT = new ServiceDescriptionBehavior();
 
-   protected List<PortletDescription> offeredPortlets;
+   protected List<V1PortletDescription> offeredPortlets;
    private boolean requiresRegistration;
-   private CookieProtocol cookieProtocol;
-   private ModelDescription registrationProperties;
+   private V1CookieProtocol cookieProtocol;
+   private V1ModelDescription registrationProperties;
 
    public ServiceDescriptionBehavior()
    {
-      offeredPortlets = new LinkedList<PortletDescription>();
+      offeredPortlets = new LinkedList<V1PortletDescription>();
    }
 
    public void setRequiresRegistration(boolean requiresRegistration)
@@ -73,25 +73,25 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
       this.requiresRegistration = requiresRegistration;
    }
 
-   public void setRequiresInitCookie(CookieProtocol requiresInitCookie)
+   public void setRequiresInitCookie(V1CookieProtocol requiresInitCookie)
    {
       this.cookieProtocol = requiresInitCookie;
    }
 
    public void setServiceDescription(boolean requiresRegistration, int numberOfProps)
    {
-      ServiceDescription sd = createServiceDescription(requiresRegistration, numberOfProps);
+      V1ServiceDescription sd = createServiceDescription(requiresRegistration, numberOfProps);
       offeredPortlets = sd.getOfferedPortlets();
       this.requiresRegistration = sd.isRequiresRegistration();
       registrationProperties = sd.getRegistrationPropertyDescription();
    }
 
-   public static ServiceDescription getDefaultServiceDescription()
+   public static V1ServiceDescription getDefaultServiceDescription()
    {
       return DEFAULT_SERVICE_DESCRIPTION;
    }
 
-   public void addPortletDescription(PortletDescription portletDescription)
+   public void addPortletDescription(V1PortletDescription portletDescription)
    {
       offeredPortlets.add(portletDescription);
    }
@@ -100,7 +100,7 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
    {
       Set<String> handles = new HashSet<String>(offeredPortlets.size());
 
-      for (PortletDescription description : offeredPortlets)
+      for (V1PortletDescription description : offeredPortlets)
       {
          handles.add(description.getPortletHandle());
       }
@@ -113,37 +113,37 @@ public class ServiceDescriptionBehavior extends TestProducerBehavior implements 
       return offeredPortlets.size();
    }
 
-   public static ServiceDescription createServiceDescription(boolean requiresRegistration, int numberOfProperties)
+   public static V1ServiceDescription createServiceDescription(boolean requiresRegistration, int numberOfProperties)
    {
-      ServiceDescription sd = WSRPTypeFactory.createServiceDescription(requiresRegistration);
+      V1ServiceDescription sd = WSRP1TypeFactory.createServiceDescription(requiresRegistration);
 
       if (requiresRegistration)
       {
-         List<PropertyDescription> descriptions = new ArrayList<PropertyDescription>(numberOfProperties);
+         List<V1PropertyDescription> descriptions = new ArrayList<V1PropertyDescription>(numberOfProperties);
          for (int i = 0; i < numberOfProperties; i++)
          {
-            descriptions.add(WSRPTypeFactory.createPropertyDescription("prop" + i, WSRPConstants.XSD_STRING));
+            descriptions.add(WSRP1TypeFactory.createPropertyDescription("prop" + i, WSRPConstants.XSD_STRING));
          }
-         sd.setRegistrationPropertyDescription(WSRPTypeFactory.createModelDescription(descriptions));
+         sd.setRegistrationPropertyDescription(WSRP1TypeFactory.createModelDescription(descriptions));
       }
 
       return sd;
    }
 
-   public void getServiceDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext,
+   public void getServiceDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext,
                                      @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales,
                                      @WebParam(mode = WebParam.Mode.OUT, name = "requiresRegistration", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<Boolean> requiresRegistration,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "offeredPortlets", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<PortletDescription>> offeredPortlets,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "userCategoryDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> userCategoryDescriptions,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "customUserProfileItemDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customUserProfileItemDescriptions,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "customWindowStateDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customWindowStateDescriptions,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "customModeDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customModeDescriptions,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "requiresInitCookie", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<CookieProtocol> requiresInitCookie,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "registrationPropertyDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ModelDescription> registrationPropertyDescription,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "offeredPortlets", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1PortletDescription>> offeredPortlets,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "userCategoryDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1ItemDescription>> userCategoryDescriptions,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "customUserProfileItemDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1ItemDescription>> customUserProfileItemDescriptions,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "customWindowStateDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1ItemDescription>> customWindowStateDescriptions,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "customModeDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1ItemDescription>> customModeDescriptions,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "requiresInitCookie", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1CookieProtocol> requiresInitCookie,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "registrationPropertyDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1ModelDescription> registrationPropertyDescription,
                                      @WebParam(mode = WebParam.Mode.OUT, name = "locales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<String>> locales,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ResourceList> resourceList,
-                                     @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions)
-      throws InvalidRegistration, OperationFailed
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1ResourceList> resourceList,
+                                     @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions)
+      throws V1InvalidRegistration, V1OperationFailed
    {
       incrementCallCount();
       offeredPortlets.value = this.offeredPortlets;

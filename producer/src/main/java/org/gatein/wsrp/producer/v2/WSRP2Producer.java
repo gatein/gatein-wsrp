@@ -21,26 +21,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.protocol.v1.behaviors;
+package org.gatein.wsrp.producer.v2;
 
-import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
-import org.oasis.wsrp.v1.V1PortletDescription;
+import org.gatein.wsrp.producer.MarkupInterface;
+import org.gatein.wsrp.producer.PortletManagementInterface;
+import org.gatein.wsrp.producer.RegistrationInterface;
+import org.gatein.wsrp.producer.ServiceDescriptionInterface;
+import org.gatein.wsrp.producer.WSRPProducer;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.protocol.v1.behaviors.BasicServiceDescriptionBehavior">Chris
- *         Laprun</a>
- * @version $Revision: 10610 $
- * @since 2.6
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ * @version $Revision$
  */
-public class BasicServiceDescriptionBehavior extends ServiceDescriptionBehavior
+public interface WSRP2Producer extends WSRPProducer, MarkupInterface, PortletManagementInterface,
+   RegistrationInterface, ServiceDescriptionInterface
 {
-
-   public BasicServiceDescriptionBehavior()
-   {
-      //Prepare description of two portlets
-      V1PortletDescription pd1 = createPortletDescription(BasicMarkupBehavior.PORTLET_HANDLE, "");
-      V1PortletDescription pd2 = createPortletDescription(SessionMarkupBehavior.PORTLET_HANDLE, "2");
-      offeredPortlets.add(pd1);
-      offeredPortlets.add(pd2);
-   }
 }

@@ -1,39 +1,39 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.InvalidRegistrationFault;
-import org.oasis.wsrp.v1.MarkupResponse;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.OperationFailedFault;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
+import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1GetServiceDescription;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1InvalidRegistrationFault;
+import org.oasis.wsrp.v1.V1MarkupResponse;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1OperationFailedFault;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -110,12 +110,12 @@ public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
 
       if (!war2Handles.containsKey(archiveName))
       {
-         GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription();
-         ServiceDescription serviceDescription = serviceDescriptionService.getServiceDescription(getServiceDescription);
-         List<PortletDescription> offered = serviceDescription.getOfferedPortlets();
+         V1GetServiceDescription getServiceDescription = WSRP1TypeFactory.createGetServiceDescription();
+         V1ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
+         List<V1PortletDescription> offered = serviceDescription.getOfferedPortlets();
          if (offered != null)
          {
-            for (PortletDescription portletDescription : offered)
+            for (V1PortletDescription portletDescription : offered)
             {
                String handle = portletDescription.getPortletHandle();
                String warName = handle.substring(1, handle.indexOf('.')) + ".war";
@@ -191,7 +191,7 @@ public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
     *
     * @return a basic, valid GetMarkup object representing the markup request
     */
-   protected GetMarkup createMarkupRequestForCurrentlyDeployedPortlet() throws Exception
+   protected V1GetMarkup createMarkupRequestForCurrentlyDeployedPortlet() throws Exception
    {
       return createMarkupRequest(getHandleForCurrentlyDeployedArchive());
    }
@@ -200,13 +200,13 @@ public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
     * @param handle
     * @return
     * @throws RemoteException
-    * @throws InvalidRegistrationFault
-    * @throws OperationFailedFault
+    * @throws V1InvalidRegistrationFault
+    * @throws V1OperationFailedFault
     * @since 2.6.3
     */
-   protected GetMarkup createMarkupRequest(String handle) throws RemoteException, InvalidRegistration, OperationFailed
+   protected V1GetMarkup createMarkupRequest(String handle) throws RemoteException, V1InvalidRegistration, V1OperationFailed
    {
-      GetMarkup getMarkup = WSRPTypeFactory.createDefaultMarkupRequest(handle);
+      V1GetMarkup getMarkup = WSRP1TypeFactory.createDefaultMarkupRequest(handle);
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
 
       return getMarkup;
@@ -226,13 +226,13 @@ public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
       throw new IllegalArgumentException("Couldn't find a portlet handle matching '" + partialHandle + "' in " + currentlyDeployedArchiveName);
    }
 
-   protected GetMarkup createMarkupRequest() throws Exception
+   protected V1GetMarkup createMarkupRequest() throws Exception
    {
       return createMarkupRequestForCurrentlyDeployedPortlet();
    }
 
-   protected void checkSessionForCurrentlyDeployedPortlet(MarkupResponse response)
-      throws RemoteException, InvalidRegistration, OperationFailed
+   protected void checkSessionForCurrentlyDeployedPortlet(V1MarkupResponse response)
+      throws RemoteException, V1InvalidRegistration, V1OperationFailed
    {
       // We don't send any portlet session information, just user cookies... The producer takes care of the details
       // What this means, though is that we don't have access to individual portlet session ids... so we can only

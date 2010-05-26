@@ -1,34 +1,34 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
-import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.jboss.logging.Logger;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.ReleaseSessions;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ReleaseSessions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,8 +62,8 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
    public void testReleaseSession() throws Exception
    {
       // possible registration contexts are: actual RegistrationContext, null, and a made up value
-      RegistrationContext fakeRegContext = WSRPTypeFactory.createRegistrationContext("Fake Registration Handle");
-      RegistrationContext[] regContexts = new RegistrationContext[]{null, null, fakeRegContext};
+      V1RegistrationContext fakeRegContext = WSRP1TypeFactory.createRegistrationContext("Fake Registration Handle");
+      V1RegistrationContext[] regContexts = new V1RegistrationContext[]{null, null, fakeRegContext};
 
       // possible types of sessionIDs include null and a made up value.
       // Note: a valid session id cannot be used since the sessionID should never be sent to the consumer
@@ -81,14 +81,14 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
       {
          for (String[] sessionID : sessionIDs)
          {
-            ReleaseSessions releaseSession = WSRPTypeFactory.createReleaseSessions(regContexts[i], Arrays.asList(sessionID));
+            V1ReleaseSessions releaseSession = WSRP1TypeFactory.createReleaseSessions(regContexts[i], Arrays.asList(sessionID));
             releaseSessions(releaseSession, false, i);
             releaseSessions(releaseSession, true, i);
          }
       }
    }
 
-   private void releaseSessions(ReleaseSessions releaseSessions, boolean useRegistration, int index) throws Exception
+   private void releaseSessions(V1ReleaseSessions releaseSessions, boolean useRegistration, int index) throws Exception
    {
       setUp();
       try
@@ -106,10 +106,10 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
             }
          }
          log.info(getSetupString(releaseSessions));
-         markupService.releaseSessions(releaseSessions);
+         producer.releaseSessions(releaseSessions);
          ExtendedAssert.fail("ReleaseSessions did not thrown an OperationFailed Fault." + getSetupString(releaseSessions));
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected fault.
       }
@@ -119,7 +119,7 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
       }
    }
 
-   private String getSetupString(ReleaseSessions releaseSessions)
+   private String getSetupString(V1ReleaseSessions releaseSessions)
    {
       StringBuffer message = new StringBuffer("ReleaseSessions Setup:\n");
 
@@ -129,7 +129,7 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
       }
       else
       {
-         RegistrationContext regContext = releaseSessions.getRegistrationContext();
+         V1RegistrationContext regContext = releaseSessions.getRegistrationContext();
          List<String> sessionIDs = releaseSessions.getSessionIDs();
          message.append(" RegistrationContext : ").append(regContext != null ? regContext.getRegistrationHandle() : null);
          message.append(" | SessionIDs : ");

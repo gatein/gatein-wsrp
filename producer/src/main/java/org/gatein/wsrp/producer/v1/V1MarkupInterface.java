@@ -21,22 +21,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.protocol.v1.behaviors;
+package org.gatein.wsrp.producer.v1;
 
-import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
-import org.gatein.wsrp.test.BehaviorRegistry;
-import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
 import org.oasis.wsrp.v1.V1AccessDenied;
+import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
+import org.oasis.wsrp.v1.V1InitCookie;
 import org.oasis.wsrp.v1.V1InvalidCookie;
 import org.oasis.wsrp.v1.V1InvalidHandle;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
+import org.oasis.wsrp.v1.V1MarkupResponse;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PerformBlockingInteraction;
+import org.oasis.wsrp.v1.V1PortletStateChangeRequired;
+import org.oasis.wsrp.v1.V1ReleaseSessions;
+import org.oasis.wsrp.v1.V1ReturnAny;
 import org.oasis.wsrp.v1.V1UnsupportedLocale;
 import org.oasis.wsrp.v1.V1UnsupportedMimeType;
 import org.oasis.wsrp.v1.V1UnsupportedMode;
@@ -44,24 +47,25 @@ import org.oasis.wsrp.v1.V1UnsupportedWindowState;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision: 8784 $
- * @since 2.6
+ * @version $Revision$
  */
-public class ResourceMarkupBehavior extends MarkupBehavior
+public interface V1MarkupInterface
 {
-   public static final String PORTLET_HANDLE = "resource";
+   V1MarkupResponse getMarkup(V1GetMarkup getMarkup)
+      throws V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1AccessDenied,
+      V1InconsistentParameters, V1InvalidHandle, V1UnsupportedLocale, V1UnsupportedMode,
+      V1OperationFailed, V1MissingParameters, V1InvalidUserCategory, V1InvalidRegistration,
+      V1UnsupportedMimeType;
 
+   V1BlockingInteractionResponse performBlockingInteraction(V1PerformBlockingInteraction performBlockingInteraction)
+      throws V1InvalidSession, V1UnsupportedMode, V1UnsupportedMimeType, V1OperationFailed,
+      V1UnsupportedWindowState, V1UnsupportedLocale, V1AccessDenied, V1PortletStateChangeRequired,
+      V1InvalidRegistration, V1MissingParameters, V1InvalidUserCategory, V1InconsistentParameters,
+      V1InvalidHandle, V1InvalidCookie;
 
-   public ResourceMarkupBehavior(BehaviorRegistry registry)
-   {
-      super(registry);
-      registerHandle(PORTLET_HANDLE);
-   }
+   V1ReturnAny releaseSessions(V1ReleaseSessions releaseSessions)
+      throws V1InvalidRegistration, V1OperationFailed, V1MissingParameters, V1AccessDenied;
 
-   @Override
-   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, V1GetMarkup getMarkup) throws V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1AccessDenied, V1InconsistentParameters, V1InvalidHandle, V1UnsupportedLocale, V1UnsupportedMode, V1OperationFailed, V1MissingParameters, V1InvalidUserCategory, V1InvalidRegistration, V1UnsupportedMimeType
-   {
-      return "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%3A8080" +
-         "%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-   }
+   V1ReturnAny initCookie(V1InitCookie initCookie)
+      throws V1AccessDenied, V1OperationFailed, V1InvalidRegistration;
 }

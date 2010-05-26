@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
@@ -27,19 +27,19 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.oasis.wsrp.v1.GetMarkup;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.ModifyRegistration;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
+import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1GetServiceDescription;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1ModifyRegistration;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1RegistrationData;
 
 import javax.xml.namespace.QName;
 import java.util.List;
@@ -79,28 +79,28 @@ public class RegistrationTestCase extends V1ProducerBaseTest
    public void testConsumerAgent() throws Exception
    {
       configureRegistrationSettings(true, false);
-      RegistrationData regData = createBaseRegData();
+      V1RegistrationData regData = createBaseRegData();
       regData.setConsumerAgent("invalid consumer agent");
 
       try
       {
-         registrationService.register(regData);
+         producer.register(regData);
          ExtendedAssert.fail("Trying to register with an invalid consumer agent String should fail.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }
 
 
       regData.setConsumerAgent(WSRPConstants.CONSUMER_AGENT);
-      registrationService.register(regData);
+      producer.register(regData);
    }
 
-   public void testRegistrationHandle() throws OperationFailed, MissingParameters, RegistrationException
+   public void testRegistrationHandle() throws V1OperationFailed, V1MissingParameters, RegistrationException
    {
       // check that a registration handle was created
-      RegistrationContext rc = registerConsumer();
+      V1RegistrationContext rc = registerConsumer();
       String registrationHandle = rc.getRegistrationHandle();
       assertNotNull(registrationHandle);
 
@@ -122,35 +122,35 @@ public class RegistrationTestCase extends V1ProducerBaseTest
    {
       // initiate registration
       configureRegistrationSettings(true, false);
-      RegistrationContext rc = registerConsumer();
+      V1RegistrationContext rc = registerConsumer();
 
       // deregister
-      registrationService.deregister(rc);
+      producer.deregister(rc);
 
       // try to get markup, portlet handle doesn't matter since it should fail before trying to retrieve the portlet
-      GetMarkup getMarkup = WSRPTypeFactory.createDefaultMarkupRequest("foo");
+      V1GetMarkup getMarkup = WSRP1TypeFactory.createDefaultMarkupRequest("foo");
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
 
       try
       {
-         markupService.getMarkup(getMarkup);
+         producer.getMarkup(getMarkup);
          ExtendedAssert.fail("Consumer tried to access info with a de-registered context. Operations should fail.");
       }
-      catch (InvalidRegistration invalidRegistrationFault)
+      catch (V1InvalidRegistration invalidRegistrationFault)
       {
          // expected
       }
 
       // Get description with old registration context should fail
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
       gs.setRegistrationContext(rc);
 
       try
       {
-         serviceDescriptionService.getServiceDescription(gs);
+         producer.getServiceDescription(gs);
          ExtendedAssert.fail("Required registration info has been modified: operations should fail until registration is modified.");
       }
-      catch (InvalidRegistration invalidRegistrationFault)
+      catch (V1InvalidRegistration invalidRegistrationFault)
       {
          // expected
       }
@@ -158,14 +158,14 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       // Get description should still work without registration context
       gs = getNoRegistrationServiceDescriptionRequest();
 
-      ExtendedAssert.assertNotNull(serviceDescriptionService.getServiceDescription(gs));
+      ExtendedAssert.assertNotNull(producer.getServiceDescription(gs));
    }
 
    public void testModifyRegistration() throws Exception
    {
       // initiate registration
       configureRegistrationSettings(true, false);
-      RegistrationContext rc = registerConsumer();
+      V1RegistrationContext rc = registerConsumer();
 
       // now modify Producer's set of required registration info
       String newPropName = "New Prop";
@@ -175,16 +175,16 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().addRegistrationProperty(regProp);
 
       // try to get markup, portlet handle doesn't matter since it should fail before trying to retrieve the portlet
-      GetMarkup getMarkup = WSRPTypeFactory.createDefaultMarkupRequest("foo");
+      V1GetMarkup getMarkup = WSRP1TypeFactory.createDefaultMarkupRequest("foo");
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
       getMarkup.setRegistrationContext(rc);
 
       try
       {
-         markupService.getMarkup(getMarkup);
+         producer.getMarkup(getMarkup);
          ExtendedAssert.fail("Required registration info has been modified: operations should fail until registration is modified.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
          // WSRP primer recommends returning OperationFailedFault and NOT InvalidRegistrationFault
@@ -192,15 +192,15 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
 
       // Get description should return information just as if consumer wasn't registered
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
       gs.setRegistrationContext(rc);
 
       try
       {
-         serviceDescriptionService.getServiceDescription(gs);
+         producer.getServiceDescription(gs);
          ExtendedAssert.fail("Required registration info has been modified: operations should fail until registration is modified.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
          // WSRP primer recommends returning OperationFailedFault and NOT InvalidRegistrationFault
@@ -209,12 +209,12 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       // remove registration context, try again and check that we get new registration info
       gs.setRegistrationContext(null);
-      List<PropertyDescription> pds = serviceDescriptionService.getServiceDescription(gs)
+      List<V1PropertyDescription> pds = producer.getServiceDescription(gs)
          .getRegistrationPropertyDescription().getPropertyDescriptions();
       ExtendedAssert.assertEquals(2, pds.size());
 
       // Check that one of the returned property description is equal to the one we just added
-      PropertyDescription description = pds.get(1);
+      V1PropertyDescription description = pds.get(1);
       if (description.getName().startsWith("New"))
       {
          assertEquals(WSRPUtils.convertToPropertyDescription(regProp), description);
@@ -225,14 +225,14 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
 
       // Update registration data
-      RegistrationData regData = createBaseRegData();
-      regData.getRegistrationProperties().add(WSRPTypeFactory.createProperty(newPropName, "en", "blah"));
+      V1RegistrationData regData = createBaseRegData();
+      regData.getRegistrationProperties().add(WSRP1TypeFactory.createProperty(newPropName, "en", "blah"));
 
       // Modify registration and get service description
-      ModifyRegistration registration = new ModifyRegistration();
+      V1ModifyRegistration registration = new V1ModifyRegistration();
       registration.setRegistrationContext(rc);
       registration.setRegistrationData(regData);
-      registrationService.modifyRegistration(registration);
+      producer.modifyRegistration(registration);
       gs.setRegistrationContext(rc);
       checkServiceDescriptionWithOnlyBasicPortlet(gs);
    }
@@ -241,7 +241,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
    {
       // initiate registration
       configureRegistrationSettings(true, false);
-      RegistrationContext rc = registerConsumer();
+      V1RegistrationContext rc = registerConsumer();
 
       // now modify Producer's set of required registration info
       String newPropName = "New Prop";
@@ -252,13 +252,13 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       try
       {
-         ModifyRegistration registration = new ModifyRegistration();
+         V1ModifyRegistration registration = new V1ModifyRegistration();
          registration.setRegistrationContext(rc);
          registration.setRegistrationData(createBaseRegData());
-         registrationService.modifyRegistration(registration);
+         producer.modifyRegistration(registration);
          ExtendedAssert.fail("Passing incorrect data should fail");
       }
-      catch (OperationFailed operationFailed)
+      catch (V1OperationFailed operationFailed)
       {
          // expected
       }
@@ -269,9 +269,9 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       configureRegistrationSettings(true, false);
 
       // service description request without registration info
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
 
-      RegistrationContext registrationContext = registerConsumer();
+      V1RegistrationContext registrationContext = registerConsumer();
       ExtendedAssert.assertNotNull(registrationContext);
       ExtendedAssert.assertNotNull(registrationContext.getRegistrationHandle());
 
@@ -289,7 +289,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
          registerConsumer();
          ExtendedAssert.fail("Shouldn't be possible to register if no registration is required.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }
@@ -301,10 +301,10 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       try
       {
-         registrationService.deregister(null);
+         producer.deregister(null);
          ExtendedAssert.fail("Shouldn't be possible to deregister if no registration is required.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }
@@ -316,10 +316,10 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       try
       {
-         registrationService.modifyRegistration(null);
+         producer.modifyRegistration(null);
          ExtendedAssert.fail("Shouldn't be possible to modify registration if no registration is required.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }
@@ -331,10 +331,10 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       try
       {
-         registrationService.modifyRegistration(null);
+         producer.modifyRegistration(null);
          ExtendedAssert.fail("Shouldn't be possible to modify registration if no registration is required.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }
@@ -350,10 +350,10 @@ public class RegistrationTestCase extends V1ProducerBaseTest
 
       try
       {
-         registrationService.deregister(null);
+         producer.deregister(null);
          ExtendedAssert.fail("Shouldn't be possible to modify registration if no registration is required.");
       }
-      catch (OperationFailed operationFailedFault)
+      catch (V1OperationFailed operationFailedFault)
       {
          // expected
       }

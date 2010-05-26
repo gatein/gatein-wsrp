@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
@@ -54,15 +54,15 @@ import org.gatein.wsrp.test.protocol.v1.behaviors.ResourceMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v1.behaviors.SessionMarkupBehavior;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.TestPortletInvocationContext;
-import org.oasis.wsrp.v1.CookieProtocol;
-import org.oasis.wsrp.v1.Extension;
-import org.oasis.wsrp.v1.InvalidHandle;
-import org.oasis.wsrp.v1.InvalidRegistration;
-import org.oasis.wsrp.v1.ItemDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.ResourceList;
+import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1ItemDescription;
+import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1ResourceList;
+import org.oasis.wsrp.v2.InvalidHandle;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
@@ -170,7 +170,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       String handle = PerUserInitCookieMarkupBehavior.PER_USER_INIT_COOKIE_HANDLE;
       InitCookieMarkupBehavior behavior = (InitCookieMarkupBehavior)producer.getBehaviorRegistry().getMarkupBehaviorFor(handle);
 
-      ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, CookieProtocol.PER_USER);
+      ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, V1CookieProtocol.PER_USER.value());
 
       ExtendedAssert.assertFalse(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
@@ -179,23 +179,23 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertEquals(1, behavior.getInitCookieCallCount());
    }
 
-   public void testInitCookiePerGroup() throws PortletInvokerException, InvalidHandle, OperationFailed, InvalidRegistration
+   public void testInitCookiePerGroup() throws PortletInvokerException, InvalidHandle, V1InvalidRegistration, V1OperationFailed
    {
       BehaviorRegistry registry = producer.getBehaviorRegistry();
 
       // need to setup with a specific service description behavior: we wrap the current service description
-      Holder<List<PortletDescription>> offeredPortlets = new Holder<List<PortletDescription>>();
+      Holder<List<V1PortletDescription>> offeredPortlets = new Holder<List<V1PortletDescription>>();
       registry.getServiceDescriptionBehavior().getServiceDescription(null, null, new Holder<Boolean>(),
-         offeredPortlets, new Holder<List<ItemDescription>>(),
-         new Holder<List<ItemDescription>>(), new Holder<List<ItemDescription>>(), new Holder<List<ItemDescription>>(),
-         new Holder<CookieProtocol>(), new Holder<ModelDescription>(), new Holder<List<String>>(),
-         new Holder<ResourceList>(), new Holder<List<Extension>>());
+         offeredPortlets, new Holder<List<V1ItemDescription>>(),
+         new Holder<List<V1ItemDescription>>(), new Holder<List<V1ItemDescription>>(), new Holder<List<V1ItemDescription>>(),
+         new Holder<V1CookieProtocol>(), new Holder<V1ModelDescription>(), new Holder<List<String>>(),
+         new Holder<V1ResourceList>(), new Holder<List<V1Extension>>());
       setServiceDescriptionBehavior(new GroupedPortletsServiceDescriptionBehavior(offeredPortlets.value));
 
       String handle = PerGroupInitCookieMarkupBehavior.PER_GROUP_INIT_COOKIE_HANDLE;
       InitCookieMarkupBehavior behavior = (InitCookieMarkupBehavior)registry.getMarkupBehaviorFor(handle);
 
-      ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, CookieProtocol.PER_GROUP);
+      ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, V1CookieProtocol.PER_GROUP.value());
       ExtendedAssert.assertTrue(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
       ExtendedAssert.assertNull(sessionInfo.getUserCookie());
@@ -211,7 +211,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       checkRenderResult(response, "<img src='http://localhost:8080/test-resource-portlet/gif/logo.gif'/>");
    }
 
-   private ProducerSessionInformation commonInitCookieTest(String handle, InitCookieMarkupBehavior behavior, CookieProtocol cookieProtocol)
+   private ProducerSessionInformation commonInitCookieTest(String handle, InitCookieMarkupBehavior behavior, String cookieProtocol)
       throws PortletInvokerException
    {
       RenderInvocation render = createRenderInvocation(handle);

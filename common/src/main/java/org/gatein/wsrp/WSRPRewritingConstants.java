@@ -173,10 +173,10 @@ public final class WSRPRewritingConstants
    public static final String REWRITE_PARAMETER_CLOSE = "}";
 
    /** Encoded version of REWRITE_PARAMETER_OPEN */
-   static final String ENC_OPEN = "%7B";
+   public static final String ENC_OPEN = "%7B";
 
    /** Encoded version of REWRITE_PARAMETER_CLOSE */
-   static final String ENC_CLOSE = "%7D";
+   public static final String ENC_CLOSE = "%7D";
 
    /* Constants for Resource URL processing todo: remove? */
    public static final String RESOURCE_URL_DELIMITER = "*";

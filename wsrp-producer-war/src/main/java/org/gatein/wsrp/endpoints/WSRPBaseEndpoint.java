@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,7 +24,7 @@
 package org.gatein.wsrp.endpoints;
 
 import org.gatein.wsrp.producer.ProducerHolder;
-import org.gatein.wsrp.producer.WSRPProducer;
+import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.servlet.ServletAccess;
 
 import javax.servlet.http.HttpSession;
@@ -54,5 +54,5 @@ public class WSRPBaseEndpoint
       }*/
    }
 
-   protected WSRPProducer producer;
+   protected WSRP2Producer producer;
 }

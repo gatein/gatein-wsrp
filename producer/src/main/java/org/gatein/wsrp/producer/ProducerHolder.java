@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,9 @@
 
 package org.gatein.wsrp.producer;
 
+import org.gatein.wsrp.producer.v1.WSRP1Producer;
+import org.gatein.wsrp.producer.v2.WSRP2Producer;
+
 /**
  * Holds the current WSRPProducer as configured for a particular portlet container.
  *
@@ -35,12 +38,22 @@ public class ProducerHolder
    {
    }
 
-   public static WSRPProducer getProducer()
+   public static WSRP2Producer getProducer()
    {
       return getProducer(false);
    }
 
-   public static WSRPProducer getProducer(boolean allowUnstartedProducer)
+   public static WSRP1Producer getV1Producer()
+   {
+      return WSRP1Producer.getInstance();
+   }
+
+   public static WSRP2Producer getV2Producer()
+   {
+      return getProducer();
+   }
+
+   public static WSRP2Producer getProducer(boolean allowUnstartedProducer)
    {
       if (allowUnstartedProducer || WSRPProducerImpl.isProducerStarted())
       {

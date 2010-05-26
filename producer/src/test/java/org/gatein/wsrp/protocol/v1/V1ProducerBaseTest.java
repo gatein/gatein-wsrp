@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
@@ -28,21 +28,22 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.v1.WSRP1Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.LocalizedString;
-import org.oasis.wsrp.v1.MarkupType;
-import org.oasis.wsrp.v1.MissingParameters;
-import org.oasis.wsrp.v1.OperationFailed;
-import org.oasis.wsrp.v1.PortletDescription;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.RegistrationContext;
-import org.oasis.wsrp.v1.RegistrationData;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v1.V1GetServiceDescription;
+import org.oasis.wsrp.v1.V1LocalizedString;
+import org.oasis.wsrp.v1.V1MarkupType;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -57,6 +58,8 @@ import java.util.List;
 public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 {
    private static final String CONSUMER = "test-consumer";
+   protected WSRP1Producer producer;
+
 
    public V1ProducerBaseTest() throws Exception
    {
@@ -89,7 +92,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
     * @param desc   the tested PortletDescription
     * @param handle the PortletHandle to be checked
     */
-   public void checkBasicPortletDescription(PortletDescription desc, String handle)
+   public void checkBasicPortletDescription(V1PortletDescription desc, String handle)
    {
       ExtendedAssert.assertNotNull(desc);
       /**
@@ -102,39 +105,39 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
          ExtendedAssert.assertEquals(handle, desc.getPortletHandle());
       }
       ExtendedAssert.assertEquals("title", desc.getTitle().getValue());
-      List<MarkupType> markupTypes = desc.getMarkupTypes();
+      List<V1MarkupType> markupTypes = desc.getMarkupTypes();
       ExtendedAssert.assertEquals(1, markupTypes.size());
-      MarkupType markupType = markupTypes.get(0);
+      V1MarkupType markupType = markupTypes.get(0);
 
       List<String> states = new ArrayList<String>(3);
       states.add(WSRPConstants.NORMAL_WINDOW_STATE);
       states.add(WSRPConstants.MAXIMIZED_WINDOW_STATE);
       states.add(WSRPConstants.MINIMIZED_WINDOW_STATE);
-      MarkupType expected = WSRPTypeFactory.createMarkupType("text/html",
+      V1MarkupType expected = WSRP1TypeFactory.createMarkupType("text/html",
          Collections.<String>singletonList(WSRPConstants.VIEW_MODE), states, Collections.<String>singletonList("en"));
       assertEquals(expected, markupType);
    }
 
-   protected ServiceDescription checkServiceDescriptionWithOnlyBasicPortlet(GetServiceDescription gs)
+   protected V1ServiceDescription checkServiceDescriptionWithOnlyBasicPortlet(V1GetServiceDescription gs)
       throws Exception
    {
       deploy("test-basic-portlet.war");
       //Invoke the Web Service
-      ServiceDescription sd = producer.getServiceDescription(gs);
+      V1ServiceDescription sd = producer.getServiceDescription(gs);
 
       ExtendedAssert.assertNotNull("sd != null", sd);
 
       // Check offered portlets
-      List<PortletDescription> offeredPortlets = sd.getOfferedPortlets();
+      List<V1PortletDescription> offeredPortlets = sd.getOfferedPortlets();
       ExtendedAssert.assertNotNull(offeredPortlets);
-      for (PortletDescription offeredPortlet : offeredPortlets)
+      for (V1PortletDescription offeredPortlet : offeredPortlets)
       {
          System.out.println("handle " + offeredPortlet.getPortletHandle());
       }
       ExtendedAssert.assertEquals(1, offeredPortlets.size());
 
       // Check portlet description
-      PortletDescription desc = offeredPortlets.get(0);
+      V1PortletDescription desc = offeredPortlets.get(0);
 
       checkBasicPortletDescription(desc, null);
 
@@ -142,17 +145,17 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       return sd; // for further testing...
    }
 
-   protected RegistrationContext registerConsumer() throws OperationFailed, MissingParameters
+   protected V1RegistrationContext registerConsumer() throws V1OperationFailed, V1MissingParameters
    {
-      RegistrationData registrationData = createBaseRegData();
+      V1RegistrationData registrationData = createBaseRegData();
       return producer.register(registrationData);
    }
 
-   protected RegistrationData createBaseRegData()
+   protected V1RegistrationData createBaseRegData()
    {
-      RegistrationData regData = WSRPTypeFactory.createDefaultRegistrationData();
+      V1RegistrationData regData = WSRP1TypeFactory.createDefaultRegistrationData();
       regData.setConsumerName(CONSUMER);
-      regData.getRegistrationProperties().add(WSRPTypeFactory.createProperty("regProp", "en", "regValue"));
+      regData.getRegistrationProperties().add(WSRP1TypeFactory.createProperty("regProp", "en", "regValue"));
       return regData;
    }
 
@@ -209,9 +212,9 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       registrationRequirements.removeRegistrationPropertyChangeListener(producer.getRegistrationManager());
    }
 
-   protected GetServiceDescription getNoRegistrationServiceDescriptionRequest()
+   protected V1GetServiceDescription getNoRegistrationServiceDescriptionRequest()
    {
-      GetServiceDescription gs = WSRPTypeFactory.createGetServiceDescription();
+      V1GetServiceDescription gs = WSRP1TypeFactory.createGetServiceDescription();
       gs.getDesiredLocales().add("en-US");
       gs.getDesiredLocales().add("en");
       return gs;
@@ -219,7 +222,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 
    /** === asserts === * */
 
-   protected static void assertEquals(MarkupType expected, MarkupType tested)
+   protected static void assertEquals(V1MarkupType expected, V1MarkupType tested)
    {
       String message = "Expected: <" + expected + ">, got: <" + tested + ">. Failed on: ";
 
@@ -238,7 +241,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       }
    }
 
-   protected static void assertEquals(PropertyDescription expected, PropertyDescription tested)
+   protected static void assertEquals(V1PropertyDescription expected, V1PropertyDescription tested)
    {
       String message = "Expected: <" + expected + ">, got: <" + tested + ">. Failed on ";
 
@@ -257,7 +260,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       }
    }
 
-   protected static void assertEquals(String message, LocalizedString expected, LocalizedString tested)
+   protected static void assertEquals(String message, V1LocalizedString expected, V1LocalizedString tested)
    {
       String precise = "Expected: <" + expected + ">, got: <" + tested + ">. Failed on ";
 

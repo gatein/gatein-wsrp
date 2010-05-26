@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 /*
  * JBoss, the OpenSource J2EE webOS
@@ -32,10 +32,10 @@ package org.gatein.wsrp.protocol.v1;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.oasis.wsrp.v1.GetServiceDescription;
-import org.oasis.wsrp.v1.ModelDescription;
-import org.oasis.wsrp.v1.PropertyDescription;
-import org.oasis.wsrp.v1.ServiceDescription;
+import org.oasis.wsrp.v1.V1GetServiceDescription;
+import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import java.util.List;
 
@@ -58,9 +58,9 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
 
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
 
-      ServiceDescription sd = checkServiceDescriptionWithOnlyBasicPortlet(gs);
+      V1ServiceDescription sd = checkServiceDescriptionWithOnlyBasicPortlet(gs);
 
       // registration is not required
       ExtendedAssert.assertFalse(sd.isRequiresRegistration());
@@ -74,10 +74,10 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       RegistrationPropertyDescription regProp = configureRegistrationSettings(true, false);
 
       // service description request without registration info
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
 
       //Invoke the Web Service
-      ServiceDescription sd = serviceDescriptionService.getServiceDescription(gs);
+      V1ServiceDescription sd = producer.getServiceDescription(gs);
       ExtendedAssert.assertNotNull(sd);
       ExtendedAssert.assertTrue(sd.isRequiresRegistration());
 
@@ -93,10 +93,10 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       RegistrationPropertyDescription regProp = configureRegistrationSettings(true, true);
 
       // service description request without registration info
-      GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
 
       //Invoke the Web Service, we should have the complete description
-      ServiceDescription sd = checkServiceDescriptionWithOnlyBasicPortlet(gs);
+      V1ServiceDescription sd = checkServiceDescriptionWithOnlyBasicPortlet(gs);
       ExtendedAssert.assertNotNull(sd);
       ExtendedAssert.assertTrue(sd.isRequiresRegistration());
 
@@ -108,24 +108,24 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
    {
       try
       {
-         GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
+         V1GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
 
          deploy("test-basic-portlet.war");
-         ServiceDescription sd = serviceDescriptionService.getServiceDescription(gsd);
+         V1ServiceDescription sd = producer.getServiceDescription(gsd);
          ExtendedAssert.assertEquals(1, sd.getOfferedPortlets().size());
 
          deploy("test-markup-portlet.war");
-         sd = serviceDescriptionService.getServiceDescription(gsd);
+         sd = producer.getServiceDescription(gsd);
          // should now have 2 offered portlets
          ExtendedAssert.assertEquals(2, sd.getOfferedPortlets().size());
 
          deploy("test-session-portlet.war");
-         sd = serviceDescriptionService.getServiceDescription(gsd);
+         sd = producer.getServiceDescription(gsd);
          // should now have 3 offered portlets
          ExtendedAssert.assertEquals(3, sd.getOfferedPortlets().size());
 
          undeploy("test-markup-portlet.war");
-         sd = serviceDescriptionService.getServiceDescription(gsd);
+         sd = producer.getServiceDescription(gsd);
          // should now have only 2 offered portlets again
          ExtendedAssert.assertEquals(2, sd.getOfferedPortlets().size());
 
@@ -141,11 +141,11 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       }
    }
 
-   private void checkRequiredRegistrationProperties(ServiceDescription sd, RegistrationPropertyDescription regProp)
+   private void checkRequiredRegistrationProperties(V1ServiceDescription sd, RegistrationPropertyDescription regProp)
    {
-      ModelDescription registrationPropertyDescription = sd.getRegistrationPropertyDescription();
+      V1ModelDescription registrationPropertyDescription = sd.getRegistrationPropertyDescription();
       ExtendedAssert.assertNotNull(registrationPropertyDescription);
-      List<PropertyDescription> propertyDescriptions = registrationPropertyDescription.getPropertyDescriptions();
+      List<V1PropertyDescription> propertyDescriptions = registrationPropertyDescription.getPropertyDescriptions();
       ExtendedAssert.assertNotNull(propertyDescriptions);
       ExtendedAssert.assertEquals(1, propertyDescriptions.size());
       assertEquals(WSRPUtils.convertToPropertyDescription(regProp), propertyDescriptions.get(0));
