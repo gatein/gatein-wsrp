@@ -25,7 +25,7 @@ package org.gatein.wsrp.test.protocol.v1.behaviors;
 
 import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
-import org.gatein.wsrp.test.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
 import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
 import org.oasis.wsrp.v1.V1AccessDenied;

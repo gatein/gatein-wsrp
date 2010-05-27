@@ -21,30 +21,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
+
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
+import org.oasis.wsrp.v2.GetMarkup;
 
 /**
- * Exposes WSPRProducer test implementation methods - we inject what it returns
- *
- * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
- * @version $Revision: 10610 $
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.v1.consumer.producer.EmptyMarkupBehavior">Chris
+ *         Laprun</a>
+ * @version $Revision: 8784 $
+ * @since 2.6
  */
-public interface TestWSRPProducer
+public class EmptyMarkupBehavior extends MarkupBehavior
 {
-   /** Resets any currently held state. */
-   void reset();
+   public static final String PORTLET_HANDLE = "EmptyMarkup";
 
-   BehaviorRegistry getBehaviorRegistry();
 
-   /**
-    * Sets the currently used portlet handle identifying the MarkupBehavior we're using. This is needed to be able to
-    * dispatch calls to initCookie to the proper behavior.
-    *
-    * @param handle
-    */
-   void setCurrentMarkupBehaviorHandle(String handle);
+   public EmptyMarkupBehavior(BehaviorRegistry registry)
+   {
+      super(registry);
+      registerHandle(PORTLET_HANDLE);
+   }
 
-   void setRequiresInitCookie(String cookieProtocolAsString);
-
-   void usingStrictModeChangedTo(boolean strictMode);
+   public String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup)
+   {
+      return "";
+   }
 }

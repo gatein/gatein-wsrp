@@ -26,7 +26,7 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.wsrp.services.ServiceFactory;
-import org.gatein.wsrp.test.support.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

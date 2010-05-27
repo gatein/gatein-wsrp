@@ -21,19 +21,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
-import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
+import org.oasis.wsrp.v2.PortletDescription;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.protocol.v1.behaviors.BasicServiceDescriptionBehavior">Chris
+ *         Laprun</a>
+ * @version $Revision: 10610 $
+ * @since 2.6
  */
-public class MockEndpointConfigurationInfo extends EndpointConfigurationInfo
+public class BasicServiceDescriptionBehavior extends ServiceDescriptionBehavior
 {
-   public MockEndpointConfigurationInfo()
+
+   public BasicServiceDescriptionBehavior()
    {
-      super(new BehaviorBackedServiceFactory());
+      //Prepare description of two portlets
+      PortletDescription pd1 = createPortletDescription(BasicMarkupBehavior.PORTLET_HANDLE, "");
+      PortletDescription pd2 = createPortletDescription(SessionMarkupBehavior.PORTLET_HANDLE, "2");
+      offeredPortlets.add(pd1);
+      offeredPortlets.add(pd2);
    }
 }

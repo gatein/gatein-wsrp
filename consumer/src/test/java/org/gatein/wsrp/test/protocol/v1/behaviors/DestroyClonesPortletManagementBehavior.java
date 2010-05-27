@@ -24,7 +24,7 @@
 package org.gatein.wsrp.test.protocol.v1.behaviors;
 
 import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
-import org.gatein.wsrp.test.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;

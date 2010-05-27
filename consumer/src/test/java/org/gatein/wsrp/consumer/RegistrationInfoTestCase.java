@@ -26,8 +26,7 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.spec.v1.V2V1Converter;
-import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
+import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
@@ -249,10 +248,15 @@ public class RegistrationInfoTestCase extends TestCase
       assertEquals(1, result.getRegistrationProperties().size());
       assertFalse(info.isModifyRegistrationNeeded());
 
-      Map regProps = result.getRegistrationProperties();
+      checkProperties(result);
+   }
+
+   private void checkProperties(RegistrationInfo.RegistrationRefreshResult result)
+   {
+      Map<QName, RegistrationProperty> regProps = result.getRegistrationProperties();
       assertNotNull(regProps);
 
-      RegistrationProperty prop = (RegistrationProperty)regProps.get("foo");
+      RegistrationProperty prop = regProps.get(QName.valueOf("foo"));
       assertNotNull(prop);
       assertEquals("bar", prop.getValue());
       assertTrue(prop.isInvalid());
@@ -276,14 +280,7 @@ public class RegistrationInfoTestCase extends TestCase
       assertEquals(1, result.getRegistrationProperties().size());
       assertTrue(info.isModifyRegistrationNeeded());
 
-      Map regProps = result.getRegistrationProperties();
-      assertNotNull(regProps);
-
-      RegistrationProperty prop = (RegistrationProperty)regProps.get("foo");
-      assertNotNull(prop);
-      assertEquals("bar", prop.getValue());
-      assertTrue(prop.isInvalid());
-      assertEquals(RegistrationProperty.Status.INEXISTENT, prop.getStatus());
+      checkProperties(result);
    }
 
    public void testRefreshRegistrationRegistrationNoLocalInfo()
@@ -299,14 +296,14 @@ public class RegistrationInfoTestCase extends TestCase
       assertEquals(2, result.getRegistrationProperties().size());
       assertFalse(info.isModifyRegistrationNeeded()); // we weren't registered
 
-      Map regProps = result.getRegistrationProperties();
+      Map<QName, RegistrationProperty> regProps = result.getRegistrationProperties();
       assertNotNull(regProps);
 
-      RegistrationProperty prop = (RegistrationProperty)regProps.get("prop0");
+      RegistrationProperty prop = regProps.get(QName.valueOf("prop0"));
       assertNotNull(prop);
       assertTrue(prop.isInvalid());
       assertEquals(RegistrationProperty.Status.MISSING, prop.getStatus());
-      prop = (RegistrationProperty)regProps.get("prop1");
+      prop = regProps.get(QName.valueOf("prop1"));
       assertNotNull(prop);
       assertTrue(prop.isInvalid());
       assertEquals(RegistrationProperty.Status.MISSING, prop.getStatus());
@@ -327,14 +324,14 @@ public class RegistrationInfoTestCase extends TestCase
       assertEquals(2, result.getRegistrationProperties().size());
       assertTrue(info.isModifyRegistrationNeeded());
 
-      Map regProps = result.getRegistrationProperties();
+      Map<QName, RegistrationProperty> regProps = result.getRegistrationProperties();
       assertNotNull(regProps);
 
-      RegistrationProperty prop = (RegistrationProperty)regProps.get("prop0");
+      RegistrationProperty prop = regProps.get(QName.valueOf("prop0"));
       assertNotNull(prop);
       assertTrue(prop.isInvalid());
       assertEquals(RegistrationProperty.Status.MISSING, prop.getStatus());
-      prop = (RegistrationProperty)regProps.get("prop1");
+      prop = regProps.get(QName.valueOf("prop1"));
       assertNotNull(prop);
       assertTrue(prop.isInvalid());
       assertEquals(RegistrationProperty.Status.MISSING, prop.getStatus());
@@ -501,12 +498,12 @@ public class RegistrationInfoTestCase extends TestCase
       assertNotNull(properties);
       assertEquals(1, properties.size());
       Property property = properties.get(0);
-      assertEquals("prop0", property.getName());
+      assertEquals("prop0", property.getName().toString());
       assertEquals(prop0Value, property.getStringValue());
    }
 
    private ServiceDescription createServiceDescription(boolean requiresRegistration, int numberOfProperties)
    {
-      return V2V1Converter.toV2ServiceDescription(ServiceDescriptionBehavior.createServiceDescription(requiresRegistration, numberOfProperties));
+      return ServiceDescriptionBehavior.createServiceDescription(requiresRegistration, numberOfProperties);
    }
 }

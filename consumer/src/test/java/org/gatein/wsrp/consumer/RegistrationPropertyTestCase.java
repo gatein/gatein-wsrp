@@ -25,6 +25,8 @@ package org.gatein.wsrp.consumer;
 
 import junit.framework.TestCase;
 
+import javax.xml.namespace.QName;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11941 $
@@ -106,7 +108,7 @@ public class RegistrationPropertyTestCase extends TestCase
 
    public void testGetters()
    {
-      assertEquals("name", prop.getName());
+      assertEquals(QName.valueOf("name"), prop.getName());
       assertEquals("value", prop.getValue());
       assertEquals("en", prop.getLang());
       assertNull(prop.isInvalid());

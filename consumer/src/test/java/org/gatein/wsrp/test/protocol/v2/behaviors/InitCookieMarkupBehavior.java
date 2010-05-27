@@ -21,22 +21,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.protocol.v1.behaviors;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
-import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
-import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
-import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
-import org.oasis.wsrp.v1.V1AccessDenied;
-import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1GetMarkup;
-import org.oasis.wsrp.v1.V1InvalidCookie;
-import org.oasis.wsrp.v1.V1InvalidCookieFault;
-import org.oasis.wsrp.v1.V1InvalidRegistration;
-import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
-import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidCookieFault;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.jws.WebParam;
 import java.util.List;
@@ -61,7 +65,7 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
    protected abstract void initPortletHandle();
 
 
-   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, V1GetMarkup getMarkup) throws V1OperationFailed, V1InvalidCookie
+   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup) throws OperationFailed, InvalidCookie
    {
       String handle = getMarkup.getPortletContext().getPortletHandle();
 
@@ -71,28 +75,28 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
       }
 
       // shouldn't happen
-      throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, "Shouldn't happen", null);
+      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "Shouldn't be happen", null);
    }
 
-   protected String getMarkupString(String handle) throws V1InvalidCookie, V1OperationFailed
+   protected String getMarkupString(String handle) throws InvalidCookie, OperationFailed
    {
       switch (callCount++)
       {
          case 0:
             // simulate change of configuration between calls: upon receiving this, the consumer should invoke initCookie
-            throw WSRP1ExceptionFactory.<V1InvalidCookie, V1InvalidCookieFault>throwWSException(WSRP1ExceptionFactory.INVALID_COOKIE, "Simulate invalid cookie", null);
+            throw WSRPExceptionFactory.<InvalidCookie, InvalidCookieFault>throwWSException(WSRPExceptionFactory.INVALID_COOKIE, "Simulate invalid cookie", null);
 
          case 1:
             return handle;
 
          default:
             // shouldn't be called more than twice
-            throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, "Shouldn't be called more than twice", null);
+            throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "Shouldn't be called more than twice", null);
       }
    }
 
    @Override
-   public List<V1Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed
+   public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       initCookieCallCount++;
       return null;

@@ -21,19 +21,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
-import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
+import org.oasis.wsrp.v2.GetMarkup;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.v1.consumer.producer.NullMarkupBehavior">Chris
+ *         Laprun</a>
+ * @version $Revision: 8784 $
+ * @since 2.6
  */
-public class MockEndpointConfigurationInfo extends EndpointConfigurationInfo
+public class NullMarkupBehavior extends MarkupBehavior
 {
-   public MockEndpointConfigurationInfo()
+   public static final String PORTLET_HANDLE = "NullMarkup";
+
+
+   public NullMarkupBehavior(BehaviorRegistry registry)
    {
-      super(new BehaviorBackedServiceFactory());
+      super(registry);
+      registerHandle(PORTLET_HANDLE);
+   }
+
+   public String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup)
+   {
+      return null;
    }
 }

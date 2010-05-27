@@ -21,19 +21,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
-import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
+import org.oasis.wsrp.v2.GetMarkup;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * @version $Revision: 8784 $
+ * @since 2.6
  */
-public class MockEndpointConfigurationInfo extends EndpointConfigurationInfo
+public class ResourceMarkupBehavior extends MarkupBehavior
 {
-   public MockEndpointConfigurationInfo()
+   public static final String PORTLET_HANDLE = "resource";
+
+
+   public ResourceMarkupBehavior(BehaviorRegistry registry)
    {
-      super(new BehaviorBackedServiceFactory());
+      super(registry);
+      registerHandle(PORTLET_HANDLE);
+   }
+
+   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup)
+   {
+      return "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%3A8080" +
+         "%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
    }
 }

@@ -21,19 +21,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
-import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class MockEndpointConfigurationInfo extends EndpointConfigurationInfo
+public class PerUserInitCookieMarkupBehavior extends InitCookieMarkupBehavior
 {
-   public MockEndpointConfigurationInfo()
+   public static final String PER_USER_INIT_COOKIE_HANDLE = "PerUserInitCookie";
+
+   public PerUserInitCookieMarkupBehavior(BehaviorRegistry registry)
    {
-      super(new BehaviorBackedServiceFactory());
+      super(registry);
+   }
+
+   protected void initPortletHandle()
+   {
+      portletHandle = PER_USER_INIT_COOKIE_HANDLE;
    }
 }

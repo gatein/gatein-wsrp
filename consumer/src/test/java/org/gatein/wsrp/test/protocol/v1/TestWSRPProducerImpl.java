@@ -21,12 +21,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test;
+package org.gatein.wsrp.test.protocol.v1;
 
 import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
-import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
-import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1DestroyFailed;

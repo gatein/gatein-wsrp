@@ -21,14 +21,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v1;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.services.ServiceFactory;
-import org.gatein.wsrp.test.BehaviorRegistry;
-import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1InconsistentParameters;

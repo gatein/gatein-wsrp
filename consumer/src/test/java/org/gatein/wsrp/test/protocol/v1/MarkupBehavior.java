@@ -28,7 +28,6 @@ import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
-import org.gatein.wsrp.test.BehaviorRegistry;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1GetMarkup;
@@ -166,11 +165,10 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
       String markupString = getMarkupString(WSRPUtils.getJSR168PortletModeFromWSRPName(markupParams.getMode()),
          WSRPUtils.getJSR168WindowStateFromWSRPName(markupParams.getWindowState()), markupParams.getNavigationalState(), gm);
 
-      V1MarkupContext v2MarkupContext = WSRP1TypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString);
-      markupContext.value = v2MarkupContext;
+      markupContext.value = WSRP1TypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString);
       markupContext.value.setRequiresUrlRewriting(Boolean.TRUE);
 
-      V1MarkupResponse markupResponse = WSRP1TypeFactory.createMarkupResponse(v2MarkupContext);
+      V1MarkupResponse markupResponse = WSRP1TypeFactory.createMarkupResponse(markupContext.value);
 
       modifyResponseIfNeeded(markupResponse);
    }

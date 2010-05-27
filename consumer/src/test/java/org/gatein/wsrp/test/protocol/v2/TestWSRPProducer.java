@@ -21,19 +21,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.support;
+package org.gatein.wsrp.test.protocol.v2;
 
-import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
-import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.oasis.wsrp.v2.CookieProtocol;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * Exposes WSPRProducer test implementation methods - we inject what it returns
+ *
+ * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
+ * @version $Revision: 10610 $
  */
-public class MockEndpointConfigurationInfo extends EndpointConfigurationInfo
+public interface TestWSRPProducer
 {
-   public MockEndpointConfigurationInfo()
-   {
-      super(new BehaviorBackedServiceFactory());
-   }
+   /** Resets any currently held state. */
+   void reset();
+
+   BehaviorRegistry getBehaviorRegistry();
+
+   /**
+    * Sets the currently used portlet handle identifying the MarkupBehavior we're using. This is needed to be able to
+    * dispatch calls to initCookie to the proper behavior.
+    *
+    * @param handle
+    */
+   void setCurrentMarkupBehaviorHandle(String handle);
+
+   void setRequiresInitCookie(CookieProtocol requiresInitCookie);
+
+   void usingStrictModeChangedTo(boolean strictMode);
 }

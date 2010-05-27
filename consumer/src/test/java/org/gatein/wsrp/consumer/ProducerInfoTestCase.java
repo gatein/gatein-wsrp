@@ -25,34 +25,36 @@ package org.gatein.wsrp.consumer;
 
 import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
-import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
-import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
-import org.gatein.wsrp.test.protocol.v1.RegistrationBehavior;
-import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
-import org.gatein.wsrp.test.support.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
+import org.gatein.wsrp.test.protocol.v2.RegistrationBehavior;
+import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
-import org.oasis.wsrp.v1.V1AccessDenied;
-import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1InconsistentParameters;
-import org.oasis.wsrp.v1.V1InvalidHandle;
-import org.oasis.wsrp.v1.V1InvalidRegistration;
-import org.oasis.wsrp.v1.V1InvalidRegistrationFault;
-import org.oasis.wsrp.v1.V1InvalidUserCategory;
-import org.oasis.wsrp.v1.V1MissingParameters;
-import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
-import org.oasis.wsrp.v1.V1PortletContext;
-import org.oasis.wsrp.v1.V1PortletDescription;
-import org.oasis.wsrp.v1.V1Property;
-import org.oasis.wsrp.v1.V1RegistrationContext;
-import org.oasis.wsrp.v1.V1RegistrationData;
-import org.oasis.wsrp.v1.V1ResourceList;
-import org.oasis.wsrp.v1.V1UserContext;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidRegistrationFault;
+import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ResourceList;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.jws.WebParam;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.List;
 
@@ -173,14 +175,14 @@ public class ProducerInfoTestCase extends TestCase
       // activate caching for this test so that we can simulate portlet deployment on the producer with a cached SD
       info.setExpirationCacheSeconds(1000);
 
-      PortletContext portletContext = PortletContext.createPortletContext("test");
+      org.gatein.pc.api.PortletContext portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test");
       Portlet portlet = info.getPortlet(portletContext);
       assertNotNull(portlet);
       assertEquals(portletContext, portlet.getContext());
       assertEquals(1, behavior.getCallCount());
 
       // test2 is not in the service description, so it should be looked up via Portlet Management...
-      portletContext = PortletContext.createPortletContext("test2");
+      portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test2");
       // add portlet management behavior
       TestPortletManagementBehavior pmBehavior = new TestPortletManagementBehavior();
       serviceFactory.getRegistry().setPortletManagementBehavior(pmBehavior);
@@ -193,7 +195,7 @@ public class ProducerInfoTestCase extends TestCase
       serviceFactory.getRegistry().setPortletManagementBehavior(null);
       // simulate a new portlet deployment since last time the SD was refreshed
       behavior.addPortletDescription(behavior.createPortletDescription("test3", null));
-      portletContext = PortletContext.createPortletContext("test3");
+      portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test3");
       portlet = info.getPortlet(portletContext);
       assertEquals(2, behavior.getCallCount());
       assertNotNull(portlet);
@@ -355,8 +357,9 @@ public class ProducerInfoTestCase extends TestCase
 
    private static class TestPortletManagementBehavior extends PortletManagementBehavior
    {
+
       @Override
-      public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales, @WebParam(name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1PortletDescription> portletDescription, @WebParam(name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1ResourceList> resourceList, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<List<V1Extension>> extensions) throws V1AccessDenied, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1MissingParameters, V1OperationFailed
+      public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales, @WebParam(mode = WebParam.Mode.OUT, name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<PortletDescription> portletDescription, @WebParam(mode = WebParam.Mode.OUT, name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ResourceList> resourceList, @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions) throws MissingParameters, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, AccessDenied, OperationFailed
       {
          super.getPortletDescription(registrationContext, portletContext, userContext, desiredLocales, portletDescription, resourceList, extensions);
          portletDescription.value = createPortletDescription("test2", null);
@@ -365,41 +368,41 @@ public class ProducerInfoTestCase extends TestCase
 
    private static class TestRegistrationBehavior extends RegistrationBehavior
    {
-      private static final String PROP_NAME = "prop0";
+      private static final QName PROP_NAME = QName.valueOf("prop0");
       private static final String MODIFIED_VALUE = "value2";
       private static final String ORIGINAL_VALUE = "value";
 
       @Override
-      public void register(@WebParam(name = "consumerName", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerName, @WebParam(name = "consumerAgent", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") String consumerAgent, @WebParam(name = "methodGetSupported", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") boolean methodGetSupported, @WebParam(name = "consumerModes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerModes, @WebParam(name = "consumerWindowStates", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerWindowStates, @WebParam(name = "consumerUserScopes", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> consumerUserScopes, @WebParam(name = "customUserProfileData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> customUserProfileData, @WebParam(name = "registrationProperties", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<V1Property> registrationProperties, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.INOUT) Holder<List<V1Extension>> extensions, @WebParam(name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<String> registrationHandle, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState) throws V1MissingParameters, V1OperationFailed
+      public void register(@WebParam(name = "registrationData", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationData registrationData, @WebParam(name = "lifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") Lifetime lifetime, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState, @WebParam(name = "scheduledDestruction", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<Lifetime> scheduledDestruction, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions, @WebParam(name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> registrationHandle) throws MissingParameters, OperationFailed, OperationNotSupported
       {
-         V1Property prop = checkRegistrationData(registrationProperties);
+         Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
 
          String value = prop.getStringValue();
          if (ORIGINAL_VALUE.equals(value) && PROP_NAME.equals(prop.getName()))
          {
-            super.register(consumerName, consumerAgent, methodGetSupported, consumerModes, consumerWindowStates, consumerUserScopes, customUserProfileData, registrationProperties, extensions, registrationHandle, registrationState);
+            super.register(registrationData, lifetime, userContext, registrationState, scheduledDestruction, extensions, registrationHandle);
             return;
          }
 
-         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED,
+         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
             value + " is not a valid value for " + PROP_NAME, null);
       }
 
       @Override
-      public void modifyRegistration(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext, @WebParam(name = "registrationData", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationData registrationData, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<List<V1Extension>> extensions) throws V1InvalidRegistration, V1MissingParameters, V1OperationFailed
+      public void modifyRegistration(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "registrationData", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationData registrationData, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState, @WebParam(name = "scheduledDestruction", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<Lifetime> scheduledDestruction, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended
       {
          incrementCallCount();
 
-         WSRP1ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
+         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
 
          if (!RegistrationBehavior.REGISTRATION_HANDLE.equals(registrationContext.getRegistrationHandle()))
          {
-            WSRP1ExceptionFactory.<V1InvalidRegistration, V1InvalidRegistrationFault>throwWSException(WSRP1ExceptionFactory.INVALID_REGISTRATION, "Invalid registration", null);
+            WSRPExceptionFactory.<InvalidRegistration, InvalidRegistrationFault>throwWSException(WSRPExceptionFactory.INVALID_REGISTRATION, "Invalid registration", null);
          }
 
-         WSRP1ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
+         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
 
-         V1Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
+         Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
 
          String value = prop.getStringValue();
          if (MODIFIED_VALUE.equals(value) && PROP_NAME.equals(prop.getName()))
@@ -407,16 +410,17 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, value
+         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, value
             + " is not a valid value for " + PROP_NAME, null);
+
       }
 
-      private V1Property checkRegistrationData(List<V1Property> registrationProperties) throws V1OperationFailed
+      private Property checkRegistrationData(List<Property> registrationProperties) throws OperationFailed
       {
-         WSRP1ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
+         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
 
-         V1Property prop = registrationProperties.get(0);
-         WSRP1ExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
+         Property prop = registrationProperties.get(0);
+         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
          return prop;
       }
    }

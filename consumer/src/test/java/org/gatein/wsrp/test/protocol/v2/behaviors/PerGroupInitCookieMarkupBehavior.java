@@ -21,16 +21,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.test.protocol.v1.behaviors;
+package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
-import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
-import org.oasis.wsrp.v1.V1AccessDenied;
-import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1InvalidRegistration;
-import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
-import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.jws.WebParam;
 import java.util.List;
@@ -54,17 +58,16 @@ public class PerGroupInitCookieMarkupBehavior extends InitCookieMarkupBehavior
    }
 
    @Override
-   public List<V1Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed
+   public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      List<V1Extension> extensions = super.initCookie(registrationContext);
+      List<Extension> extensions = super.initCookie(registrationContext, userContext);
 
       if (initCookieCallCount > 3)
       {
-         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED,
+         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
             "Service description only defines 3 groups so initCookie should only be called 3 times!",
             new IllegalStateException("Service description only defines 3 groups so initCookie should only be called 3 times!"));
       }
-
       return extensions;
    }
 }
