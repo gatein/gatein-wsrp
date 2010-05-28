@@ -55,56 +55,108 @@
    </servlet>-->
 
 
-   <!-- WSRP Endpoints -->
+   <!-- WSRP 2 Endpoints -->
    <servlet>
-      <servlet-name>ServiceDescriptionService</servlet-name>
+      <servlet-name>V2ServiceDescriptionService</servlet-name>
       <servlet-class>org.gatein.wsrp.endpoints.v2.ServiceDescriptionEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v2.WSRPV1ServiceDescriptionPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
-      <servlet-name>MarkupService</servlet-name>
+      <servlet-name>V2MarkupService</servlet-name>
       <servlet-class>org.gatein.wsrp.endpoints.v2.MarkupEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v2.WSRPV1MarkupPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV2MarkupPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
-      <servlet-name>RegistrationService</servlet-name>
+      <servlet-name>V2RegistrationService</servlet-name>
       <servlet-class>org.gatein.wsrp.endpoints.v2.RegistrationEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v2.WSRPV1RegistrationPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV2RegistrationPortType</param-value>
       </init-param>
    </servlet>
    <servlet>
-      <servlet-name>PortletManagementService</servlet-name>
+      <servlet-name>V2PortletManagementService</servlet-name>
       <servlet-class>org.gatein.wsrp.endpoints.v2.PortletManagementEndpoint</servlet-class>
       <init-param>
          <param-name>wsrp-interface</param-name>
-         <param-value>org.oasis.wsrp.v2.WSRPV1PortletManagementPortType</param-value>
+         <param-value>org.oasis.wsrp.v2.WSRPV2PortletManagementPortType</param-value>
       </init-param>
    </servlet>
 
-   <!-- WSRP endpoint mappings -->
+   <!-- WSRP 2 endpoint mappings -->
    <servlet-mapping>
-      <servlet-name>ServiceDescriptionService</servlet-name>
-      <url-pattern>/ServiceDescriptionService</url-pattern>
+      <servlet-name>V2ServiceDescriptionService</servlet-name>
+      <url-pattern>/v2/ServiceDescriptionService</url-pattern>
    </servlet-mapping>
    <servlet-mapping>
-      <servlet-name>MarkupService</servlet-name>
-      <url-pattern>/MarkupService</url-pattern>
+      <servlet-name>V2MarkupService</servlet-name>
+      <url-pattern>/v2/MarkupService</url-pattern>
    </servlet-mapping>
    <servlet-mapping>
-      <servlet-name>RegistrationService</servlet-name>
-      <url-pattern>/RegistrationService</url-pattern>
+      <servlet-name>V2RegistrationService</servlet-name>
+      <url-pattern>/v2/RegistrationService</url-pattern>
    </servlet-mapping>
    <servlet-mapping>
-      <servlet-name>PortletManagementService</servlet-name>
-      <url-pattern>/PortletManagementService</url-pattern>
+      <servlet-name>V2PortletManagementService</servlet-name>
+      <url-pattern>/v2/PortletManagementService</url-pattern>
+   </servlet-mapping>
+
+   <!-- WSRP 1 Endpoints -->
+   <servlet>
+      <servlet-name>V1ServiceDescriptionService</servlet-name>
+      <servlet-class>org.gatein.wsrp.endpoints.v1.ServiceDescriptionEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>V1MarkupService</servlet-name>
+      <servlet-class>org.gatein.wsrp.endpoints.v1.MarkupEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.oasis.wsrp.v1.WSRPV1MarkupPortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>V1RegistrationService</servlet-name>
+      <servlet-class>org.gatein.wsrp.endpoints.v1.RegistrationEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.oasis.wsrp.v1.WSRPV1RegistrationPortType</param-value>
+      </init-param>
+   </servlet>
+   <servlet>
+      <servlet-name>V1PortletManagementService</servlet-name>
+      <servlet-class>org.gatein.wsrp.endpoints.v1.PortletManagementEndpoint</servlet-class>
+      <init-param>
+         <param-name>wsrp-interface</param-name>
+         <param-value>org.oasis.wsrp.v1.WSRPV1PortletManagementPortType</param-value>
+      </init-param>
+   </servlet>
+
+   <!-- WSRP 1 endpoint mappings -->
+   <servlet-mapping>
+      <servlet-name>V1ServiceDescriptionService</servlet-name>
+      <url-pattern>/v1/ServiceDescriptionService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>V1MarkupService</servlet-name>
+      <url-pattern>/v1/MarkupService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>V1RegistrationService</servlet-name>
+      <url-pattern>/v1/RegistrationService</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>V1PortletManagementService</servlet-name>
+      <url-pattern>/v1/PortletManagementService</url-pattern>
    </servlet-mapping>
 
 </web-app>
