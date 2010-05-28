@@ -33,7 +33,7 @@
    <import namespace="urn:oasis:names:tc:wsrp:v2:bind" location="wsrp-2.0-bindings.wsdl"/>
 
    <wsdl:service name="WSRPService">
-      <wsdl:port binding="bind:WSRP_v2_Markup_Binding_SOAP" name="WSRPBaseService">
+      <wsdl:port binding="bind:WSRP_v2_Markup_Binding_SOAP" name="WSRPMarkupService">
          <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
       </wsdl:port>
       <wsdl:port binding="bind:WSRP_v2_ServiceDescription_Binding_SOAP" name="WSRPServiceDescriptionService">
