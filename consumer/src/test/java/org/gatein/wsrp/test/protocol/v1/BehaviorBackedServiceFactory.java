@@ -137,46 +137,6 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       return timeout;
    }
 
-   public String getServiceDescriptionURL()
-   {
-      return SD_URL;
-   }
-
-   public String getMarkupURL()
-   {
-      return M_URL;
-   }
-
-   public String getRegistrationURL()
-   {
-      return R_URL;
-   }
-
-   public String getPortletManagementURL()
-   {
-      return PM_URL;
-   }
-
-   public void setServiceDescriptionURL(String serviceDescriptionURL)
-   {
-      // do nothing
-   }
-
-   public void setMarkupURL(String markupURL)
-   {
-      // do nothing
-   }
-
-   public void setRegistrationURL(String registrationURL)
-   {
-      // do nothing
-   }
-
-   public void setPortletManagementURL(String portletManagementURL)
-   {
-      // do nothing
-   }
-
    public void create() throws Exception
    {
       throw new NotYetImplemented();

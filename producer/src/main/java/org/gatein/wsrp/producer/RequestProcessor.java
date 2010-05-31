@@ -23,11 +23,6 @@
 
 package org.gatein.wsrp.producer;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.MarkupInfo;
 import org.gatein.common.util.ParameterValidation;
@@ -43,7 +38,6 @@ import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.api.state.AccessMode;
-import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
@@ -148,40 +142,6 @@ public abstract class RequestProcessor
       markupRequest = createMarkupRequestFrom(markupTypes, params, portlet);
 
       // prepare information for invocation
-      NavigationalContext navigationalContext = params.getNavigationalContext();
-      if(navigationalContext != null)
-      {
-         StateString navigationalState = createNavigationalState(navigationalContext.getOpaqueValue());
-         invocation.setNavigationalState(navigationalState);
-
-         // GTNWSRP-38: public NS
-         List<NamedString> publicParams = navigationalContext.getPublicValues();
-         if(ParameterValidation.existsAndIsNotEmpty(publicParams))
-         {
-            Map<String, String[]> publicNS = new HashMap<String, String[]>(publicParams.size());
-            for (NamedString publicParam : publicParams)
-            {
-               String paramName = publicParam.getName();
-               String[] values = publicNS.get(paramName);
-               if(ParameterValidation.existsAndIsNotEmpty(values))
-               {
-                  int valuesNb = values.length;
-                  String[] newValues = new String[valuesNb + 1];
-                  System.arraycopy(values, 0, newValues, 0, valuesNb);
-                  newValues[valuesNb] = publicParam.getValue();
-                  publicNS.put(paramName, newValues);
-               }
-               else
-               {
-                  values = new String[] {publicParam.getValue()};
-                  publicNS.put(paramName, values);
-               }
-            }
-            invocation.setPublicNavigationalState(publicNS);
-         }
-      }
-
-
       final org.oasis.wsrp.v2.UserContext wsrpUserContext = getUserContext();
       checkUserContext(wsrpUserContext);
 
@@ -199,6 +159,39 @@ public abstract class RequestProcessor
       invocation.setTarget(portlet.getContext());
       invocation.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(markupRequest.getWindowState()));
       invocation.setMode(WSRPUtils.getJSR168PortletModeFromWSRPName(markupRequest.getMode()));
+
+      NavigationalContext navigationalContext = params.getNavigationalContext();
+      if (navigationalContext != null)
+      {
+         StateString navigationalState = createNavigationalState(navigationalContext.getOpaqueValue());
+         invocation.setNavigationalState(navigationalState);
+
+         // GTNWSRP-38: public NS
+         List<NamedString> publicParams = navigationalContext.getPublicValues();
+         if (ParameterValidation.existsAndIsNotEmpty(publicParams))
+         {
+            Map<String, String[]> publicNS = new HashMap<String, String[]>(publicParams.size());
+            for (NamedString publicParam : publicParams)
+            {
+               String paramName = publicParam.getName();
+               String[] values = publicNS.get(paramName);
+               if (ParameterValidation.existsAndIsNotEmpty(values))
+               {
+                  int valuesNb = values.length;
+                  String[] newValues = new String[valuesNb + 1];
+                  System.arraycopy(values, 0, newValues, 0, valuesNb);
+                  newValues[valuesNb] = publicParam.getValue();
+                  publicNS.put(paramName, newValues);
+               }
+               else
+               {
+                  values = new String[]{publicParam.getValue()};
+                  publicNS.put(paramName, values);
+               }
+            }
+            invocation.setPublicNavigationalState(publicNS);
+         }
+      }
 
       context.contextualize(invocation);
       setInvocation(invocation);

@@ -65,41 +65,6 @@ import java.util.List;
 public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRPV2ServiceDescriptionPortType
 {
    public void getServiceDescription(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext,
-      @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales,
-      @WebParam(mode = WebParam.Mode.OUT, name = "requiresRegistration", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<Boolean> requiresRegistration,
-      @WebParam(mode = WebParam.Mode.OUT, name = "offeredPortlets", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<PortletDescription>> offeredPortlets,
-      @WebParam(mode = WebParam.Mode.OUT, name = "userCategoryDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> userCategoryDescriptions,
-      @WebParam(mode = WebParam.Mode.OUT, name = "customUserProfileItemDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customUserProfileItemDescriptions,
-      @WebParam(mode = WebParam.Mode.OUT, name = "customWindowStateDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customWindowStateDescriptions,
-      @WebParam(mode = WebParam.Mode.OUT, name = "customModeDescriptions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<ItemDescription>> customModeDescriptions,
-      @WebParam(mode = WebParam.Mode.OUT, name = "requiresInitCookie", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<CookieProtocol> requiresInitCookie,
-      @WebParam(mode = WebParam.Mode.OUT, name = "registrationPropertyDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ModelDescription> registrationPropertyDescription,
-      @WebParam(mode = WebParam.Mode.OUT, name = "locales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<String>> locales,
-      @WebParam(mode = WebParam.Mode.OUT, name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<ResourceList> resourceList,
-      @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions
-   ) throws InvalidRegistration, OperationFailed
-   {
-      GetServiceDescription getServiceDescription = new GetServiceDescription();
-      getServiceDescription.setRegistrationContext(registrationContext);
-      getServiceDescription.getDesiredLocales().addAll(desiredLocales);
-
-      ServiceDescription description = producer.getServiceDescription(getServiceDescription);
-
-      requiresRegistration.value = description.isRequiresRegistration();
-      offeredPortlets.value = description.getOfferedPortlets();
-      userCategoryDescriptions.value = description.getUserCategoryDescriptions();
-//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = description.getCustomWindowStateDescriptions();
-      customModeDescriptions.value = description.getCustomModeDescriptions();
-      requiresInitCookie.value = description.getRequiresInitCookie();
-      registrationPropertyDescription.value = description.getRegistrationPropertyDescription();
-      locales.value = description.getLocales();
-      resourceList.value = description.getResourceList();
-      extensions.value = description.getExtensions();
-   }
-
-   public void getServiceDescription(
       @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext,
       @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<String> desiredLocales,
       @WebParam(name = "portletHandles", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<String> portletHandles,
@@ -122,6 +87,22 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      GetServiceDescription getServiceDescription = new GetServiceDescription();
+      getServiceDescription.setRegistrationContext(registrationContext);
+      getServiceDescription.getDesiredLocales().addAll(desiredLocales);
+
+      ServiceDescription description = producer.getServiceDescription(getServiceDescription);
+
+      requiresRegistration.value = description.isRequiresRegistration();
+      offeredPortlets.value = description.getOfferedPortlets();
+      userCategoryDescriptions.value = description.getUserCategoryDescriptions();
+//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
+      customWindowStateDescriptions.value = description.getCustomWindowStateDescriptions();
+      customModeDescriptions.value = description.getCustomModeDescriptions();
+      requiresInitCookie.value = description.getRequiresInitCookie();
+      registrationPropertyDescription.value = description.getRegistrationPropertyDescription();
+      locales.value = description.getLocales();
+      resourceList.value = description.getResourceList();
+      extensions.value = description.getExtensions();
    }
 }

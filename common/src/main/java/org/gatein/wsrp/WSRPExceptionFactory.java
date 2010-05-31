@@ -69,8 +69,6 @@ public class WSRPExceptionFactory
 {
    private static final Logger log = LoggerFactory.getLogger(WSRPExceptionFactory.class);
 
-   private static final String NS = "urn:oasis:names:tc:wsrp:v1:types";
-
    public static final String ACCESS_DENIED = "AccessDenied";
    public static final String INCONSISTENT_PARAMETERS = "InconsistentParameters";
    public static final String INVALID_REGISTRATION = "InvalidRegistration";
@@ -85,7 +83,6 @@ public class WSRPExceptionFactory
    public static final String UNSUPPORTED_MIME_TYPE = "UnsupportedMimeType";
    public static final String UNSUPPORTED_MODE = "UnsupportedMode";
    public static final String UNSUPPORTED_WINDOW_STATE = "UnsupportedWindowState";
-   private static final String NS_PREFIX = "wsrp";
 
    private static final Map<String, ExceptionFactory<? extends Exception, ? extends Fault>> errorCodeToExceptions =
       new HashMap<String, ExceptionFactory<? extends Exception, ? extends Fault>>(17);

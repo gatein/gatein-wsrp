@@ -86,37 +86,6 @@ import java.util.List;
 @HandlerChain(file = "wshandlers.xml")
 public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPortType
 {
-   public void performBlockingInteraction(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext,
-      @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") PortletContext portletContext,
-      @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RuntimeContext runtimeContext,
-      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") UserContext userContext,
-      @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") MarkupParams markupParams,
-      @WebParam(name = "interactionParams", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") InteractionParams interactionParams,
-      @WebParam(mode = WebParam.Mode.OUT, name = "updateResponse", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<UpdateResponse> updateResponse,
-      @WebParam(mode = WebParam.Mode.OUT, name = "redirectURL", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<String> redirectURL,
-      @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions
-   ) throws UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState, InvalidCookie, InvalidSession, MissingParameters,
-      UnsupportedLocale, InconsistentParameters, PortletStateChangeRequired, InvalidHandle, InvalidRegistration,
-      InvalidUserCategory, AccessDenied, OperationFailed
-   {
-      forceSessionAccess();
-
-      PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
-      performBlockingInteraction.setPortletContext(portletContext);
-      performBlockingInteraction.setRuntimeContext(runtimeContext);
-      performBlockingInteraction.setMarkupParams(markupParams);
-      performBlockingInteraction.setInteractionParams(interactionParams);
-      performBlockingInteraction.setRegistrationContext(registrationContext);
-      performBlockingInteraction.setUserContext(userContext);
-
-      BlockingInteractionResponse interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
-
-      updateResponse.value = interactionResponse.getUpdateResponse();
-      redirectURL.value = interactionResponse.getRedirectURL();
-      extensions.value = interactionResponse.getExtensions();
-   }
-
    public void handleEvents(
       @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext,
       @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext,
@@ -142,22 +111,6 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    ) throws AccessDenied, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed,
       OperationNotSupported, ResourceSuspended
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
-   }
-
-   public List<Extension> initCookie(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext,
-      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext
-   ) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
-   {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
-   }
-
-   public List<Extension> releaseSessions(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext,
-      @WebParam(name = "sessionIDs", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> sessionIDs
-   ) throws MissingParameters, InvalidRegistration, AccessDenied, OperationFailed
-   {
       forceSessionAccess();
 
       ReleaseSessions releaseSessions = new ReleaseSessions();
@@ -169,18 +122,22 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       return returnAny.getExtensions();
    }
 
-   public void getMarkup(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext,
-      @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") PortletContext portletContext,
-      @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RuntimeContext runtimeContext,
-      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") UserContext userContext,
-      @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") MarkupParams markupParams,
-      @WebParam(mode = WebParam.Mode.OUT, name = "markupContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<MarkupContext> markupContext,
-      @WebParam(mode = WebParam.Mode.OUT, name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<SessionContext> sessionContext,
-      @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<Extension>> extensions
-   ) throws UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState, InvalidCookie, InvalidSession, MissingParameters,
-      UnsupportedLocale, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, AccessDenied,
-      OperationFailed
+   public List<Extension> initCookie(
+      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext,
+      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext
+   ) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      forceSessionAccess();
+
+      InitCookie initCookie = new InitCookie();
+      initCookie.setRegistrationContext(registrationContext);
+
+      ReturnAny returnAny = producer.initCookie(initCookie);
+
+      return returnAny.getExtensions();
+   }
+
+   public void getMarkup(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RuntimeContext runtimeContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") MarkupParams markupParams, @WebParam(name = "markupContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<MarkupContext> markupContext, @WebParam(name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<SessionContext> sessionContext, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       forceSessionAccess();
 
@@ -214,17 +171,22 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       //To change body of implemented methods use File | Settings | File Templates.
    }
 
-   public List<Extension> initCookie(
-      @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") RegistrationContext registrationContext
-   ) throws InvalidRegistration, AccessDenied, OperationFailed
+   public void performBlockingInteraction(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RuntimeContext runtimeContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") MarkupParams markupParams, @WebParam(name = "interactionParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") InteractionParams interactionParams, @WebParam(name = "updateResponse", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<UpdateResponse> updateResponse, @WebParam(name = "redirectURL", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> redirectURL, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       forceSessionAccess();
 
-      InitCookie initCookie = new InitCookie();
-      initCookie.setRegistrationContext(registrationContext);
+      PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
+      performBlockingInteraction.setPortletContext(portletContext);
+      performBlockingInteraction.setRuntimeContext(runtimeContext);
+      performBlockingInteraction.setMarkupParams(markupParams);
+      performBlockingInteraction.setInteractionParams(interactionParams);
+      performBlockingInteraction.setRegistrationContext(registrationContext);
+      performBlockingInteraction.setUserContext(userContext);
 
-      ReturnAny returnAny = producer.initCookie(initCookie);
+      BlockingInteractionResponse interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
 
-      return returnAny.getExtensions();
+      updateResponse.value = interactionResponse.getUpdateResponse();
+      redirectURL.value = interactionResponse.getRedirectURL();
+      extensions.value = interactionResponse.getExtensions();
    }
 }

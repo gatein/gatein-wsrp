@@ -49,7 +49,8 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    private String wsdlDefinitionURL;
 
-   private final static QName SERVICE = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPService");
+   private final static QName V1_SERVICE = new QName("urn:oasis:names:tc:wsrp:v1:wsdl", "WSRPService");
+   private final static QName V2_SERVICE = new QName("urn:oasis:names:tc:wsrp:v2:wsdl", "WSRPService");
 
    private Map<Class, Object> services = new ConcurrentHashMap<Class, Object>();
    private String markupURL;
@@ -146,52 +147,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       return failed;
    }
 
-   public String getServiceDescriptionURL()
-   {
-      return serviceDescriptionURL;
-   }
-
-   public String getMarkupURL()
-   {
-      return markupURL;
-   }
-
-   public String getRegistrationURL()
-   {
-      return registrationURL;
-   }
-
-   public String getPortletManagementURL()
-   {
-      return portletManagementURL;
-   }
-
-   public void setServiceDescriptionURL(String serviceDescriptionURL)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(serviceDescriptionURL, "Mandatory Service Description interface", null);
-      this.serviceDescriptionURL = serviceDescriptionURL;
-      setFailed(false); // reset failed status to false since we can't assert it anymore
-   }
-
-   public void setMarkupURL(String markupURL)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(markupURL, "Mandatory Markup interface", null);
-      this.markupURL = markupURL;
-      setFailed(false); // reset failed status to false since we can't assert it anymore
-   }
-
-   public void setRegistrationURL(String registrationURL)
-   {
-      this.registrationURL = registrationURL;
-      setFailed(false); // reset failed status to false since we can't assert it anymore
-   }
-
-   public void setPortletManagementURL(String portletManagementURL)
-   {
-      this.portletManagementURL = portletManagementURL;
-      setFailed(false); // reset failed status to false since we can't assert it anymore
-   }
-
 
    public void stop()
    {
@@ -244,7 +199,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
          URI wsdlURL = new URI(wsdlDefinitionURL);
 
-         Service service = Service.create(wsdlURL.toURL(), SERVICE);
+         Service service = Service.create(wsdlURL.toURL(), V2_SERVICE);
 
          WSRPV2MarkupPortType markupPortType = service.getPort(WSRPV2MarkupPortType.class);
          services.put(WSRPV2MarkupPortType.class, markupPortType);

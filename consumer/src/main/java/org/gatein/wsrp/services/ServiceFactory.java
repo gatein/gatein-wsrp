@@ -52,22 +52,6 @@ public interface ServiceFactory
     */
    boolean isFailed();
 
-   String getServiceDescriptionURL();
-
-   String getMarkupURL();
-
-   String getRegistrationURL();
-
-   String getPortletManagementURL();
-
-   void setServiceDescriptionURL(String serviceDescriptionURL);
-
-   void setMarkupURL(String markupURL);
-
-   void setRegistrationURL(String registrationURL);
-
-   void setPortletManagementURL(String portletManagementURL);
-
    void start() throws Exception;
 
    void stop();

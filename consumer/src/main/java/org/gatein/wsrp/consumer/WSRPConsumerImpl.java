@@ -578,7 +578,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return producerInfo.getEndpointConfigurationInfo();
    }
 
-   public WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws PortletInvokerException
+   private WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getServiceDescriptionService();
@@ -590,13 +590,13 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return getEndpointConfigurationInfo().getMarkupService();
    }
 
-   public WSRPV2PortletManagementPortType getPortletManagementService() throws PortletInvokerException
+   private WSRPV2PortletManagementPortType getPortletManagementService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getPortletManagementService();
    }
 
-   public WSRPV2RegistrationPortType getRegistrationService() throws PortletInvokerException
+   private WSRPV2RegistrationPortType getRegistrationService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getRegistrationService();
