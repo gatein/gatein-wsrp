@@ -50,6 +50,10 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
+import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.RegistrationService;
+import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.servlet.UserAccess;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
@@ -61,10 +65,6 @@ import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionParams;
-import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
-import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
-import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
-import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -578,25 +578,25 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return producerInfo.getEndpointConfigurationInfo();
    }
 
-   private WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws PortletInvokerException
+   private ServiceDescriptionService getServiceDescriptionService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getServiceDescriptionService();
    }
 
-   public WSRPV2MarkupPortType getMarkupService() throws PortletInvokerException
+   public MarkupService getMarkupService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getMarkupService();
    }
 
-   private WSRPV2PortletManagementPortType getPortletManagementService() throws PortletInvokerException
+   private PortletManagementService getPortletManagementService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getPortletManagementService();
    }
 
-   private WSRPV2RegistrationPortType getRegistrationService() throws PortletInvokerException
+   private RegistrationService getRegistrationService() throws PortletInvokerException
    {
       refreshProducerInfo(false);
       return getEndpointConfigurationInfo().getRegistrationService();

@@ -72,16 +72,18 @@ public class ServiceWrapper<T>
       setTimeout(bindingProvider.getRequestContext(), parentFactory);
 
 
-      Class tClass = (Class)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-      if (tClass.isAssignableFrom(serviceClass))
-      {
-         this.service = (T)service;
-      }
-      else
-      {
-         throw new IllegalArgumentException(service + " is not an instance of " + tClass.getSimpleName());
-      }
+      checkAssigmentValidity(this, serviceClass);
+      this.service = (T)service;
       this.parentFactory = parentFactory;
+   }
+
+   public static void checkAssigmentValidity(ServiceWrapper assignee, Class expectedImplementedInterface)
+   {
+      Class tClass = (Class)((ParameterizedType)assignee.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+      if (!tClass.isAssignableFrom(expectedImplementedInterface))
+      {
+         throw new IllegalArgumentException(assignee + " is not an instance of " + tClass.getSimpleName());
+      }
    }
 
    private static void setTimeout(Map<String, Object> requestContext, ManageableServiceFactory parentFactory)

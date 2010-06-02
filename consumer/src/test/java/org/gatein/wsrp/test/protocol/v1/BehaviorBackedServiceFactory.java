@@ -26,7 +26,15 @@ package org.gatein.wsrp.test.protocol.v1;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.RegistrationService;
+import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.services.ServiceFactory;
+import org.gatein.wsrp.services.v1.V1MarkupService;
+import org.gatein.wsrp.services.v1.V1PortletManagementService;
+import org.gatein.wsrp.services.v1.V1RegistrationService;
+import org.gatein.wsrp.services.v1.V1ServiceDescriptionService;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
@@ -135,6 +143,26 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
    public int getWSOperationTimeOut()
    {
       return timeout;
+   }
+
+   public ServiceDescriptionService getServiceDescriptionService() throws Exception
+   {
+      return new V1ServiceDescriptionService(getService(WSRPV1ServiceDescriptionPortType.class));
+   }
+
+   public MarkupService getMarkupService() throws Exception
+   {
+      return new V1MarkupService(getService(WSRPV1MarkupPortType.class));
+   }
+
+   public PortletManagementService getPortletManagementService() throws Exception
+   {
+      return new V1PortletManagementService(getService(WSRPV1PortletManagementPortType.class));
+   }
+
+   public RegistrationService getRegistrationService() throws Exception
+   {
+      return new V1RegistrationService(getService(WSRPV1RegistrationPortType.class));
    }
 
    public void create() throws Exception

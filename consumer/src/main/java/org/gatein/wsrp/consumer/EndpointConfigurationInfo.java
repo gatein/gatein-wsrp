@@ -25,7 +25,11 @@ package org.gatein.wsrp.consumer;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
+import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.RegistrationService;
 import org.gatein.wsrp.services.SOAPServiceFactory;
+import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.services.ServiceFactory;
 import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
 import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
@@ -101,24 +105,56 @@ public class EndpointConfigurationInfo
       return serviceFactory;
    }
 
-   WSRPV2ServiceDescriptionPortType getServiceDescriptionService() throws InvokerUnavailableException
+   ServiceDescriptionService getServiceDescriptionService() throws InvokerUnavailableException
    {
-      return getService(WSRPV2ServiceDescriptionPortType.class);
+      try
+      {
+         return serviceFactory.getServiceDescriptionService();
+      }
+      catch (Exception e)
+      {
+         throw new InvokerUnavailableException("Couldn't access ServiceDescription service. Cause: "
+            + e.getLocalizedMessage(), e);
+      }
    }
 
-   WSRPV2MarkupPortType getMarkupService() throws InvokerUnavailableException
+   MarkupService getMarkupService() throws InvokerUnavailableException
    {
-      return getService(WSRPV2MarkupPortType.class);
+      try
+      {
+         return serviceFactory.getMarkupService();
+      }
+      catch (Exception e)
+      {
+         throw new InvokerUnavailableException("Couldn't access Markup service. Cause: "
+            + e.getLocalizedMessage(), e);
+      }
    }
 
-   WSRPV2PortletManagementPortType getPortletManagementService() throws InvokerUnavailableException
+   PortletManagementService getPortletManagementService() throws InvokerUnavailableException
    {
-      return getService(WSRPV2PortletManagementPortType.class);
+      try
+      {
+         return serviceFactory.getPortletManagementService();
+      }
+      catch (Exception e)
+      {
+         throw new InvokerUnavailableException("Couldn't access PortletManagement service. Cause: "
+            + e.getLocalizedMessage(), e);
+      }
    }
 
-   WSRPV2RegistrationPortType getRegistrationService() throws InvokerUnavailableException
+   RegistrationService getRegistrationService() throws InvokerUnavailableException
    {
-      return getService(WSRPV2RegistrationPortType.class);
+      try
+      {
+         return serviceFactory.getRegistrationService();
+      }
+      catch (Exception e)
+      {
+         throw new InvokerUnavailableException("Couldn't access Registration service. Cause: "
+            + e.getLocalizedMessage(), e);
+      }
    }
 
    private <T> T getService(Class<T> clazz) throws InvokerUnavailableException

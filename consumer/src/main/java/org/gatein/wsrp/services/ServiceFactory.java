@@ -69,4 +69,12 @@ public interface ServiceFactory
    void setWSOperationTimeOut(int msBeforeTimeOut);
 
    int getWSOperationTimeOut();
+
+   ServiceDescriptionService getServiceDescriptionService() throws Exception;
+
+   MarkupService getMarkupService() throws Exception;
+
+   PortletManagementService getPortletManagementService() throws Exception;
+
+   RegistrationService getRegistrationService() throws Exception;
 }

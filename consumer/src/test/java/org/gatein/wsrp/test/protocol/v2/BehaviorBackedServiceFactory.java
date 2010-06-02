@@ -26,7 +26,15 @@ package org.gatein.wsrp.test.protocol.v2;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.RegistrationService;
+import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.services.ServiceFactory;
+import org.gatein.wsrp.services.v2.V2MarkupService;
+import org.gatein.wsrp.services.v2.V2PortletManagementService;
+import org.gatein.wsrp.services.v2.V2RegistrationService;
+import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InconsistentParameters;
@@ -95,6 +103,26 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
          return (T)registry.getRegistrationBehavior();
       }
       return null;
+   }
+
+   public ServiceDescriptionService getServiceDescriptionService() throws Exception
+   {
+      return new V2ServiceDescriptionService(getService(WSRPV2ServiceDescriptionPortType.class));
+   }
+
+   public MarkupService getMarkupService() throws Exception
+   {
+      return new V2MarkupService(getService(WSRPV2MarkupPortType.class));
+   }
+
+   public PortletManagementService getPortletManagementService() throws Exception
+   {
+      return new V2PortletManagementService(getService(WSRPV2PortletManagementPortType.class));
+   }
+
+   public RegistrationService getRegistrationService() throws Exception
+   {
+      return new V2RegistrationService(getService(WSRPV2RegistrationPortType.class));
    }
 
    public BehaviorRegistry getRegistry()
