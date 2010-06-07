@@ -46,18 +46,14 @@ import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
-import org.oasis.wsrp.v2.PortletStateChangeRequiredFault;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
-import org.oasis.wsrp.v2.UnsupportedModeFault;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
-import org.oasis.wsrp.v2.UnsupportedWindowStateFault;
 
 import javax.portlet.PortletModeException;
 import javax.portlet.WindowStateException;
@@ -96,8 +92,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Could not render portlet '" + handle + "'", e);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not render portlet '" + handle + "'", e);
       }
 
       checkForError(response);
@@ -123,13 +118,11 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       }
       catch (PortletStateChangeRequiredException e)
       {
-         throw WSRPExceptionFactory.<PortletStateChangeRequired, PortletStateChangeRequiredFault>throwWSException(WSRPExceptionFactory.PORTLET_STATE_CHANGE_REQUIRED,
-            e.getLocalizedMessage(), e);
+         throw WSRPExceptionFactory.throwWSException(PortletStateChangeRequired.class, e.getLocalizedMessage(), e);
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Could not perform action on portlet '" + handle + "'", e);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not perform action on portlet '" + handle + "'", e);
       }
 
       checkForError(response);
@@ -159,7 +152,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    static void throwOperationFaultOnSessionOperation() throws OperationFailed
    {
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "JBoss Portal's Producer" +
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
          " manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
          null);
    }
@@ -173,25 +166,21 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
          Throwable cause = errorResult.getCause();
          if (cause instanceof PortletModeException)
          {
-            throw WSRPExceptionFactory.<UnsupportedMode, UnsupportedModeFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_MODE,
-               "Unsupported mode: " + ((PortletModeException)cause).getMode(), null);
+            throw WSRPExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode: " + ((PortletModeException)cause).getMode(), null);
          }
          if (cause instanceof WindowStateException)
          {
-            throw WSRPExceptionFactory.<UnsupportedWindowState, UnsupportedWindowStateFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_WINDOW_STATE,
-               "Unsupported window state: " + ((WindowStateException)cause).getState(), null);
+            throw WSRPExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state: " + ((WindowStateException)cause).getState(), null);
          }
          // todo: deal with other exceptions
 
          // we're not sure what happened so throw an OperationFailedFault
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            errorResult.getMessage(), cause);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, errorResult.getMessage(), cause);
 
       }
       else if (!(response instanceof HTTPRedirectionResponse || response instanceof FragmentResponse || response instanceof UpdateNavigationalStateResponse))
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Unsupported result type: " + response.getClass().getName(), null);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Unsupported result type: " + response.getClass().getName(), null);
       }
    }
 }

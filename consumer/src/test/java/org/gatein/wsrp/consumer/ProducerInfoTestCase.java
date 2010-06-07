@@ -37,13 +37,11 @@ import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.InvalidRegistrationFault;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -385,8 +383,7 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            value + " is not a valid value for " + PROP_NAME, null);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, value + " is not a valid value for " + PROP_NAME, null);
       }
 
       @Override
@@ -398,7 +395,7 @@ public class ProducerInfoTestCase extends TestCase
 
          if (!RegistrationBehavior.REGISTRATION_HANDLE.equals(registrationContext.getRegistrationHandle()))
          {
-            WSRPExceptionFactory.<InvalidRegistration, InvalidRegistrationFault>throwWSException(WSRPExceptionFactory.INVALID_REGISTRATION, "Invalid registration", null);
+            WSRPExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration", null);
          }
 
          WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
@@ -411,7 +408,7 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, value
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, value
             + " is not a valid value for " + PROP_NAME, null);
 
       }

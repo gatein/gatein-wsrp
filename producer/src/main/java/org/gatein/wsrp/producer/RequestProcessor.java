@@ -51,18 +51,14 @@ import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
-import org.oasis.wsrp.v2.UnsupportedMimeTypeFault;
 import org.oasis.wsrp.v2.UnsupportedMode;
-import org.oasis.wsrp.v2.UnsupportedModeFault;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
-import org.oasis.wsrp.v2.UnsupportedWindowStateFault;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -123,8 +119,7 @@ public abstract class RequestProcessor
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Could not retrieve portlet '" + portletContext + "'", e);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
       }
 
       // get portlet description for the desired portlet...
@@ -132,8 +127,7 @@ public abstract class RequestProcessor
       portletDescription = producer.getPortletDescription(portlet, desiredLocales);
       if (Boolean.TRUE.equals(portletDescription.isUsesMethodGet()))
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Portlets using GET method in forms are not currently supported.", null);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Portlets using GET method in forms are not currently supported.", null);
       }
 
       List<MarkupType> markupTypes = portletDescription.getMarkupTypes();
@@ -247,8 +241,7 @@ public abstract class RequestProcessor
       // no MIME type was found: error!
       if (markupType == null)
       {
-         throw WSRPExceptionFactory.<UnsupportedMimeType, UnsupportedMimeTypeFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_MIME_TYPE,
-            "None of the specified MIME types are supported by portlet '" + portlet.getContext().getId() + "'", null);
+         throw WSRPExceptionFactory.throwWSException(UnsupportedMimeType.class, "None of the specified MIME types are supported by portlet '" + portlet.getContext().getId() + "'", null);
       }
 
       // use user-desired locales
@@ -298,8 +291,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.<UnsupportedMode, UnsupportedModeFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_MODE,
-            "Unsupported mode '" + params.getMode() + "'", e);
+         throw WSRPExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode '" + params.getMode() + "'", e);
       }
 
       // get the window state
@@ -310,8 +302,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.<UnsupportedWindowState, UnsupportedWindowStateFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_WINDOW_STATE,
-            "Unsupported window state '" + params.getMode() + "'", e);
+         throw WSRPExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state '" + params.getMode() + "'", e);
       }
 
       // get the character set
@@ -484,8 +475,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.<UnsupportedMimeType, UnsupportedMimeTypeFault>throwWSException(WSRPExceptionFactory.UNSUPPORTED_MIME_TYPE,
-            e.getLocalizedMessage(), e);
+         throw WSRPExceptionFactory.throwWSException(UnsupportedMimeType.class, e.getLocalizedMessage(), e);
       }
       return markupInfo;
    }

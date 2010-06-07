@@ -30,7 +30,6 @@ import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceSuspended;
@@ -67,6 +66,6 @@ public class InitCookieNotRequiredMarkupBehavior extends InitCookieMarkupBehavio
    public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       super.initCookie(registrationContext, userContext);
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "Shouldn't be called", null);
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be called", null);
    }
 }

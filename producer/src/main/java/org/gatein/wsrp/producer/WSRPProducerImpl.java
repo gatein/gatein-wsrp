@@ -52,7 +52,6 @@ import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidHandle;
-import org.oasis.wsrp.v2.InvalidHandleFault;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.InvalidUserCategory;
@@ -373,8 +372,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       }
       catch (NoSuchPortletException e)
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Couldn't find portlet with handle '" + portletContext.getId() + "'", null);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet with handle '" + portletContext.getId() + "'", null);
       }
       finally
       {
@@ -383,8 +381,7 @@ public class WSRPProducerImpl implements WSRP2Producer
 
       if (!isRemotable(portlet))
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Portlet '" + portletContext.getId() + "' is not remotely available.", null);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Portlet '" + portletContext.getId() + "' is not remotely available.", null);
       }
 
       return portlet;

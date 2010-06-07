@@ -56,13 +56,13 @@ import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.TestPortletInvocationContext;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InvalidHandle;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1ResourceList;
-import org.oasis.wsrp.v2.InvalidHandle;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
@@ -165,7 +165,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertEquals(0, behavior.getInitCookieCallCount());
    }
 
-   public void testInitCookiePerUser() throws PortletInvokerException, InvalidHandle
+   public void testInitCookiePerUser() throws PortletInvokerException, V1InvalidHandle
    {
       String handle = PerUserInitCookieMarkupBehavior.PER_USER_INIT_COOKIE_HANDLE;
       InitCookieMarkupBehavior behavior = (InitCookieMarkupBehavior)producer.getBehaviorRegistry().getMarkupBehaviorFor(handle);
@@ -179,7 +179,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertEquals(1, behavior.getInitCookieCallCount());
    }
 
-   public void testInitCookiePerGroup() throws PortletInvokerException, InvalidHandle, V1InvalidRegistration, V1OperationFailed
+   public void testInitCookiePerGroup() throws PortletInvokerException, V1InvalidHandle, V1InvalidRegistration, V1OperationFailed
    {
       BehaviorRegistry registry = producer.getBehaviorRegistry();
 

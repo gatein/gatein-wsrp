@@ -58,7 +58,6 @@ import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -192,7 +191,7 @@ public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV2MarkupPortT
       // should only be called if we required cookies to be initialized
       if (requiresInitCookie == null || CookieProtocol.NONE.equals(requiresInitCookie))
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "Shouldn't have called initCookie", null);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't have called initCookie", null);
       }
 
       try
@@ -201,7 +200,7 @@ public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV2MarkupPortT
       }
       catch (InvalidHandle invalidHandle)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, "Invalid handle", invalidHandle);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Invalid handle", invalidHandle);
       }
    }
 

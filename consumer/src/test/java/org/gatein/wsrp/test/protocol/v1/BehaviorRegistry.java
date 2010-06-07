@@ -23,9 +23,9 @@
 
 package org.gatein.wsrp.test.protocol.v1;
 
-import org.gatein.wsrp.WSRPExceptionFactory;
-import org.oasis.wsrp.v2.InvalidHandle;
-import org.oasis.wsrp.v2.InvalidHandleFault;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
+import org.oasis.wsrp.v1.V1InvalidHandle;
+import org.oasis.wsrp.v1.V1InvalidHandleFault;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,13 +59,13 @@ public class BehaviorRegistry
       behaviors.clear();
    }
 
-   public MarkupBehavior getMarkupBehaviorFor(String handle) throws InvalidHandle
+   public MarkupBehavior getMarkupBehaviorFor(String handle) throws V1InvalidHandle
    {
       if (behaviors.containsKey(handle))
       {
          return behaviors.get(handle);
       }
-      throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
+      throw WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE,
          "There is no registered MarkupBehavior for handle '" + handle + "'", null);
    }
 

@@ -29,7 +29,6 @@ import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
-import org.oasis.wsrp.v2.InvalidHandleFault;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MissingParameters;
@@ -73,8 +72,7 @@ public class DestroyClonesPortletManagementBehavior extends BasicPortletManageme
       }
       else
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Invalid portlet handle: " + portletContext.getPortletHandle(), null);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Invalid portlet handle: " + portletContext.getPortletHandle(), null);
       }
    }
 }

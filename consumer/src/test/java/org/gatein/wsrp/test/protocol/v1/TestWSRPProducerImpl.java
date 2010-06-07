@@ -32,7 +32,6 @@ import org.oasis.wsrp.v1.V1InconsistentParameters;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1InvalidCookie;
 import org.oasis.wsrp.v1.V1InvalidHandle;
-import org.oasis.wsrp.v1.V1InvalidHandleFault;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
@@ -64,7 +63,6 @@ import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
 import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
-import org.oasis.wsrp.v2.InvalidHandle;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -117,14 +115,7 @@ public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV1MarkupPortT
 
    private MarkupBehavior getMarkupBehaviorFor(String portletHandle) throws V1InvalidHandle
    {
-      try
-      {
-         return behaviorRegistry.getMarkupBehaviorFor(portletHandle);
-      }
-      catch (InvalidHandle invalidHandle)
-      {
-         throw WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE, "Invalid handle", null);
-      }
+      return behaviorRegistry.getMarkupBehaviorFor(portletHandle);
    }
 
    private ServiceDescriptionBehavior getServiceDescriptionBehavior()

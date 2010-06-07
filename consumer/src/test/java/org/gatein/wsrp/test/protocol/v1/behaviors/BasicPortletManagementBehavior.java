@@ -47,7 +47,6 @@ import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1UserContext;
-import org.oasis.wsrp.v2.InvalidHandle;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -103,16 +102,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
       }
 
       // get the POP description...
-      MarkupBehavior markupBehaviorFor;
-      try
-      {
-         markupBehaviorFor = registry.getMarkupBehaviorFor(handle);
-      }
-      catch (InvalidHandle invalidHandle)
-      {
-         throw WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE,
-            "Invalid handle '" + handle + "'", invalidHandle);
-      }
+      MarkupBehavior markupBehaviorFor = registry.getMarkupBehaviorFor(handle);
 
       V1PortletDescription description = markupBehaviorFor.getPortletDescriptionFor(handle);
 

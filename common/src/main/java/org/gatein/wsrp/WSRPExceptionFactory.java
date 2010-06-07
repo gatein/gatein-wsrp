@@ -25,6 +25,8 @@ package org.gatein.wsrp;
 
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.AccessDeniedFault;
+import org.oasis.wsrp.v2.ExportByValueNotSupported;
+import org.oasis.wsrp.v2.ExportNoLongerValid;
 import org.oasis.wsrp.v2.Fault;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InconsistentParametersFault;
@@ -40,10 +42,13 @@ import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.InvalidUserCategoryFault;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.MissingParametersFault;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationFailedFault;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.PortletStateChangeRequiredFault;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedLocaleFault;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
@@ -86,6 +91,8 @@ public class WSRPExceptionFactory
 
    private static final Map<String, ExceptionFactory<? extends Exception, ? extends Fault>> errorCodeToExceptions =
       new HashMap<String, ExceptionFactory<? extends Exception, ? extends Fault>>(17);
+   private static final Map<Class<? extends Exception>, ExceptionFactory2<? extends Exception>> exceptionClassToFactory =
+      new HashMap<Class<? extends Exception>, ExceptionFactory2<? extends Exception>>(19);
 
    static
    {
@@ -140,6 +147,36 @@ public class WSRPExceptionFactory
       }
    }
 
+   static
+   {
+      try
+      {
+         exceptionClassToFactory.put(AccessDenied.class, new ExceptionFactory2<AccessDenied>(AccessDenied.class));
+         exceptionClassToFactory.put(ExportByValueNotSupported.class, new ExceptionFactory2<ExportByValueNotSupported>(ExportByValueNotSupported.class));
+         exceptionClassToFactory.put(ExportNoLongerValid.class, new ExceptionFactory2<ExportNoLongerValid>(ExportNoLongerValid.class));
+         exceptionClassToFactory.put(InconsistentParameters.class, new ExceptionFactory2<InconsistentParameters>(InconsistentParameters.class));
+         exceptionClassToFactory.put(InvalidCookie.class, new ExceptionFactory2<InvalidCookie>(InvalidCookie.class));
+         exceptionClassToFactory.put(InvalidHandle.class, new ExceptionFactory2<InvalidHandle>(InvalidHandle.class));
+         exceptionClassToFactory.put(InvalidRegistration.class, new ExceptionFactory2<InvalidRegistration>(InvalidRegistration.class));
+         exceptionClassToFactory.put(InvalidSession.class, new ExceptionFactory2<InvalidSession>(InvalidSession.class));
+         exceptionClassToFactory.put(InvalidUserCategory.class, new ExceptionFactory2<InvalidUserCategory>(InvalidUserCategory.class));
+         exceptionClassToFactory.put(MissingParameters.class, new ExceptionFactory2<MissingParameters>(MissingParameters.class));
+         exceptionClassToFactory.put(ModifyRegistrationRequired.class, new ExceptionFactory2<ModifyRegistrationRequired>(ModifyRegistrationRequired.class));
+         exceptionClassToFactory.put(OperationFailed.class, new ExceptionFactory2<OperationFailed>(OperationFailed.class));
+         exceptionClassToFactory.put(OperationNotSupported.class, new ExceptionFactory2<OperationNotSupported>(OperationNotSupported.class));
+         exceptionClassToFactory.put(PortletStateChangeRequired.class, new ExceptionFactory2<PortletStateChangeRequired>(PortletStateChangeRequired.class));
+         exceptionClassToFactory.put(ResourceSuspended.class, new ExceptionFactory2<ResourceSuspended>(ResourceSuspended.class));
+         exceptionClassToFactory.put(UnsupportedLocale.class, new ExceptionFactory2<UnsupportedLocale>(UnsupportedLocale.class));
+         exceptionClassToFactory.put(UnsupportedMimeType.class, new ExceptionFactory2<UnsupportedMimeType>(UnsupportedMimeType.class));
+         exceptionClassToFactory.put(UnsupportedMode.class, new ExceptionFactory2<UnsupportedMode>(UnsupportedMode.class));
+         exceptionClassToFactory.put(UnsupportedWindowState.class, new ExceptionFactory2<UnsupportedWindowState>(UnsupportedWindowState.class));
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Couldn't initialize WSRPExceptionFactory", e);
+      }
+   }
+
    private WSRPExceptionFactory()
    {
    }
@@ -172,6 +209,24 @@ public class WSRPExceptionFactory
       throw exceptionFactory.newInstance(message, cause);
    }
 
+   public static <E extends Exception> E throwWSException(Class<E> exceptionClass, String message, Throwable cause) throws E
+   {
+      throw createWSException(exceptionClass, message, cause);
+   }
+
+   public static <E extends Exception> E createWSException(Class<E> exceptionClass, String message, Throwable cause)
+   {
+      ExceptionFactory2<E> exceptionFactory = (ExceptionFactory2<E>)exceptionClassToFactory.get(exceptionClass);
+
+      if (exceptionFactory == null)
+      {
+         throw new IllegalArgumentException("Unknown exception class: " + exceptionClass);
+      }
+
+      return exceptionFactory.newInstance(message, cause);
+   }
+
+
    private abstract static class ExceptionFactory<E extends Exception, F extends Fault>
    {
       private final Constructor<E> exceptionConstructor;
@@ -184,6 +239,45 @@ public class WSRPExceptionFactory
          Class<F> faultClass = (Class<F>)pt.getActualTypeArguments()[1];
          exceptionConstructor = exceptionClass.getConstructor(String.class, faultClass, Throwable.class);
          fault = faultClass.newInstance();
+      }
+
+      public E newInstance(String message, Throwable cause)
+      {
+         try
+         {
+            return exceptionConstructor.newInstance(message, fault, cause);
+         }
+         catch (Exception e)
+         {
+            log.debug("Couldn't instantiate Exception associated with " + fault.getClass().getSimpleName()
+               + ", message: " + message + ", cause: " + cause);
+            return null;
+         }
+      }
+   }
+
+   private static class ExceptionFactory2<E extends Exception>
+   {
+      private final Constructor<E> exceptionConstructor;
+      private final Fault fault;
+      private static final String FAULT = "Fault";
+
+      public ExceptionFactory2(Class<E> exceptionClass) throws NoSuchMethodException, IllegalAccessException, InstantiationException, ClassNotFoundException
+      {
+         String faultClassName = exceptionClass.getName() + FAULT;
+
+         Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(faultClassName);
+         if (Fault.class.isAssignableFrom(clazz))
+         {
+            Class<? extends Fault> faultClass = (Class<Fault>)clazz;
+            exceptionConstructor = exceptionClass.getConstructor(String.class, faultClass, Throwable.class);
+            fault = faultClass.newInstance();
+         }
+         else
+         {
+            throw new IllegalArgumentException("Couldn't create a Fault class based on specified exception class: "
+               + exceptionClass);
+         }
       }
 
       public E newInstance(String message, Throwable cause)

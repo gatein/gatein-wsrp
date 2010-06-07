@@ -328,6 +328,21 @@ public class WSRP1TypeFactory
       return portletDescription;
    }
 
+   public static V1PortletDescription createPortletDescription(String portletHandle, List<V1MarkupType> markupTypes)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);
+      ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
+      if (markupTypes.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a PortletDescription with an empty list of MarkupTypes!");
+      }
+
+      V1PortletDescription portletDescription = new V1PortletDescription();
+      portletDescription.setPortletHandle(portletHandle);
+      portletDescription.getMarkupTypes().addAll(markupTypes);
+      return portletDescription;
+   }
+
    private static void checkPortletHandle(String portletHandle)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", "PortletDescription");

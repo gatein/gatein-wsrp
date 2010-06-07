@@ -22,8 +22,17 @@
 
 package org.gatein.wsrp.services.v1;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.services.ServiceDescriptionService;
+import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1ItemDescription;
+import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
@@ -68,7 +77,33 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       Holder<Boolean> mayReturnRegistrationState, Holder<List<Extension>> extensions)
       throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      V1RegistrationContext v1RegistrationContext = V2V1Converter.toV1RegistrationContext(registrationContext);
+      Holder<List<V1PortletDescription>> v1OfferedPortlets = new Holder<List<V1PortletDescription>>();
+      Holder<List<V1ItemDescription>> v1UserCategories = new Holder<List<V1ItemDescription>>();
+      Holder<List<V1ItemDescription>> v1ProfileITems = new Holder<List<V1ItemDescription>>();
+      Holder<List<V1ItemDescription>> v1WindowStates = new Holder<List<V1ItemDescription>>();
+      Holder<List<V1ItemDescription>> v1Modes = new Holder<List<V1ItemDescription>>();
+      Holder<V1CookieProtocol> v1Cookie = new Holder<V1CookieProtocol>();
+      Holder<V1ModelDescription> v1RegistrationProperties = new Holder<V1ModelDescription>();
+      Holder<V1ResourceList> v1Resources = new Holder<V1ResourceList>();
+      Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+      try
+      {
+         service.getServiceDescription(v1RegistrationContext, desiredLocales, requiresRegistration, v1OfferedPortlets,
+            v1UserCategories,
+            v1ProfileITems,
+            v1WindowStates,
+            v1Modes,
+            v1Cookie, v1RegistrationProperties, locales, v1Resources, v1Extensions);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         throw V2V1Converter.toV2Exception(InvalidRegistration.class, v1InvalidRegistration);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         throw V2V1Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
+      }
       /*service.getServiceDescription(registrationContext, desiredLocales, portletHandles, userContext,
          requiresRegistration, offeredPortlets, userCategoryDescriptions, extensionDescriptions,
          customWindowStateDescriptions, customModeDescriptions, requiresInitCookie, registrationPropertyDescription,

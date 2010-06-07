@@ -38,11 +38,9 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.InvalidRegistrationFault;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
@@ -96,8 +94,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          {
             String msg = "Could not register consumer named '" + consumerName + "'";
             log.debug(msg, e);
-            throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-               msg, e);
+            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
          RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getRegistrationHandle());
@@ -105,8 +102,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          return registrationContext;
       }
 
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-         "Registration shouldn't be attempted if registration is not required", null);
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
    }
 
    private void updateRegistrationInformation(Registration registration, RegistrationData registrationData)
@@ -173,15 +169,13 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          catch (RegistrationException e)
          {
             log.debug(msg, e);
-            throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-               msg, e);
+            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
          return new ReturnAny();
       }
 
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-         "Deregistration shouldn't be attempted if registration is not required", null);
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Deregistration shouldn't be attempted if registration is not required", null);
    }
 
    public RegistrationState modifyRegistration(ModifyRegistration modifyRegistration) throws MissingParameters,
@@ -231,8 +225,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          catch (RegistrationException e)
          {
             log.debug(msg, e);
-            throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-               msg, e);
+            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
 
@@ -240,8 +233,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          return null;
       }
 
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-         "Modifying a registration shouldn't be attempted if registration is not required", null);
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Modifying a registration shouldn't be attempted if registration is not required", null);
    }
 
    /**
@@ -340,13 +332,12 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
 
    private void throwOperationFailedFault(String message, RegistrationException e) throws OperationFailed
    {
-      throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED, message, e);
+      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, message, e);
    }
 
    boolean throwInvalidRegistrationFault(String message) throws InvalidRegistration
    {
-      throw WSRPExceptionFactory.<InvalidRegistration, InvalidRegistrationFault>throwWSException(WSRPExceptionFactory.INVALID_REGISTRATION,
-         "Invalid registration: " + message, null);
+      throw WSRPExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration: " + message, null);
    }
 
    private Map<QName, Object> createRegistrationProperties(RegistrationData registrationData)

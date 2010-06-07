@@ -24,7 +24,6 @@
 package org.gatein.wsrp.producer;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.pc.api.InvalidPortletIdException;
@@ -53,14 +52,11 @@ import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.InconsistentParameters;
-import org.oasis.wsrp.v2.InconsistentParametersFault;
 import org.oasis.wsrp.v2.InvalidHandle;
-import org.oasis.wsrp.v2.InvalidHandleFault;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
@@ -71,7 +67,6 @@ import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.UserContext;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -184,18 +179,15 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (NoSuchPortletException e)
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       catch (InvalidPortletIdException e)
       {
-         throw WSRPExceptionFactory.<InconsistentParameters, InconsistentParametersFault>throwWSException(WSRPExceptionFactory.INCONSISTENT_PARAMETERS,
-            "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRPExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       finally
       {
@@ -228,7 +220,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
          if (failuresNumber > 0)
          {
             // for each reason of failure, record the associated portlet handles, expecting one portlet handle per message
-            Multimap<String,String> reasonToHandles = HashMultimap.create(failuresNumber, 1);
+            Multimap<String, String> reasonToHandles = HashMultimap.create(failuresNumber, 1);
             for (DestroyCloneFailure failure : failuresList)
             {
                reasonToHandles.put(failure.getMessage(), failure.getPortletId());
@@ -250,8 +242,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-            "Failed to destroy clones", e);
+         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to destroy clones", e);
       }
       finally
       {
@@ -323,18 +314,15 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
          }
          catch (NoSuchPortletException e)
          {
-            throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-               "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          catch (InvalidPortletIdException e)
          {
-            throw WSRPExceptionFactory.<InconsistentParameters, InconsistentParametersFault>throwWSException(WSRPExceptionFactory.INCONSISTENT_PARAMETERS,
-               "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRPExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          catch (PortletInvokerException e)
          {
-            throw WSRPExceptionFactory.<OperationFailed, OperationFailedFault>throwWSException(WSRPExceptionFactory.OPERATION_FAILED,
-               "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          finally
          {
@@ -411,8 +399,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Could not retrieve properties for portlet '" + portletContext + "'", e);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve properties for portlet '" + portletContext + "'", e);
       }
       finally
       {
@@ -440,8 +427,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.<InvalidHandle, InvalidHandleFault>throwWSException(WSRPExceptionFactory.INVALID_HANDLE,
-            "Could not retrieve portlet '" + portletContext.getPortletHandle() + "'", e);
+         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve portlet '" + portletContext.getPortletHandle() + "'", e);
       }
       finally
       {
