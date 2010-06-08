@@ -88,20 +88,27 @@ public class V2V1Converter
 
    public static MarkupParams toV2MarkupParams(V1MarkupParams v1MarkupParams)
    {
-      MarkupParams markupParams = WSRPTypeFactory.createMarkupParams(v1MarkupParams.isSecureClientCommunication(),
-         v1MarkupParams.getLocales(), v1MarkupParams.getMimeTypes(), v1MarkupParams.getMode(),
-         v1MarkupParams.getWindowState());
-      markupParams.setClientData(toV2ClientData(v1MarkupParams.getClientData()));
-      markupParams.setNavigationalContext(WSRPTypeFactory.createNavigationalContextOrNull(
-         new OpaqueStateString(v1MarkupParams.getNavigationalState()), null));
-      markupParams.setValidateTag(v1MarkupParams.getValidateTag());
+      if (v1MarkupParams != null)
+      {
+         MarkupParams markupParams = WSRPTypeFactory.createMarkupParams(v1MarkupParams.isSecureClientCommunication(),
+            v1MarkupParams.getLocales(), v1MarkupParams.getMimeTypes(), v1MarkupParams.getMode(),
+            v1MarkupParams.getWindowState());
+         markupParams.setClientData(toV2ClientData(v1MarkupParams.getClientData()));
+         markupParams.setNavigationalContext(WSRPTypeFactory.createNavigationalContextOrNull(
+            new OpaqueStateString(v1MarkupParams.getNavigationalState()), null));
+         markupParams.setValidateTag(v1MarkupParams.getValidateTag());
 
-      markupParams.getMarkupCharacterSets().addAll(v1MarkupParams.getMarkupCharacterSets());
-      markupParams.getValidNewModes().addAll(v1MarkupParams.getValidNewModes());
-      markupParams.getValidNewWindowStates().addAll(v1MarkupParams.getValidNewWindowStates());
+         markupParams.getMarkupCharacterSets().addAll(v1MarkupParams.getMarkupCharacterSets());
+         markupParams.getValidNewModes().addAll(v1MarkupParams.getValidNewModes());
+         markupParams.getValidNewWindowStates().addAll(v1MarkupParams.getValidNewWindowStates());
 
-      markupParams.getExtensions().addAll(Lists.transform(v1MarkupParams.getExtensions(), V1_TO_V2_EXTENSION));
-      return markupParams;
+         markupParams.getExtensions().addAll(Lists.transform(v1MarkupParams.getExtensions(), V1_TO_V2_EXTENSION));
+         return markupParams;
+      }
+      else
+      {
+         return null;
+      }
    }
 
 
@@ -226,15 +233,15 @@ public class V2V1Converter
    {
       public Extension apply(V1Extension from)
       {
-         if (from == null)
-         {
-            return null;
-         }
-         else
+         if (from != null)
          {
             Extension extension = new Extension();
             extension.setAny(from.getAny());
             return extension;
+         }
+         else
+         {
+            return null;
          }
       }
    }
@@ -243,15 +250,15 @@ public class V2V1Converter
    {
       public V1Extension apply(Extension from)
       {
-         if (from == null)
-         {
-            return null;
-         }
-         else
+         if (from != null)
          {
             V1Extension extension = new V1Extension();
             extension.setAny(from.getAny());
             return extension;
+         }
+         else
+         {
+            return null;
          }
       }
    }
@@ -261,26 +268,33 @@ public class V2V1Converter
 
       public V1PortletDescription apply(PortletDescription from)
       {
-         V1PortletDescription result = WSRP1TypeFactory.createPortletDescription(from.getPortletHandle(),
-            Lists.transform(from.getMarkupTypes(), V2_TO_V1_MARKUPTYPE));
-         result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
-         result.setDisplayName(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDisplayName()));
-         result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
-         result.getKeywords().addAll(Lists.transform(from.getKeywords(), V2_TO_V1_LOCALIZEDSTRING));
-         result.getUserCategories().addAll(from.getUserCategories());
-         result.getUserProfileItems().addAll(from.getUserProfileItems());
-         result.setDefaultMarkupSecure(from.isDefaultMarkupSecure());
-         result.setDoesUrlTemplateProcessing(from.isDoesUrlTemplateProcessing());
-         result.setTemplatesStoredInSession(from.isTemplatesStoredInSession());
-         result.setHasUserSpecificState(from.isHasUserSpecificState());
-         result.setOnlySecure(from.isOnlySecure());
-         result.setUserContextStoredInSession(from.isUserContextStoredInSession());
-         result.setUsesMethodGet(from.isUsesMethodGet());
-         result.setShortTitle(V2_TO_V1_LOCALIZEDSTRING.apply(from.getShortTitle()));
-         result.setTitle(V2_TO_V1_LOCALIZEDSTRING.apply(from.getTitle()));
+         if (from != null)
+         {
+            V1PortletDescription result = WSRP1TypeFactory.createPortletDescription(from.getPortletHandle(),
+               Lists.transform(from.getMarkupTypes(), V2_TO_V1_MARKUPTYPE));
+            result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
+            result.setDisplayName(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDisplayName()));
+            result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
+            result.getKeywords().addAll(Lists.transform(from.getKeywords(), V2_TO_V1_LOCALIZEDSTRING));
+            result.getUserCategories().addAll(from.getUserCategories());
+            result.getUserProfileItems().addAll(from.getUserProfileItems());
+            result.setDefaultMarkupSecure(from.isDefaultMarkupSecure());
+            result.setDoesUrlTemplateProcessing(from.isDoesUrlTemplateProcessing());
+            result.setTemplatesStoredInSession(from.isTemplatesStoredInSession());
+            result.setHasUserSpecificState(from.isHasUserSpecificState());
+            result.setOnlySecure(from.isOnlySecure());
+            result.setUserContextStoredInSession(from.isUserContextStoredInSession());
+            result.setUsesMethodGet(from.isUsesMethodGet());
+            result.setShortTitle(V2_TO_V1_LOCALIZEDSTRING.apply(from.getShortTitle()));
+            result.setTitle(V2_TO_V1_LOCALIZEDSTRING.apply(from.getTitle()));
 
-         result.setGroupID(from.getGroupID());
-         return null;
+            result.setGroupID(from.getGroupID());
+            return result;
+         }
+         else
+         {
+            return null;
+         }
       }
    }
 
@@ -289,11 +303,18 @@ public class V2V1Converter
 
       public V1ItemDescription apply(ItemDescription from)
       {
-         V1ItemDescription result = new V1ItemDescription();
-         result.setItemName(from.getItemName());
-         result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
-         result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
-         return result;
+         if (from != null)
+         {
+            V1ItemDescription result = new V1ItemDescription();
+            result.setItemName(from.getItemName());
+            result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
+            result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
+            return result;
+         }
+         else
+         {
+            return null;
+         }
       }
    }
 
@@ -302,7 +323,14 @@ public class V2V1Converter
 
       public V1MarkupType apply(MarkupType from)
       {
-         return WSRP1TypeFactory.createMarkupType(from.getMimeType(), from.getModes(), from.getWindowStates(), from.getLocales());
+         if (from != null)
+         {
+            return WSRP1TypeFactory.createMarkupType(from.getMimeType(), from.getModes(), from.getWindowStates(), from.getLocales());
+         }
+         else
+         {
+            return null;
+         }
       }
    }
 
@@ -311,7 +339,14 @@ public class V2V1Converter
 
       public V1LocalizedString apply(LocalizedString from)
       {
-         return WSRP1TypeFactory.createLocalizedString(from.getLang(), from.getResourceName(), from.getValue());
+         if (from != null)
+         {
+            return WSRP1TypeFactory.createLocalizedString(from.getLang(), from.getResourceName(), from.getValue());
+         }
+         else
+         {
+            return null;
+         }
 
       }
    }
