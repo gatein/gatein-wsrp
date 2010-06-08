@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
-import com.google.common.collect.Lists;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V2V1Converter;
 import org.oasis.wsrp.v1.V1CookieProtocol;
@@ -96,15 +95,15 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       }
 
       requiresRegistration.value = description.isRequiresRegistration();
-      offeredPortlets.value = Lists.transform(description.getOfferedPortlets(), V2V1Converter.V2_TO_V1_PORTLETDESCRIPTION);
-      userCategoryDescriptions.value = Lists.transform(description.getUserCategoryDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      offeredPortlets.value = V2V1Converter.transform(description.getOfferedPortlets(), V2V1Converter.V2_TO_V1_PORTLETDESCRIPTION);
+      userCategoryDescriptions.value = V2V1Converter.transform(description.getUserCategoryDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
 //      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = Lists.transform(description.getCustomWindowStateDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
-      customModeDescriptions.value = Lists.transform(description.getCustomModeDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      customWindowStateDescriptions.value = V2V1Converter.transform(description.getCustomWindowStateDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      customModeDescriptions.value = V2V1Converter.transform(description.getCustomModeDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
       requiresInitCookie.value = V2V1Converter.toV1CookieProtocol(description.getRequiresInitCookie());
       registrationPropertyDescription.value = V2V1Converter.toV1ModelDescription(description.getRegistrationPropertyDescription());
       locales.value = description.getLocales();
       resourceList.value = V2V1Converter.toV1ResourceList(description.getResourceList());
-      extensions.value = Lists.transform(description.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      extensions.value = V2V1Converter.transform(description.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 }

@@ -38,8 +38,10 @@ import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1ModelTypes;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1RuntimeContext;
@@ -54,13 +56,17 @@ import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.UserContext;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -69,12 +75,26 @@ import org.oasis.wsrp.v2.UserContext;
 public class V2V1Converter
 {
    public static final V1ToV2Extension V1_TO_V2_EXTENSION = new V1ToV2Extension();
+
    public static final V2ToV1Extension V2_TO_V1_EXTENSION = new V2ToV1Extension();
    public static final V2ToV1MarkupType V2_TO_V1_MARKUPTYPE = new V2ToV1MarkupType();
-
    public static final V2ToV1PortletDescription V2_TO_V1_PORTLETDESCRIPTION = new V2ToV1PortletDescription();
    public static final V2ToV1LocalizedString V2_TO_V1_LOCALIZEDSTRING = new V2ToV1LocalizedString();
    public static final V2ToV1ItemDescription V2_TO_V1_ITEMDESCRIPTION = new V2ToV1ItemDescription();
+   public static final V2ToV1PropertyDescription V2_TO_V1_PROPERTY_DESCRIPTION = new V2ToV1PropertyDescription();
+
+   public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function)
+   {
+      if (fromList == null)
+      {
+         return null;
+      }
+      else
+      {
+         return Lists.transform(fromList, function);
+      }
+   }
+
 
    public static V1PortletDescription toV1PortletDescription(PortletDescription portletDescription)
    {
@@ -98,11 +118,27 @@ public class V2V1Converter
             new OpaqueStateString(v1MarkupParams.getNavigationalState()), null));
          markupParams.setValidateTag(v1MarkupParams.getValidateTag());
 
-         markupParams.getMarkupCharacterSets().addAll(v1MarkupParams.getMarkupCharacterSets());
-         markupParams.getValidNewModes().addAll(v1MarkupParams.getValidNewModes());
-         markupParams.getValidNewWindowStates().addAll(v1MarkupParams.getValidNewWindowStates());
+         List<String> charSets = v1MarkupParams.getMarkupCharacterSets();
+         if (charSets != null)
+         {
+            markupParams.getMarkupCharacterSets().addAll(charSets);
+         }
+         List<String> validNewModes = v1MarkupParams.getValidNewModes();
+         if (validNewModes != null)
+         {
+            markupParams.getValidNewModes().addAll(validNewModes);
+         }
+         List<String> validNewWindowStates = v1MarkupParams.getValidNewWindowStates();
+         if (validNewWindowStates != null)
+         {
+            markupParams.getValidNewWindowStates().addAll(validNewWindowStates);
+         }
 
-         markupParams.getExtensions().addAll(Lists.transform(v1MarkupParams.getExtensions(), V1_TO_V2_EXTENSION));
+         List<Extension> extensions = V2V1Converter.transform(v1MarkupParams.getExtensions(), V1_TO_V2_EXTENSION);
+         if (extensions != null)
+         {
+            markupParams.getExtensions().addAll(extensions);
+         }
          return markupParams;
       }
       else
@@ -153,7 +189,11 @@ public class V2V1Converter
       {
          V1RegistrationContext result = WSRP1TypeFactory.createRegistrationContext(registrationContext.getRegistrationHandle());
          result.setRegistrationState(registrationContext.getRegistrationState());
-         result.getExtensions().addAll(Lists.transform(registrationContext.getExtensions(), V2_TO_V1_EXTENSION));
+         List<V1Extension> extensions = V2V1Converter.transform(registrationContext.getExtensions(), V2_TO_V1_EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
          return result;
       }
       else
@@ -215,10 +255,37 @@ public class V2V1Converter
 
    public static V1CookieProtocol toV1CookieProtocol(CookieProtocol requiresInitCookie)
    {
-      return V1CookieProtocol.fromValue(requiresInitCookie.value());
+      if (requiresInitCookie != null)
+      {
+         return V1CookieProtocol.fromValue(requiresInitCookie.value());
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static V1ModelDescription toV1ModelDescription(ModelDescription modelDescription)
+   {
+      if (modelDescription != null)
+      {
+         V1ModelDescription result = WSRP1TypeFactory.createModelDescription(V2V1Converter.transform(modelDescription.getPropertyDescriptions(), V2_TO_V1_PROPERTY_DESCRIPTION));
+         List<V1Extension> extensions = V2V1Converter.transform(modelDescription.getExtensions(), V2_TO_V1_EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         result.setModelTypes(toV1ModelTypes(modelDescription.getModelTypes()));
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static V1ModelTypes toV1ModelTypes(ModelTypes modelTypes)
    {
       throw new NotYetImplemented();
    }
@@ -228,6 +295,10 @@ public class V2V1Converter
       throw new NotYetImplemented();
    }
 
+   public static V1LocalizedString toV1LocalizedString(LocalizedString localizedString)
+   {
+      return V2_TO_V1_LOCALIZEDSTRING.apply(localizedString);
+   }
 
    private static class V1ToV2Extension implements Function<V1Extension, Extension>
    {
@@ -263,7 +334,7 @@ public class V2V1Converter
       }
    }
 
-   public static class V2ToV1PortletDescription implements Function<PortletDescription, V1PortletDescription>
+   private static class V2ToV1PortletDescription implements Function<PortletDescription, V1PortletDescription>
    {
 
       public V1PortletDescription apply(PortletDescription from)
@@ -271,13 +342,29 @@ public class V2V1Converter
          if (from != null)
          {
             V1PortletDescription result = WSRP1TypeFactory.createPortletDescription(from.getPortletHandle(),
-               Lists.transform(from.getMarkupTypes(), V2_TO_V1_MARKUPTYPE));
+               V2V1Converter.transform(from.getMarkupTypes(), V2_TO_V1_MARKUPTYPE));
             result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
             result.setDisplayName(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDisplayName()));
-            result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
-            result.getKeywords().addAll(Lists.transform(from.getKeywords(), V2_TO_V1_LOCALIZEDSTRING));
-            result.getUserCategories().addAll(from.getUserCategories());
-            result.getUserProfileItems().addAll(from.getUserProfileItems());
+            List<V1Extension> extensions = V2V1Converter.transform(from.getExtensions(), V2_TO_V1_EXTENSION);
+            if (extensions != null)
+            {
+               result.getExtensions().addAll(extensions);
+            }
+            List<V1LocalizedString> keywords = V2V1Converter.transform(from.getKeywords(), V2_TO_V1_LOCALIZEDSTRING);
+            if (keywords != null)
+            {
+               result.getKeywords().addAll(keywords);
+            }
+            List<String> userCategories = from.getUserCategories();
+            if (userCategories != null)
+            {
+               result.getUserCategories().addAll(userCategories);
+            }
+            List<String> userProfileItems = from.getUserProfileItems();
+            if (userProfileItems != null)
+            {
+               result.getUserProfileItems().addAll(userProfileItems);
+            }
             result.setDefaultMarkupSecure(from.isDefaultMarkupSecure());
             result.setDoesUrlTemplateProcessing(from.isDoesUrlTemplateProcessing());
             result.setTemplatesStoredInSession(from.isTemplatesStoredInSession());
@@ -298,7 +385,7 @@ public class V2V1Converter
       }
    }
 
-   public static class V2ToV1ItemDescription implements Function<ItemDescription, V1ItemDescription>
+   private static class V2ToV1ItemDescription implements Function<ItemDescription, V1ItemDescription>
    {
 
       public V1ItemDescription apply(ItemDescription from)
@@ -308,7 +395,11 @@ public class V2V1Converter
             V1ItemDescription result = new V1ItemDescription();
             result.setItemName(from.getItemName());
             result.setDescription(V2_TO_V1_LOCALIZEDSTRING.apply(from.getDescription()));
-            result.getExtensions().addAll(Lists.transform(from.getExtensions(), V2_TO_V1_EXTENSION));
+            List<V1Extension> extensions = V2V1Converter.transform(from.getExtensions(), V2_TO_V1_EXTENSION);
+            if (extensions != null)
+            {
+               result.getExtensions().addAll(extensions);
+            }
             return result;
          }
          else
@@ -318,7 +409,7 @@ public class V2V1Converter
       }
    }
 
-   public static class V2ToV1MarkupType implements Function<MarkupType, V1MarkupType>
+   private static class V2ToV1MarkupType implements Function<MarkupType, V1MarkupType>
    {
 
       public V1MarkupType apply(MarkupType from)
@@ -334,7 +425,7 @@ public class V2V1Converter
       }
    }
 
-   public static class V2ToV1LocalizedString implements Function<LocalizedString, V1LocalizedString>
+   private static class V2ToV1LocalizedString implements Function<LocalizedString, V1LocalizedString>
    {
 
       public V1LocalizedString apply(LocalizedString from)
@@ -348,6 +439,24 @@ public class V2V1Converter
             return null;
          }
 
+      }
+   }
+
+   private static class V2ToV1PropertyDescription implements Function<PropertyDescription, V1PropertyDescription>
+   {
+
+      public V1PropertyDescription apply(PropertyDescription from)
+      {
+         if (from != null)
+         {
+            V1PropertyDescription result = WSRP1TypeFactory.createPropertyDescription(from.getName().toString(), from.getType());
+            result.setHint(toV1LocalizedString(from.getHint()));
+            return result;
+         }
+         else
+         {
+            return null;
+         }
       }
    }
 }
