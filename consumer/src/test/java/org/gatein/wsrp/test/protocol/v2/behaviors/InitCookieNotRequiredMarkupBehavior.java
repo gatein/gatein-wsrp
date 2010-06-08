@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
@@ -66,6 +66,6 @@ public class InitCookieNotRequiredMarkupBehavior extends InitCookieMarkupBehavio
    public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       super.initCookie(registrationContext, userContext);
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be called", null);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be called", null);
    }
 }

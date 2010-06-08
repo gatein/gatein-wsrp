@@ -32,11 +32,11 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.ClonePortlet;
@@ -372,7 +372,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       }
       catch (NoSuchPortletException e)
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet with handle '" + portletContext.getId() + "'", null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet with handle '" + portletContext.getId() + "'", null);
       }
       finally
       {
@@ -381,7 +381,7 @@ public class WSRPProducerImpl implements WSRP2Producer
 
       if (!isRemotable(portlet))
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Portlet '" + portletContext.getId() + "' is not remotely available.", null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Portlet '" + portletContext.getId() + "' is not remotely available.", null);
       }
 
       return portlet;

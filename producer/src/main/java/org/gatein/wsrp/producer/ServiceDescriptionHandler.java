@@ -33,11 +33,11 @@ import org.gatein.pc.api.info.ModeInfo;
 import org.gatein.pc.api.info.PortletInfo;
 import org.gatein.pc.api.info.WindowStateInfo;
 import org.gatein.registration.Registration;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -79,7 +79,7 @@ class
    public ServiceDescription getServiceDescription(GetServiceDescription gs)
       throws InvalidRegistration, OperationFailed
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(gs, "GetServiceDescription");
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(gs, "GetServiceDescription");
 
       RegistrationContext registrationContext = gs.getRegistrationContext();
 
@@ -157,7 +157,7 @@ class
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
       }
    }
 

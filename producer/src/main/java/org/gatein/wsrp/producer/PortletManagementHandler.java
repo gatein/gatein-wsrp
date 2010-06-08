@@ -40,9 +40,9 @@ import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.DestroyPortlets;
@@ -96,11 +96,11 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       throws AccessDenied, InvalidHandle, InvalidUserCategory, InconsistentParameters,
       MissingParameters, InvalidRegistration, OperationFailed
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletDescription, GET_PORTLET_DESCRIPTION);
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletDescription, GET_PORTLET_DESCRIPTION);
       Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletDescription.getRegistrationContext());
 
       PortletContext portletContext = getPortletDescription.getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_DESCRIPTION);
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_DESCRIPTION);
 
       UserContext userContext = getPortletDescription.getUserContext();
       checkUserAuthorization(userContext);
@@ -114,10 +114,10 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       throws MissingParameters, InconsistentParameters, InvalidUserCategory, InvalidRegistration, AccessDenied,
       InvalidHandle, OperationFailed
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletPropertyDescription, GET_PORTLET_PROPERTY_DESCRIPTION);
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletPropertyDescription, GET_PORTLET_PROPERTY_DESCRIPTION);
 
       PortletContext portletContext = getPortletPropertyDescription.getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_PROPERTY_DESCRIPTION);
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_PROPERTY_DESCRIPTION);
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletPropertyDescription.getRegistrationContext());
 
@@ -160,10 +160,10 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    public PortletContext clonePortlet(ClonePortlet clonePortlet) throws InvalidUserCategory, AccessDenied, OperationFailed,
       InvalidHandle, InvalidRegistration, InconsistentParameters, MissingParameters
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(clonePortlet, "ClonePortlet");
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(clonePortlet, "ClonePortlet");
 
       PortletContext portletContext = clonePortlet.getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "PortletContext", "ClonePortlet");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "PortletContext", "ClonePortlet");
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(clonePortlet.getRegistrationContext());
 
@@ -179,15 +179,15 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (NoSuchPortletException e)
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       catch (InvalidPortletIdException e)
       {
-         throw WSRPExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Failed to create clone for portlet '" + portletContext.getPortletHandle(), e);
       }
       finally
       {
@@ -198,10 +198,10 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    public DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets) throws InconsistentParameters,
       MissingParameters, InvalidRegistration, OperationFailed
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(destroyPortlets, "DestroyPortlets");
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(destroyPortlets, "DestroyPortlets");
 
       List<String> handles = destroyPortlets.getPortletHandles();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(handles, "portlet handles to be destroyed", "DestroyPortlets");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(handles, "portlet handles to be destroyed", "DestroyPortlets");
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(destroyPortlets.getRegistrationContext());
 
@@ -242,7 +242,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to destroy clones", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Failed to destroy clones", e);
       }
       finally
       {
@@ -253,13 +253,13 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    public PortletContext setPortletProperties(SetPortletProperties setPortletProperties) throws OperationFailed,
       InvalidHandle, MissingParameters, InconsistentParameters, InvalidUserCategory, AccessDenied, InvalidRegistration
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(setPortletProperties, "SetPortletProperties");
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(setPortletProperties, "SetPortletProperties");
 
       PortletContext portletContext = setPortletProperties.getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "PortletContext", "SetPortletProperties");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "PortletContext", "SetPortletProperties");
 
       PropertyList propertyList = setPortletProperties.getPropertyList();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(propertyList, "PropertyList", "SetPortletProperties");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(propertyList, "PropertyList", "SetPortletProperties");
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(setPortletProperties.getRegistrationContext());
 
@@ -314,15 +314,15 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
          }
          catch (NoSuchPortletException e)
          {
-            throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          catch (InvalidPortletIdException e)
          {
-            throw WSRPExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          catch (PortletInvokerException e)
          {
-            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
+            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Failed to set properties for portlet '" + portletContext.getPortletHandle() + "'", e);
          }
          finally
          {
@@ -336,10 +336,10 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    public PropertyList getPortletProperties(GetPortletProperties getPortletProperties) throws InvalidHandle,
       MissingParameters, InvalidRegistration, AccessDenied, OperationFailed, InconsistentParameters, InvalidUserCategory
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletProperties, GET_PORTLET_PROPERTIES);
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletProperties, GET_PORTLET_PROPERTIES);
 
       PortletContext portletContext = getPortletProperties.getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_PROPERTIES);
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_PROPERTIES);
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletProperties.getRegistrationContext());
 
@@ -399,7 +399,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve properties for portlet '" + portletContext + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve properties for portlet '" + portletContext + "'", e);
       }
       finally
       {
@@ -427,7 +427,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve portlet '" + portletContext.getPortletHandle() + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve portlet '" + portletContext.getPortletHandle() + "'", e);
       }
       finally
       {

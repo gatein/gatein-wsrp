@@ -33,10 +33,10 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.RegistrationUtils;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
@@ -72,12 +72,12 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
       if (registrationRequirements.isRegistrationRequired())
       {
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
          String consumerName = registrationData.getConsumerName();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
 
          String consumerAgent = registrationData.getConsumerAgent();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
 
          Registration registration;
          try
@@ -94,7 +94,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          {
             String msg = "Could not register consumer named '" + consumerName + "'";
             log.debug(msg, e);
-            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
+            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
          RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getRegistrationHandle());
@@ -102,7 +102,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          return registrationContext;
       }
 
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
    }
 
    private void updateRegistrationInformation(Registration registration, RegistrationData registrationData)
@@ -146,7 +146,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
    {
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(deregister, "RegistrationContext");
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(deregister, "RegistrationContext");
 
          String registrationHandle = deregister.getRegistrationHandle();
          if (ParameterValidation.isNullOrEmpty(registrationHandle))
@@ -169,13 +169,13 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          catch (RegistrationException e)
          {
             log.debug(msg, e);
-            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
+            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
          return new ReturnAny();
       }
 
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Deregistration shouldn't be attempted if registration is not required", null);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Deregistration shouldn't be attempted if registration is not required", null);
    }
 
    public RegistrationState modifyRegistration(ModifyRegistration modifyRegistration) throws MissingParameters,
@@ -183,10 +183,10 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
    {
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(modifyRegistration, "ModifyRegistration");
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(modifyRegistration, "ModifyRegistration");
 
          RegistrationContext registrationContext = modifyRegistration.getRegistrationContext();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", "ModifyRegistration");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", "ModifyRegistration");
          String registrationHandle = registrationContext.getRegistrationHandle();
          if (ParameterValidation.isNullOrEmpty(registrationHandle))
          {
@@ -194,13 +194,13 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          }
 
          RegistrationData registrationData = modifyRegistration.getRegistrationData();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", "ModifyRegistration");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", "ModifyRegistration");
 
          String consumerName = registrationData.getConsumerName();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
 
          String consumerAgent = registrationData.getConsumerAgent();
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
 
          log.debug("Attempting to modify registration with handle '" + registrationHandle + "'");
          String msg = "Could not modify registration with handle '" + registrationHandle + "'";
@@ -225,7 +225,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          catch (RegistrationException e)
          {
             log.debug(msg, e);
-            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, msg, e);
+            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
 
@@ -233,7 +233,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
          return null;
       }
 
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Modifying a registration shouldn't be attempted if registration is not required", null);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Modifying a registration shouldn't be attempted if registration is not required", null);
    }
 
    /**
@@ -332,12 +332,12 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
 
    private void throwOperationFailedFault(String message, RegistrationException e) throws OperationFailed
    {
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, message, e);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, message, e);
    }
 
    boolean throwInvalidRegistrationFault(String message) throws InvalidRegistration
    {
-      throw WSRPExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration: " + message, null);
+      throw WSRP2ExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration: " + message, null);
    }
 
    private Map<QName, Object> createRegistrationProperties(RegistrationData registrationData)

@@ -29,7 +29,6 @@ import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 
 import javax.jws.WebParam;
@@ -60,9 +59,7 @@ public class PerGroupInitCookieMarkupBehavior extends InitCookieMarkupBehavior
 
       if (initCookieCallCount > 3)
       {
-         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED,
-            "Service description only defines 3 groups so initCookie should only be called 3 times!",
-            new IllegalStateException("Service description only defines 3 groups so initCookie should only be called 3 times!"));
+         throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Service description only defines 3 groups so initCookie should only be called 3 times!", new IllegalStateException("Service description only defines 3 groups so initCookie should only be called 3 times!"));
       }
 
       return extensions;

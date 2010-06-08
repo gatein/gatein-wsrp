@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
@@ -72,7 +72,7 @@ public class DestroyClonesPortletManagementBehavior extends BasicPortletManageme
       }
       else
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Invalid portlet handle: " + portletContext.getPortletHandle(), null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Invalid portlet handle: " + portletContext.getPortletHandle(), null);
       }
    }
 }

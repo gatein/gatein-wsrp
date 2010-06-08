@@ -29,7 +29,6 @@ import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 
 import javax.jws.WebParam;
@@ -63,6 +62,6 @@ public class InitCookieNotRequiredMarkupBehavior extends InitCookieMarkupBehavio
    public List<V1Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed
    {
       super.initCookie(registrationContext);
-      throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, "Shouldn't be called", null);
+      throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Shouldn't be called", null);
    }
 }

@@ -25,7 +25,7 @@ package org.gatein.wsrp.test.protocol.v2.behaviors;
 
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -73,7 +73,7 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
       }
 
       // shouldn't happen
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be happen", null);
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be happen", null);
    }
 
    protected String getMarkupString(String handle) throws InvalidCookie, OperationFailed
@@ -82,14 +82,14 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
       {
          case 0:
             // simulate change of configuration between calls: upon receiving this, the consumer should invoke initCookie
-            throw WSRPExceptionFactory.throwWSException(InvalidCookie.class, "Simulate invalid cookie", null);
+            throw WSRP2ExceptionFactory.throwWSException(InvalidCookie.class, "Simulate invalid cookie", null);
 
          case 1:
             return handle;
 
          default:
             // shouldn't be called more than twice
-            throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be called more than twice", null);
+            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't be called more than twice", null);
       }
    }
 

@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
@@ -63,7 +63,7 @@ public class PerGroupInitCookieMarkupBehavior extends InitCookieMarkupBehavior
 
       if (initCookieCallCount > 3)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Service description only defines 3 groups so initCookie should only be called 3 times!", new IllegalStateException("Service description only defines 3 groups so initCookie should only be called 3 times!"));
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Service description only defines 3 groups so initCookie should only be called 3 times!", new IllegalStateException("Service description only defines 3 groups so initCookie should only be called 3 times!"));
       }
       return extensions;
    }

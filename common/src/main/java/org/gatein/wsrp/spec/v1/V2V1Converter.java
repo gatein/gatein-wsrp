@@ -30,28 +30,34 @@ import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v1.V1ClientData;
+import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
 import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
 import org.oasis.wsrp.v1.V1MarkupType;
+import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v2.ClientData;
+import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.UserContext;
@@ -62,9 +68,9 @@ import org.oasis.wsrp.v2.UserContext;
  */
 public class V2V1Converter
 {
-   private static final V1ToV2Extension V1_TO_V2_EXTENSION = new V1ToV2Extension();
-   private static final V2ToV1Extension V2_TO_V1_EXTENSION = new V2ToV1Extension();
-   private static final V2ToV1MarkupType V2_TO_V1_MARKUPTYPE = new V2ToV1MarkupType();
+   public static final V1ToV2Extension V1_TO_V2_EXTENSION = new V1ToV2Extension();
+   public static final V2ToV1Extension V2_TO_V1_EXTENSION = new V2ToV1Extension();
+   public static final V2ToV1MarkupType V2_TO_V1_MARKUPTYPE = new V2ToV1MarkupType();
 
    public static final V2ToV1PortletDescription V2_TO_V1_PORTLETDESCRIPTION = new V2ToV1PortletDescription();
    public static final V2ToV1LocalizedString V2_TO_V1_LOCALIZEDSTRING = new V2ToV1LocalizedString();
@@ -173,6 +179,46 @@ public class V2V1Converter
       }
 
       return WSRPExceptionFactory.createWSException(v2ExceptionClass, v1Exception.getMessage(), v1Exception.getCause());
+   }
+
+   public static <E extends Exception> E toV1Exception(Class<E> v1ExceptionClass, Exception v2Exception)
+   {
+      if (!"org.oasis.wsrp.v1".equals(v1ExceptionClass.getPackage().getName()))
+      {
+         throw new IllegalArgumentException("Specified exception class is not a WSRP 1 exception: " + v1ExceptionClass);
+      }
+
+      Class<? extends Exception> v2ExceptionClass = v2Exception.getClass();
+      String v1Name = v2ExceptionClass.getSimpleName();
+      if (!"org.oasis.wsrp.v2".equals(v2ExceptionClass.getPackage().getName()))
+      {
+         throw new IllegalArgumentException("Specified exception is not a WSRP 2 exception: " + v2Exception);
+      }
+
+      String v2Name = v2ExceptionClass.getSimpleName();
+      // V1 class name should match V2 class name plus "V1"
+      if (!v2Name.equals(v1Name.substring(2)))
+      {
+         throw new IllegalArgumentException("Exception names do not match. Requested: " + v1Name
+            + ", was given: " + v2Name);
+      }
+
+      return WSRP1ExceptionFactory.createWSException(v1ExceptionClass, v2Exception.getMessage(), v2Exception.getCause());
+   }
+
+   public static V1CookieProtocol toV1CookieProtocol(CookieProtocol requiresInitCookie)
+   {
+      return V1CookieProtocol.fromValue(requiresInitCookie.value());
+   }
+
+   public static V1ModelDescription toV1ModelDescription(ModelDescription modelDescription)
+   {
+      throw new NotYetImplemented();
+   }
+
+   public static V1ResourceList toV1ResourceList(ResourceList resourceList)
+   {
+      throw new NotYetImplemented();
    }
 
 

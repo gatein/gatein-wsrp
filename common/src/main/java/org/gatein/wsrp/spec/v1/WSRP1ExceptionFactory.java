@@ -23,128 +23,70 @@
 
 package org.gatein.wsrp.spec.v1;
 
+import org.gatein.wsrp.WSRPExceptionFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
-import org.oasis.wsrp.v1.V1AccessDeniedFault;
 import org.oasis.wsrp.v1.V1Fault;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
-import org.oasis.wsrp.v1.V1InconsistentParametersFault;
 import org.oasis.wsrp.v1.V1InvalidCookie;
-import org.oasis.wsrp.v1.V1InvalidCookieFault;
 import org.oasis.wsrp.v1.V1InvalidHandle;
-import org.oasis.wsrp.v1.V1InvalidHandleFault;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
-import org.oasis.wsrp.v1.V1InvalidRegistrationFault;
 import org.oasis.wsrp.v1.V1InvalidSession;
-import org.oasis.wsrp.v1.V1InvalidSessionFault;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
-import org.oasis.wsrp.v1.V1InvalidUserCategoryFault;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1MissingParametersFault;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v1.V1PortletStateChangeRequired;
-import org.oasis.wsrp.v1.V1PortletStateChangeRequiredFault;
 import org.oasis.wsrp.v1.V1UnsupportedLocale;
-import org.oasis.wsrp.v1.V1UnsupportedLocaleFault;
 import org.oasis.wsrp.v1.V1UnsupportedMimeType;
-import org.oasis.wsrp.v1.V1UnsupportedMimeTypeFault;
 import org.oasis.wsrp.v1.V1UnsupportedMode;
-import org.oasis.wsrp.v1.V1UnsupportedModeFault;
 import org.oasis.wsrp.v1.V1UnsupportedWindowState;
-import org.oasis.wsrp.v1.V1UnsupportedWindowStateFault;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class WSRP1ExceptionFactory
+public class WSRP1ExceptionFactory extends WSRPExceptionFactory
 {
-   private static final Logger log = LoggerFactory.getLogger(WSRP1ExceptionFactory.class);
-
-   public static final String ACCESS_DENIED = "AccessDenied";
-   public static final String INCONSISTENT_PARAMETERS = "InconsistentParameters";
-   public static final String INVALID_REGISTRATION = "InvalidRegistration";
-   public static final String INVALID_COOKIE = "InvalidCookie";
-   public static final String INVALID_HANDLE = "InvalidHandle";
-   public static final String INVALID_SESSION = "InvalidSession";
-   public static final String INVALID_USER_CATEGORY = "InvalidUserCategory";
-   public static final String MISSING_PARAMETERS = "MissingParameters";
-   public static final String OPERATION_FAILED = "OperationFailed";
-   public static final String PORTLET_STATE_CHANGE_REQUIRED = "PortletStateChangeRequired";
-   public static final String UNSUPPORTED_LOCALE = "UnsupportedLocale";
-   public static final String UNSUPPORTED_MIME_TYPE = "UnsupportedMimeType";
-   public static final String UNSUPPORTED_MODE = "UnsupportedMode";
-   public static final String UNSUPPORTED_WINDOW_STATE = "UnsupportedWindowState";
-
-   private static final Map<String, ExceptionFactory<? extends Exception, ? extends V1Fault>> errorCodeToExceptions =
-      new HashMap<String, ExceptionFactory<? extends Exception, ? extends V1Fault>>(17);
-
-   static
+   protected void loadExceptionFactories()
    {
       try
       {
-         errorCodeToExceptions.put(ACCESS_DENIED, new ExceptionFactory<V1AccessDenied, V1AccessDeniedFault>()
-         {
-         });
-         errorCodeToExceptions.put(INCONSISTENT_PARAMETERS, new ExceptionFactory<V1InconsistentParameters, V1InconsistentParametersFault>()
-         {
-         });
-         errorCodeToExceptions.put(INVALID_COOKIE, new ExceptionFactory<V1InvalidCookie, V1InvalidCookieFault>()
-         {
-         });
-         errorCodeToExceptions.put(INVALID_HANDLE, new ExceptionFactory<V1InvalidHandle, V1InvalidHandleFault>()
-         {
-         });
-         errorCodeToExceptions.put(INVALID_REGISTRATION, new ExceptionFactory<V1InvalidRegistration, V1InvalidRegistrationFault>()
-         {
-         });
-         errorCodeToExceptions.put(INVALID_SESSION, new ExceptionFactory<V1InvalidSession, V1InvalidSessionFault>()
-         {
-         });
-         errorCodeToExceptions.put(INVALID_USER_CATEGORY, new ExceptionFactory<V1InvalidUserCategory, V1InvalidUserCategoryFault>()
-         {
-         });
-         errorCodeToExceptions.put(MISSING_PARAMETERS, new ExceptionFactory<V1MissingParameters, V1MissingParametersFault>()
-         {
-         });
-         errorCodeToExceptions.put(OPERATION_FAILED, new ExceptionFactory<V1OperationFailed, V1OperationFailedFault>()
-         {
-         });
-         errorCodeToExceptions.put(PORTLET_STATE_CHANGE_REQUIRED, new ExceptionFactory<V1PortletStateChangeRequired, V1PortletStateChangeRequiredFault>()
-         {
-         });
-         errorCodeToExceptions.put(UNSUPPORTED_LOCALE, new ExceptionFactory<V1UnsupportedLocale, V1UnsupportedLocaleFault>()
-         {
-         });
-         errorCodeToExceptions.put(UNSUPPORTED_MIME_TYPE, new ExceptionFactory<V1UnsupportedMimeType, V1UnsupportedMimeTypeFault>()
-         {
-         });
-         errorCodeToExceptions.put(UNSUPPORTED_MODE, new ExceptionFactory<V1UnsupportedMode, V1UnsupportedModeFault>()
-         {
-         });
-         errorCodeToExceptions.put(UNSUPPORTED_WINDOW_STATE, new ExceptionFactory<V1UnsupportedWindowState, V1UnsupportedWindowStateFault>()
-         {
-         });
+         exceptionClassToFactory.put(V1AccessDenied.class, new V1ExceptionFactory<V1AccessDenied>(V1AccessDenied.class));
+         exceptionClassToFactory.put(V1InconsistentParameters.class, new V1ExceptionFactory<V1InconsistentParameters>(V1InconsistentParameters.class));
+         exceptionClassToFactory.put(V1InvalidCookie.class, new V1ExceptionFactory<V1InvalidCookie>(V1InvalidCookie.class));
+         exceptionClassToFactory.put(V1InvalidHandle.class, new V1ExceptionFactory<V1InvalidHandle>(V1InvalidHandle.class));
+         exceptionClassToFactory.put(V1InvalidRegistration.class, new V1ExceptionFactory<V1InvalidRegistration>(V1InvalidRegistration.class));
+         exceptionClassToFactory.put(V1InvalidSession.class, new V1ExceptionFactory<V1InvalidSession>(V1InvalidSession.class));
+         exceptionClassToFactory.put(V1InvalidUserCategory.class, new V1ExceptionFactory<V1InvalidUserCategory>(V1InvalidUserCategory.class));
+         exceptionClassToFactory.put(V1MissingParameters.class, new V1ExceptionFactory<V1MissingParameters>(V1MissingParameters.class));
+         exceptionClassToFactory.put(V1OperationFailed.class, new V1ExceptionFactory<V1OperationFailed>(V1OperationFailed.class));
+         exceptionClassToFactory.put(V1PortletStateChangeRequired.class, new V1ExceptionFactory<V1PortletStateChangeRequired>(V1PortletStateChangeRequired.class));
+         exceptionClassToFactory.put(V1UnsupportedLocale.class, new V1ExceptionFactory<V1UnsupportedLocale>(V1UnsupportedLocale.class));
+         exceptionClassToFactory.put(V1UnsupportedMimeType.class, new V1ExceptionFactory<V1UnsupportedMimeType>(V1UnsupportedMimeType.class));
+         exceptionClassToFactory.put(V1UnsupportedMode.class, new V1ExceptionFactory<V1UnsupportedMode>(V1UnsupportedMode.class));
+         exceptionClassToFactory.put(V1UnsupportedWindowState.class, new V1ExceptionFactory<V1UnsupportedWindowState>(V1UnsupportedWindowState.class));
       }
       catch (Exception e)
       {
-         throw new RuntimeException("Error initializing WSRP1ExceptionFactory", e);
+         throw new RuntimeException("Couldn't initialize WSRPV1ExceptionFactory", e);
       }
+   }
+
+   private static final class InstanceHolder
+   {
+      public static final WSRP1ExceptionFactory factory = new WSRP1ExceptionFactory();
+   }
+
+   public static WSRPExceptionFactory getInstance()
+   {
+      return InstanceHolder.factory;
    }
 
    private WSRP1ExceptionFactory()
    {
    }
 
-   public static void throwMissingParametersIfValueIsMissing(Object valueToCheck, String valueName, String context)
-      throws V1MissingParameters
+   public static void throwMissingParametersIfValueIsMissing(Object valueToCheck, String valueName, String context) throws V1MissingParameters
    {
       if (valueToCheck == null)
       {
@@ -152,50 +94,25 @@ public class WSRP1ExceptionFactory
       }
    }
 
-   public static void throwOperationFailedIfValueIsMissing(Object valueToCheck, String valueName) throws V1OperationFailed
+   protected static class V1ExceptionFactory<E extends Exception> extends ExceptionFactory
    {
-      if (valueToCheck == null)
+      public V1ExceptionFactory(Class<E> exceptionClass) throws NoSuchMethodException, IllegalAccessException, InstantiationException, ClassNotFoundException
       {
-         throw new V1OperationFailed("Missing required " + valueName, new V1OperationFailedFault());
-      }
-   }
-
-   public static <E extends Exception, F extends V1Fault> E throwWSException(String errorCode, String message, Throwable cause) throws E
-   {
-      ExceptionFactory<E, F> exceptionFactory = (ExceptionFactory<E, F>)errorCodeToExceptions.get(errorCode);
-      if (exceptionFactory == null)
-      {
-         throw new IllegalArgumentException("Unknown error code: " + errorCode);
+         super(exceptionClass);
       }
 
-      throw exceptionFactory.newInstance(message, cause);
-   }
-
-   private abstract static class ExceptionFactory<E extends Exception, F extends V1Fault>
-   {
-      private final Constructor<E> exceptionConstructor;
-      private final V1Fault fault;
-
-      public ExceptionFactory() throws NoSuchMethodException, IllegalAccessException, InstantiationException
+      protected Class initFaultAndGetClass(Class clazz) throws IllegalAccessException, InstantiationException
       {
-         ParameterizedType pt = (ParameterizedType)getClass().getGenericSuperclass();
-         Class<E> exceptionClass = (Class<E>)pt.getActualTypeArguments()[0];
-         Class<F> faultClass = (Class<F>)pt.getActualTypeArguments()[1];
-         exceptionConstructor = exceptionClass.getConstructor(String.class, faultClass, Throwable.class);
-         fault = faultClass.newInstance();
-      }
-
-      public E newInstance(String message, Throwable cause)
-      {
-         try
+         if (V1Fault.class.isAssignableFrom(clazz))
          {
-            return exceptionConstructor.newInstance(message, fault, cause);
+            Class<? extends V1Fault> faultClass = (Class<V1Fault>)clazz;
+            fault = faultClass.newInstance();
+            return faultClass;
          }
-         catch (Exception e)
+         else
          {
-            log.debug("Couldn't instantiate Exception associated with " + fault.getClass().getSimpleName()
-               + ", message: " + message + ", cause: " + cause);
-            return null;
+            throw new IllegalArgumentException("Couldn't create fault class based on specified exception class from "
+               + clazz);
          }
       }
    }

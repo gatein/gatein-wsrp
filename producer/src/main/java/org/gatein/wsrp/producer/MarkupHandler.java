@@ -30,8 +30,8 @@ import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.portlet.state.producer.PortletStateChangeRequiredException;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.GetMarkup;
@@ -78,7 +78,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    public MarkupResponse getMarkup(GetMarkup getMarkup) throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied, InconsistentParameters, InvalidHandle, UnsupportedLocale, UnsupportedMode, OperationFailed, MissingParameters, InvalidUserCategory, InvalidRegistration, UnsupportedMimeType
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
 
       RequestProcessor requestProcessor = new RenderRequestProcessor(producer, getMarkup);
 
@@ -92,7 +92,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not render portlet '" + handle + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not render portlet '" + handle + "'", e);
       }
 
       checkForError(response);
@@ -102,9 +102,9 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction) throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed, UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired, InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters, InvalidHandle, InvalidCookie
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(performBlockingInteraction, PBI);
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(performBlockingInteraction, PBI);
       final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", PBI);
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", PBI);
 
       RequestProcessor requestProcessor = new ActionRequestProcessor(producer, performBlockingInteraction, interactionParams);
 
@@ -118,11 +118,11 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       }
       catch (PortletStateChangeRequiredException e)
       {
-         throw WSRPExceptionFactory.throwWSException(PortletStateChangeRequired.class, e.getLocalizedMessage(), e);
+         throw WSRP2ExceptionFactory.throwWSException(PortletStateChangeRequired.class, e.getLocalizedMessage(), e);
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not perform action on portlet '" + handle + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not perform action on portlet '" + handle + "'", e);
       }
 
       checkForError(response);
@@ -139,7 +139,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    public ReturnAny initCookie(InitCookie initCookie) throws AccessDenied, OperationFailed, InvalidRegistration
    {
-      WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(initCookie, "InitCookie");
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(initCookie, "InitCookie");
       producer.getRegistrationOrFailIfInvalid(initCookie.getRegistrationContext());
 
       // Force HTTP session creation... this is required for BEA Weblogic version < 9.2.
@@ -152,7 +152,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    static void throwOperationFaultOnSessionOperation() throws OperationFailed
    {
-      throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
          " manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
          null);
    }
@@ -166,21 +166,21 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
          Throwable cause = errorResult.getCause();
          if (cause instanceof PortletModeException)
          {
-            throw WSRPExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode: " + ((PortletModeException)cause).getMode(), null);
+            throw WSRP2ExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode: " + ((PortletModeException)cause).getMode(), null);
          }
          if (cause instanceof WindowStateException)
          {
-            throw WSRPExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state: " + ((WindowStateException)cause).getState(), null);
+            throw WSRP2ExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state: " + ((WindowStateException)cause).getState(), null);
          }
          // todo: deal with other exceptions
 
          // we're not sure what happened so throw an OperationFailedFault
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, errorResult.getMessage(), cause);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, errorResult.getMessage(), cause);
 
       }
       else if (!(response instanceof HTTPRedirectionResponse || response instanceof FragmentResponse || response instanceof UpdateNavigationalStateResponse))
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Unsupported result type: " + response.getClass().getName(), null);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Unsupported result type: " + response.getClass().getName(), null);
       }
    }
 }

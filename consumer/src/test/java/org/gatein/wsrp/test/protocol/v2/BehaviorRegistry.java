@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.test.protocol.v2;
 
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class BehaviorRegistry
       {
          return behaviors.get(handle);
       }
-      throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "There is no registered MarkupBehavior for handle '" + handle + "'", null);
+      throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "There is no registered MarkupBehavior for handle '" + handle + "'", null);
    }
 
    public void registerMarkupBehavior(MarkupBehavior behavior)

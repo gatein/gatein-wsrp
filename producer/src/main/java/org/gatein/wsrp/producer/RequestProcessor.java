@@ -41,8 +41,8 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupParams;
@@ -98,17 +98,17 @@ public abstract class RequestProcessor
 
       // get session information and deal with it
       final RuntimeContext runtimeContext = getRuntimeContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", getContextName());
 
       checkForSessionIDs(runtimeContext);
 
       // get markup parameters
       final MarkupParams params = getMarkupParams();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", getContextName());
 
       // get portlet handle
       PortletContext wsrpPC = getPortletContext();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", getContextName());
       org.gatein.pc.api.PortletContext portletContext = WSRPUtils.convertToPortalPortletContext(wsrpPC);
 
       // retrieve the portlet
@@ -119,7 +119,7 @@ public abstract class RequestProcessor
       }
       catch (PortletInvokerException e)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
       }
 
       // get portlet description for the desired portlet...
@@ -127,7 +127,7 @@ public abstract class RequestProcessor
       portletDescription = producer.getPortletDescription(portlet, desiredLocales);
       if (Boolean.TRUE.equals(portletDescription.isUsesMethodGet()))
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Portlets using GET method in forms are not currently supported.", null);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Portlets using GET method in forms are not currently supported.", null);
       }
 
       List<MarkupType> markupTypes = portletDescription.getMarkupTypes();
@@ -241,7 +241,7 @@ public abstract class RequestProcessor
       // no MIME type was found: error!
       if (markupType == null)
       {
-         throw WSRPExceptionFactory.throwWSException(UnsupportedMimeType.class, "None of the specified MIME types are supported by portlet '" + portlet.getContext().getId() + "'", null);
+         throw WSRP2ExceptionFactory.throwWSException(UnsupportedMimeType.class, "None of the specified MIME types are supported by portlet '" + portlet.getContext().getId() + "'", null);
       }
 
       // use user-desired locales
@@ -291,7 +291,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode '" + params.getMode() + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(UnsupportedMode.class, "Unsupported mode '" + params.getMode() + "'", e);
       }
 
       // get the window state
@@ -302,7 +302,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state '" + params.getMode() + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state '" + params.getMode() + "'", e);
       }
 
       // get the character set
@@ -360,7 +360,7 @@ public abstract class RequestProcessor
    {
       if (wsrpUserContext != null)
       {
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpUserContext.getUserContextKey(), "User Context Key", "UserContext");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpUserContext.getUserContextKey(), "User Context Key", "UserContext");
       }
    }
 
@@ -475,7 +475,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRPExceptionFactory.throwWSException(UnsupportedMimeType.class, e.getLocalizedMessage(), e);
+         throw WSRP2ExceptionFactory.throwWSException(UnsupportedMimeType.class, e.getLocalizedMessage(), e);
       }
       return markupInfo;
    }

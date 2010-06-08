@@ -24,8 +24,8 @@
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
 import org.gatein.common.NotYetImplemented;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
@@ -126,7 +126,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
 
       if (!BasicMarkupBehavior.PORTLET_HANDLE.equals(handle))
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Can only clone portlet with handle '" + BasicMarkupBehavior.PORTLET_HANDLE + "'", null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Can only clone portlet with handle '" + BasicMarkupBehavior.PORTLET_HANDLE + "'", null);
       }
 
       portletHandle.value = CLONED_HANDLE;
@@ -136,10 +136,10 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
    public void destroyPortlets(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletHandles", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<String> portletHandles, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "failedPortlets", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<FailedPortlets>> failedPortlets, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws InconsistentParameters, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       super.destroyPortlets(registrationContext, portletHandles, userContext, failedPortlets, extensions);
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandles, "portlet handles", "destroyPortlets");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandles, "portlet handles", "destroyPortlets");
       if (portletHandles.isEmpty())
       {
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandles, "portlet handles", "DestroyPortlets");
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandles, "portlet handles", "DestroyPortlets");
       }
 
       for (String handle : portletHandles)
@@ -202,7 +202,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
 
       if (!(CLONED_HANDLE).equals(handle))
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
       }
 
       portletHandle.value = handle;
@@ -232,7 +232,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
       }
       else
       {
-         WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Unknown handle '" + handle + "'", null);
+         WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Unknown handle '" + handle + "'", null);
       }
 
       incrementCallCount();
@@ -241,12 +241,12 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
 
    private String getHandleFrom(PortletContext portletContext, String context) throws MissingParameters, InvalidHandle
    {
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "portlet context", context);
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, "portlet context", context);
       String handle = portletContext.getPortletHandle();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(handle, "portlet handle", "PortletContext");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(handle, "portlet handle", "PortletContext");
       if (handle.length() == 0)
       {
-         throw WSRPExceptionFactory.throwWSException(InvalidHandle.class, "Portlet handle is empty", null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Portlet handle is empty", null);
       }
 
       return handle;

@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.producer;
 
-import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ActionInvocation;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -31,9 +30,9 @@ import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.state.AccessMode;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -50,8 +49,6 @@ import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UpdateResponse;
-
-import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -106,7 +103,7 @@ class ActionRequestProcessor extends RequestProcessor
    AccessMode getAccessMode() throws MissingParameters
    {
       StateChange stateChange = interactionParams.getPortletStateChange();
-      WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(stateChange, "portletStateChange", "InteractionParams");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(stateChange, "portletStateChange", "InteractionParams");
       return WSRPUtils.getAccessModeFromStateChange(stateChange);
    }
 

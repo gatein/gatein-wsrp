@@ -33,12 +33,10 @@ import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
 import org.oasis.wsrp.v1.V1InvalidHandle;
-import org.oasis.wsrp.v1.V1InvalidHandleFault;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1Property;
@@ -80,8 +78,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
 
       if (!BasicMarkupBehavior.PORTLET_HANDLE.equals(handle))
       {
-         throw WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE,
-            "Can only clone portlet with handle '" + BasicMarkupBehavior.PORTLET_HANDLE + "'", null);
+         throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
       }
 
       portletHandle.value = CLONED_HANDLE;
@@ -139,8 +136,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
       }
       else
       {
-         WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE,
-            "Unknown handle '" + handle + "'", null);
+         WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
       }
 
       incrementCallCount();
@@ -154,8 +150,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
 
       if (!(CLONED_HANDLE).equals(handle))
       {
-         throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED,
-            "Cannot modify portlet '" + handle + "'", null);
+         throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
       }
 
       portletHandle.value = handle;
@@ -168,8 +163,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
       WSRP1ExceptionFactory.throwMissingParametersIfValueIsMissing(handle, "portlet handle", "PortletContext");
       if (handle.length() == 0)
       {
-         throw WSRP1ExceptionFactory.<V1InvalidHandle, V1InvalidHandleFault>throwWSException(WSRP1ExceptionFactory.INVALID_HANDLE,
-            "Portlet handle is empty", null);
+         throw WSRP1ExceptionFactory.throwWSException(V1InvalidHandle.class, "Portlet handle is empty", null);
       }
 
       return handle;

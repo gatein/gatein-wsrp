@@ -23,11 +23,11 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
-import org.gatein.common.NotYetImplemented;
+import com.google.common.collect.Lists;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
+import org.gatein.wsrp.spec.v1.V2V1Converter;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1ModelDescription;
@@ -35,9 +35,10 @@ import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResourceList;
-import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.jws.HandlerChain;
@@ -76,24 +77,34 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1InvalidRegistration, V1OperationFailed
    {
-      /*GetServiceDescription getServiceDescription = new GetServiceDescription();
-      getServiceDescription.setRegistrationContext(registrationContext);
+      GetServiceDescription getServiceDescription = new GetServiceDescription();
+      getServiceDescription.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
 
-      ServiceDescription description = producer.getServiceDescription(getServiceDescription);
+      ServiceDescription description = null;
+      try
+      {
+         description = producer.getServiceDescription(getServiceDescription);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
 
       requiresRegistration.value = description.isRequiresRegistration();
-      offeredPortlets.value = description.getOfferedPortlets();
-      userCategoryDescriptions.value = description.getUserCategoryDescriptions();
-      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = description.getCustomWindowStateDescriptions();
-      customModeDescriptions.value = description.getCustomModeDescriptions();
-      requiresInitCookie.value = description.getRequiresInitCookie();
-      registrationPropertyDescription.value = description.getRegistrationPropertyDescription();
+      offeredPortlets.value = Lists.transform(description.getOfferedPortlets(), V2V1Converter.V2_TO_V1_PORTLETDESCRIPTION);
+      userCategoryDescriptions.value = Lists.transform(description.getUserCategoryDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
+      customWindowStateDescriptions.value = Lists.transform(description.getCustomWindowStateDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      customModeDescriptions.value = Lists.transform(description.getCustomModeDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      requiresInitCookie.value = V2V1Converter.toV1CookieProtocol(description.getRequiresInitCookie());
+      registrationPropertyDescription.value = V2V1Converter.toV1ModelDescription(description.getRegistrationPropertyDescription());
       locales.value = description.getLocales();
-      resourceList.value = description.getResourceList();
-      extensions.value = description.getExtensions();*/
-
-      throw new NotYetImplemented();
+      resourceList.value = V2V1Converter.toV1ResourceList(description.getResourceList());
+      extensions.value = Lists.transform(description.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 }

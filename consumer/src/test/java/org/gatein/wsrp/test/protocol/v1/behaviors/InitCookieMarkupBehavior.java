@@ -32,10 +32,8 @@ import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1InvalidCookie;
-import org.oasis.wsrp.v1.V1InvalidCookieFault;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 
 import javax.jws.WebParam;
@@ -71,7 +69,7 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
       }
 
       // shouldn't happen
-      throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, "Shouldn't happen", null);
+      throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Shouldn't happen", null);
    }
 
    protected String getMarkupString(String handle) throws V1InvalidCookie, V1OperationFailed
@@ -80,14 +78,14 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
       {
          case 0:
             // simulate change of configuration between calls: upon receiving this, the consumer should invoke initCookie
-            throw WSRP1ExceptionFactory.<V1InvalidCookie, V1InvalidCookieFault>throwWSException(WSRP1ExceptionFactory.INVALID_COOKIE, "Simulate invalid cookie", null);
+            throw WSRP1ExceptionFactory.throwWSException(V1InvalidCookie.class, "Simulate invalid cookie", null);
 
          case 1:
             return handle;
 
          default:
             // shouldn't be called more than twice
-            throw WSRP1ExceptionFactory.<V1OperationFailed, V1OperationFailedFault>throwWSException(WSRP1ExceptionFactory.OPERATION_FAILED, "Shouldn't be called more than twice", null);
+            throw WSRP1ExceptionFactory.throwWSException(V1OperationFailed.class, "Shouldn't be called more than twice", null);
       }
    }
 

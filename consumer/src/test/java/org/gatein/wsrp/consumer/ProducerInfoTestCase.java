@@ -26,7 +26,7 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
 import org.gatein.wsrp.test.protocol.v2.RegistrationBehavior;
@@ -383,7 +383,7 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, value + " is not a valid value for " + PROP_NAME, null);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, value + " is not a valid value for " + PROP_NAME, null);
       }
 
       @Override
@@ -391,14 +391,14 @@ public class ProducerInfoTestCase extends TestCase
       {
          incrementCallCount();
 
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationContext, "RegistrationContext", null);
 
          if (!RegistrationBehavior.REGISTRATION_HANDLE.equals(registrationContext.getRegistrationHandle()))
          {
-            WSRPExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration", null);
+            WSRP2ExceptionFactory.throwWSException(InvalidRegistration.class, "Invalid registration", null);
          }
 
-         WSRPExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
+         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", null);
 
          Property prop = checkRegistrationData(registrationData.getRegistrationProperties());
 
@@ -408,17 +408,17 @@ public class ProducerInfoTestCase extends TestCase
             return;
          }
 
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, value
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, value
             + " is not a valid value for " + PROP_NAME, null);
 
       }
 
       private Property checkRegistrationData(List<Property> registrationProperties) throws OperationFailed
       {
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationProperties, "RegistrationData");
 
          Property prop = registrationProperties.get(0);
-         WSRPExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(prop, "Registration property");
          return prop;
       }
    }

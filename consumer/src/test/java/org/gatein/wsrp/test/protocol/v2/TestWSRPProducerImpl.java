@@ -24,7 +24,7 @@
 package org.gatein.wsrp.test.protocol.v2;
 
 import org.gatein.common.NotYetImplemented;
-import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.CopiedPortlet;
@@ -191,7 +191,7 @@ public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV2MarkupPortT
       // should only be called if we required cookies to be initialized
       if (requiresInitCookie == null || CookieProtocol.NONE.equals(requiresInitCookie))
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't have called initCookie", null);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't have called initCookie", null);
       }
 
       try
@@ -200,7 +200,7 @@ public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV2MarkupPortT
       }
       catch (InvalidHandle invalidHandle)
       {
-         throw WSRPExceptionFactory.throwWSException(OperationFailed.class, "Invalid handle", invalidHandle);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Invalid handle", invalidHandle);
       }
    }
 
