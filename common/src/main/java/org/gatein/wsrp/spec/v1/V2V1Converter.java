@@ -29,6 +29,7 @@ import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
@@ -65,6 +66,7 @@ import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.V1UserProfile;
+import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
@@ -886,7 +888,51 @@ public class V2V1Converter
    
    public static V1MarkupContext toV1MarkupContext(MarkupContext markupContext)
    {
-      throw new NotYetImplemented();
+      if (markupContext != null)
+      {
+         V1MarkupContext v1MarkupContext = new V1MarkupContext();
+         v1MarkupContext.setMarkupBinary(markupContext.getItemBinary());
+         v1MarkupContext.setMarkupString(markupContext.getItemString());
+         v1MarkupContext.setCacheControl(toV1CacheControl(markupContext.getCacheControl()));
+         v1MarkupContext.setLocale(markupContext.getLocale());
+         v1MarkupContext.setMimeType(markupContext.getMimeType());
+         v1MarkupContext.setPreferredTitle(markupContext.getPreferredTitle());
+         v1MarkupContext.setRequiresUrlRewriting(markupContext.isRequiresRewriting());
+         v1MarkupContext.setUseCachedMarkup(markupContext.isUseCachedItem());
+         
+         List<Extension> extensions = markupContext.getExtensions();
+         if (extensions != null)
+         {
+            v1MarkupContext.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1MarkupContext;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1CacheControl toV1CacheControl(CacheControl cacheControl)
+   {
+      if (cacheControl != null)
+      {
+         V1CacheControl v1CacheControl = WSRP1TypeFactory.createCacheControl(cacheControl.getExpires(), cacheControl.getUserScope());
+         v1CacheControl.setValidateTag(cacheControl.getValidateTag());
+         
+         List<Extension> extensions = cacheControl.getExtensions();
+         if (extensions != null)
+         {
+            v1CacheControl.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+
+         return v1CacheControl;
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static ServiceDescription toV2ServiceDescription(V1ServiceDescription v1ServiceDescription)
