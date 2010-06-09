@@ -1,24 +1,25 @@
 /*
-* JBoss, a division of Red Hat
-* Copyright 2008, Red Hat Middleware, LLC, and individual contributors as indicated
-* by the @authors tag. See the copyright.txt in the distribution for a
-* full listing of individual contributors.
-*
-* This is free software; you can redistribute it and/or modify it
-* under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of
-* the License, or (at your option) any later version.
-*
-* This software is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this software; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.services.v1;
 
@@ -104,10 +105,15 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       {
          throw V2V1Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
-      /*service.getServiceDescription(registrationContext, desiredLocales, portletHandles, userContext,
-         requiresRegistration, offeredPortlets, userCategoryDescriptions, extensionDescriptions,
-         customWindowStateDescriptions, customModeDescriptions, requiresInitCookie, registrationPropertyDescription,
-         locales, resourceList, eventDescriptions, schemaType, supportedOptions, exportDescription,
-         mayReturnRegistrationState, extensions);*/
+
+      offeredPortlets.value = V2V1Converter.transform(v1OfferedPortlets.value, V2V1Converter.V1_TO_V2_PORTLETDESCRIPTION);
+      userCategoryDescriptions.value = V2V1Converter.transform(v1UserCategories.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
+//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
+      customWindowStateDescriptions.value = V2V1Converter.transform(v1WindowStates.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
+      customModeDescriptions.value = V2V1Converter.transform(v1Modes.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
+      requiresInitCookie.value = V2V1Converter.toV2CookieProtocol(v1Cookie.value);
+      registrationPropertyDescription.value = V2V1Converter.toV2ModelDescription(v1RegistrationProperties.value);
+      resourceList.value = V2V1Converter.toV2ResourceList(v1Resources.value);
+      extensions.value = V2V1Converter.transform(v1Extensions.value, V2V1Converter.V1_TO_V2_EXTENSION);
    }
 }

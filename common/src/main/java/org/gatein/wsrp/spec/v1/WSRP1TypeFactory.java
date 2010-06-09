@@ -331,6 +331,7 @@ public class WSRP1TypeFactory
    public static V1PortletDescription createPortletDescription(String portletHandle, List<V1MarkupType> markupTypes)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);
+      checkPortletHandle(portletHandle);
       ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
       if (markupTypes.isEmpty())
       {

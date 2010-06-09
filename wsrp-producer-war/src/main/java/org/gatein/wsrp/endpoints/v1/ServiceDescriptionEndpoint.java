@@ -80,7 +80,7 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       getServiceDescription.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
 
-      ServiceDescription description = null;
+      ServiceDescription description;
       try
       {
          description = producer.getServiceDescription(getServiceDescription);

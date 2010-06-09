@@ -38,13 +38,13 @@ import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.spi.PortletInvocationContext;
+import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
-import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
@@ -324,6 +324,22 @@ public class WSRPTypeFactory
 
       PortletDescription portletDescription = new PortletDescription();
       portletDescription.setPortletHandle(context.getPortletHandle());
+      portletDescription.getMarkupTypes().addAll(markupTypes);
+      return portletDescription;
+   }
+
+   public static PortletDescription createPortletDescription(String portletHandle, List<MarkupType> markupTypes)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);
+      checkPortletHandle(portletHandle);
+      ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
+      if (markupTypes.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a PortletDescription with an empty list of MarkupTypes!");
+      }
+
+      PortletDescription portletDescription = new PortletDescription();
+      portletDescription.setPortletHandle(portletHandle);
       portletDescription.getMarkupTypes().addAll(markupTypes);
       return portletDescription;
    }
@@ -1162,9 +1178,9 @@ public class WSRPTypeFactory
    }
 
    /**
-    * reason(LocalizedString)?, resourceList(ResourceList)?, extensions(Extension)*
-    * errorCode(ErrorCodes)
+    * reason(LocalizedString)?, resourceList(ResourceList)?, extensions(Extension)* errorCode(ErrorCodes)
     * portletHandles(xsd:string)+
+    *
     * @param portletHandles
     * @param reason
     * @return
@@ -1181,7 +1197,7 @@ public class WSRPTypeFactory
             failedPortlets.setReason(createLocalizedString(reason));
          }
          failedPortlets.setErrorCode(ErrorCodes.OperationFailed);
-         
+
          return failedPortlets;
       }
 
@@ -1190,13 +1206,14 @@ public class WSRPTypeFactory
 
    /**
     * failedPortlets(FailedPortlets)*, extensions(Extension)*
+    *
     * @param failedPortlets
     * @return
     */
    public static DestroyPortletsResponse createDestroyPortletsResponse(List<FailedPortlets> failedPortlets)
    {
       DestroyPortletsResponse dpr = new DestroyPortletsResponse();
-      if(ParameterValidation.existsAndIsNotEmpty(failedPortlets))
+      if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
       {
          dpr.getFailedPortlets().addAll(failedPortlets);
       }
@@ -1217,7 +1234,7 @@ public class WSRPTypeFactory
             }
          }
 
-         if(ParameterValidation.existsAndIsNotEmpty(publicNavigationalState))
+         if (ParameterValidation.existsAndIsNotEmpty(publicNavigationalState))
          {
             // todo: public NS GTNWSRP-38
             for (Map.Entry<String, String[]> entry : publicNavigationalState.entrySet())
