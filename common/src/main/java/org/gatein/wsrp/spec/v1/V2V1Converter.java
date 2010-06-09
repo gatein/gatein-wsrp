@@ -30,8 +30,11 @@ import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v1.V1ClientData;
+import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1Fault;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
@@ -41,8 +44,11 @@ import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1ModelTypes;
 import org.oasis.wsrp.v1.V1NamedString;
+import org.oasis.wsrp.v1.V1Online;
+import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1Postal;
 import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1Resource;
@@ -52,11 +58,17 @@ import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.V1SessionContext;
 import org.oasis.wsrp.v1.V1StateChange;
+import org.oasis.wsrp.v1.V1Telecom;
+import org.oasis.wsrp.v1.V1TelephoneNum;
+import org.oasis.wsrp.v1.V1Templates;
 import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
+import org.oasis.wsrp.v1.V1UserProfile;
 import org.oasis.wsrp.v2.ClientData;
+import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
@@ -67,8 +79,11 @@ import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.Online;
+import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.Resource;
@@ -78,9 +93,13 @@ import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.Telecom;
+import org.oasis.wsrp.v2.TelephoneNum;
+import org.oasis.wsrp.v2.Templates;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
+import org.oasis.wsrp.v2.UserProfile;
 
 import java.util.List;
 
@@ -111,7 +130,9 @@ public class V2V1Converter
 
 
    public static final V1ToV2NamedString V1_TO_V2_NAMEDSTRING = new V1ToV2NamedString();
+   public static final V2ToV1NamedString V2_TO_V1_NAMEDSTRING = new V2ToV1NamedString();
    public static final V1ToV2UploadContext V1_TO_V2_UPLOADCONTEXT = new V1ToV2UploadContext();
+   public static final V2ToV1UploadContext V2_TO_V1_UPLOADCONTEXT = new V2ToV1UploadContext();
 
    public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function)
    {
@@ -177,12 +198,74 @@ public class V2V1Converter
       }
    }
 
+   public static V1MarkupParams toV1MarkupParams(MarkupParams markupParams)
+   {
+      if (markupParams != null)
+      {
+         V1MarkupParams v1MarkupParams = WSRP1TypeFactory.createMarkupParams(markupParams.isSecureClientCommunication(), markupParams.getLocales(), 
+               markupParams.getMimeTypes(), markupParams.getMode(), markupParams.getWindowState());
+       
+         v1MarkupParams.setClientData(toV1ClientData(markupParams.getClientData()));
+         v1MarkupParams.setNavigationalState(markupParams.getNavigationalContext().getOpaqueValue());
+         v1MarkupParams.setValidateTag(markupParams.getValidateTag());
+         
+         List<String> charSets = markupParams.getMarkupCharacterSets();
+         if (charSets != null)
+         {
+            v1MarkupParams.getMarkupCharacterSets().addAll(charSets);
+         }
+         
+         List<String> validNewModes = markupParams.getValidNewModes();
+         if (validNewModes != null)
+         {
+            v1MarkupParams.getValidNewModes().addAll(validNewModes);
+         }
+         
+         List<String> validNewWindowStates = markupParams.getValidNewWindowStates();
+         if (validNewWindowStates != null)
+         {
+            v1MarkupParams.getValidNewWindowStates().addAll(validNewWindowStates);
+         }
+         
+         List<V1Extension> extensions = V2V1Converter.transform(markupParams.getExtensions(), V2_TO_V1_EXTENSION);
+         if (extensions != null)
+         {
+            v1MarkupParams.getExtensions().addAll(extensions);
+         }
+         
+         return v1MarkupParams;
+      }
+      else
+      {
+         return null;
+      }
+   }
 
    private static ClientData toV2ClientData(V1ClientData clientData)
    {
       throw new NotYetImplemented();
    }
 
+   private static V1ClientData toV1ClientData(ClientData clientData)
+   {
+      if (clientData != null)
+      {
+         V1ClientData v1ClientData = WSRP1TypeFactory.createClientData(clientData.getUserAgent());
+         
+         List<Extension> extensions = clientData.getExtensions();
+         if (extensions != null)
+         {
+            v1ClientData.getExtensions().addAll(Lists.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+
+         return v1ClientData;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    public static PortletContext toV2PortletContext(V1PortletContext portletContext)
    {
       throw new NotYetImplemented();
@@ -213,11 +296,280 @@ public class V2V1Converter
       throw new NotYetImplemented();
    }
 
+   public static V1RuntimeContext toV1RuntimeContext(RuntimeContext runtimeContext)
+   {
+      if (runtimeContext != null)
+      {
+         V1RuntimeContext v1RuntimeContext = WSRP1TypeFactory.createRuntimeContext(runtimeContext.getUserAuthentication());
+         v1RuntimeContext.setNamespacePrefix(runtimeContext.getNamespacePrefix());
+         v1RuntimeContext.setPortletInstanceKey(runtimeContext.getPortletInstanceKey());
+         v1RuntimeContext.setSessionID(runtimeContext.getSessionParams().getSessionID());
+         v1RuntimeContext.setTemplates(V2V1Converter.toV1Templates(runtimeContext.getTemplates()));
+         
+         List<Extension> extensions = runtimeContext.getExtensions();
+         if (extensions != null)
+         {
+            v1RuntimeContext.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1RuntimeContext;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1Templates toV1Templates(Templates templates)
+   {
+      if (templates != null)
+      {
+         //TODO: should we be using the WSRP1TypeFactory,createTemplates(PortletInvocationContext) instead?
+         V1Templates v1Templates = new V1Templates();
+         v1Templates.setBlockingActionTemplate(templates.getBlockingActionTemplate());
+         v1Templates.setDefaultTemplate(templates.getDefaultTemplate());
+         v1Templates.setRenderTemplate(templates.getRenderTemplate());
+         v1Templates.setResourceTemplate(templates.getResourceTemplate());
+         v1Templates.setSecureBlockingActionTemplate(templates.getSecureBlockingActionTemplate());
+         v1Templates.setSecureRenderTemplate(templates.getSecureRenderTemplate());
+         v1Templates.setSecureResourceTemplate(templates.getSecureResourceTemplate());
+         
+         List<Extension> extensions = templates.getExtensions();
+         if (extensions != null)
+         {
+            v1Templates.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1Templates;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    public static UserContext toV2UserContext(V1UserContext userContext)
    {
       throw new NotYetImplemented();
    }
 
+   public static V1UserContext toV1UserContext(UserContext userContext)
+   {
+      if (userContext != null)
+      {
+         V1UserContext v1UserContext = WSRP1TypeFactory.createUserContext(userContext.getUserContextKey());
+         
+         v1UserContext.setProfile(toV1UserProfile(userContext.getProfile()));
+         
+         List<Extension> extensions = userContext.getExtensions();
+         if (extensions != null)
+         {
+            v1UserContext.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         if (userContext.getUserCategories() != null)
+         {
+            v1UserContext.getUserCategories().addAll(userContext.getUserCategories());
+         }
+         
+         return v1UserContext;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1UserProfile toV1UserProfile (UserProfile userProfile)
+   {
+      if (userProfile != null)
+      {
+         V1UserProfile v1UserProfile = new V1UserProfile();
+         v1UserProfile.setBdate(userProfile.getBdate());
+         v1UserProfile.setBusinessInfo(toV1Context(userProfile.getBusinessInfo()));
+         v1UserProfile.setEmployerInfo(toV1EmployerInfo(userProfile.getEmployerInfo()));
+         v1UserProfile.setGender(userProfile.getGender());
+         v1UserProfile.setHomeInfo(toV1Context(userProfile.getHomeInfo()));
+         v1UserProfile.setName(toV1PersonName(userProfile.getName()));
+         
+         return v1UserProfile;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1EmployerInfo toV1EmployerInfo (EmployerInfo employerInfo)
+   {
+      if (employerInfo != null)
+      {
+         V1EmployerInfo v1EmployerInfo = new V1EmployerInfo();
+         v1EmployerInfo.setDepartment(employerInfo.getDepartment());
+         v1EmployerInfo.setEmployer(employerInfo.getEmployer());
+         v1EmployerInfo.setJobtitle(employerInfo.getJobtitle());
+         
+         List<Extension> extensions = employerInfo.getExtensions();
+         if (extensions != null)
+         {
+            v1EmployerInfo.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+
+         return v1EmployerInfo;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1PersonName toV1PersonName (PersonName personName)
+   {
+      if (personName != null)
+      {
+         V1PersonName v1PersonName = new V1PersonName();
+         v1PersonName.setFamily(personName.getFamily());
+         v1PersonName.setGiven(personName.getGiven());
+         v1PersonName.setMiddle(personName.getMiddle());
+         v1PersonName.setNickname(personName.getNickname());
+         v1PersonName.setPrefix(personName.getPrefix());
+         v1PersonName.setSuffix(personName.getSuffix());
+         
+         List<Extension> extensions = personName.getExtensions();
+         if (extensions != null)
+         {
+            v1PersonName.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+       
+         return v1PersonName;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1Contact toV1Context (Contact contact)
+   {
+      if (contact != null)
+      {
+         V1Contact v1Contact= new V1Contact();
+         v1Contact.setOnline(toV1Online(contact.getOnline()));
+         v1Contact.setPostal(toV1Postal(contact.getPostal()));
+         v1Contact.setTelecom(toV1Telecom(contact.getTelecom()));
+         
+         List<Extension> extensions = contact.getExtensions();
+         if (extensions != null)
+         {
+            v1Contact.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1Contact;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1Online toV1Online (Online online)
+   {
+      if (online != null)
+      {
+         V1Online v1Online = new V1Online();
+         v1Online.setEmail(online.getEmail());
+         v1Online.setUri(online.getUri());
+         
+         List<Extension> extensions = online.getExtensions();
+         if (extensions != null)
+         {
+            v1Online.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1Online;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1Postal toV1Postal (Postal postal)
+   {
+      if (postal != null)
+      {
+         V1Postal v1Postal = new V1Postal();
+         v1Postal.setCity(postal.getCity());
+         v1Postal.setCountry(postal.getCountry());
+         v1Postal.setName(postal.getName());
+         v1Postal.setOrganization(postal.getOrganization());
+         v1Postal.setPostalcode(postal.getPostalcode());
+         v1Postal.setStateprov(postal.getStateprov());
+         v1Postal.setStreet(postal.getStreet());
+         
+         List<Extension> extensions = postal.getExtensions();
+         if (extensions != null)
+         {
+            v1Postal.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1Postal;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1Telecom toV1Telecom(Telecom telecom)
+   {
+      if (telecom != null)
+      {
+         V1Telecom v1Telecom = new V1Telecom();
+         v1Telecom.setFax(toV1TelephoneNum(telecom.getFax()));
+         v1Telecom.setMobile(toV1TelephoneNum(telecom.getMobile()));
+         v1Telecom.setPager(toV1TelephoneNum(telecom.getPager()));
+         v1Telecom.setTelephone(toV1TelephoneNum(telecom.getTelephone()));
+        
+         List<Extension> extensions = telecom.getExtensions();
+         if (extensions != null)
+         {
+            v1Telecom.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1Telecom;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1TelephoneNum toV1TelephoneNum (TelephoneNum telephoneNum)
+   {
+      if (telephoneNum != null)
+      {
+         V1TelephoneNum v1TelephoneNum = new V1TelephoneNum();
+         v1TelephoneNum.setComment(telephoneNum.getComment());
+         v1TelephoneNum.setExt(telephoneNum.getExt());
+         v1TelephoneNum.setIntcode(telephoneNum.getIntcode());
+         v1TelephoneNum.setLoccode(telephoneNum.getLoccode());
+         v1TelephoneNum.setNumber(telephoneNum.getNumber());
+         
+         List<Extension> extensions = telephoneNum.getExtensions();
+         if (extensions != null)
+         {
+            v1TelephoneNum.getExtensions().addAll(V2V1Converter.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         return v1TelephoneNum;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    public static V1MarkupContext toV1MarkupContext(MarkupContext markupContext)
    {
       throw new NotYetImplemented();
@@ -384,12 +736,58 @@ public class V2V1Converter
          return null;
       }
    }
+   
+   public static V1InteractionParams toV1InteractionParams(InteractionParams interactionParams)
+   {
+      if (interactionParams != null)
+      {
+         V1InteractionParams v1InteractionParams = WSRP1TypeFactory.createInteractionParams(toV1StateChange(interactionParams.getPortletStateChange()));
+         v1InteractionParams.setInteractionState(interactionParams.getInteractionState());
+         
+         List<Extension> extensions = interactionParams.getExtensions();
+         if (extensions != null)
+         {
+            v1InteractionParams.getExtensions().addAll(Lists.transform(extensions, V2_TO_V1_EXTENSION));
+         }
+         
+         List<NamedString> formParameters = interactionParams.getFormParameters();
+         if (formParameters != null)
+         {
+            v1InteractionParams.getFormParameters().addAll(Lists.transform(formParameters, V2_TO_V1_NAMEDSTRING));
+         }
+         
+         List<UploadContext> uploadContext = interactionParams.getUploadContexts();
+         if (uploadContext != null)
+         {
+            v1InteractionParams.getUploadContexts().addAll(Lists.transform(uploadContext, V2_TO_V1_UPLOADCONTEXT));
+         }
+         
+         return v1InteractionParams;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
 
    public static StateChange toV2StateChange(V1StateChange v1StateChange)
    {
       if (v1StateChange != null)
       {
          return StateChange.valueOf((v1StateChange.value()));
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1StateChange toV1StateChange(StateChange stateChange)
+   {
+      if (stateChange != null)
+      {
+         return V1StateChange.valueOf(stateChange.value());
       }
       else
       {
@@ -715,6 +1113,24 @@ public class V2V1Converter
       }
    }
 
+   public static class V2ToV1NamedString implements Function<NamedString, V1NamedString>
+   {
+      public V1NamedString apply(NamedString namedString)
+      {
+         if (namedString != null)
+         {
+            V1NamedString result = new V1NamedString();
+            result.setName(namedString.getName());
+            result.setValue(namedString.getValue());
+            return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+   }
+   
    public static class V1ToV2UploadContext implements Function<V1UploadContext, UploadContext>
    {
 
@@ -734,6 +1150,37 @@ public class V2V1Converter
          }
       }
 
+   }
+   
+   public static class V2ToV1UploadContext implements Function<UploadContext, V1UploadContext>
+   {
+
+      public V1UploadContext apply(UploadContext uploadContext)
+      {
+         if (uploadContext != null)
+         {
+            V1UploadContext result = WSRP1TypeFactory.createUploadContext(uploadContext.getMimeType(), uploadContext.getUploadData());
+            
+            List<Extension> extensions = uploadContext.getExtensions();
+            if (extensions != null)
+            {
+               result.getExtensions().addAll(Lists.transform(extensions, V2_TO_V1_EXTENSION));
+            }
+            
+            List<NamedString> mimeAttributes = uploadContext.getMimeAttributes();
+            if (mimeAttributes != null)
+            {
+               result.getMimeAttributes().addAll(Lists.transform(mimeAttributes, V2_TO_V1_NAMEDSTRING));
+            }
+            
+            return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+      
    }
 
    private static class V2ToV1MarkupType implements Function<MarkupType, V1MarkupType>

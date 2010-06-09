@@ -24,6 +24,25 @@ package org.gatein.wsrp.services.v1;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.oasis.wsrp.v1.V1AccessDenied;
+import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InconsistentParameters;
+import org.oasis.wsrp.v1.V1InvalidCookie;
+import org.oasis.wsrp.v1.V1InvalidHandle;
+import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1InvalidSession;
+import org.oasis.wsrp.v1.V1InvalidUserCategory;
+import org.oasis.wsrp.v1.V1MarkupContext;
+import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PortletStateChangeRequired;
+import org.oasis.wsrp.v1.V1SessionContext;
+import org.oasis.wsrp.v1.V1UnsupportedLocale;
+import org.oasis.wsrp.v1.V1UnsupportedMimeType;
+import org.oasis.wsrp.v1.V1UnsupportedMode;
+import org.oasis.wsrp.v1.V1UnsupportedWindowState;
+import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.EventParams;
@@ -74,19 +93,152 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    @Override
    public void getMarkup(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, Holder<MarkupContext> markupContext, Holder<SessionContext> sessionContext, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      throw new NotYetImplemented();
+      try
+      {
+      service.getMarkup(
+              V2V1Converter.toV1RegistrationContext(registrationContext),
+              V2V1Converter.toV1PortletContext(portletContext),
+              V2V1Converter.toV1RuntimeContext(runtimeContext),
+              V2V1Converter.toV1UserContext(userContext),
+              V2V1Converter.toV1MarkupParams(markupParams),
+              new Holder<V1MarkupContext>(V2V1Converter.toV1MarkupContext(markupContext.value)),
+              new Holder<V1SessionContext>(V2V1Converter.toV1SessionContext(sessionContext.value)),
+              new Holder<List<V1Extension>>(V2V1Converter.transform(extensions.value, V2V1Converter.V2_TO_V1_EXTENSION)));
+      }
+      catch (V1AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+      }
+      catch (V1InconsistentParameters inconsistentParameters)
+      {
+         throw V2V1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+      }
+      catch (V1InvalidCookie invalidCookie)
+      {
+         throw V2V1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+      }
+      catch (V1InvalidHandle invalidHandle)
+      {
+         throw V2V1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+      }
+      catch (V1InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+      }
+      catch (V1InvalidSession invalidSession)
+      {
+         throw V2V1Converter.toV1Exception(InvalidSession.class, invalidSession);
+      }
+      catch (V1InvalidUserCategory invalidUserCategory)
+      {
+         throw V2V1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+      }
+      catch (V1MissingParameters missingParameter)
+      {
+         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameter);
+      }
+      catch (V1OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+      }
+      catch (V1UnsupportedLocale unsupportedLocale)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+      }
+      catch (V1UnsupportedMimeType unsupportedMimeType)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+      }
+      catch (V1UnsupportedMode unsupportedMode)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+      }
+      catch (V1UnsupportedWindowState unsupportedWindowState)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+      }
+      
    }
 
    @Override
    public void getResource(RegistrationContext registrationContext, Holder<PortletContext> portletContext, RuntimeContext runtimeContext, UserContext userContext, ResourceParams resourceParams, Holder<ResourceContext> resourceContext, Holder<SessionContext> sessionContext, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
+      
       throw new NotYetImplemented();
    }
 
    @Override
    public void performBlockingInteraction(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, InteractionParams interactionParams, Holder<UpdateResponse> updateResponse, Holder<String> redirectURL, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      throw new NotYetImplemented();
+      try
+      {
+         service.performBlockingInteraction(
+               V2V1Converter.toV1RegistrationContext(registrationContext), 
+               V2V1Converter.toV1PortletContext(portletContext),
+               V2V1Converter.toV1RuntimeContext(runtimeContext),
+               V2V1Converter.toV1UserContext(userContext),
+               V2V1Converter.toV1MarkupParams(markupParams),
+               V2V1Converter.toV1InteractionParams(interactionParams),
+               new Holder<V1UpdateResponse>(V2V1Converter.toV1UpdateResponse(updateResponse.value)),
+               redirectURL, 
+               new Holder<List<V1Extension>>(V2V1Converter.transform(extensions.value, V2V1Converter.V2_TO_V1_EXTENSION)));
+      }
+      catch (V1AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+      }
+      catch (V1InconsistentParameters inconsistentParameters)
+      {
+         throw V2V1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+      }
+      catch (V1InvalidCookie invalidCookie)
+      {
+         throw V2V1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+      }
+      catch (V1InvalidHandle invalidHandle)
+      {
+         throw V2V1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+      }
+      catch (V1InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+      }
+      catch (V1InvalidSession invalidSession)
+      {
+         throw V2V1Converter.toV1Exception(InvalidSession.class, invalidSession);
+      }
+      catch (V1InvalidUserCategory invalidUserCategory)
+      {
+         throw V2V1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+      }
+      catch (V1MissingParameters missingParameters)
+      {
+         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameters);
+      }
+      catch (V1OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+      }
+      catch (V1PortletStateChangeRequired portletStateChangeRequired)
+      {
+         throw V2V1Converter.toV1Exception(PortletStateChangeRequired.class, portletStateChangeRequired);
+      }
+      catch (V1UnsupportedLocale unsupportedLocale)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+      }
+      catch (V1UnsupportedMimeType unsupportedMimeType)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+      }
+      catch (V1UnsupportedMode unsupportedMode)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+      }
+      catch (V1UnsupportedWindowState unsupportedWindowState)
+      {
+         throw V2V1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+      }
    }
 
    @Override
@@ -98,12 +250,46 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    @Override
    public List<Extension> releaseSessions(RegistrationContext registrationContext, List<String> sessionIDs, UserContext userContext) throws AccessDenied, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         return V2V1Converter.transform(service.releaseSessions(V2V1Converter.toV1RegistrationContext(registrationContext),sessionIDs), V2V1Converter.V1_TO_V2_EXTENSION);
+      }
+      catch (V1AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+      }
+      catch (V1InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+      }
+      catch (V1MissingParameters missingParameters)
+      {
+         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameters);
+      }
+      catch (V1OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+      }
    }
 
    @Override
    public List<Extension> initCookie(RegistrationContext registrationContext, UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         return V2V1Converter.transform(service.initCookie(V2V1Converter.toV1RegistrationContext(registrationContext)), V2V1Converter.V1_TO_V2_EXTENSION);
+      }
+      catch (V1AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+      }
+      catch (V1InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+      }
+      catch (V1OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+      }
    }
 }
