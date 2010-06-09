@@ -23,15 +23,12 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
-import org.gatein.common.NotYetImplemented;
+import com.google.common.collect.Lists;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V2V1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
-import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
-import org.oasis.wsrp.v1.V1InitCookie;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1InvalidCookie;
 import org.oasis.wsrp.v1.V1InvalidHandle;
@@ -40,15 +37,11 @@ import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
 import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
-import org.oasis.wsrp.v1.V1MarkupResponse;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.V1PerformBlockingInteraction;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletStateChangeRequired;
 import org.oasis.wsrp.v1.V1RegistrationContext;
-import org.oasis.wsrp.v1.V1ReleaseSessions;
-import org.oasis.wsrp.v1.V1ReturnAny;
 import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1SessionContext;
 import org.oasis.wsrp.v1.V1UnsupportedLocale;
@@ -79,8 +72,6 @@ import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
-
-import com.google.common.collect.Lists;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
@@ -117,15 +108,15 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       V1UnsupportedLocale, V1InconsistentParameters, V1PortletStateChangeRequired, V1InvalidHandle, V1InvalidRegistration,
       V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-	  
-	  forceSessionAccess();
+
+      forceSessionAccess();
 
       PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
       performBlockingInteraction.setPortletContext(V2V1Converter.toV2PortletContext(portletContext));
       performBlockingInteraction.setRuntimeContext(V2V1Converter.toV2RuntimeContext(runtimeContext));
       performBlockingInteraction.setMarkupParams(V2V1Converter.toV2MarkupParams(markupParams));
       performBlockingInteraction.setInteractionParams(V2V1Converter.toV2InteractionParams(interactionParams));
-      
+
       performBlockingInteraction.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
       performBlockingInteraction.setUserContext(V2V1Converter.toV2UserContext(userContext));
 
@@ -191,7 +182,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       {
          throw V2V1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
-      
+
       updateResponse.value = V2V1Converter.toV1UpdateResponse(interactionResponse.getUpdateResponse());
       redirectURL.value = interactionResponse.getRedirectURL();
       extensions.value = Lists.transform(interactionResponse.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
@@ -241,7 +232,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1MarkupParams markupParams,
       @WebParam(mode = WebParam.Mode.OUT, name = "markupContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1MarkupContext> markupContext,
       @WebParam(mode = WebParam.Mode.OUT, name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1SessionContext> sessionContext,
-      @WebParam(mode = WebParam.Mode.OUT, name = "eUnsupportedWindowStatextensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
+      @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1UnsupportedMimeType, V1UnsupportedMode, V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1MissingParameters,
       V1UnsupportedLocale, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied,
       V1OperationFailed
