@@ -112,7 +112,6 @@ public class V2V1Converter
 
    public static final V1ToV2NamedString V1_TO_V2_NAMEDSTRING = new V1ToV2NamedString();
    public static final V1ToV2UploadContext V1_TO_V2_UPLOADCONTEXT = new V1ToV2UploadContext();
-   public static final V2ToV1PropertyDescription V2_TO_V1_PROPERTY_DESCRIPTION = new V2ToV1PropertyDescription();
 
    public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function)
    {
@@ -370,18 +369,32 @@ public class V2V1Converter
 
    public static InteractionParams toV2InteractionParams(V1InteractionParams v1InteractionParams)
    {
-      InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(toV2StateChange(v1InteractionParams.getPortletStateChange()));
-      interactionParams.setInteractionState(v1InteractionParams.getInteractionState());
-      interactionParams.getExtensions().addAll(Lists.transform(v1InteractionParams.getExtensions(), V1_TO_V2_EXTENSION));
-      interactionParams.getFormParameters().addAll(Lists.transform(v1InteractionParams.getFormParameters(), V1_TO_V2_NAMEDSTRING));
-      interactionParams.getUploadContexts().addAll(Lists.transform(v1InteractionParams.getUploadContexts(), V1_TO_V2_UPLOADCONTEXT));
+      if (v1InteractionParams != null)
+      {
+         InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(toV2StateChange(v1InteractionParams.getPortletStateChange()));
+         interactionParams.setInteractionState(v1InteractionParams.getInteractionState());
+         interactionParams.getExtensions().addAll(Lists.transform(v1InteractionParams.getExtensions(), V1_TO_V2_EXTENSION));
+         interactionParams.getFormParameters().addAll(Lists.transform(v1InteractionParams.getFormParameters(), V1_TO_V2_NAMEDSTRING));
+         interactionParams.getUploadContexts().addAll(Lists.transform(v1InteractionParams.getUploadContexts(), V1_TO_V2_UPLOADCONTEXT));
 
-      return interactionParams;
+         return interactionParams;
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static StateChange toV2StateChange(V1StateChange v1StateChange)
    {
-      return StateChange.valueOf((v1StateChange.value()));
+      if (v1StateChange != null)
+      {
+         return StateChange.valueOf((v1StateChange.value()));
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static V1UpdateResponse toV1UpdateResponse(UpdateResponse updateResponse)
@@ -688,10 +701,17 @@ public class V2V1Converter
    {
       public NamedString apply(V1NamedString v1NamedString)
       {
-         NamedString result = new NamedString();
-         result.setName(v1NamedString.getName());
-         result.setValue(v1NamedString.getValue());
-         return result;
+         if (v1NamedString != null)
+         {
+            NamedString result = new NamedString();
+            result.setName(v1NamedString.getName());
+            result.setValue(v1NamedString.getValue());
+            return result;
+         }
+         else
+         {
+            return null;
+         }
       }
    }
 
@@ -700,11 +720,18 @@ public class V2V1Converter
 
       public UploadContext apply(V1UploadContext v1UploadContext)
       {
-         UploadContext result = WSRPTypeFactory.createUploadContext(v1UploadContext.getMimeType(), v1UploadContext.getUploadData());
-         result.getExtensions().addAll(Lists.transform(v1UploadContext.getExtensions(), V1_TO_V2_EXTENSION));
-         result.getMimeAttributes().addAll(Lists.transform(v1UploadContext.getMimeAttributes(), V1_TO_V2_NAMEDSTRING));
+         if (v1UploadContext != null)
+         {
+            UploadContext result = WSRPTypeFactory.createUploadContext(v1UploadContext.getMimeType(), v1UploadContext.getUploadData());
+            result.getExtensions().addAll(Lists.transform(v1UploadContext.getExtensions(), V1_TO_V2_EXTENSION));
+            result.getMimeAttributes().addAll(Lists.transform(v1UploadContext.getMimeAttributes(), V1_TO_V2_NAMEDSTRING));
 
-         return result;
+            return result;
+         }
+         else
+         {
+            return null;
+         }
       }
 
    }
