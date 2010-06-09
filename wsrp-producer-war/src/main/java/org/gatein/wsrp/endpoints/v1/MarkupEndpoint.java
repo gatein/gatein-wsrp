@@ -25,6 +25,7 @@ package org.gatein.wsrp.endpoints.v1;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
+import org.gatein.wsrp.spec.v1.V2V1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1Extension;
@@ -57,13 +58,29 @@ import org.oasis.wsrp.v1.V1UnsupportedWindowState;
 import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
+import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MarkupResponse;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
+
+import com.google.common.collect.Lists;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
@@ -100,23 +117,84 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       V1UnsupportedLocale, V1InconsistentParameters, V1PortletStateChangeRequired, V1InvalidHandle, V1InvalidRegistration,
       V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      /*forceSessionAccess();
+	  
+	  forceSessionAccess();
 
       PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
-      performBlockingInteraction.setPortletContext(portletContext);
-      performBlockingInteraction.setRuntimeContext(runtimeContext);
-      performBlockingInteraction.setMarkupParams(markupParams);
-      performBlockingInteraction.setInteractionParams(interactionParams);
-      performBlockingInteraction.setRegistrationContext(registrationContext);
-      performBlockingInteraction.setUserContext(userContext);
+      performBlockingInteraction.setPortletContext(V2V1Converter.toV2PortletContext(portletContext));
+      performBlockingInteraction.setRuntimeContext(V2V1Converter.toV2RuntimeContext(runtimeContext));
+      performBlockingInteraction.setMarkupParams(V2V1Converter.toV2MarkupParams(markupParams));
+      performBlockingInteraction.setInteractionParams(V2V1Converter.toV2InteractionParams(interactionParams));
+      
+      performBlockingInteraction.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
+      performBlockingInteraction.setUserContext(V2V1Converter.toV2UserContext(userContext));
 
-      BlockingInteractionResponse interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
+      BlockingInteractionResponse interactionResponse = null;
+      try
+      {
+         interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
 
-      updateResponse.value = interactionResponse.getUpdateResponse();
+      }
+      catch (InvalidCookie invalidCookie)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
+      }
+      catch (InvalidSession invalidSession)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
+      }
+      catch (UnsupportedMode unsupportedMode)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
+      }
+      catch (UnsupportedMimeType unsupportedMimeType)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (UnsupportedWindowState unsupportedWindowState)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
+      }
+      catch (UnsupportedLocale unsupportedLocale)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
+      catch (PortletStateChangeRequired portletStateChangeRequired)
+      {
+         throw V2V1Converter.toV1Exception(V1PortletStateChangeRequired.class, portletStateChangeRequired);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         throw V2V1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
+      }
+      
+      updateResponse.value = V2V1Converter.toV1UpdateResponse(interactionResponse.getUpdateResponse());
       redirectURL.value = interactionResponse.getRedirectURL();
-      extensions.value = interactionResponse.getExtensions();*/
-
-      throw new NotYetImplemented();
+      extensions.value = Lists.transform(interactionResponse.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 
    public List<V1Extension> releaseSessions(
@@ -124,17 +202,35 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       @WebParam(name = "sessionIDs", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> sessionIDs
    ) throws V1MissingParameters, V1InvalidRegistration, V1AccessDenied, V1OperationFailed
    {
-      /*forceSessionAccess();
+      forceSessionAccess();
 
       ReleaseSessions releaseSessions = new ReleaseSessions();
-      releaseSessions.setRegistrationContext(registrationContext);
+      releaseSessions.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
       releaseSessions.getSessionIDs().addAll(sessionIDs);
 
-      ReturnAny returnAny = producer.releaseSessions(releaseSessions);
+      ReturnAny returnAny;
+      try
+      {
+         returnAny = producer.releaseSessions(releaseSessions);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
 
-      return returnAny.getExtensions();*/
-
-      throw new NotYetImplemented();
+      return Lists.transform(returnAny.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 
    public void getMarkup(
@@ -145,42 +241,110 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1MarkupParams markupParams,
       @WebParam(mode = WebParam.Mode.OUT, name = "markupContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1MarkupContext> markupContext,
       @WebParam(mode = WebParam.Mode.OUT, name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<V1SessionContext> sessionContext,
-      @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
+      @WebParam(mode = WebParam.Mode.OUT, name = "eUnsupportedWindowStatextensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1UnsupportedMimeType, V1UnsupportedMode, V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1MissingParameters,
       V1UnsupportedLocale, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied,
       V1OperationFailed
    {
-      /*forceSessionAccess();
+      forceSessionAccess();
 
       GetMarkup getMarkup = new GetMarkup();
-      getMarkup.setRegistrationContext(registrationContext);
-      getMarkup.setPortletContext(portletContext);
-      getMarkup.setRuntimeContext(runtimeContext);
-      getMarkup.setUserContext(userContext);
-      getMarkup.setMarkupParams(markupParams);
+      getMarkup.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
+      getMarkup.setPortletContext(V2V1Converter.toV2PortletContext(portletContext));
+      getMarkup.setRuntimeContext(V2V1Converter.toV2RuntimeContext(runtimeContext));
+      getMarkup.setUserContext(V2V1Converter.toV2UserContext(userContext));
+      getMarkup.setMarkupParams(V2V1Converter.toV2MarkupParams(markupParams));
 
-      MarkupResponse response = producer.getMarkup(getMarkup);
+      MarkupResponse response;
+      try
+      {
+         response = producer.getMarkup(getMarkup);
+      }
+      catch (UnsupportedWindowState unsupportedWindowState)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
+      }
+      catch (InvalidCookie invalidCookie)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
+      }
+      catch (InvalidSession invalidSession)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         throw V2V1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
+      }
+      catch (UnsupportedLocale unsupportedLocale)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
+      }
+      catch (UnsupportedMode unsupportedMode)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (UnsupportedMimeType unsupportedMimeType)
+      {
+         throw V2V1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
+      }
 
-      markupContext.value = response.getMarkupContext();
-      sessionContext.value = response.getSessionContext();
-      extensions.value = response.getExtensions();*/
-
-      throw new NotYetImplemented();
+      markupContext.value = V2V1Converter.toV1MarkupContext(response.getMarkupContext());
+      sessionContext.value = V2V1Converter.toV1SessionContext(response.getSessionContext());
+      extensions.value = Lists.transform(response.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 
    public List<V1Extension> initCookie(
       @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext
    ) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed
    {
-      /*forceSessionAccess();
+      forceSessionAccess();
 
       InitCookie initCookie = new InitCookie();
-      initCookie.setRegistrationContext(registrationContext);
+      initCookie.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
 
-      ReturnAny returnAny = producer.initCookie(initCookie);
+      ReturnAny returnAny;
+      try
+      {
+         returnAny = producer.initCookie(initCookie);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
 
-      return returnAny.getExtensions();*/
-
-      throw new NotYetImplemented();
+      return Lists.transform(returnAny.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
    }
 }

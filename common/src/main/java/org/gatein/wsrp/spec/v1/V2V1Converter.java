@@ -23,6 +23,9 @@
 
 package org.gatein.wsrp.spec.v1;
 
+import java.io.NotActiveException;
+import java.util.List;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.gatein.common.NotYetImplemented;
@@ -32,12 +35,14 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
 import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
+import org.oasis.wsrp.v1.V1NamedString;
 import org.oasis.wsrp.v1.V1ModelTypes;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
@@ -46,16 +51,21 @@ import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
+import org.oasis.wsrp.v1.V1SessionContext;
+import org.oasis.wsrp.v1.V1UpdateResponse;
+import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -64,8 +74,13 @@ import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.UpdateResponse;
+import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 
+import org.oasis.wsrp.v1.V1StateChange;
+import org.oasis.wsrp.v2.StateChange;
 import java.util.List;
 
 /**
@@ -81,6 +96,9 @@ public class V2V1Converter
    public static final V2ToV1PortletDescription V2_TO_V1_PORTLETDESCRIPTION = new V2ToV1PortletDescription();
    public static final V2ToV1LocalizedString V2_TO_V1_LOCALIZEDSTRING = new V2ToV1LocalizedString();
    public static final V2ToV1ItemDescription V2_TO_V1_ITEMDESCRIPTION = new V2ToV1ItemDescription();
+   
+   public static final V1ToV2NamedString V1_TO_V2_NAMEDSTRING = new V1ToV2NamedString();
+   public static final V1ToV2UploadContext V1_TO_V2_UPLOADCONTEXT = new V1ToV2UploadContext();
    public static final V2ToV1PropertyDescription V2_TO_V1_PROPERTY_DESCRIPTION = new V2ToV1PropertyDescription();
 
    public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function)
@@ -294,12 +312,62 @@ public class V2V1Converter
    {
       throw new NotYetImplemented();
    }
+   
+   public static InteractionParams toV2InteractionParams(V1InteractionParams v1InteractionParams)
+   {
+       InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(toV2StateChange(v1InteractionParams.getPortletStateChange()));
+       interactionParams.setInteractionState(v1InteractionParams.getInteractionState());
+       interactionParams.getExtensions().addAll(Lists.transform(v1InteractionParams.getExtensions(), V1_TO_V2_EXTENSION));
+       interactionParams.getFormParameters().addAll(Lists.transform(v1InteractionParams.getFormParameters(), V1_TO_V2_NAMEDSTRING));
+       interactionParams.getUploadContexts().addAll(Lists.transform(v1InteractionParams.getUploadContexts(), V1_TO_V2_UPLOADCONTEXT));
+       
+	   return interactionParams;
+   }
+   
+   public static StateChange toV2StateChange (V1StateChange v1StateChange)
+   {
+      return StateChange.valueOf((v1StateChange.value()));
+   }
+   
+   public static V1UpdateResponse toV1UpdateResponse(UpdateResponse updateResponse)
+   {
+      if (updateResponse != null)
+      {
+         V1UpdateResponse v1UpdateResponse = WSRP1TypeFactory.createUpdateResponse();
+         v1UpdateResponse.setMarkupContext(toV1MarkupContext(updateResponse.getMarkupContext()));
+         v1UpdateResponse.setNavigationalState(updateResponse.getNavigationalContext().getOpaqueValue());
+         v1UpdateResponse.setNewWindowState(updateResponse.getNewWindowState());
+         v1UpdateResponse.setPortletContext(toV1PortletContext(updateResponse.getPortletContext()));
+         v1UpdateResponse.setSessionContext(toV1SessionContext(updateResponse.getSessionContext()));
+         v1UpdateResponse.setNewMode(updateResponse.getNewMode());
+         return v1UpdateResponse;
+      }
+      else
+      {
+         return null;
+      }
+   }
 
    public static V1LocalizedString toV1LocalizedString(LocalizedString localizedString)
    {
       return V2_TO_V1_LOCALIZEDSTRING.apply(localizedString);
+   }   
+   
+   public static V1SessionContext toV1SessionContext(SessionContext sessionContext)
+   {
+      if (sessionContext != null)
+      {
+         V1SessionContext v1SessionContext = WSRP1TypeFactory.createSessionContext(sessionContext.getSessionID(),sessionContext.getExpires().intValue());
+         v1SessionContext.getExtensions().addAll(Lists.transform(sessionContext.getExtensions(), V2_TO_V1_EXTENSION));
+         
+         return v1SessionContext;
+      }
+      else
+      {
+         return null;
+      }
    }
-
+   
    private static class V1ToV2Extension implements Function<V1Extension, Extension>
    {
       public Extension apply(V1Extension from)
@@ -409,6 +477,31 @@ public class V2V1Converter
       }
    }
 
+   public static class V1ToV2NamedString implements Function<V1NamedString, NamedString>
+   {
+      public NamedString apply(V1NamedString v1NamedString)
+      {
+         NamedString result = new NamedString();
+         result.setName(v1NamedString.getName());
+         result.setValue(v1NamedString.getValue());
+         return result;
+      }
+   }
+   
+   public static class V1ToV2UploadContext implements Function<V1UploadContext, UploadContext>
+   {
+
+      public UploadContext apply(V1UploadContext v1UploadContext)
+      {
+         UploadContext result = WSRPTypeFactory.createUploadContext(v1UploadContext.getMimeType(), v1UploadContext.getUploadData());
+         result.getExtensions().addAll(Lists.transform(v1UploadContext.getExtensions(), V1_TO_V2_EXTENSION));
+         result.getMimeAttributes().addAll(Lists.transform(v1UploadContext.getMimeAttributes(), V1_TO_V2_NAMEDSTRING));
+         
+         return result;
+      }
+      
+   }
+   
    private static class V2ToV1MarkupType implements Function<MarkupType, V1MarkupType>
    {
 
