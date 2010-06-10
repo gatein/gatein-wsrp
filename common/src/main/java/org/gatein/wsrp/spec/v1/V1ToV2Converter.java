@@ -25,7 +25,6 @@ package org.gatein.wsrp.spec.v1;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -54,7 +53,6 @@ import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
 import org.oasis.wsrp.v1.V1RuntimeContext;
-import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.V1StateChange;
 import org.oasis.wsrp.v1.V1Telecom;
 import org.oasis.wsrp.v1.V1TelephoneNum;
@@ -86,7 +84,6 @@ import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
 import org.oasis.wsrp.v2.RuntimeContext;
-import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Telecom;
@@ -492,11 +489,6 @@ public class V1ToV2Converter
       {
          return null;
       }
-   }
-
-   public static ServiceDescription toV2ServiceDescription(V1ServiceDescription v1ServiceDescription)
-   {
-      throw new NotYetImplemented();
    }
 
    public static <E extends Exception> E toV2Exception(Class<E> v2ExceptionClass, Exception v1Exception)

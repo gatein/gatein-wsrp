@@ -9,7 +9,7 @@
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- *                                                                            
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -25,7 +25,6 @@ package org.gatein.wsrp.spec.v1;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
@@ -47,8 +46,10 @@ import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1Postal;
+import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
@@ -82,8 +83,10 @@ import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.Postal;
+import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
@@ -117,12 +120,9 @@ public class V2ToV1Converter
    public static final V2ToV1ResourceValue RESOURCEVALUE = new V2ToV1ResourceValue();
    public static final V2ToV1NamedString NAMEDSTRING = new V2ToV1NamedString();
    public static final V2ToV1UploadContext UPLOADCONTEXT = new V2ToV1UploadContext();
+   public static final V2ToV1Property PROPERTY = new V2ToV1Property();
+   public static final V2ToV1ResetProperty RESETPROPERTY = new V2ToV1ResetProperty();
 
-
-   public static V1PortletDescription toV1PortletDescription(PortletDescription portletDescription)
-   {
-      throw new NotYetImplemented();
-   }
 
    public static V1PortletContext toV1PortletContext(PortletContext portletContext)
    {
@@ -723,6 +723,11 @@ public class V2ToV1Converter
       }
    }
 
+   public static V1PortletDescription toV1PortletDescription(PortletDescription description)
+   {
+      return PORTLETDESCRIPTION.apply(description);
+   }
+
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
@@ -978,4 +983,59 @@ public class V2ToV1Converter
       }
    }
 
+   private static class V2ToV1Property implements Function<Property, V1Property>
+   {
+      public V1Property apply(Property from)
+      {
+         if (from != null)
+         {
+            V1Property result = WSRP1TypeFactory.createProperty(from.getName().toString(), from.getLang(), from.getStringValue());
+            List<Object> any = from.getAny();
+            if (any != null)
+            {
+               result.getAny().addAll(any);
+            }
+
+            return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+   }
+
+   private static class V2ToV1ResetProperty implements Function<ResetProperty, V1ResetProperty>
+   {
+      public V1Property apply(Property from)
+      {
+         if (from != null)
+         {
+            V1Property result = WSRP1TypeFactory.createProperty(from.getName().toString(), from.getLang(), from.getStringValue());
+            List<Object> any = from.getAny();
+            if (any != null)
+            {
+               result.getAny().addAll(any);
+            }
+
+            return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public V1ResetProperty apply(ResetProperty from)
+      {
+         if (from != null)
+         {
+            return WSRP1TypeFactory.createResetProperty(from.getName().toString());
+         }
+         else
+         {
+            return null;
+         }
+      }
+   }
 }
