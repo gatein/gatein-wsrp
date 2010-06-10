@@ -23,8 +23,10 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
-import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
@@ -77,7 +79,7 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
    ) throws V1InvalidRegistration, V1OperationFailed
    {
       GetServiceDescription getServiceDescription = new GetServiceDescription();
-      getServiceDescription.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
+      getServiceDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
 
       ServiceDescription description;
@@ -87,23 +89,23 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
 
       requiresRegistration.value = description.isRequiresRegistration();
-      offeredPortlets.value = V2V1Converter.transform(description.getOfferedPortlets(), V2V1Converter.V2_TO_V1_PORTLETDESCRIPTION);
-      userCategoryDescriptions.value = V2V1Converter.transform(description.getUserCategoryDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
+      offeredPortlets.value = WSRPUtils.transform(description.getOfferedPortlets(), V2ToV1Converter.PORTLETDESCRIPTION);
+      userCategoryDescriptions.value = WSRPUtils.transform(description.getUserCategoryDescriptions(), V2ToV1Converter.ITEMDESCRIPTION);
 //      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = V2V1Converter.transform(description.getCustomWindowStateDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
-      customModeDescriptions.value = V2V1Converter.transform(description.getCustomModeDescriptions(), V2V1Converter.V2_TO_V1_ITEMDESCRIPTION);
-      requiresInitCookie.value = V2V1Converter.toV1CookieProtocol(description.getRequiresInitCookie());
-      registrationPropertyDescription.value = V2V1Converter.toV1ModelDescription(description.getRegistrationPropertyDescription());
+      customWindowStateDescriptions.value = WSRPUtils.transform(description.getCustomWindowStateDescriptions(), V2ToV1Converter.ITEMDESCRIPTION);
+      customModeDescriptions.value = WSRPUtils.transform(description.getCustomModeDescriptions(), V2ToV1Converter.ITEMDESCRIPTION);
+      requiresInitCookie.value = V2ToV1Converter.toV1CookieProtocol(description.getRequiresInitCookie());
+      registrationPropertyDescription.value = V2ToV1Converter.toV1ModelDescription(description.getRegistrationPropertyDescription());
       locales.value = description.getLocales();
-      resourceList.value = V2V1Converter.toV1ResourceList(description.getResourceList());
-      extensions.value = V2V1Converter.transform(description.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      resourceList.value = V2ToV1Converter.toV1ResourceList(description.getResourceList());
+      extensions.value = WSRPUtils.transform(description.getExtensions(), V2ToV1Converter.EXTENSION);
    }
 }

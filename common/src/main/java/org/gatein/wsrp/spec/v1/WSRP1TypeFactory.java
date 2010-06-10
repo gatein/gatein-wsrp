@@ -314,7 +314,7 @@ public class WSRP1TypeFactory
     */
    public static V1PortletDescription createPortletDescription(org.gatein.pc.api.PortletContext portletContext, List<V1MarkupType> markupTypes)
    {
-      V1PortletContext context = V2V1Converter.toV1PortletContext(WSRPUtils.convertToWSRPPortletContext(portletContext));
+      V1PortletContext context = V2ToV1Converter.toV1PortletContext(WSRPUtils.convertToWSRPPortletContext(portletContext));
 
       ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
       if (markupTypes.isEmpty())

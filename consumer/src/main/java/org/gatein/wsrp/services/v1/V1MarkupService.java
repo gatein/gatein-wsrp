@@ -1,30 +1,33 @@
 /*
-* JBoss, a division of Red Hat
-* Copyright 2008, Red Hat Middleware, LLC, and individual contributors as indicated
-* by the @authors tag. See the copyright.txt in the distribution for a
-* full listing of individual contributors.
-*
-* This is free software; you can redistribute it and/or modify it
-* under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of
-* the License, or (at your option) any later version.
-*
-* This software is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this software; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.services.v1;
 
 import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.MarkupService;
-import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
@@ -95,75 +98,75 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    {
       try
       {
-      service.getMarkup(
-              V2V1Converter.toV1RegistrationContext(registrationContext),
-              V2V1Converter.toV1PortletContext(portletContext),
-              V2V1Converter.toV1RuntimeContext(runtimeContext),
-              V2V1Converter.toV1UserContext(userContext),
-              V2V1Converter.toV1MarkupParams(markupParams),
-              new Holder<V1MarkupContext>(V2V1Converter.toV1MarkupContext(markupContext.value)),
-              new Holder<V1SessionContext>(V2V1Converter.toV1SessionContext(sessionContext.value)),
-              new Holder<List<V1Extension>>(V2V1Converter.transform(extensions.value, V2V1Converter.V2_TO_V1_EXTENSION)));
+         service.getMarkup(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1RuntimeContext(runtimeContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            V2ToV1Converter.toV1MarkupParams(markupParams),
+            new Holder<V1MarkupContext>(V2ToV1Converter.toV1MarkupContext(markupContext.value)),
+            new Holder<V1SessionContext>(V2ToV1Converter.toV1SessionContext(sessionContext.value)),
+            new Holder<List<V1Extension>>(WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION)));
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InconsistentParameters inconsistentParameters)
       {
-         throw V2V1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
       }
       catch (V1InvalidCookie invalidCookie)
       {
-         throw V2V1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+         throw V2ToV1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
       }
       catch (V1InvalidHandle invalidHandle)
       {
-         throw V2V1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+         throw V2ToV1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1InvalidSession invalidSession)
       {
-         throw V2V1Converter.toV1Exception(InvalidSession.class, invalidSession);
+         throw V2ToV1Converter.toV1Exception(InvalidSession.class, invalidSession);
       }
       catch (V1InvalidUserCategory invalidUserCategory)
       {
-         throw V2V1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
       }
       catch (V1MissingParameters missingParameter)
       {
-         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameter);
+         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameter);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
       }
       catch (V1UnsupportedLocale unsupportedLocale)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+         throw V2ToV1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
       }
       catch (V1UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+         throw V2ToV1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
       }
       catch (V1UnsupportedMode unsupportedMode)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+         throw V2ToV1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
       }
       catch (V1UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+         throw V2ToV1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
       }
-      
+
    }
 
    @Override
    public void getResource(RegistrationContext registrationContext, Holder<PortletContext> portletContext, RuntimeContext runtimeContext, UserContext userContext, ResourceParams resourceParams, Holder<ResourceContext> resourceContext, Holder<SessionContext> sessionContext, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      
+
       throw new NotYetImplemented();
    }
 
@@ -173,71 +176,71 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
       try
       {
          service.performBlockingInteraction(
-               V2V1Converter.toV1RegistrationContext(registrationContext), 
-               V2V1Converter.toV1PortletContext(portletContext),
-               V2V1Converter.toV1RuntimeContext(runtimeContext),
-               V2V1Converter.toV1UserContext(userContext),
-               V2V1Converter.toV1MarkupParams(markupParams),
-               V2V1Converter.toV1InteractionParams(interactionParams),
-               new Holder<V1UpdateResponse>(V2V1Converter.toV1UpdateResponse(updateResponse.value)),
-               redirectURL, 
-               new Holder<List<V1Extension>>(V2V1Converter.transform(extensions.value, V2V1Converter.V2_TO_V1_EXTENSION)));
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1RuntimeContext(runtimeContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            V2ToV1Converter.toV1MarkupParams(markupParams),
+            V2ToV1Converter.toV1InteractionParams(interactionParams),
+            new Holder<V1UpdateResponse>(V2ToV1Converter.toV1UpdateResponse(updateResponse.value)),
+            redirectURL,
+            new Holder<List<V1Extension>>(WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION)));
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InconsistentParameters inconsistentParameters)
       {
-         throw V2V1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
       }
       catch (V1InvalidCookie invalidCookie)
       {
-         throw V2V1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+         throw V2ToV1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
       }
       catch (V1InvalidHandle invalidHandle)
       {
-         throw V2V1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+         throw V2ToV1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1InvalidSession invalidSession)
       {
-         throw V2V1Converter.toV1Exception(InvalidSession.class, invalidSession);
+         throw V2ToV1Converter.toV1Exception(InvalidSession.class, invalidSession);
       }
       catch (V1InvalidUserCategory invalidUserCategory)
       {
-         throw V2V1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
       }
       catch (V1MissingParameters missingParameters)
       {
-         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameters);
+         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameters);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
       }
       catch (V1PortletStateChangeRequired portletStateChangeRequired)
       {
-         throw V2V1Converter.toV1Exception(PortletStateChangeRequired.class, portletStateChangeRequired);
+         throw V2ToV1Converter.toV1Exception(PortletStateChangeRequired.class, portletStateChangeRequired);
       }
       catch (V1UnsupportedLocale unsupportedLocale)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+         throw V2ToV1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
       }
       catch (V1UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+         throw V2ToV1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
       }
       catch (V1UnsupportedMode unsupportedMode)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+         throw V2ToV1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
       }
       catch (V1UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2V1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+         throw V2ToV1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
       }
    }
 
@@ -252,23 +255,23 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    {
       try
       {
-         return V2V1Converter.transform(service.releaseSessions(V2V1Converter.toV1RegistrationContext(registrationContext),sessionIDs), V2V1Converter.V1_TO_V2_EXTENSION);
+         return WSRPUtils.transform(service.releaseSessions(V2ToV1Converter.toV1RegistrationContext(registrationContext), sessionIDs), V1ToV2Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1MissingParameters missingParameters)
       {
-         throw V2V1Converter.toV1Exception(MissingParameters.class, missingParameters);
+         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameters);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
       }
    }
 
@@ -277,19 +280,19 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    {
       try
       {
-         return V2V1Converter.transform(service.initCookie(V2V1Converter.toV1RegistrationContext(registrationContext)), V2V1Converter.V1_TO_V2_EXTENSION);
+         return WSRPUtils.transform(service.initCookie(V2ToV1Converter.toV1RegistrationContext(registrationContext)), V1ToV2Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
       }
    }
 }

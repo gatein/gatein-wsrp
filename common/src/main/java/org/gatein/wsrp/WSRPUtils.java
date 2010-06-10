@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.gatein.common.i18n.LocaleFormat;
 import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ConversionException;
@@ -497,6 +499,27 @@ public class WSRPUtils
       else
       {
          return url;
+      }
+   }
+
+   /**
+    * Todo: Should be moved to common module?
+    *
+    * @param fromList
+    * @param function
+    * @param <F>
+    * @param <T>
+    * @return
+    */
+   public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function)
+   {
+      if (fromList == null)
+      {
+         return null;
+      }
+      else
+      {
+         return Lists.transform(fromList, function);
       }
    }
 

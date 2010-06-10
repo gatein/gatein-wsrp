@@ -25,7 +25,8 @@ package org.gatein.wsrp.endpoints.v1;
 
 import com.google.common.collect.Lists;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
-import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
@@ -112,13 +113,13 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       forceSessionAccess();
 
       PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
-      performBlockingInteraction.setPortletContext(V2V1Converter.toV2PortletContext(portletContext));
-      performBlockingInteraction.setRuntimeContext(V2V1Converter.toV2RuntimeContext(runtimeContext));
-      performBlockingInteraction.setMarkupParams(V2V1Converter.toV2MarkupParams(markupParams));
-      performBlockingInteraction.setInteractionParams(V2V1Converter.toV2InteractionParams(interactionParams));
+      performBlockingInteraction.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
+      performBlockingInteraction.setRuntimeContext(V1ToV2Converter.toV2RuntimeContext(runtimeContext));
+      performBlockingInteraction.setMarkupParams(V1ToV2Converter.toV2MarkupParams(markupParams));
+      performBlockingInteraction.setInteractionParams(V1ToV2Converter.toV2InteractionParams(interactionParams));
 
-      performBlockingInteraction.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
-      performBlockingInteraction.setUserContext(V2V1Converter.toV2UserContext(userContext));
+      performBlockingInteraction.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      performBlockingInteraction.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
 
       BlockingInteractionResponse interactionResponse = null;
       try
@@ -128,64 +129,64 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       }
       catch (InvalidCookie invalidCookie)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
+         throw V2ToV1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
       }
       catch (InvalidHandle invalidHandle)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidSession invalidSession)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
+         throw V2ToV1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
       }
       catch (UnsupportedMode unsupportedMode)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
       }
       catch (UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
       }
       catch (OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
       catch (UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
       }
       catch (UnsupportedLocale unsupportedLocale)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
       }
       catch (AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (PortletStateChangeRequired portletStateChangeRequired)
       {
-         throw V2V1Converter.toV1Exception(V1PortletStateChangeRequired.class, portletStateChangeRequired);
+         throw V2ToV1Converter.toV1Exception(V1PortletStateChangeRequired.class, portletStateChangeRequired);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (MissingParameters missingParameters)
       {
-         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         throw V2V1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
 
-      updateResponse.value = V2V1Converter.toV1UpdateResponse(interactionResponse.getUpdateResponse());
+      updateResponse.value = V2ToV1Converter.toV1UpdateResponse(interactionResponse.getUpdateResponse());
       redirectURL.value = interactionResponse.getRedirectURL();
-      extensions.value = Lists.transform(interactionResponse.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      extensions.value = Lists.transform(interactionResponse.getExtensions(), V2ToV1Converter.EXTENSION);
    }
 
    public List<V1Extension> releaseSessions(
@@ -196,7 +197,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       forceSessionAccess();
 
       ReleaseSessions releaseSessions = new ReleaseSessions();
-      releaseSessions.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
+      releaseSessions.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
       releaseSessions.getSessionIDs().addAll(sessionIDs);
 
       ReturnAny returnAny;
@@ -206,22 +207,22 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
       catch (MissingParameters missingParameters)
       {
-         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
 
-      return Lists.transform(returnAny.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      return Lists.transform(returnAny.getExtensions(), V2ToV1Converter.EXTENSION);
    }
 
    public void getMarkup(
@@ -240,11 +241,11 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       forceSessionAccess();
 
       GetMarkup getMarkup = new GetMarkup();
-      getMarkup.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
-      getMarkup.setPortletContext(V2V1Converter.toV2PortletContext(portletContext));
-      getMarkup.setRuntimeContext(V2V1Converter.toV2RuntimeContext(runtimeContext));
-      getMarkup.setUserContext(V2V1Converter.toV2UserContext(userContext));
-      getMarkup.setMarkupParams(V2V1Converter.toV2MarkupParams(markupParams));
+      getMarkup.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      getMarkup.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
+      getMarkup.setRuntimeContext(V1ToV2Converter.toV2RuntimeContext(runtimeContext));
+      getMarkup.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
+      getMarkup.setMarkupParams(V1ToV2Converter.toV2MarkupParams(markupParams));
 
       MarkupResponse response;
       try
@@ -253,60 +254,60 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       }
       catch (UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedWindowState.class, unsupportedWindowState);
       }
       catch (InvalidCookie invalidCookie)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
+         throw V2ToV1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
       }
       catch (InvalidSession invalidSession)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
+         throw V2ToV1Converter.toV1Exception(V1InvalidSession.class, invalidSession);
       }
       catch (AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         throw V2V1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (InvalidHandle invalidHandle)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (UnsupportedLocale unsupportedLocale)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedLocale.class, unsupportedLocale);
       }
       catch (UnsupportedMode unsupportedMode)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedMode.class, unsupportedMode);
       }
       catch (OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
       catch (MissingParameters missingParameters)
       {
-         throw V2V1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2V1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
+         throw V2ToV1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
       }
 
-      markupContext.value = V2V1Converter.toV1MarkupContext(response.getMarkupContext());
-      sessionContext.value = V2V1Converter.toV1SessionContext(response.getSessionContext());
-      extensions.value = Lists.transform(response.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      markupContext.value = V2ToV1Converter.toV1MarkupContext(response.getMarkupContext());
+      sessionContext.value = V2ToV1Converter.toV1SessionContext(response.getSessionContext());
+      extensions.value = Lists.transform(response.getExtensions(), V2ToV1Converter.EXTENSION);
    }
 
    public List<V1Extension> initCookie(
@@ -316,7 +317,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       forceSessionAccess();
 
       InitCookie initCookie = new InitCookie();
-      initCookie.setRegistrationContext(V2V1Converter.toV2RegistrationContext(registrationContext));
+      initCookie.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
 
       ReturnAny returnAny;
       try
@@ -325,17 +326,17 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       }
       catch (AccessDenied accessDenied)
       {
-         throw V2V1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (OperationFailed operationFailed)
       {
-         throw V2V1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         throw V2V1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
 
-      return Lists.transform(returnAny.getExtensions(), V2V1Converter.V2_TO_V1_EXTENSION);
+      return Lists.transform(returnAny.getExtensions(), V2ToV1Converter.EXTENSION);
    }
 }

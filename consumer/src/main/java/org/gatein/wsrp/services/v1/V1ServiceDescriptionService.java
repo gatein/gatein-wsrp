@@ -23,8 +23,10 @@
 
 package org.gatein.wsrp.services.v1;
 
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.ServiceDescriptionService;
-import org.gatein.wsrp.spec.v1.V2V1Converter;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
@@ -78,7 +80,7 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       Holder<Boolean> mayReturnRegistrationState, Holder<List<Extension>> extensions)
       throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
-      V1RegistrationContext v1RegistrationContext = V2V1Converter.toV1RegistrationContext(registrationContext);
+      V1RegistrationContext v1RegistrationContext = V2ToV1Converter.toV1RegistrationContext(registrationContext);
       Holder<List<V1PortletDescription>> v1OfferedPortlets = new Holder<List<V1PortletDescription>>();
       Holder<List<V1ItemDescription>> v1UserCategories = new Holder<List<V1ItemDescription>>();
       Holder<List<V1ItemDescription>> v1ProfileITems = new Holder<List<V1ItemDescription>>();
@@ -99,21 +101,21 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       }
       catch (V1InvalidRegistration v1InvalidRegistration)
       {
-         throw V2V1Converter.toV2Exception(InvalidRegistration.class, v1InvalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, v1InvalidRegistration);
       }
       catch (V1OperationFailed v1OperationFailed)
       {
-         throw V2V1Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
 
-      offeredPortlets.value = V2V1Converter.transform(v1OfferedPortlets.value, V2V1Converter.V1_TO_V2_PORTLETDESCRIPTION);
-      userCategoryDescriptions.value = V2V1Converter.transform(v1UserCategories.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
+      offeredPortlets.value = WSRPUtils.transform(v1OfferedPortlets.value, V1ToV2Converter.PORTLETDESCRIPTION);
+      userCategoryDescriptions.value = WSRPUtils.transform(v1UserCategories.value, V1ToV2Converter.ITEMDESCRIPTION);
 //      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = V2V1Converter.transform(v1WindowStates.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
-      customModeDescriptions.value = V2V1Converter.transform(v1Modes.value, V2V1Converter.V1_TO_V2_ITEMDESCRIPTION);
-      requiresInitCookie.value = V2V1Converter.toV2CookieProtocol(v1Cookie.value);
-      registrationPropertyDescription.value = V2V1Converter.toV2ModelDescription(v1RegistrationProperties.value);
-      resourceList.value = V2V1Converter.toV2ResourceList(v1Resources.value);
-      extensions.value = V2V1Converter.transform(v1Extensions.value, V2V1Converter.V1_TO_V2_EXTENSION);
+      customWindowStateDescriptions.value = WSRPUtils.transform(v1WindowStates.value, V1ToV2Converter.ITEMDESCRIPTION);
+      customModeDescriptions.value = WSRPUtils.transform(v1Modes.value, V1ToV2Converter.ITEMDESCRIPTION);
+      requiresInitCookie.value = V1ToV2Converter.toV2CookieProtocol(v1Cookie.value);
+      registrationPropertyDescription.value = V1ToV2Converter.toV2ModelDescription(v1RegistrationProperties.value);
+      resourceList.value = V1ToV2Converter.toV2ResourceList(v1Resources.value);
+      extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
    }
 }
