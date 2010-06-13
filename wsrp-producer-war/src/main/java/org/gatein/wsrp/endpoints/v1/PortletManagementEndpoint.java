@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
@@ -49,16 +48,23 @@ import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.DestroyPortlets;
+import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.SetPortletProperties;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
@@ -91,19 +97,48 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      /*GetPortletPropertyDescription getPortletPropertyDescription = new GetPortletPropertyDescription();
-      getPortletPropertyDescription.setRegistrationContext(registrationContext);
-      getPortletPropertyDescription.setPortletContext(portletContext);
-      getPortletPropertyDescription.setUserContext(userContext);
+      GetPortletPropertyDescription getPortletPropertyDescription = new GetPortletPropertyDescription();
+      getPortletPropertyDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      getPortletPropertyDescription.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
+      getPortletPropertyDescription.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
       getPortletPropertyDescription.getDesiredLocales().addAll(desiredLocales);
+      PortletPropertyDescriptionResponse descriptionResponse;
+      try
+      {
+         descriptionResponse = producer.getPortletPropertyDescription(getPortletPropertyDescription);
 
-      PortletPropertyDescriptionResponse descriptionResponse = producer.getPortletPropertyDescription(getPortletPropertyDescription);
-
-      modelDescription.value = descriptionResponse.getModelDescription();
-      resourceList.value = descriptionResponse.getResourceList();
-      extensions.value = descriptionResponse.getExtensions();*/
-
-      throw new NotYetImplemented();
+         modelDescription.value = V2ToV1Converter.toV1ModelDescription(descriptionResponse.getModelDescription());
+         resourceList.value = V2ToV1Converter.toV1ResourceList(descriptionResponse.getResourceList());
+         extensions.value = WSRPUtils.transform(descriptionResponse.getExtensions(), V2ToV1Converter.EXTENSION);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 
    public void setPortletProperties(
@@ -116,19 +151,48 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      /*SetPortletProperties setPortletProperties = new SetPortletProperties();
-      setPortletProperties.setRegistrationContext(registrationContext);
-      setPortletProperties.setPortletContext(portletContext);
-      setPortletProperties.setUserContext(userContext);
-      setPortletProperties.setPropertyList(propertyList);
+      SetPortletProperties setPortletProperties = new SetPortletProperties();
+      setPortletProperties.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      setPortletProperties.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
+      setPortletProperties.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
+      setPortletProperties.setPropertyList(V1ToV2Converter.toV2PropertyList(propertyList));
 
-      PortletContext response = producer.setPortletProperties(setPortletProperties);
-
-      portletHandle.value = response.getPortletHandle();
-      portletState.value = response.getPortletState();
-      extensions.value = response.getExtensions();*/
-
-      throw new NotYetImplemented();
+      PortletContext response;
+      try
+      {
+         response = producer.setPortletProperties(setPortletProperties);
+         portletHandle.value = response.getPortletHandle();
+         portletState.value = response.getPortletState();
+         extensions.value = WSRPUtils.transform(response.getExtensions(), V2ToV1Converter.EXTENSION);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 
    public void clonePortlet(
@@ -140,18 +204,47 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      /*ClonePortlet clonePortlet = new ClonePortlet();
-      clonePortlet.setRegistrationContext(registrationContext);
-      clonePortlet.setPortletContext(portletContext);
-      clonePortlet.setUserContext(userContext);
+      ClonePortlet clonePortlet = new ClonePortlet();
+      clonePortlet.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      clonePortlet.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
+      clonePortlet.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
 
-      PortletContext response = producer.clonePortlet(clonePortlet);
-
-      portletHandle.value = response.getPortletHandle();
-      portletState.value = response.getPortletState();
-      extensions.value = response.getExtensions();*/
-
-      throw new NotYetImplemented();
+      PortletContext response;
+      try
+      {
+         response = producer.clonePortlet(clonePortlet);
+         portletHandle.value = response.getPortletHandle();
+         portletState.value = response.getPortletState();
+         extensions.value = WSRPUtils.transform(response.getExtensions(), V2ToV1Converter.EXTENSION);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 
    public void getPortletDescription(
@@ -231,7 +324,6 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
          properties.value = WSRPUtils.transform(result.getProperties(), V2ToV1Converter.PROPERTY);
          resetProperties.value = WSRPUtils.transform(result.getResetProperties(), V2ToV1Converter.RESETPROPERTY);
          extensions.value = WSRPUtils.transform(result.getExtensions(), V2ToV1Converter.EXTENSION);
-
       }
       catch (AccessDenied accessDenied)
       {
@@ -270,15 +362,33 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidRegistration, V1OperationFailed
    {
-      /*DestroyPortlets destroyPortlets = new DestroyPortlets();
-      destroyPortlets.setRegistrationContext(registrationContext);
+      DestroyPortlets destroyPortlets = new DestroyPortlets();
+      destroyPortlets.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
       destroyPortlets.getPortletHandles().addAll(portletHandles);
 
-      DestroyPortletsResponse destroyPortletsResponse = producer.destroyPortlets(destroyPortlets);
+      DestroyPortletsResponse destroyPortletsResponse;
+      try
+      {
+         destroyPortletsResponse = producer.destroyPortlets(destroyPortlets);
 
-      destroyFailed.value = destroyPortletsResponse.getDestroyFailed();
-      extensions.value = destroyPortletsResponse.getExtensions();*/
-
-      throw new NotYetImplemented();
+         destroyFailed.value = V2ToV1Converter.toV1DestroyFailed(destroyPortletsResponse.getFailedPortlets());
+         extensions.value = WSRPUtils.transform(destroyPortletsResponse.getExtensions(), V2ToV1Converter.EXTENSION);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 }

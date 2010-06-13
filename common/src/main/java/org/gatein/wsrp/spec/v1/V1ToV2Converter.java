@@ -25,13 +25,16 @@ package org.gatein.wsrp.spec.v1;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.OpaqueStateString;
+import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InteractionParams;
@@ -47,8 +50,11 @@ import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1Postal;
+import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1PropertyList;
 import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
@@ -65,6 +71,7 @@ import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -78,8 +85,11 @@ import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.Postal;
+import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
@@ -93,6 +103,8 @@ import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.UserProfile;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -111,6 +123,8 @@ public class V1ToV2Converter
    public static final V1ToV2ResourceValue RESOURCEVALUE = new V1ToV2ResourceValue();
    public static final V1ToV2NamedString NAMEDSTRING = new V1ToV2NamedString();
    public static final V1ToV2UploadContext UPLOADCONTEXT = new V1ToV2UploadContext();
+   public static final V1ToV2Property PROPERTY = new V1ToV2Property();
+   public static final V1ToV2ResetProperty RESETPROPERTY = new V1ToV2ResetProperty();
 
    public static MarkupParams toV2MarkupParams(V1MarkupParams v1MarkupParams)
    {
@@ -623,6 +637,56 @@ public class V1ToV2Converter
       }
    }
 
+   public static PropertyList toV2PropertyList(V1PropertyList v1PropertyList)
+   {
+      if (v1PropertyList != null)
+      {
+         PropertyList result = WSRPTypeFactory.createPropertyList();
+
+         List<Property> properties = WSRPUtils.transform(v1PropertyList.getProperties(), PROPERTY);
+         if (properties != null)
+         {
+            result.getProperties().addAll(properties);
+         }
+
+         List<Extension> extensions = WSRPUtils.transform(v1PropertyList.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static PortletDescription toV2PortletDescription(V1PortletDescription v1PortletDescription)
+   {
+      return PORTLETDESCRIPTION.apply(v1PortletDescription);
+   }
+
+   public static List<FailedPortlets> toV2FailedPortlets(List<V1DestroyFailed> destroyFailed)
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(destroyFailed))
+      {
+         // todo: might need improvements
+         List<FailedPortlets> result = new ArrayList<FailedPortlets>(destroyFailed.size());
+         for (V1DestroyFailed failed : destroyFailed)
+         {
+            result.add(WSRPTypeFactory.createFailedPortlets(Collections.singletonList(failed.getPortletHandle()), failed.getReason()));
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
    public static class V1ToV2Extension implements Function<V1Extension, Extension>
    {
       public Extension apply(V1Extension from)
@@ -858,6 +922,44 @@ public class V1ToV2Converter
             }
 
             return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+   }
+
+   public static class V1ToV2Property implements Function<V1Property, Property>
+   {
+      public Property apply(V1Property from)
+      {
+         if (from != null)
+         {
+            Property result = WSRPTypeFactory.createProperty(from.getName(), from.getLang(), from.getStringValue());
+            result.setType(WSRPConstants.XSD_STRING); // todo: not sure what to do here... :(
+
+            List<Object> any = from.getAny();
+            if (ParameterValidation.existsAndIsNotEmpty(any))
+            {
+               result.getAny().addAll(any);
+            }
+            return result;
+         }
+         else
+         {
+            return null;
+         }
+      }
+   }
+
+   private static class V1ToV2ResetProperty implements Function<V1ResetProperty, ResetProperty>
+   {
+      public ResetProperty apply(V1ResetProperty from)
+      {
+         if (from != null)
+         {
+            return WSRPTypeFactory.createResetProperty(from.getName());
          }
          else
          {

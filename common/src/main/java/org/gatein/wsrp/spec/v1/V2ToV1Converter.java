@@ -25,11 +25,13 @@ package org.gatein.wsrp.spec.v1;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
+import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InteractionParams;
@@ -48,6 +50,7 @@ import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1Postal;
 import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1PropertyDescription;
+import org.oasis.wsrp.v1.V1PropertyList;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
@@ -69,6 +72,7 @@ import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -85,6 +89,7 @@ import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
+import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
@@ -101,6 +106,8 @@ import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.UserProfile;
 
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -728,6 +735,58 @@ public class V2ToV1Converter
       return PORTLETDESCRIPTION.apply(description);
    }
 
+   public static List<V1DestroyFailed> toV1DestroyFailed(List<FailedPortlets> failedPortletsList)
+   {
+      if (failedPortletsList != null)
+      {
+         List<V1DestroyFailed> result = new ArrayList<V1DestroyFailed>(failedPortletsList.size());
+
+         for (FailedPortlets failedPortlets : failedPortletsList)
+         {
+            QName errorCode = failedPortlets.getErrorCode();
+            V1LocalizedString reason = toV1LocalizedString(failedPortlets.getReason());
+            String v1Reason = errorCode.toString() + ": " + reason.getValue();
+            for (String handle : failedPortlets.getPortletHandles())
+            {
+               V1DestroyFailed destroyFailed = WSRP1TypeFactory.createDestroyFailed(handle, v1Reason);
+               result.add(destroyFailed);
+            }
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static V1PropertyList toV1PropertyList(PropertyList propertyList)
+   {
+      if (propertyList != null)
+      {
+         V1PropertyList result = new V1PropertyList();
+
+         List<V1Property> properties = WSRPUtils.transform(propertyList.getProperties(), PROPERTY);
+         if (properties != null)
+         {
+            result.getProperties().addAll(properties);
+         }
+
+         List<V1Extension> extensions = WSRPUtils.transform(propertyList.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
@@ -991,7 +1050,7 @@ public class V2ToV1Converter
          {
             V1Property result = WSRP1TypeFactory.createProperty(from.getName().toString(), from.getLang(), from.getStringValue());
             List<Object> any = from.getAny();
-            if (any != null)
+            if (ParameterValidation.existsAndIsNotEmpty(any))
             {
                result.getAny().addAll(any);
             }
@@ -1007,25 +1066,6 @@ public class V2ToV1Converter
 
    private static class V2ToV1ResetProperty implements Function<ResetProperty, V1ResetProperty>
    {
-      public V1Property apply(Property from)
-      {
-         if (from != null)
-         {
-            V1Property result = WSRP1TypeFactory.createProperty(from.getName().toString(), from.getLang(), from.getStringValue());
-            List<Object> any = from.getAny();
-            if (any != null)
-            {
-               result.getAny().addAll(any);
-            }
-
-            return result;
-         }
-         else
-         {
-            return null;
-         }
-      }
-
       public V1ResetProperty apply(ResetProperty from)
       {
          if (from != null)

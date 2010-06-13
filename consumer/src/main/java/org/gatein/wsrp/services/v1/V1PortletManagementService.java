@@ -27,16 +27,21 @@ import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
+import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
 import org.oasis.wsrp.v1.V1InvalidHandle;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
 import org.oasis.wsrp.v1.V1MissingParameters;
+import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1Property;
+import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -90,14 +95,21 @@ public class V1PortletManagementService extends PortletManagementService<WSRPV1P
    {
       try
       {
+         Holder<V1PortletDescription> v1PortletDescriptionHolder = new Holder<V1PortletDescription>();
+         Holder<V1ResourceList> v1ResourceListHolder = new Holder<V1ResourceList>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
          service.getPortletDescription(
             V2ToV1Converter.toV1RegistrationContext(registrationContext),
             V2ToV1Converter.toV1PortletContext(portletContext),
             V2ToV1Converter.toV1UserContext(userContext),
             desiredLocales,
-            new Holder<V1PortletDescription>(V2ToV1Converter.toV1PortletDescription(portletDescription.value)),
-            new Holder<V1ResourceList>(V2ToV1Converter.toV1ResourceList(resourceList.value)),
-            new Holder<List<V1Extension>>(WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION)));
+            v1PortletDescriptionHolder,
+            v1ResourceListHolder,
+            v1Extensions);
+
+         portletDescription.value = V1ToV2Converter.toV2PortletDescription(v1PortletDescriptionHolder.value);
+         resourceList.value = V1ToV2Converter.toV2ResourceList(v1ResourceListHolder.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
       }
       catch (V1AccessDenied v1AccessDenied)
       {
@@ -132,13 +144,82 @@ public class V1PortletManagementService extends PortletManagementService<WSRPV1P
    @Override
    public void clonePortlet(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, Lifetime lifetime, Holder<String> portletHandle, Holder<byte[]> portletState, Holder<Lifetime> scheduledDestruction, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+         service.clonePortlet(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            portletHandle,
+            portletState,
+            v1Extensions
+         );
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
+      }
+      catch (V1AccessDenied v1AccessDenied)
+      {
+         WSRPExceptionFactory.throwWSException(AccessDenied.class, v1AccessDenied.getMessage(), v1AccessDenied);
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
+      {
+         WSRPExceptionFactory.throwWSException(InconsistentParameters.class, v1InconsistentParameters.getMessage(), v1InconsistentParameters);
+      }
+      catch (V1InvalidHandle v1InvalidHandle)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidHandle.class, v1InvalidHandle.getMessage(), v1InvalidHandle);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+      }
+      catch (V1InvalidUserCategory v1InvalidUserCategory)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidUserCategory.class, v1InvalidUserCategory.getMessage(), v1InvalidUserCategory);
+      }
+      catch (V1MissingParameters v1MissingParameters)
+      {
+         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+      }
    }
 
    @Override
    public void destroyPortlets(RegistrationContext registrationContext, List<String> portletHandles, UserContext userContext, Holder<List<FailedPortlets>> failedPortlets, Holder<List<Extension>> extensions) throws InconsistentParameters, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         Holder<List<V1DestroyFailed>> destroyFailed = new Holder<List<V1DestroyFailed>>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+         service.destroyPortlets(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            portletHandles,
+            destroyFailed,
+            v1Extensions
+         );
+
+         failedPortlets.value = V1ToV2Converter.toV2FailedPortlets(destroyFailed.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
+      {
+         WSRPExceptionFactory.throwWSException(InconsistentParameters.class, v1InconsistentParameters.getMessage(), v1InconsistentParameters);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+      }
+      catch (V1MissingParameters v1MissingParameters)
+      {
+         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+      }
    }
 
    @Override
@@ -186,18 +267,150 @@ public class V1PortletManagementService extends PortletManagementService<WSRPV1P
    @Override
    public void setPortletProperties(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, PropertyList propertyList, Holder<String> portletHandle, Holder<byte[]> portletState, Holder<Lifetime> scheduledDestruction, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+         service.setPortletProperties(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            V2ToV1Converter.toV1PropertyList(propertyList),
+            portletHandle,
+            portletState,
+            v1Extensions
+         );
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
+      }
+      catch (V1AccessDenied v1AccessDenied)
+      {
+         WSRPExceptionFactory.throwWSException(AccessDenied.class, v1AccessDenied.getMessage(), v1AccessDenied);
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
+      {
+         WSRPExceptionFactory.throwWSException(InconsistentParameters.class, v1InconsistentParameters.getMessage(), v1InconsistentParameters);
+      }
+      catch (V1InvalidHandle v1InvalidHandle)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidHandle.class, v1InvalidHandle.getMessage(), v1InvalidHandle);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+      }
+      catch (V1InvalidUserCategory v1InvalidUserCategory)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidUserCategory.class, v1InvalidUserCategory.getMessage(), v1InvalidUserCategory);
+      }
+      catch (V1MissingParameters v1MissingParameters)
+      {
+         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+      }
    }
 
    @Override
    public void getPortletProperties(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, List<String> names, Holder<List<Property>> properties, Holder<List<ResetProperty>> resetProperties, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         Holder<List<V1Property>> v1PropertyList = new Holder<List<V1Property>>();
+         Holder<List<V1ResetProperty>> v1ResetPropertyList = new Holder<List<V1ResetProperty>>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+         service.getPortletProperties(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            names,
+            v1PropertyList,
+            v1ResetPropertyList,
+            v1Extensions
+         );
+         properties.value = WSRPUtils.transform(v1PropertyList.value, V1ToV2Converter.PROPERTY);
+         resetProperties.value = WSRPUtils.transform(v1ResetPropertyList.value, V1ToV2Converter.RESETPROPERTY);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
+      }
+      catch (V1AccessDenied v1AccessDenied)
+      {
+         WSRPExceptionFactory.throwWSException(AccessDenied.class, v1AccessDenied.getMessage(), v1AccessDenied);
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
+      {
+         WSRPExceptionFactory.throwWSException(InconsistentParameters.class, v1InconsistentParameters.getMessage(), v1InconsistentParameters);
+      }
+      catch (V1InvalidHandle v1InvalidHandle)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidHandle.class, v1InvalidHandle.getMessage(), v1InvalidHandle);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+      }
+      catch (V1InvalidUserCategory v1InvalidUserCategory)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidUserCategory.class, v1InvalidUserCategory.getMessage(), v1InvalidUserCategory);
+      }
+      catch (V1MissingParameters v1MissingParameters)
+      {
+         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+      }
    }
 
    @Override
    public void getPortletPropertyDescription(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, List<String> desiredLocales, Holder<ModelDescription> modelDescription, Holder<ResourceList> resourceList, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      try
+      {
+         Holder<V1ResourceList> v1ResourceListHolder = new Holder<V1ResourceList>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+         Holder<V1ModelDescription> v1ModelDescription = new Holder<V1ModelDescription>();
+
+         service.getPortletPropertyDescription(
+            V2ToV1Converter.toV1RegistrationContext(registrationContext),
+            V2ToV1Converter.toV1PortletContext(portletContext),
+            V2ToV1Converter.toV1UserContext(userContext),
+            desiredLocales,
+            v1ModelDescription,
+            v1ResourceListHolder,
+            v1Extensions);
+
+         modelDescription.value = V1ToV2Converter.toV2ModelDescription(v1ModelDescription.value);
+         resourceList.value = V1ToV2Converter.toV2ResourceList(v1ResourceListHolder.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
+      }
+      catch (V1AccessDenied v1AccessDenied)
+      {
+         WSRPExceptionFactory.throwWSException(AccessDenied.class, v1AccessDenied.getMessage(), v1AccessDenied);
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
+      {
+         WSRPExceptionFactory.throwWSException(InconsistentParameters.class, v1InconsistentParameters.getMessage(), v1InconsistentParameters);
+      }
+      catch (V1InvalidHandle v1InvalidHandle)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidHandle.class, v1InvalidHandle.getMessage(), v1InvalidHandle);
+      }
+      catch (V1InvalidRegistration v1InvalidRegistration)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+      }
+      catch (V1InvalidUserCategory v1InvalidUserCategory)
+      {
+         WSRPExceptionFactory.throwWSException(InvalidUserCategory.class, v1InvalidUserCategory.getMessage(), v1InvalidUserCategory);
+      }
+      catch (V1MissingParameters v1MissingParameters)
+      {
+         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+      }
+      catch (V1OperationFailed v1OperationFailed)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+      }
    }
 }
