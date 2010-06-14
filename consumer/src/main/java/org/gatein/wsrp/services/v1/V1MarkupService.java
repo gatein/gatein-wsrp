@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.services.v1;
 
-import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
@@ -98,15 +98,23 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    {
       try
       {
+         Holder<V1MarkupContext> v1MarkupContext = new Holder<V1MarkupContext>();
+         Holder<V1SessionContext> v1SessionContext = new Holder<V1SessionContext>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+
          service.getMarkup(
             V2ToV1Converter.toV1RegistrationContext(registrationContext),
             V2ToV1Converter.toV1PortletContext(portletContext),
             V2ToV1Converter.toV1RuntimeContext(runtimeContext),
             V2ToV1Converter.toV1UserContext(userContext),
             V2ToV1Converter.toV1MarkupParams(markupParams),
-            new Holder<V1MarkupContext>(V2ToV1Converter.toV1MarkupContext(markupContext.value)),
-            new Holder<V1SessionContext>(V2ToV1Converter.toV1SessionContext(sessionContext.value)),
-            new Holder<List<V1Extension>>(WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION)));
+            v1MarkupContext,
+            v1SessionContext,
+            v1Extensions);
+
+         v1MarkupContext.value = V2ToV1Converter.toV1MarkupContext(markupContext.value);
+         v1SessionContext.value = V2ToV1Converter.toV1SessionContext(sessionContext.value);
+         v1Extensions.value = WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {
@@ -166,8 +174,7 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    @Override
    public void getResource(RegistrationContext registrationContext, Holder<PortletContext> portletContext, RuntimeContext runtimeContext, UserContext userContext, ResourceParams resourceParams, Holder<ResourceContext> resourceContext, Holder<SessionContext> sessionContext, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-
-      throw new NotYetImplemented();
+      throw WSRPExceptionFactory.createWSException(UnsupportedOperationException.class, "getResource is not supported in WSRP 1", null);
    }
 
    @Override
@@ -175,6 +182,8 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    {
       try
       {
+         Holder<V1UpdateResponse> v1UpdateResponse = new Holder<V1UpdateResponse>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
          service.performBlockingInteraction(
             V2ToV1Converter.toV1RegistrationContext(registrationContext),
             V2ToV1Converter.toV1PortletContext(portletContext),
@@ -182,9 +191,12 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
             V2ToV1Converter.toV1UserContext(userContext),
             V2ToV1Converter.toV1MarkupParams(markupParams),
             V2ToV1Converter.toV1InteractionParams(interactionParams),
-            new Holder<V1UpdateResponse>(V2ToV1Converter.toV1UpdateResponse(updateResponse.value)),
+            v1UpdateResponse,
             redirectURL,
-            new Holder<List<V1Extension>>(WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION)));
+            v1Extensions);
+
+         v1UpdateResponse.value = V2ToV1Converter.toV1UpdateResponse(updateResponse.value);
+         v1Extensions.value = WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {
@@ -247,7 +259,7 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
    @Override
    public void handleEvents(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, EventParams eventParams, Holder<UpdateResponse> updateResponse, Holder<List<HandleEventsFailed>> failedEvents, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      throw new NotYetImplemented();
+      throw WSRPExceptionFactory.createWSException(UnsupportedOperationException.class, "handleEvents is not supported in WSRP 1", null);
    }
 
    @Override
