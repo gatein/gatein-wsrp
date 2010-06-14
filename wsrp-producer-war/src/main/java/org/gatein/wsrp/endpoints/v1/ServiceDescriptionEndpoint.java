@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
@@ -78,7 +79,7 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1InvalidRegistration, V1OperationFailed
    {
-      GetServiceDescription getServiceDescription = new GetServiceDescription();
+      GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription();
       getServiceDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
 

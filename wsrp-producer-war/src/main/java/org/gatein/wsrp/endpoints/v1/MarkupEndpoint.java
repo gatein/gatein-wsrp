@@ -24,6 +24,7 @@
 package org.gatein.wsrp.endpoints.v1;
 
 import com.google.common.collect.Lists;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
@@ -112,11 +113,12 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
 
       forceSessionAccess();
 
-      PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
-      performBlockingInteraction.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      performBlockingInteraction.setRuntimeContext(V1ToV2Converter.toV2RuntimeContext(runtimeContext));
-      performBlockingInteraction.setMarkupParams(V1ToV2Converter.toV2MarkupParams(markupParams));
-      performBlockingInteraction.setInteractionParams(V1ToV2Converter.toV2InteractionParams(interactionParams));
+      PerformBlockingInteraction performBlockingInteraction = WSRPTypeFactory.createPerformBlockingInteraction(
+         V1ToV2Converter.toV2PortletContext(portletContext),
+         V1ToV2Converter.toV2RuntimeContext(runtimeContext),
+         V1ToV2Converter.toV2MarkupParams(markupParams),
+         V1ToV2Converter.toV2InteractionParams(interactionParams)
+      );
 
       performBlockingInteraction.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
       performBlockingInteraction.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
@@ -196,9 +198,10 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
    {
       forceSessionAccess();
 
-      ReleaseSessions releaseSessions = new ReleaseSessions();
-      releaseSessions.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      releaseSessions.getSessionIDs().addAll(sessionIDs);
+      ReleaseSessions releaseSessions = WSRPTypeFactory.createReleaseSessions(
+         V1ToV2Converter.toV2RegistrationContext(registrationContext),
+         sessionIDs
+      );
 
       ReturnAny returnAny;
       try
@@ -240,12 +243,13 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
    {
       forceSessionAccess();
 
-      GetMarkup getMarkup = new GetMarkup();
+      GetMarkup getMarkup = WSRPTypeFactory.createMarkupRequest(
+         V1ToV2Converter.toV2PortletContext(portletContext),
+         V1ToV2Converter.toV2RuntimeContext(runtimeContext),
+         V1ToV2Converter.toV2MarkupParams(markupParams)
+      );
       getMarkup.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      getMarkup.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      getMarkup.setRuntimeContext(V1ToV2Converter.toV2RuntimeContext(runtimeContext));
       getMarkup.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-      getMarkup.setMarkupParams(V1ToV2Converter.toV2MarkupParams(markupParams));
 
       MarkupResponse response;
       try
@@ -316,8 +320,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
    {
       forceSessionAccess();
 
-      InitCookie initCookie = new InitCookie();
-      initCookie.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      InitCookie initCookie = WSRPTypeFactory.createInitCookie(V1ToV2Converter.toV2RegistrationContext(registrationContext));
 
       ReturnAny returnAny;
       try
