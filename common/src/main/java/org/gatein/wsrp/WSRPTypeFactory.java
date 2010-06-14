@@ -92,9 +92,10 @@ import java.util.Map;
 import static org.gatein.wsrp.WSRPRewritingConstants.*;
 
 /**
+ * TODO: NEEDS TO BE UPDATED TO CONFORM TO WSRP 2 XSD, see GTNWSRP-42
+ * <p/>
  * Creates minimally valid instances of WSRP types, populated with default values where possible, as per
- * wsrp_v2_types.xsd. See <a href="http://jira.jboss.com/jira/browse/JBPORTAL-808">JBPORTAL-808</a> for more
- * information.
+ * wsrp_v2_types.xsd.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11317 $
@@ -212,6 +213,18 @@ public class WSRPTypeFactory
       return description;
    }
 
+   public static GetPortletDescription createGetPortletDescription(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "registration context");
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "portlet context");
+      ParameterValidation.throwIllegalArgExceptionIfNull(userContext, "user context");
+      GetPortletDescription description = new GetPortletDescription();
+      description.setPortletContext(portletContext);
+      description.setRegistrationContext(registrationContext);
+      description.setUserContext(userContext);
+      return description;
+   }
+
    /**
     * @param registrationContext
     * @param portletContext
@@ -239,31 +252,25 @@ public class WSRPTypeFactory
       return getPortletDescription;
    }
 
-   /**
-    * registrationContext(RegistrationContext)?, portletContext(PortletContext), userContext(UserContext)?,
-    * desiredLocales(xsd:string)*
-    *
-    * @param registrationContext
-    * @param portletContext
-    * @return
-    * @since 2.4.1
-    */
-   public static GetPortletProperties createGetPortletProperties(RegistrationContext registrationContext, PortletContext portletContext)
+   public static GetPortletProperties createGetPortletProperties(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, List<String> names)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "RegistrationContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(userContext, "UserContext");
+      if (!ParameterValidation.existsAndIsNotEmpty(names))
+      {
+         throw new IllegalArgumentException("Must pass a non-null list of property names");
+      }
       GetPortletProperties properties = new GetPortletProperties();
       properties.setRegistrationContext(registrationContext);
       properties.setPortletContext(portletContext);
+      properties.setUserContext(userContext);
+      properties.getNames().addAll(names);
       return properties;
    }
 
-   /** ====== WSRP Response objects ====== **/
+   /** ====== WSRP Response objects ====== * */
 
-   /**
-    * ( updateResponse(UpdateResponse) | redirectURL(xsd:string) ), extensions(Extension)*
-    *
-    * @return
-    */
    public static BlockingInteractionResponse createBlockingInteractionResponse(UpdateResponse updateResponse)
    {
       if (updateResponse == null)
@@ -275,11 +282,6 @@ public class WSRPTypeFactory
       return interactionResponse;
    }
 
-   /**
-    * ( updateResponse(UpdateResponse) | redirectURL(xsd:string) ), extensions(Extension)*
-    *
-    * @return
-    */
    public static BlockingInteractionResponse createBlockingInteractionResponse(String redirectURL)
    {
       if (redirectURL == null || redirectURL.length() == 0)
@@ -291,27 +293,11 @@ public class WSRPTypeFactory
       return interactionResponse;
    }
 
-   /**
-    * sessionContext(SessionContext)?, portletContext(PortletContext)?, markupContext(MarkupContext)?,
-    * navigationalState(xsd:string)? newWindowState(xsd:string)?, newMode(xsd:string)?
-    *
-    * @return
-    */
    public static UpdateResponse createUpdateResponse()
    {
       return new UpdateResponse();
    }
 
-   /**
-    * portletHandle(xsd:string), markupTypes(MarkupType)+, groupID(xsd:string)?, description(LocalizedString)?,
-    * shortTitle(LocalizedString)?, title(LocalizedString)?, displayName(LocalizedString)?, keywords(LocalizedString)*,
-    * userCategories(xsd:string)*, userProfileItems(xsd:string)*, usesMethodGet(xsd:boolean[false])?,
-    * defaultMarkupSecure(xsd:boolean[false])?, onlySecure(xsd:boolean[false])?, userContextStoredInSession(xsd:boolean[false])?,
-    * templatesStoredInSession(xsd:boolean[false])?, hasUserSpecificState(xsd:boolean[false])?,
-    * doesUrlTemplateProcessing(xsd:boolean[false])?, extensions(Extension)*
-    *
-    * @return
-    */
    public static PortletDescription createPortletDescription(org.gatein.pc.api.PortletContext portletContext, List<MarkupType> markupTypes)
    {
       PortletContext context = WSRPUtils.convertToWSRPPortletContext(portletContext);
@@ -366,14 +352,6 @@ public class WSRPTypeFactory
          WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE);
    }
 
-   /**
-    * secureClientCommunication(xsd:boolean), locales(xsd:string)+, mimeTypes(xsd:string)+, mode(xsd:string),
-    * windowState(xsd:string), clientData({@link ClientData})?, navigationalState(xsd:string)?,
-    * markupCharacterSets(xsd:string)*, validateTag(xsd:string)?, validNewModes(xsd:string)*,
-    * validNewWindowStates(xsd:string)*, extensions({@link org.oasis.wsrp.v2.Extension})*
-    *
-    * @return
-    */
    public static MarkupParams createMarkupParams(boolean secureClientCommunication, List<String> locales,
                                                  List<String> mimeTypes, String mode, String windowState)
    {
@@ -412,12 +390,6 @@ public class WSRPTypeFactory
       return createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION);
    }
 
-   /**
-    * userAuthentication(xsd:string), portletInstanceKey(xsd:string)?, namespacePrefix(xsd:string)?,
-    * templates(Templates)?, sessionID(xsd:string)?, extensions(Extension)*
-    *
-    * @return
-    */
    public static RuntimeContext createRuntimeContext(String userAuthentication)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userAuthentication, "user authentication", "RuntimeContext");
@@ -427,12 +399,6 @@ public class WSRPTypeFactory
       return runtimeContext;
    }
 
-   /**
-    * portletHandle(xsd:string), portletState(xsd:base64Binary)?, extensions({@link org.oasis.wsrp.v2.Extension})*
-    *
-    * @param portletHandle
-    * @return
-    */
    public static PortletContext createPortletContext(String portletHandle)
    {
       checkPortletHandle(portletHandle);
@@ -443,12 +409,6 @@ public class WSRPTypeFactory
    }
 
 
-   /**
-    * @param portletHandle
-    * @param portletState
-    * @return
-    * @since 2.6
-    */
    public static PortletContext createPortletContext(String portletHandle, byte[] portletState)
    {
       PortletContext pc = createPortletContext(portletHandle);
@@ -466,12 +426,6 @@ public class WSRPTypeFactory
       return createInteractionParams(StateChange.READ_ONLY);
    }
 
-   /**
-    * portletStateChange({@link StateChange}), interactionState(xsd:string)?, formParameters(NamedString)*,
-    * uploadContexts(UploadContext)*, extensions(Extension)*
-    *
-    * @return
-    */
    public static InteractionParams createInteractionParams(StateChange portletStateChange)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletStateChange, "portletStateChange");
@@ -481,12 +435,6 @@ public class WSRPTypeFactory
       return interactionParams;
    }
 
-   /**
-    * registrationContext(RegistrationContext)?
-    *
-    * @param registrationContext
-    * @return
-    */
    public static InitCookie createInitCookie(RegistrationContext registrationContext)
    {
       InitCookie initCookie = new InitCookie();
@@ -494,15 +442,6 @@ public class WSRPTypeFactory
       return initCookie;
    }
 
-   /**
-    * requiresRegistration(xsd:boolean), offeredPortlets(PortletDescription)*, userCategoryDescriptions(ItemDescription)*,
-    * customUserProfileItemDescriptions(ItemDescription)*, customWindowStateDescriptions(ItemDescription)*,
-    * customModeDescriptions(ItemDescription)*, requiresInitCookie(CookieProtocol[none])?,
-    * registrationPropertyDescription(ModelDescription)?, locales(xsd:string)*, resourceList(ResourceList)?,
-    * extensions(Extension)*
-    *
-    * @return
-    */
    public static ServiceDescription createServiceDescription(boolean requiresRegistration)
    {
       ServiceDescription serviceDescription = new ServiceDescription();
@@ -510,11 +449,6 @@ public class WSRPTypeFactory
       return serviceDescription;
    }
 
-   /**
-    * markupContext(MarkupContext), sessionContext(SessionContext)?, extensions(Extension)*
-    *
-    * @return
-    */
    public static MarkupResponse createMarkupResponse(MarkupContext markupContext)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(markupContext, "MarkupContext");
@@ -530,11 +464,6 @@ public class WSRPTypeFactory
     * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this particular
     * case this character set MAY be different than the response message.
     * <p/>
-    * useCachedMarkup(xsd:boolean[false])?, mimeType(xsd:string)?, (markupString(xsd:string) |
-    * markupBinary(xsd:base64Binary)), locale(xsd:string)?, requiresUrlRewriting(xsd:boolean[false])?,
-    * cacheControl(CacheControl)?, preferredTitle(xsd:string)?, extensions(Extension)*
-    *
-    * @return
     */
    public static MarkupContext createMarkupContext(String mediaType, String markupString)
    {
@@ -550,10 +479,6 @@ public class WSRPTypeFactory
    }
 
    /**
-    * useCachedMarkup(xsd:boolean[false])?, mimeType(xsd:string)?, (markupString(xsd:string) |
-    * markupBinary(xsd:base64Binary)), locale(xsd:string)?, requiresUrlRewriting(xsd:boolean[false])?,
-    * cacheControl(CacheControl)?, preferredTitle(xsd:string)?, extensions(Extension)*
-    *
     * @param mediaType The mime type of the returned markup. The mimeType field MUST be specified whenever markup is
     *                  returned, and if the markupBinary field is used to return the markup, the mime type MUST include
     *                  the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
@@ -575,8 +500,6 @@ public class WSRPTypeFactory
    }
 
    /**
-    * sessionID(xsd:string), expires(xsd:int), extensions(Extension)*
-    *
     * @param sessionID An opaque string the Portlet defines for referencing state that is stored locally on the
     *                  Producer. The maximum length of a sessionID is 4096 characters,
     * @param expires   Maximum number of seconds between invocations referencing the sessionID before the Producer will
@@ -597,13 +520,7 @@ public class WSRPTypeFactory
       return sessionContext;
    }
 
-   /**
-    * For UserProfile and related classes, everything is optional so no need to have factory methods.
-    * <p/>
-    * userContextKey(xsd:string), userCategories(xsd:string)*, profile(UserProfile)?, extensions(Extension)*
-    *
-    * @return
-    */
+   /** For UserProfile and related classes, everything is optional so no need to have factory methods. */
    public static UserContext createUserContext(String userContextKey)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userContextKey, "user context key", "UserContext");
@@ -613,10 +530,6 @@ public class WSRPTypeFactory
    }
 
    /**
-    * consumerName(xsd:string), consumerAgent(xsd:string), methodGetSupported(xsd:boolean), consumerModes(xsd:string)*,
-    * consumerWindowStates(xsd:string)*, consumerUserScopes(xsd:string)*, customUserProfileData(xsd:string)*,
-    * registrationProperties(Property)*, extensions(Extension)*
-    *
     * @param consumerName       A name (preferably unique) that identifies the Consumer [R355] An example of such a name
     *                           would be the Consumer's URL.
     * @param methodGetSupported A flag that tells the Producer whether the Consumer has implemented portlet URLs
@@ -650,11 +563,6 @@ public class WSRPTypeFactory
       return registrationData;
    }
 
-   /**
-    * ( stringValue(xsd:string) | any* ), @name(xsd:string), @xml:lang
-    *
-    * @return
-    */
    public static Property createProperty(String name, String lang, String stringValue)
    {
       // QName.valueOf validates name
@@ -1044,26 +952,19 @@ public class WSRPTypeFactory
       return clonePortlet;
    }
 
-   /**
-    * registrationContext(RegistrationContext)?, portletHandles(xsd:string)+
-    *
-    * @return
-    * @since 2.6
-    */
    public static DestroyPortlets createDestroyPortlets(RegistrationContext registrationContext, List<String> portletHandles)
    {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "RegistrationContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletHandles, "Portlet handles");
-      if (portletHandles.isEmpty())
+      if (!ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
          throw new IllegalArgumentException("Cannot create a DestroyPortlets with an empty list of portlet handles!");
       }
 
       DestroyPortlets destroyPortlets = new DestroyPortlets();
       destroyPortlets.setRegistrationContext(registrationContext);
-      if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
-      {
-         destroyPortlets.getPortletHandles().addAll(portletHandles);
-      }
+      destroyPortlets.getPortletHandles().addAll(portletHandles);
+
       return destroyPortlets;
    }
 

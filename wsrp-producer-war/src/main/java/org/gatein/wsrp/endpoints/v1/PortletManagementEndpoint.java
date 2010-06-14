@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
+import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
@@ -97,15 +99,16 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      GetPortletPropertyDescription getPortletPropertyDescription = new GetPortletPropertyDescription();
-      getPortletPropertyDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      getPortletPropertyDescription.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      getPortletPropertyDescription.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-      getPortletPropertyDescription.getDesiredLocales().addAll(desiredLocales);
-      PortletPropertyDescriptionResponse descriptionResponse;
       try
       {
-         descriptionResponse = producer.getPortletPropertyDescription(getPortletPropertyDescription);
+         GetPortletPropertyDescription getPortletPropertyDescription = WSRPTypeFactory.createGetPortletPropertyDescription(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2PortletContext(portletContext),
+            V1ToV2Converter.toV2UserContext(userContext),
+            desiredLocales
+         );
+         PortletPropertyDescriptionResponse descriptionResponse =
+            producer.getPortletPropertyDescription(getPortletPropertyDescription);
 
          modelDescription.value = V2ToV1Converter.toV1ModelDescription(descriptionResponse.getModelDescription());
          resourceList.value = V2ToV1Converter.toV1ResourceList(descriptionResponse.getResourceList());
@@ -151,16 +154,15 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      SetPortletProperties setPortletProperties = new SetPortletProperties();
-      setPortletProperties.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      setPortletProperties.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      setPortletProperties.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-      setPortletProperties.setPropertyList(V1ToV2Converter.toV2PropertyList(propertyList));
-
-      PortletContext response;
       try
       {
-         response = producer.setPortletProperties(setPortletProperties);
+         SetPortletProperties setPortletProperties = WSRPTypeFactory.createSetPortletProperties(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2PortletContext(portletContext),
+            V1ToV2Converter.toV2PropertyList(propertyList));
+         setPortletProperties.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
+
+         PortletContext response = producer.setPortletProperties(setPortletProperties);
          portletHandle.value = response.getPortletHandle();
          portletState.value = response.getPortletState();
          extensions.value = WSRPUtils.transform(response.getExtensions(), V2ToV1Converter.EXTENSION);
@@ -204,15 +206,15 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      ClonePortlet clonePortlet = new ClonePortlet();
-      clonePortlet.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      clonePortlet.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      clonePortlet.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-
-      PortletContext response;
       try
       {
-         response = producer.clonePortlet(clonePortlet);
+         ClonePortlet clonePortlet = WSRPTypeFactory.createClonePortlet(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2PortletContext(portletContext),
+            V1ToV2Converter.toV2UserContext(userContext)
+         );
+
+         PortletContext response = producer.clonePortlet(clonePortlet);
          portletHandle.value = response.getPortletHandle();
          portletState.value = response.getPortletState();
          extensions.value = WSRPUtils.transform(response.getExtensions(), V2ToV1Converter.EXTENSION);
@@ -257,14 +259,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      GetPortletDescription getPortletDescription = new GetPortletDescription();
-      getPortletDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      getPortletDescription.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      getPortletDescription.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-      getPortletDescription.getDesiredLocales().addAll(desiredLocales);
-
       try
       {
+         GetPortletDescription getPortletDescription = WSRPTypeFactory.createGetPortletDescription(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2PortletContext(portletContext),
+            V1ToV2Converter.toV2UserContext(userContext)
+         );
+         if (ParameterValidation.existsAndIsNotEmpty(desiredLocales))
+         {
+            getPortletDescription.getDesiredLocales().addAll(desiredLocales);
+         }
+
          PortletDescriptionResponse description = producer.getPortletDescription(getPortletDescription);
 
          portletDescription.value = V2ToV1Converter.toV1PortletDescription(description.getPortletDescription());
@@ -311,14 +317,15 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1AccessDenied, V1OperationFailed
    {
-      GetPortletProperties getPortletProperties = new GetPortletProperties();
-      getPortletProperties.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      getPortletProperties.setPortletContext(V1ToV2Converter.toV2PortletContext(portletContext));
-      getPortletProperties.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-      getPortletProperties.getNames().addAll(names);
-
       try
       {
+         GetPortletProperties getPortletProperties = WSRPTypeFactory.createGetPortletProperties(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2PortletContext(portletContext),
+            V1ToV2Converter.toV2UserContext(userContext),
+            names
+         );
+
          PropertyList result = producer.getPortletProperties(getPortletProperties);
 
          properties.value = WSRPUtils.transform(result.getProperties(), V2ToV1Converter.PROPERTY);
@@ -362,14 +369,12 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1MissingParameters, V1InconsistentParameters, V1InvalidRegistration, V1OperationFailed
    {
-      DestroyPortlets destroyPortlets = new DestroyPortlets();
-      destroyPortlets.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      destroyPortlets.getPortletHandles().addAll(portletHandles);
-
-      DestroyPortletsResponse destroyPortletsResponse;
       try
       {
-         destroyPortletsResponse = producer.destroyPortlets(destroyPortlets);
+         DestroyPortlets destroyPortlets = WSRPTypeFactory.createDestroyPortlets(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext), portletHandles
+         );
+         DestroyPortletsResponse destroyPortletsResponse = producer.destroyPortlets(destroyPortlets);
 
          destroyFailed.value = V2ToV1Converter.toV1DestroyFailed(destroyPortletsResponse.getFailedPortlets());
          extensions.value = WSRPUtils.transform(destroyPortletsResponse.getExtensions(), V2ToV1Converter.EXTENSION);
