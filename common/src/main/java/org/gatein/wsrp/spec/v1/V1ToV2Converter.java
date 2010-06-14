@@ -31,6 +31,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
@@ -40,6 +41,7 @@ import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
+import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
@@ -60,13 +62,16 @@ import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
 import org.oasis.wsrp.v1.V1RuntimeContext;
+import org.oasis.wsrp.v1.V1SessionContext;
 import org.oasis.wsrp.v1.V1StateChange;
 import org.oasis.wsrp.v1.V1Telecom;
 import org.oasis.wsrp.v1.V1TelephoneNum;
 import org.oasis.wsrp.v1.V1Templates;
+import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.V1UserProfile;
+import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
@@ -76,6 +81,7 @@ import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
+import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
@@ -96,11 +102,13 @@ import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
 import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Telecom;
 import org.oasis.wsrp.v2.TelephoneNum;
 import org.oasis.wsrp.v2.Templates;
+import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.UserProfile;
@@ -555,7 +563,7 @@ public class V1ToV2Converter
    {
       if (v1StateChange != null)
       {
-         return StateChange.valueOf((v1StateChange.value()));
+         return StateChange.fromValue((v1StateChange.value()));
       }
       else
       {
@@ -722,6 +730,103 @@ public class V1ToV2Converter
             result.getExtensions().addAll(extensions);
          }
 
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static MarkupContext toV2MarkupContext(V1MarkupContext v1MarkupContext)
+   {
+      if (v1MarkupContext != null)
+      {
+         MarkupContext result;
+
+         byte[] binary = v1MarkupContext.getMarkupBinary();
+         String string = v1MarkupContext.getMarkupString();
+
+         if (string != null)
+         {
+            result = WSRPTypeFactory.createMarkupContext(v1MarkupContext.getMimeType(), string);
+         }
+         else
+         {
+            result = WSRPTypeFactory.createMarkupContext(v1MarkupContext.getMimeType(), binary);
+         }
+         result.setCacheControl(toV2CacheControl(v1MarkupContext.getCacheControl()));
+         result.setLocale(v1MarkupContext.getLocale());
+         result.setMimeType(v1MarkupContext.getMimeType());
+         result.setPreferredTitle(v1MarkupContext.getPreferredTitle());
+         result.setRequiresRewriting(v1MarkupContext.isRequiresUrlRewriting());
+         result.setUseCachedItem(v1MarkupContext.isUseCachedMarkup());
+
+         List<V1Extension> extensions = v1MarkupContext.getExtensions();
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(WSRPUtils.transform(extensions, EXTENSION));
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   private static CacheControl toV2CacheControl(V1CacheControl v1CacheControl)
+   {
+      if (v1CacheControl != null)
+      {
+         CacheControl result = WSRPTypeFactory.createCacheControl(v1CacheControl.getExpires(), v1CacheControl.getUserScope());
+         result.setValidateTag(v1CacheControl.getValidateTag());
+
+         List<V1Extension> extensions = v1CacheControl.getExtensions();
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(WSRPUtils.transform(extensions, EXTENSION));
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static SessionContext toV2SessionContext(V1SessionContext sessionContext)
+   {
+      if (sessionContext != null)
+      {
+         SessionContext result = WSRPTypeFactory.createSessionContext(sessionContext.getSessionID(), sessionContext.getExpires());
+         result.getExtensions().addAll(Lists.transform(sessionContext.getExtensions(), EXTENSION));
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static UpdateResponse toV2UpdateResponse(V1UpdateResponse updateResponse)
+   {
+      if (updateResponse != null)
+      {
+         UpdateResponse result = WSRPTypeFactory.createUpdateResponse();
+         result.setMarkupContext(toV2MarkupContext(updateResponse.getMarkupContext()));
+         String state = updateResponse.getNavigationalState();
+         if (state != null)
+         {
+            result.setNavigationalContext(WSRPTypeFactory.createNavigationalContextOrNull(new OpaqueStateString(state), null));
+         }
+         result.setNewWindowState(updateResponse.getNewWindowState());
+         result.setPortletContext(toV2PortletContext(updateResponse.getPortletContext()));
+         result.setSessionContext(toV2SessionContext(updateResponse.getSessionContext()));
+         result.setNewMode(updateResponse.getNewMode());
          return result;
       }
       else

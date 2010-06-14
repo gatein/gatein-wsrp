@@ -112,9 +112,9 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
             v1SessionContext,
             v1Extensions);
 
-         v1MarkupContext.value = V2ToV1Converter.toV1MarkupContext(markupContext.value);
-         v1SessionContext.value = V2ToV1Converter.toV1SessionContext(sessionContext.value);
-         v1Extensions.value = WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION);
+         markupContext.value = V1ToV2Converter.toV2MarkupContext(v1MarkupContext.value);
+         sessionContext.value = V1ToV2Converter.toV2SessionContext(v1SessionContext.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {
@@ -195,8 +195,8 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
             redirectURL,
             v1Extensions);
 
-         v1UpdateResponse.value = V2ToV1Converter.toV1UpdateResponse(updateResponse.value);
-         v1Extensions.value = WSRPUtils.transform(extensions.value, V2ToV1Converter.EXTENSION);
+         updateResponse.value = V1ToV2Converter.toV2UpdateResponse(v1UpdateResponse.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
       }
       catch (V1AccessDenied accessDenied)
       {

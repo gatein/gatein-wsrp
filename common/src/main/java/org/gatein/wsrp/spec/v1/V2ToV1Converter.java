@@ -99,6 +99,7 @@ import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Telecom;
 import org.oasis.wsrp.v2.TelephoneNum;
@@ -223,7 +224,11 @@ public class V2ToV1Converter
          V1RuntimeContext v1RuntimeContext = WSRP1TypeFactory.createRuntimeContext(runtimeContext.getUserAuthentication());
          v1RuntimeContext.setNamespacePrefix(runtimeContext.getNamespacePrefix());
          v1RuntimeContext.setPortletInstanceKey(runtimeContext.getPortletInstanceKey());
-         v1RuntimeContext.setSessionID(runtimeContext.getSessionParams().getSessionID());
+         SessionParams sessionParams = runtimeContext.getSessionParams();
+         if (sessionParams != null)
+         {
+            v1RuntimeContext.setSessionID(sessionParams.getSessionID());
+         }
          v1RuntimeContext.setTemplates(V2ToV1Converter.toV1Templates(runtimeContext.getTemplates()));
 
          List<Extension> extensions = runtimeContext.getExtensions();
@@ -489,9 +494,17 @@ public class V2ToV1Converter
    {
       if (markupContext != null)
       {
-         V1MarkupContext v1MarkupContext = new V1MarkupContext();
-         v1MarkupContext.setMarkupBinary(markupContext.getItemBinary());
-         v1MarkupContext.setMarkupString(markupContext.getItemString());
+         byte[] binary = markupContext.getItemBinary();
+         String string = markupContext.getItemString();
+         V1MarkupContext v1MarkupContext;
+         if (string != null)
+         {
+            v1MarkupContext = WSRP1TypeFactory.createMarkupContext(markupContext.getMimeType(), string);
+         }
+         else
+         {
+            v1MarkupContext = WSRP1TypeFactory.createMarkupContext(markupContext.getMimeType(), binary);
+         }
          v1MarkupContext.setCacheControl(toV1CacheControl(markupContext.getCacheControl()));
          v1MarkupContext.setLocale(markupContext.getLocale());
          v1MarkupContext.setMimeType(markupContext.getMimeType());
@@ -685,7 +698,7 @@ public class V2ToV1Converter
    {
       if (stateChange != null)
       {
-         return V1StateChange.valueOf(stateChange.value());
+         return V1StateChange.fromValue(stateChange.value());
       }
       else
       {
@@ -721,7 +734,7 @@ public class V2ToV1Converter
    {
       if (sessionContext != null)
       {
-         V1SessionContext v1SessionContext = WSRP1TypeFactory.createSessionContext(sessionContext.getSessionID(), sessionContext.getExpires().intValue());
+         V1SessionContext v1SessionContext = WSRP1TypeFactory.createSessionContext(sessionContext.getSessionID(), sessionContext.getExpires());
          v1SessionContext.getExtensions().addAll(Lists.transform(sessionContext.getExtensions(), EXTENSION));
 
          return v1SessionContext;
