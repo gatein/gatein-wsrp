@@ -80,24 +80,35 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       Holder<Boolean> mayReturnRegistrationState, Holder<List<Extension>> extensions)
       throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
-      V1RegistrationContext v1RegistrationContext = V2ToV1Converter.toV1RegistrationContext(registrationContext);
-      Holder<List<V1PortletDescription>> v1OfferedPortlets = new Holder<List<V1PortletDescription>>();
-      Holder<List<V1ItemDescription>> v1UserCategories = new Holder<List<V1ItemDescription>>();
-      Holder<List<V1ItemDescription>> v1ProfileITems = new Holder<List<V1ItemDescription>>();
-      Holder<List<V1ItemDescription>> v1WindowStates = new Holder<List<V1ItemDescription>>();
-      Holder<List<V1ItemDescription>> v1Modes = new Holder<List<V1ItemDescription>>();
-      Holder<V1CookieProtocol> v1Cookie = new Holder<V1CookieProtocol>();
-      Holder<V1ModelDescription> v1RegistrationProperties = new Holder<V1ModelDescription>();
-      Holder<V1ResourceList> v1Resources = new Holder<V1ResourceList>();
-      Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
       try
       {
+         V1RegistrationContext v1RegistrationContext = V2ToV1Converter.toV1RegistrationContext(registrationContext);
+         Holder<List<V1PortletDescription>> v1OfferedPortlets = new Holder<List<V1PortletDescription>>();
+         Holder<List<V1ItemDescription>> v1UserCategories = new Holder<List<V1ItemDescription>>();
+         Holder<List<V1ItemDescription>> v1ProfileITems = new Holder<List<V1ItemDescription>>();
+         Holder<List<V1ItemDescription>> v1WindowStates = new Holder<List<V1ItemDescription>>();
+         Holder<List<V1ItemDescription>> v1Modes = new Holder<List<V1ItemDescription>>();
+         Holder<V1CookieProtocol> v1Cookie = new Holder<V1CookieProtocol>();
+         Holder<V1ModelDescription> v1RegistrationProperties = new Holder<V1ModelDescription>();
+         Holder<V1ResourceList> v1Resources = new Holder<V1ResourceList>();
+         Holder<List<V1Extension>> v1Extensions = new Holder<List<V1Extension>>();
+
          service.getServiceDescription(v1RegistrationContext, desiredLocales, requiresRegistration, v1OfferedPortlets,
             v1UserCategories,
             v1ProfileITems,
             v1WindowStates,
             v1Modes,
             v1Cookie, v1RegistrationProperties, locales, v1Resources, v1Extensions);
+
+         offeredPortlets.value = WSRPUtils.transform(v1OfferedPortlets.value, V1ToV2Converter.PORTLETDESCRIPTION);
+         userCategoryDescriptions.value = WSRPUtils.transform(v1UserCategories.value, V1ToV2Converter.ITEMDESCRIPTION);
+//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
+         customWindowStateDescriptions.value = WSRPUtils.transform(v1WindowStates.value, V1ToV2Converter.ITEMDESCRIPTION);
+         customModeDescriptions.value = WSRPUtils.transform(v1Modes.value, V1ToV2Converter.ITEMDESCRIPTION);
+         requiresInitCookie.value = V1ToV2Converter.toV2CookieProtocol(v1Cookie.value);
+         registrationPropertyDescription.value = V1ToV2Converter.toV2ModelDescription(v1RegistrationProperties.value);
+         resourceList.value = V1ToV2Converter.toV2ResourceList(v1Resources.value);
+         extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
       }
       catch (V1InvalidRegistration v1InvalidRegistration)
       {
@@ -107,15 +118,5 @@ public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV
       {
          throw V1ToV2Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
-
-      offeredPortlets.value = WSRPUtils.transform(v1OfferedPortlets.value, V1ToV2Converter.PORTLETDESCRIPTION);
-      userCategoryDescriptions.value = WSRPUtils.transform(v1UserCategories.value, V1ToV2Converter.ITEMDESCRIPTION);
-//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
-      customWindowStateDescriptions.value = WSRPUtils.transform(v1WindowStates.value, V1ToV2Converter.ITEMDESCRIPTION);
-      customModeDescriptions.value = WSRPUtils.transform(v1Modes.value, V1ToV2Converter.ITEMDESCRIPTION);
-      requiresInitCookie.value = V1ToV2Converter.toV2CookieProtocol(v1Cookie.value);
-      registrationPropertyDescription.value = V1ToV2Converter.toV2ModelDescription(v1RegistrationProperties.value);
-      resourceList.value = V1ToV2Converter.toV2ResourceList(v1Resources.value);
-      extensions.value = WSRPUtils.transform(v1Extensions.value, V1ToV2Converter.EXTENSION);
    }
 }
