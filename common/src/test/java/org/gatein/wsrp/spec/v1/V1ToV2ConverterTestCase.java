@@ -33,7 +33,7 @@ import org.oasis.wsrp.v2.OperationFailed;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2V1ConverterTestCase extends TestCase
+public class V1ToV2ConverterTestCase extends TestCase
 {
    public void testToV2Exception() throws Exception
    {

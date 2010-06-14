@@ -561,13 +561,13 @@ public class V2ToV1Converter
       }
 
       Class<? extends Exception> v2ExceptionClass = v2Exception.getClass();
-      String v1Name = v2ExceptionClass.getSimpleName();
+      String v2Name = v2ExceptionClass.getSimpleName();
       if (!"org.oasis.wsrp.v2".equals(v2ExceptionClass.getPackage().getName()))
       {
          throw new IllegalArgumentException("Specified exception is not a WSRP 2 exception: " + v2Exception);
       }
 
-      String v2Name = v2ExceptionClass.getSimpleName();
+      String v1Name = v1ExceptionClass.getSimpleName();
       // V1 class name should match V2 class name plus "V1"
       if (!v2Name.equals(v1Name.substring(2)))
       {
