@@ -54,6 +54,7 @@ import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1PropertyList;
 import org.oasis.wsrp.v1.V1RegistrationContext;
+import org.oasis.wsrp.v1.V1RegistrationData;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
@@ -89,6 +90,7 @@ import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
@@ -677,6 +679,47 @@ public class V1ToV2Converter
          for (V1DestroyFailed failed : destroyFailed)
          {
             result.add(WSRPTypeFactory.createFailedPortlets(Collections.singletonList(failed.getPortletHandle()), failed.getReason()));
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static RegistrationData toV2RegistrationData(V1RegistrationData registrationData)
+   {
+      if (registrationData != null)
+      {
+         RegistrationData result = WSRPTypeFactory.createRegistrationData(registrationData.getConsumerName(), registrationData.isMethodGetSupported());
+         result.setConsumerAgent(registrationData.getConsumerAgent());
+
+         List<Property> properties = WSRPUtils.transform(registrationData.getRegistrationProperties(), PROPERTY);
+         if (properties != null)
+         {
+            result.getRegistrationProperties().addAll(properties);
+         }
+         List<String> modes = registrationData.getConsumerModes();
+         if (ParameterValidation.existsAndIsNotEmpty(modes))
+         {
+            result.getConsumerModes().addAll(modes);
+         }
+         List<String> consumerUserScopes = registrationData.getConsumerUserScopes();
+         if (ParameterValidation.existsAndIsNotEmpty(consumerUserScopes))
+         {
+            result.getConsumerUserScopes().addAll(consumerUserScopes);
+         }
+         List<String> windowStates = registrationData.getConsumerWindowStates();
+         if (ParameterValidation.existsAndIsNotEmpty(windowStates))
+         {
+            result.getConsumerWindowStates().addAll(windowStates);
+         }
+         List<Extension> extensions = WSRPUtils.transform(registrationData.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
          }
 
          return result;

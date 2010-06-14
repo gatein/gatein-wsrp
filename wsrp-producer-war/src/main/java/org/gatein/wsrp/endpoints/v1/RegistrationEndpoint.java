@@ -23,19 +23,25 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
-import org.gatein.common.NotYetImplemented;
+import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1MissingParameters;
-import org.oasis.wsrp.v1.V1ModifyRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1RegistrationData;
-import org.oasis.wsrp.v1.V1RegistrationState;
 import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
@@ -76,23 +82,45 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       @WebParam(mode = WebParam.Mode.OUT, name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<byte[]> registrationState)
       throws V1MissingParameters, V1OperationFailed
    {
-      /*RegistrationData registrationData = new RegistrationData();
-      registrationData.setConsumerName(consumerName);
-      registrationData.setConsumerAgent(consumerAgent);
-      registrationData.getConsumerModes().addAll(consumerModes);
-      registrationData.getConsumerWindowStates().addAll(consumerWindowStates);
-      registrationData.getConsumerUserScopes().addAll(consumerUserScopes);
+      try
+      {
+         RegistrationData registrationData = WSRPTypeFactory.createRegistrationData(consumerName, methodGetSupported);
+         registrationData.setConsumerAgent(consumerAgent);
+         if (ParameterValidation.existsAndIsNotEmpty(consumerModes))
+         {
+            registrationData.getConsumerModes().addAll(consumerModes);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(consumerWindowStates))
+         {
+            registrationData.getConsumerWindowStates().addAll(consumerWindowStates);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(consumerUserScopes))
+         {
+            registrationData.getConsumerUserScopes().addAll(consumerUserScopes);
+         }
 //      registrationData.getCustomUserProfileData().addAll(customUserProfileData);
-      registrationData.getRegistrationProperties().addAll(registrationProperties);
-      registrationData.getExtensions().addAll(extensions.value);
+         if (ParameterValidation.existsAndIsNotEmpty(registrationProperties))
+         {
+            registrationData.getRegistrationProperties().addAll(WSRPUtils.transform(registrationProperties, V1ToV2Converter.PROPERTY));
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+         {
+            registrationData.getExtensions().addAll(WSRPUtils.transform(extensions.value, V1ToV2Converter.EXTENSION));
+         }
 
-      RegistrationContext registrationContext = producer.register(registrationData);
-
-      registrationHandle.value = registrationContext.getRegistrationHandle();
-      registrationState.value = registrationContext.getRegistrationState();
-      extensions.value = registrationContext.getExtensions();*/
-
-      throw new NotYetImplemented();
+         RegistrationContext registrationContext = producer.register(registrationData);
+         registrationHandle.value = registrationContext.getRegistrationHandle();
+         registrationState.value = registrationContext.getRegistrationState();
+         extensions.value = WSRPUtils.transform(registrationContext.getExtensions(), V2ToV1Converter.EXTENSION);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 
    public void deregister(
@@ -101,13 +129,20 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.INOUT) Holder<List<V1Extension>> extensions
    ) throws V1InvalidRegistration, V1OperationFailed
    {
-      /*RegistrationContext rc = new RegistrationContext();
-      rc.setRegistrationHandle(registrationHandle);
-      rc.setRegistrationState(registrationState);
-
-      producer.deregister(rc);*/
-
-      throw new NotYetImplemented();
+      try
+      {
+         RegistrationContext rc = WSRPTypeFactory.createRegistrationContext(registrationHandle);
+         rc.setRegistrationState(registrationState);
+         producer.deregister(rc);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 
    public void modifyRegistration(
@@ -117,19 +152,33 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions)
       throws V1MissingParameters, V1InvalidRegistration, V1OperationFailed
    {
-      /*ModifyRegistration modifyRegistration = new ModifyRegistration();
-      modifyRegistration.setRegistrationContext(registrationContext);
-      modifyRegistration.setRegistrationData(registrationData);
 
-      RegistrationState result = producer.modifyRegistration(modifyRegistration);
-
-      // it is possible (if not likely) that result of modifyRegistration be null
-      if (result != null)
+      try
       {
-         registrationState.value = result.getRegistrationState();
-         extensions.value = result.getExtensions();
-      }*/
+         ModifyRegistration modifyRegistration = WSRPTypeFactory.createModifyRegistration(
+            V1ToV2Converter.toV2RegistrationContext(registrationContext),
+            V1ToV2Converter.toV2RegistrationData(registrationData));
 
-      throw new NotYetImplemented();
+         RegistrationState result = producer.modifyRegistration(modifyRegistration);
+
+         // it is possible (if not likely) that result of modifyRegistration be null
+         if (result != null)
+         {
+            registrationState.value = result.getRegistrationState();
+            extensions.value = WSRPUtils.transform(result.getExtensions(), V2ToV1Converter.EXTENSION);
+         }
+      }
+      catch (MissingParameters missingParameters)
+      {
+         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+      }
    }
 }
