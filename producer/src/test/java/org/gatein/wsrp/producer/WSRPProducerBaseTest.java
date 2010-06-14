@@ -32,8 +32,6 @@ import org.gatein.common.NotYetImplemented;
  */
 public abstract class WSRPProducerBaseTest extends TestCase
 {
-   protected WSRPProducerImpl producer = WSRPProducerImpl.getInstance();
-
    protected WSRPProducerBaseTest(String name) throws Exception
    {
       super(name);

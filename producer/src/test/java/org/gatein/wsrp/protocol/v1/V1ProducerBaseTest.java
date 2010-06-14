@@ -28,6 +28,7 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.v1.WSRP1Producer;
@@ -58,7 +59,7 @@ import java.util.List;
 public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 {
    private static final String CONSUMER = "test-consumer";
-   protected WSRP1Producer producer;
+   protected WSRP1Producer producer = ProducerHolder.getV1Producer();
 
 
    public V1ProducerBaseTest() throws Exception
