@@ -29,7 +29,6 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
-import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1Extension;
@@ -116,31 +115,31 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (AccessDenied accessDenied)
       {
-         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InvalidHandle invalidHandle)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 
@@ -169,31 +168,31 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (AccessDenied accessDenied)
       {
-         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InvalidHandle invalidHandle)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 
@@ -221,31 +220,31 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (AccessDenied accessDenied)
       {
-         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InvalidHandle invalidHandle)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 
@@ -279,31 +278,31 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (AccessDenied accessDenied)
       {
-         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InvalidHandle invalidHandle)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 
@@ -334,31 +333,31 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (AccessDenied accessDenied)
       {
-         WSRP1ExceptionFactory.throwWSException(accessDenied.getClass(), accessDenied.getMessage(), accessDenied);
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
       catch (InvalidHandle invalidHandle)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidHandle.getClass(), invalidHandle.getMessage(), invalidHandle);
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
       }
       catch (InvalidUserCategory invalidUserCategory)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidUserCategory.getClass(), invalidUserCategory.getMessage(), invalidUserCategory);
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 
@@ -381,19 +380,19 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       }
       catch (InconsistentParameters inconsistentParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(inconsistentParameters.getClass(), inconsistentParameters.getMessage(), inconsistentParameters);
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
       catch (MissingParameters missingParameters)
       {
-         WSRP1ExceptionFactory.throwWSException(missingParameters.getClass(), missingParameters.getMessage(), missingParameters);
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
       }
       catch (InvalidRegistration invalidRegistration)
       {
-         WSRP1ExceptionFactory.throwWSException(invalidRegistration.getClass(), invalidRegistration.getMessage(), invalidRegistration);
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
       catch (OperationFailed operationFailed)
       {
-         WSRP1ExceptionFactory.throwWSException(operationFailed.getClass(), operationFailed.getMessage(), operationFailed);
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
    }
 }

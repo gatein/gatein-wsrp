@@ -113,7 +113,7 @@ public class V1PortletManagementService extends PortletManagementService<WSRPV1P
       }
       catch (V1AccessDenied v1AccessDenied)
       {
-         WSRPExceptionFactory.throwWSException(AccessDenied.class, v1AccessDenied.getMessage(), v1AccessDenied);
+         throw V1ToV2Converter.toV2Exception(AccessDenied.class, v1AccessDenied);
       }
       catch (V1InconsistentParameters v1InconsistentParameters)
       {

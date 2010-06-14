@@ -110,55 +110,55 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V1ToV2Converter.toV2Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InconsistentParameters inconsistentParameters)
       {
-         throw V2ToV1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+         throw V1ToV2Converter.toV2Exception(InconsistentParameters.class, inconsistentParameters);
       }
       catch (V1InvalidCookie invalidCookie)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+         throw V1ToV2Converter.toV2Exception(InvalidCookie.class, invalidCookie);
       }
       catch (V1InvalidHandle invalidHandle)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+         throw V1ToV2Converter.toV2Exception(InvalidHandle.class, invalidHandle);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1InvalidSession invalidSession)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidSession.class, invalidSession);
+         throw V1ToV2Converter.toV2Exception(InvalidSession.class, invalidSession);
       }
       catch (V1InvalidUserCategory invalidUserCategory)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+         throw V1ToV2Converter.toV2Exception(InvalidUserCategory.class, invalidUserCategory);
       }
       catch (V1MissingParameters missingParameter)
       {
-         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameter);
+         throw V1ToV2Converter.toV2Exception(MissingParameters.class, missingParameter);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, operationFailed);
       }
       catch (V1UnsupportedLocale unsupportedLocale)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+         throw V1ToV2Converter.toV2Exception(UnsupportedLocale.class, unsupportedLocale);
       }
       catch (V1UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+         throw V1ToV2Converter.toV2Exception(UnsupportedMimeType.class, unsupportedMimeType);
       }
       catch (V1UnsupportedMode unsupportedMode)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+         throw V1ToV2Converter.toV2Exception(UnsupportedMode.class, unsupportedMode);
       }
       catch (V1UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+         throw V1ToV2Converter.toV2Exception(UnsupportedWindowState.class, unsupportedWindowState);
       }
 
    }
@@ -188,59 +188,59 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V1ToV2Converter.toV2Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InconsistentParameters inconsistentParameters)
       {
-         throw V2ToV1Converter.toV1Exception(InconsistentParameters.class, inconsistentParameters);
+         throw V1ToV2Converter.toV2Exception(InconsistentParameters.class, inconsistentParameters);
       }
       catch (V1InvalidCookie invalidCookie)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidCookie.class, invalidCookie);
+         throw V1ToV2Converter.toV2Exception(InvalidCookie.class, invalidCookie);
       }
       catch (V1InvalidHandle invalidHandle)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidHandle.class, invalidHandle);
+         throw V1ToV2Converter.toV2Exception(InvalidHandle.class, invalidHandle);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1InvalidSession invalidSession)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidSession.class, invalidSession);
+         throw V1ToV2Converter.toV2Exception(InvalidSession.class, invalidSession);
       }
       catch (V1InvalidUserCategory invalidUserCategory)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidUserCategory.class, invalidUserCategory);
+         throw V1ToV2Converter.toV2Exception(InvalidUserCategory.class, invalidUserCategory);
       }
       catch (V1MissingParameters missingParameters)
       {
-         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameters);
+         throw V1ToV2Converter.toV2Exception(MissingParameters.class, missingParameters);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, operationFailed);
       }
       catch (V1PortletStateChangeRequired portletStateChangeRequired)
       {
-         throw V2ToV1Converter.toV1Exception(PortletStateChangeRequired.class, portletStateChangeRequired);
+         throw V1ToV2Converter.toV2Exception(PortletStateChangeRequired.class, portletStateChangeRequired);
       }
       catch (V1UnsupportedLocale unsupportedLocale)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedLocale.class, unsupportedLocale);
+         throw V1ToV2Converter.toV2Exception(UnsupportedLocale.class, unsupportedLocale);
       }
       catch (V1UnsupportedMimeType unsupportedMimeType)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedMimeType.class, unsupportedMimeType);
+         throw V1ToV2Converter.toV2Exception(UnsupportedMimeType.class, unsupportedMimeType);
       }
       catch (V1UnsupportedMode unsupportedMode)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedMode.class, unsupportedMode);
+         throw V1ToV2Converter.toV2Exception(UnsupportedMode.class, unsupportedMode);
       }
       catch (V1UnsupportedWindowState unsupportedWindowState)
       {
-         throw V2ToV1Converter.toV1Exception(UnsupportedWindowState.class, unsupportedWindowState);
+         throw V1ToV2Converter.toV2Exception(UnsupportedWindowState.class, unsupportedWindowState);
       }
    }
 
@@ -259,19 +259,19 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V1ToV2Converter.toV2Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1MissingParameters missingParameters)
       {
-         throw V2ToV1Converter.toV1Exception(MissingParameters.class, missingParameters);
+         throw V1ToV2Converter.toV2Exception(MissingParameters.class, missingParameters);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, operationFailed);
       }
    }
 
@@ -284,15 +284,15 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
       }
       catch (V1AccessDenied accessDenied)
       {
-         throw V2ToV1Converter.toV1Exception(AccessDenied.class, accessDenied);
+         throw V1ToV2Converter.toV2Exception(AccessDenied.class, accessDenied);
       }
       catch (V1InvalidRegistration invalidRegistration)
       {
-         throw V2ToV1Converter.toV1Exception(InvalidRegistration.class, invalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, invalidRegistration);
       }
       catch (V1OperationFailed operationFailed)
       {
-         throw V2ToV1Converter.toV1Exception(OperationFailed.class, operationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, operationFailed);
       }
    }
 }

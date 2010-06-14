@@ -88,11 +88,11 @@ public class V1RegistrationService extends RegistrationService<WSRPV1Registratio
       }
       catch (V1MissingParameters v1MissingParameters)
       {
-         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+         throw V1ToV2Converter.toV2Exception(MissingParameters.class, v1MissingParameters);
       }
       catch (V1OperationFailed v1OperationFailed)
       {
-         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
    }
 
@@ -111,11 +111,11 @@ public class V1RegistrationService extends RegistrationService<WSRPV1Registratio
       }
       catch (V1InvalidRegistration v1InvalidRegistration)
       {
-         throw WSRPExceptionFactory.createWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, v1InvalidRegistration);
       }
       catch (V1OperationFailed v1OperationFailed)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
    }
 
@@ -135,15 +135,15 @@ public class V1RegistrationService extends RegistrationService<WSRPV1Registratio
       }
       catch (V1InvalidRegistration v1InvalidRegistration)
       {
-         WSRPExceptionFactory.throwWSException(InvalidRegistration.class, v1InvalidRegistration.getMessage(), v1InvalidRegistration);
+         throw V1ToV2Converter.toV2Exception(InvalidRegistration.class, v1InvalidRegistration);
       }
       catch (V1MissingParameters v1MissingParameters)
       {
-         WSRPExceptionFactory.throwWSException(MissingParameters.class, v1MissingParameters.getMessage(), v1MissingParameters);
+         throw V1ToV2Converter.toV2Exception(MissingParameters.class, v1MissingParameters);
       }
       catch (V1OperationFailed v1OperationFailed)
       {
-         WSRPExceptionFactory.throwWSException(OperationFailed.class, v1OperationFailed.getMessage(), v1OperationFailed);
+         throw V1ToV2Converter.toV2Exception(OperationFailed.class, v1OperationFailed);
       }
    }
 
