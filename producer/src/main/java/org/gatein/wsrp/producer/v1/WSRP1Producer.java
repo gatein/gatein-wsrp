@@ -29,6 +29,9 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
+import org.gatein.wsrp.producer.v2.WSRP2Producer;
+import org.gatein.wsrp.spec.v1.V1ToV2Converter;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1ClonePortlet;
@@ -67,6 +70,9 @@ import org.oasis.wsrp.v1.V1UnsupportedLocale;
 import org.oasis.wsrp.v1.V1UnsupportedMimeType;
 import org.oasis.wsrp.v1.V1UnsupportedMode;
 import org.oasis.wsrp.v1.V1UnsupportedWindowState;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.ServiceDescription;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -92,7 +98,7 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
    }
 
-   private final WSRPProducer producer = ProducerHolder.getProducer();
+   private final WSRP2Producer producer = ProducerHolder.getProducer();
 
    public RegistrationManager getRegistrationManager()
    {
@@ -141,7 +147,20 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
 
    public V1ServiceDescription getServiceDescription(V1GetServiceDescription gs) throws V1InvalidRegistration, V1OperationFailed
    {
-      throw new NotYetImplemented();
+      try
+      {
+         ServiceDescription description = producer.getServiceDescription(V1ToV2Converter.toV2GetServiceDescription(gs));
+         return V2ToV1Converter.toV1ServiceDescription(description);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+
    }
 
    public V1RegistrationContext register(V1RegistrationData register) throws V1MissingParameters, V1OperationFailed

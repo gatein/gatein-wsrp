@@ -38,6 +38,7 @@ import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
@@ -78,6 +79,7 @@ import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -827,6 +829,26 @@ public class V1ToV2Converter
          result.setPortletContext(toV2PortletContext(updateResponse.getPortletContext()));
          result.setSessionContext(toV2SessionContext(updateResponse.getSessionContext()));
          result.setNewMode(updateResponse.getNewMode());
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static GetServiceDescription toV2GetServiceDescription(V1GetServiceDescription getServiceDescription)
+   {
+      if (getServiceDescription != null)
+      {
+         GetServiceDescription result = WSRPTypeFactory.createGetServiceDescription();
+         result.setRegistrationContext(toV2RegistrationContext(getServiceDescription.getRegistrationContext()));
+         List<String> locales = getServiceDescription.getDesiredLocales();
+         if (ParameterValidation.existsAndIsNotEmpty(locales))
+         {
+            result.getDesiredLocales().addAll(locales);
+         }
+
          return result;
       }
       else

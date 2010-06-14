@@ -58,6 +58,7 @@ import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
 import org.oasis.wsrp.v1.V1RuntimeContext;
+import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.V1SessionContext;
 import org.oasis.wsrp.v1.V1StateChange;
 import org.oasis.wsrp.v1.V1Telecom;
@@ -98,6 +99,7 @@ import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
 import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.StateChange;
@@ -833,6 +835,60 @@ public class V2ToV1Converter
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static V1ServiceDescription toV1ServiceDescription(ServiceDescription serviceDescription)
+   {
+      if (serviceDescription != null)
+      {
+         V1ServiceDescription result = new V1ServiceDescription();
+         result.setRegistrationPropertyDescription(toV1ModelDescription(serviceDescription.getRegistrationPropertyDescription()));
+         result.setRequiresInitCookie(toV1CookieProtocol(serviceDescription.getRequiresInitCookie()));
+         result.setRequiresRegistration(serviceDescription.isRequiresRegistration());
+         result.setResourceList(toV1ResourceList(serviceDescription.getResourceList()));
+
+         List<V1ItemDescription> modes = WSRPUtils.transform(serviceDescription.getCustomModeDescriptions(), ITEMDESCRIPTION);
+         if (modes != null)
+         {
+            result.getCustomModeDescriptions().addAll(modes);
+         }
+
+         List<V1ItemDescription> windowStates = WSRPUtils.transform(serviceDescription.getCustomWindowStateDescriptions(), ITEMDESCRIPTION);
+         if (windowStates != null)
+         {
+            result.getCustomWindowStateDescriptions().addAll(windowStates);
+         }
+
+         List<V1Extension> extensions = WSRPUtils.transform(serviceDescription.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         List<String> locales = result.getLocales();
+         if (ParameterValidation.existsAndIsNotEmpty(locales))
+         {
+            result.getLocales().addAll(locales);
+         }
+
+         List<V1ItemDescription> userCategories = WSRPUtils.transform(serviceDescription.getUserCategoryDescriptions(), ITEMDESCRIPTION);
+         if (userCategories != null)
+         {
+            result.getUserCategoryDescriptions().addAll(userCategories);
+         }
+
+         List<V1PortletDescription> portletDescriptions = WSRPUtils.transform(serviceDescription.getOfferedPortlets(), PORTLETDESCRIPTION);
+         if (portletDescriptions != null)
+         {
+            result.getOfferedPortlets().addAll(portletDescriptions);
          }
 
          return result;
