@@ -30,8 +30,20 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1PropertyDescription;
@@ -47,6 +59,7 @@ import java.util.List;
  * @version $Revision: 11547 $
  * @since 2.4 (Feb 20, 2006)
  */
+@RunWith(Arquillian.class)
 public class ServiceDescriptionTestCase extends V1ProducerBaseTest
 {
    public ServiceDescriptionTestCase() throws Exception
@@ -54,6 +67,34 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       super("ServiceDescriptionTestCase");
    }
 
+   @Deployment
+   public static JavaArchive createDeployment()
+   {
+       return ShrinkWrap.create("test.jar", JavaArchive.class);
+   }
+   
+   @Before
+   public void setUp() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+       super.setUp();
+       //hack to get around having to have a httpservletrequest when accessing the producer services
+       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+      }
+   }
+     
+   @After
+   public void tearDown() throws Exception
+   {
+       if (System.getProperty("test.deployables.dir") != null)
+       {
+          super.tearDown();
+       }
+   }
+
+   @Test
    public void testNotRequiringRegistration() throws Throwable
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
@@ -69,6 +110,7 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       ExtendedAssert.assertNull(sd.getRegistrationPropertyDescription());
    }
 
+   @Test
    public void testRequiringRegistrationNotProvidingPortlets() throws Throwable
    {
       RegistrationPropertyDescription regProp = configureRegistrationSettings(true, false);
@@ -88,6 +130,7 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       ExtendedAssert.assertNull(sd.getOfferedPortlets());
    }
 
+   @Test
    public void testRequiringRegistrationProvidingPortlets() throws Throwable
    {
       RegistrationPropertyDescription regProp = configureRegistrationSettings(true, true);
@@ -104,6 +147,7 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       checkRequiredRegistrationProperties(sd, regProp);
    }
 
+   @Test
    public void testLiveDeployment() throws Throwable
    {
       try

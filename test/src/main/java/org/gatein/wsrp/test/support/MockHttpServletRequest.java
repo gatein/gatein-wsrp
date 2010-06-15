@@ -23,12 +23,14 @@
 
 package org.gatein.wsrp.test.support;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,6 +127,55 @@ public class MockHttpServletRequest implements InvocationHandler, Serializable
       {
          return serverPort;
       }
+      if ("getHeaderNames".equals(methodName))
+      {
+         return new Enumeration<String>()
+         {
+
+            public boolean hasMoreElements()
+            {
+				return false;
+			}
+			
+            public String nextElement()
+            {
+				return null;
+			}
+		};
+      }
+      if ("getCookies".equals(methodName))
+      {
+    	  return new Cookie[0];
+      }
+      if ("getMethod".equals(methodName))
+      {
+    	  return "GET";
+      }
+      if ("getContextPath".equals(methodName))
+      {
+    	  return "/";
+      }
+      if ("getPathInfo".equals(methodName))
+      {
+    	  return "/";
+      }      
+      if ("getQueryString".equals(methodName))
+      {
+    	  return "";
+      }
+      if ("getQueryURI".equals(methodName))
+      {
+    	  return "";
+      }
+      if ("getRequestURI".equals(methodName))
+      {
+    	  return "";
+      }
+      if ("getServletPath".equals(methodName))
+      {
+    	  return "/";
+      }
+      
       throw new UnsupportedOperationException("MockHttpServletRequest does not support: " + method);
    }
 }

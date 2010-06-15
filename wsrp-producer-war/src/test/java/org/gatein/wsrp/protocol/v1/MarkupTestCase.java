@@ -1,25 +1,25 @@
-/*
- * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
- * contributors as indicated by the @authors tag. See the
- * copyright.txt in the distribution for a full listing of
- * individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
+/******************************************************************************
+ * JBoss, a division of Red Hat                                               *
+ * Copyright 2010, Red Hat Middleware, LLC, and individual                    *
+ * contributors as indicated by the @authors tag. See the                     *
+ * copyright.txt in the distribution for a full listing of                    *
+ * individual contributors.                                                   *
+ *                                                                            *
+ * This is free software; you can redistribute it and/or modify it            *
+ * under the terms of the GNU Lesser General Public License as                *
+ * published by the Free Software Foundation; either version 2.1 of           *
+ * the License, or (at your option) any later version.                        *
+ *                                                                            *
+ * This software is distributed in the hope that it will be useful,           *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
+ * Lesser General Public License for more details.                            *
+ *                                                                            *
+ * You should have received a copy of the GNU Lesser General Public           *
+ * License along with this software; if not, write to the Free                *
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
+ ******************************************************************************/
 
 package org.gatein.wsrp.protocol.v1;
 
@@ -28,7 +28,18 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1GetMarkup;
@@ -56,6 +67,8 @@ import java.util.Locale;
  * @version $Revision: 13149 $
  * @since 2.4
  */
+
+@RunWith(Arquillian.class)
 public class MarkupTestCase extends NeedPortletHandleTest
 {
    private static final String DEFAULT_VIEW_MARKUP = "<p>symbol unset stock value: value unset</p>";
@@ -67,6 +80,35 @@ public class MarkupTestCase extends NeedPortletHandleTest
       super("MarkupTestCase", DEFAULT_MARKUP_PORTLET_WAR);
    }
 
+	@Deployment
+	public static JavaArchive createDeployment()
+	{
+		return ShrinkWrap.create("test.jar", JavaArchive.class);
+	}
+	
+	@Before
+	public void setUp() throws Exception
+	{
+	   if (System.getProperty("test.deployables.dir") != null)
+       {
+		super.setUp();
+		//hack to get around having to have a httpservletrequest when accessing the producer services
+		//I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+		ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+       }
+	}
+	
+	
+	@After
+	public void tearDown() throws Exception
+	{
+	    if (System.getProperty("test.deployables.dir") != null)
+	    {
+	       super.tearDown();
+	    }
+	}
+	
+	@Test
    public void testGetMarkupViewNoSession() throws Exception
    {
       V1GetMarkup getMarkup = createMarkupRequest();
@@ -76,6 +118,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
    }
 
+	@Test
    public void testInvalidGetMarkup() throws Exception
    {
       V1GetMarkup getMarkup = createMarkupRequest();
@@ -92,6 +135,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testGetMarkupWithSessionID() throws Exception
    {
       // The consumer should never have access to or be able to set a sessionID. Sessions are handled by the Producer using cookies.
@@ -109,6 +153,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testGetMarkupEditNoSession() throws Exception
    {
       V1GetMarkup getMarkup = createMarkupRequest();
@@ -121,6 +166,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
    }
 
+	@Test
    public void testGetMarkupRenderParameters() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -178,7 +224,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
    }
 
    // fix-me: add more tests
-
+	@Test
    public void testGetMarkupSession() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -217,11 +263,13 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testPerformBlockingInteractionNoRedirect() throws Exception
    {
       checkPBIAndGetNavigationalState("RHAT");
    }
 
+	@Test
    public void testPerformBlockingInteractionRedirect() throws Exception
    {
       V1PerformBlockingInteraction performBlockingInteraction =
@@ -247,6 +295,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       ExtendedAssert.assertNull(updateResponse);
    }
 
+	@Test
    public void testGMAndPBIInteraction() throws Exception
    {
       testGetMarkupViewNoSession();
@@ -259,7 +308,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       checkMarkupResponse(response, "<p>" + symbol + " stock value: 123.45</p>");
    }
 
-
+	@Test
    public void testPBIWithSessionID() throws Exception
    {
       String portletHandle = getDefaultHandle();
@@ -280,6 +329,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testMarkupCaching() throws Exception
    {
       V1GetMarkup getMarkup = createMarkupRequest();
@@ -303,6 +353,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       undeploy(sessionPortletArchive);
    }
 
+	@Test
    public void testGetMarkupWithDispatcherPortlet() throws Exception
    {
 
@@ -323,6 +374,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithNoContent() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -342,6 +394,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithNonStandardLocalesStrictMode() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -368,6 +421,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithNonStandardLocalesLenientMode() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -385,6 +439,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       undeploy(getLocalesPortletArchive);
    }
 
+	@Test
    public void testGetMarkupWithoutDeclaredLocale() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -403,6 +458,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupLocales() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -437,6 +493,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithEncodedURLs() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -457,6 +514,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithUserContext() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -477,6 +535,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupMultiValuedFormParams() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -519,6 +578,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testImplicitCloning() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -570,6 +630,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       return namedString;
    }
 
+	@Test
    public void testGetMarkupWithResource() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -596,6 +657,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupWithNonURLEncodedResource() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -622,6 +684,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testApplicationScopeVariableHandling() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -646,6 +709,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testGetMarkupNoRegistrationWhenRegistrationRequired() throws Exception
    {
       configureRegistrationSettings(true, false);
@@ -666,6 +730,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testPerformBlockingInteractionNoRegistrationWhenRegistrationRequired() throws Exception
    {
       configureRegistrationSettings(true, false);
@@ -686,6 +751,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
+	@Test
    public void testInitCookieNoRegistrationWhenRegistrationRequired() throws Exception
    {
       configureRegistrationSettings(true, false);

@@ -23,9 +23,20 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.logging.Logger;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ReleaseSessions;
@@ -38,6 +49,7 @@ import java.util.List;
  *
  * @author Matt Wringe
  */
+@RunWith(Arquillian.class)
 public class ReleaseSessionTestCase extends NeedPortletHandleTest
 {
 
@@ -58,7 +70,35 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
       log.debug("Instantiating ReleaseSessionTestCase");
    }
 
+   @Deployment
+   public static JavaArchive createDeployment()
+   {
+       return ShrinkWrap.create("test.jar", JavaArchive.class);
+   }
 
+   @Before
+   public void setUp() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+       super.setUp();
+       //hack to get around having to have a httpservletrequest when accessing the producer services
+       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+      }
+   }
+   
+   
+   @After
+   public void tearDown() throws Exception
+   {
+       if (System.getProperty("test.deployables.dir") != null)
+       {
+          super.tearDown();
+       }
+   }
+
+   @Test
    public void testReleaseSession() throws Exception
    {
       // possible registration contexts are: actual RegistrationContext, null, and a made up value

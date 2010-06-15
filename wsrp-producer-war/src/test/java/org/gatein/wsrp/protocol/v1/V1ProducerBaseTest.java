@@ -133,10 +133,6 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       // Check offered portlets
       List<V1PortletDescription> offeredPortlets = sd.getOfferedPortlets();
       ExtendedAssert.assertNotNull(offeredPortlets);
-      for (V1PortletDescription offeredPortlet : offeredPortlets)
-      {
-         System.out.println("handle " + offeredPortlet.getPortletHandle());
-      }
       ExtendedAssert.assertEquals(1, offeredPortlets.size());
 
       // Check portlet description

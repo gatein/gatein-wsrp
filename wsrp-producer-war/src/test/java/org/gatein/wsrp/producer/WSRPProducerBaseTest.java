@@ -97,8 +97,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
        else
        {
            throw new Error ("Could not find the system property \'" + property + "\' cannot deploy test archives.");
+       }
    }
-}
    
    
    private File getArchive(String fileName, File deployDirectory, boolean shouldExist) throws Exception

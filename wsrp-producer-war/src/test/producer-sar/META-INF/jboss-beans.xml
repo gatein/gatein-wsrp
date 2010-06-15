@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ JBoss, a division of Red Hat                                              ~
+  ~ Copyright 2006, Red Hat Middleware, LLC, and individual                   ~
+  ~ contributors as indicated by the @authors tag. See the                    ~
+  ~ copyright.txt in the distribution for a full listing of                   ~
+  ~ individual contributors.                                                  ~
+  ~                                                                           ~
+  ~ This is free software; you can redistribute it and/or modify it           ~
+  ~ under the terms of the GNU Lesser General Public License as               ~
+  ~ published by the Free Software Foundation; either version 2.1 of          ~
+  ~ the License, or (at your option) any later version.                       ~
+  ~                                                                           ~
+  ~ This software is distributed in the hope that it will be useful,          ~
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
+  ~ Lesser General Public License for more details.                           ~
+  ~                                                                           ~
+  ~ You should have received a copy of the GNU Lesser General Public          ~
+  ~ License along with this software; if not, write to the Free               ~
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+<!--
+   <bean name="TestDriverServer" class="org.jboss.unit.remote.driver.RemoteTestDriverServer"/>
+
+   <bean name="TestDriverServerExporter"
+         class="org.jboss.portal.test.framework.impl.generic.server.GenericServiceExporter">
+      <constructor>
+         <parameter>socket://localhost:5400</parameter>
+         <parameter><inject bean="TestDriverServer"/></parameter>
+         <parameter>org.jboss.unit.remote.driver.RemoteTestDriver</parameter>
+      </constructor>
+   </bean>
+-->
+   <bean name="WSRPProducer" class="org.gatein.wsrp.producer.WSRPProducerImpl">
+     <constructor factoryClass="org.gatein.wsrp.producer.ProducerHolder" factoryMethod="getProducer">
+       <parameter>true</parameter>
+     </constructor>
+     <property name="portletInvoker"><inject bean="PortletInvoker"/></property>
+     <property name="registrationManager"><inject bean="RegistrationManagerService"/></property>
+     <property name="configurationService"><inject bean="ConfigurationService"/></property>
+   </bean>
+
+   <bean name="PortletInvoker" class="org.gatein.pc.portlet.state.producer.ProducerPortletInvoker">
+     <property name="next"><inject bean="ContainerPortletInvoker"/></property>
+     <property name="persistenceManager"><inject bean="ProducerPersistenceManagerService"/></property>
+     <property name="stateManagementPolicy"><inject bean="StateManagmentPolicyService"/></property>
+     <property name="stateConverter"><inject bean="StateConverterService"/></property>
+   </bean>
+
+   <!-- TODO: may need to write a new class for this -->
+   <bean name="ProducerPersistenceManagerService" class="org.gatein.pc.portlet.impl.state.producer.PortletStatePersistenceManagerService"/>
+
+   <bean name="StateManagmentPolicyService" class="org.gatein.pc.portlet.impl.state.StateManagementPolicyService">
+     <property name="persistLocally">true</property>
+   </bean>
+
+   <bean name="StateConverterService" class="org.gatein.pc.portlet.impl.state.StateConverterV0"/>
+
+   <bean name="RegistrationManagerService" class="org.gatein.registration.impl.RegistrationManagerImpl">
+     <property name="persistenceManager"><inject bean="RegistrationPersistenceManagerService"/></property>
+   </bean>
+
+   <!-- TODO: may need to write a new class for this -->
+   <bean name="RegistrationPersistenceManagerService" class="org.gatein.registration.impl.RegistrationPersistenceManagerImpl">
+   </bean>
+
+   <bean name="ConfigurationService" class="org.gatein.wsrp.config.FileSystemXmlProducerConfigWithReload">
+     <property name="configFile">conf/producer-config.xml</property>
+   <!--      <property name="configFile">/tmp/producer-config.xml</property> -->
+   </bean>
+
+   <bean name="SerletAccess" class="org.gatein.wsrp.servlet.ServletAccess"/>
+
+</deployment>
+
+   <!-- Dummy test WSRP Producer implementation -->
+<!--   <bean name="DummyWSRPProducer" class="org.gatein.wsrp.test.TestWSRPProducerImpl"/> -->
+
+   <!-- Hack to get access to req/resp -->
+<!--   <bean name="ServletAccess" class="org.gatein.wsrp.servlet.ServletAccessFilter"/> -->
+
+<!--   <bean name="ServiceFactory" class="org.gatein.wsrp.services.PerEndpointSOAPInvokerServiceFactory">
+      <property name="ServiceDescriptionURL">http://localhost:8080/test-wsrp-consumer/ServiceDescriptionService</property>
+      <property name="MarkupURL">http://localhost:8080/test-wsrp-consumer/MarkupService</property>
+      <property name="RegistrationURL">http://localhost:8080/test-wsrp-consumer/RegistrationService</property>
+      <property name="PortletManagementURL">http://localhost:8080/test-wsrp-consumer/PortletManagementService</property>
+      <property name="Env">
+         java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
+         java.naming.provider.url=jnp://localhost:1099
+         java.naming.factory.url.pkgs=org.jboss.naming.client
+         j2ee.clientName=wsrp-client
+      </property>
+      <property name="PortJNDIMapping">
+         org.gatein.wsrp.core.WSRP_v1_ServiceDescription_PortType=java:comp/env/service/ServiceDescriptionService
+         org.gatein.wsrp.core.WSRP_v1_Markup_PortType=java:comp/env/service/MarkupService
+         org.gatein.wsrp.core.WSRP_v1_Registration_PortType=java:comp/env/service/RegistrationService
+         org.gatein.wsrp.core.WSRP_v1_PortletManagement_PortType=java:comp/env/service/PortletManagementService
+      </property>
+   </bean>
+
+   <bean name="CachingServiceFactory" class="CachingServiceFactory">
+      <property name="Delegate"><inject bean="ServiceFactory"/></property>
+   </bean>
+
+   <bean name="WSRPConsumer" class="org.gatein.wsrp.consumer.WSRPConsumerImpl">
+      <property name="ServiceFactory"><inject bean="CachingServiceFactory"/></property>
+   </bean>
+-->
+<!--</deployment> -->

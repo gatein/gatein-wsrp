@@ -24,8 +24,19 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1ClonePortlet;
 import org.oasis.wsrp.v1.V1DestroyFailed;
@@ -59,6 +70,7 @@ import java.util.List;
  * @version $Revision: 11547 $
  * @since 2.4
  */
+@RunWith(Arquillian.class)
 public class PortletManagementTestCase extends NeedPortletHandleTest
 {
    private static final String TEST_BASIC_PORTLET_WAR = "test-basic-portlet.war";
@@ -68,6 +80,35 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       super("PortletManagementTestCase", TEST_BASIC_PORTLET_WAR);
    }
 
+   @Deployment
+   public static JavaArchive createDeployment()
+   {
+       return ShrinkWrap.create("test.jar", JavaArchive.class);
+   }
+   
+   @Before
+   public void setUp() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+       super.setUp();
+       //hack to get around having to have a httpservletrequest when accessing the producer services
+       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+      }
+   }
+   
+   
+   @After
+   public void tearDown() throws Exception
+   {
+       if (System.getProperty("test.deployables.dir") != null)
+       {
+          super.tearDown();
+       }
+   }
+
+   @Test
    public void testClonePortlet() throws Exception
    {
       String handle = getDefaultHandle();
@@ -89,6 +130,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       checkServiceDescriptionWithOnlyBasicPortlet(gs);
    }
 
+   @Test
    public void testClonePortletNoRegistrationWhenRequired()
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
@@ -111,6 +153,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testDestroyPortlets() throws Exception
    {
       // first try to destroy POP, should fail
@@ -135,6 +178,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       ExtendedAssert.assertNull(failures);
    }
 
+   @Test
    public void testDestroyPortletsNoRegistrationWhenRequired()
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
@@ -157,6 +201,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testGetPortletDescription() throws Exception
    {
       String handle = getDefaultHandle();
@@ -168,6 +213,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       checkBasicPortletDescription(response.getPortletDescription(), handle);
    }
 
+   @Test
    public void testGetPortletDescriptionNoRegistrationWhenRequired()
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
@@ -190,6 +236,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testGetPortletPropertiesNoRegistration() throws Exception
    {
       String handle = getDefaultHandle();
@@ -239,6 +286,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       checkPropertyDescriptions(expected, propertyDescriptions);
    }
 
+   @Test
    public void testGetPortletPropertiesNoRegistrationWhenRequired()
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
@@ -261,6 +309,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testSetPortletProperties() throws Exception
    {
       String handle = getDefaultHandle();
@@ -289,6 +338,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
    public void testSetPortletPropertiesNoRegistrationWhenRequired()
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
