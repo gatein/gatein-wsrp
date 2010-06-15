@@ -41,6 +41,7 @@ import org.oasis.wsrp.v1.V1DestroyPortlets;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1GetPortletDescription;
 import org.oasis.wsrp.v1.V1GetPortletProperties;
 import org.oasis.wsrp.v1.V1GetPortletPropertyDescription;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
@@ -92,6 +93,7 @@ import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.GetServiceDescription;
@@ -1041,6 +1043,25 @@ public class V1ToV2Converter
          UserContext userContext = toV2UserContext(getPortletPropertyDescription.getUserContext());
          GetPortletPropertyDescription result = WSRPTypeFactory.createGetPortletPropertyDescription(registrationContext, portletContext, userContext, getPortletPropertyDescription.getDesiredLocales());
 
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static GetPortletDescription toV2GetPortletDescription (V1GetPortletDescription getPortletDescription)
+   {
+      if (getPortletDescription != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(getPortletDescription.getRegistrationContext());
+         PortletContext portletContext = toV2PortletContext(getPortletDescription.getPortletContext());
+         UserContext userContext = toV2UserContext(getPortletDescription.getUserContext());
+         GetPortletDescription result = WSRPTypeFactory.createGetPortletDescription(registrationContext, portletContext, userContext);
+         
+         result.getDesiredLocales().addAll(getPortletDescription.getDesiredLocales());
+         
          return result;
       }
       else

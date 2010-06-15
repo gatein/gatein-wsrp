@@ -83,6 +83,7 @@ import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.PropertyList;
@@ -242,7 +243,40 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
 
    public V1PortletDescriptionResponse getPortletDescription(V1GetPortletDescription getPortletDescription) throws V1AccessDenied, V1InvalidHandle, V1InvalidUserCategory, V1InconsistentParameters, V1MissingParameters, V1InvalidRegistration, V1OperationFailed
    {
-      throw new NotYetImplemented();
+      try
+      {
+         PortletDescriptionResponse portletDescriptionResponse = producer.getPortletDescription(V1ToV2Converter.toV2GetPortletDescription(getPortletDescription));
+         return V2ToV1Converter.toV1PortletDescriptionResponse(portletDescriptionResponse);
+      }
+      catch (AccessDenied accessDenied)
+      {
+         throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         throw V2ToV1Converter.toV1Exception(V1InvalidHandle.class, invalidHandle);
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+         throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
+      }
+      catch (MissingParameters missingParameters)
+      {
+         throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (OperationFailed operationFailed)
+      {
+         throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+
    }
 
    public V1MarkupResponse getMarkup(V1GetMarkup getMarkup) throws V1UnsupportedWindowState, V1InvalidCookie, V1InvalidSession, V1AccessDenied, V1InconsistentParameters, V1InvalidHandle, V1UnsupportedLocale, V1UnsupportedMode, V1OperationFailed, V1MissingParameters, V1InvalidUserCategory, V1InvalidRegistration, V1UnsupportedMimeType

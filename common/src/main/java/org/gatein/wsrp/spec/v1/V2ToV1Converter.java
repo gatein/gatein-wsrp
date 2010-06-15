@@ -50,6 +50,7 @@ import org.oasis.wsrp.v1.V1Online;
 import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1PortletDescriptionResponse;
 import org.oasis.wsrp.v1.V1PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v1.V1Postal;
 import org.oasis.wsrp.v1.V1Property;
@@ -97,6 +98,7 @@ import org.oasis.wsrp.v2.Online;
 import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.Property;
@@ -122,6 +124,8 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.UserProfile;
+
+import sun.reflect.generics.visitor.Reifier;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -977,11 +981,18 @@ public class V2ToV1Converter
    {
       if (blockingInteractionResponse != null)
       {
+         V1BlockingInteractionResponse result;
          V1UpdateResponse updateResponse = toV1UpdateResponse(blockingInteractionResponse.getUpdateResponse());
-         V1BlockingInteractionResponse result = WSRP1TypeFactory.createBlockingInteractionResponse(updateResponse);
-
-         result.setRedirectURL(blockingInteractionResponse.getRedirectURL());
-
+         String redirectURL = blockingInteractionResponse.getRedirectURL();
+         if (redirectURL != null)
+         {
+            result = WSRP1TypeFactory.createBlockingInteractionResponse(redirectURL);
+         }
+         else
+         {
+            result = WSRP1TypeFactory.createBlockingInteractionResponse(updateResponse);
+         }
+         
          List<V1Extension> extensions = WSRPUtils.transform(blockingInteractionResponse.getExtensions(), EXTENSION);
          if (extensions != null)
          {
@@ -1041,6 +1052,27 @@ public class V2ToV1Converter
       }
    }
 
+   public static V1PortletDescriptionResponse toV1PortletDescriptionResponse(PortletDescriptionResponse portletDescriptionResponse)
+   {
+      if (portletDescriptionResponse != null)
+      {
+         V1PortletDescriptionResponse result = WSRP1TypeFactory.createPortletDescriptionResponse(toV1PortletDescription(portletDescriptionResponse.getPortletDescription()));
+         result.setResourceList(toV1ResourceList(portletDescriptionResponse.getResourceList()));
+         
+         List<V1Extension> extensions = WSRPUtils.transform(portletDescriptionResponse.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
