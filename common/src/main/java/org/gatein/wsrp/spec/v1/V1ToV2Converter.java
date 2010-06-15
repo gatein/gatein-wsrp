@@ -31,14 +31,21 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
+import org.oasis.wsrp.v1.V1ClonePortlet;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1DestroyFailed;
+import org.oasis.wsrp.v1.V1DestroyPortlets;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1GetPortletProperties;
+import org.oasis.wsrp.v1.V1GetPortletPropertyDescription;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
+import org.oasis.wsrp.v1.V1InitCookie;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
@@ -47,8 +54,10 @@ import org.oasis.wsrp.v1.V1MarkupParams;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1ModelTypes;
+import org.oasis.wsrp.v1.V1ModifyRegistration;
 import org.oasis.wsrp.v1.V1NamedString;
 import org.oasis.wsrp.v1.V1Online;
+import org.oasis.wsrp.v1.V1PerformBlockingInteraction;
 import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
@@ -58,12 +67,14 @@ import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1PropertyList;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1ReleaseSessions;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
 import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1SessionContext;
+import org.oasis.wsrp.v1.V1SetPortletProperties;
 import org.oasis.wsrp.v1.V1StateChange;
 import org.oasis.wsrp.v1.V1Telecom;
 import org.oasis.wsrp.v1.V1TelephoneNum;
@@ -72,14 +83,21 @@ import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.V1UserProfile;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
+import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.GetPortletProperties;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -88,8 +106,10 @@ import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
+import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.Online;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -99,6 +119,7 @@ import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
@@ -106,6 +127,7 @@ import org.oasis.wsrp.v2.ResourceValue;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
+import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Telecom;
 import org.oasis.wsrp.v2.TelephoneNum;
@@ -856,7 +878,179 @@ public class V1ToV2Converter
          return null;
       }
    }
+   
+   public static GetMarkup toV2GetMarkup(V1GetMarkup getMarkup)
+   {
+      if (getMarkup != null)
+      {
+         PortletContext portletContext = toV2PortletContext(getMarkup.getPortletContext());
+         RuntimeContext runtimeContext = toV2RuntimeContext(getMarkup.getRuntimeContext());
+         MarkupParams markupParams = toV2MarkupParams(getMarkup.getMarkupParams());
+         GetMarkup result = WSRPTypeFactory.createMarkupRequest(portletContext, runtimeContext, markupParams);
+         
+         result.setRegistrationContext(toV2RegistrationContext(getMarkup.getRegistrationContext()));
+         result.setUserContext(toV2UserContext(getMarkup.getUserContext()));
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
 
+   public static ModifyRegistration toV2ModifyRegistration(V1ModifyRegistration modifyRegistration)
+   {
+      if (modifyRegistration != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(modifyRegistration.getRegistrationContext());
+         RegistrationData registrationData = toV2RegistrationData(modifyRegistration.getRegistrationData());
+         ModifyRegistration result = WSRPTypeFactory.createModifyRegistration(registrationContext, registrationData);
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static ClonePortlet toV2ClonePortlet(V1ClonePortlet clonePortlet)
+   {
+      if (clonePortlet != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(clonePortlet.getRegistrationContext());
+         PortletContext portletContext = toV2PortletContext(clonePortlet.getPortletContext());
+         UserContext userContext = toV2UserContext(clonePortlet.getUserContext());
+         ClonePortlet result = WSRPTypeFactory.createClonePortlet(registrationContext, portletContext, userContext);
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static PerformBlockingInteraction toV2PerformBlockingInteraction(V1PerformBlockingInteraction performBlockingInteraction)
+   {
+      if (performBlockingInteraction != null)
+      {
+         InteractionParams interactionParams = toV2InteractionParams(performBlockingInteraction.getInteractionParams());
+         MarkupParams markupParams = toV2MarkupParams(performBlockingInteraction.getMarkupParams());
+         PortletContext portletContext = toV2PortletContext(performBlockingInteraction.getPortletContext());
+         RuntimeContext runtimeContext = toV2RuntimeContext(performBlockingInteraction.getRuntimeContext());
+         
+         PerformBlockingInteraction result = WSRPTypeFactory.createPerformBlockingInteraction(portletContext, runtimeContext, markupParams, interactionParams);
+         
+         result.setRegistrationContext(toV2RegistrationContext(performBlockingInteraction.getRegistrationContext()));
+         result.setUserContext(toV2UserContext(performBlockingInteraction.getUserContext()));
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static DestroyPortlets toV2DestroyPortlets(V1DestroyPortlets destroyPortlets)
+   {
+      if (destroyPortlets != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(destroyPortlets.getRegistrationContext());
+         DestroyPortlets result = WSRPTypeFactory.createDestroyPortlets(registrationContext, destroyPortlets.getPortletHandles());         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static SetPortletProperties toV2SetPortletProperties(V1SetPortletProperties setPortletProperties)
+   {
+      if (setPortletProperties != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(setPortletProperties.getRegistrationContext());
+         PortletContext portletContext = toV2PortletContext(setPortletProperties.getPortletContext());
+         PropertyList propertyList = toV2PropertyList(setPortletProperties.getPropertyList());
+         SetPortletProperties result = WSRPTypeFactory.createSetPortletProperties(registrationContext, portletContext, propertyList);   
+         
+         result.setUserContext(toV2UserContext(setPortletProperties.getUserContext()));
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static GetPortletProperties toV2GetPortletProperties(V1GetPortletProperties getPortletProperties)
+   {
+      if (getPortletProperties != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(getPortletProperties.getRegistrationContext());
+         PortletContext portletContext = toV2PortletContext(getPortletProperties.getPortletContext());
+         UserContext userContext = toV2UserContext(getPortletProperties.getUserContext());
+         GetPortletProperties result = WSRPTypeFactory.createGetPortletProperties(registrationContext, portletContext, userContext, getPortletProperties.getNames());
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static ReleaseSessions toV2ReleaseSessions(V1ReleaseSessions releaseSessions)
+   {
+      if (releaseSessions != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(releaseSessions.getRegistrationContext());
+         ReleaseSessions result = WSRPTypeFactory.createReleaseSessions(registrationContext, releaseSessions.getSessionIDs());
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static InitCookie toV2InitCookie(V1InitCookie initCookie)
+   {
+      if (initCookie != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(initCookie.getRegistrationContext());
+         InitCookie result = WSRPTypeFactory.createInitCookie(registrationContext);
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static GetPortletPropertyDescription toV2GetPortletPropertyDescription(V1GetPortletPropertyDescription getPortletPropertyDescription)
+   {
+      if (getPortletPropertyDescription != null)
+      {
+         RegistrationContext registrationContext = toV2RegistrationContext(getPortletPropertyDescription.getRegistrationContext());
+         PortletContext portletContext = toV2PortletContext(getPortletPropertyDescription.getPortletContext());
+         UserContext userContext = toV2UserContext(getPortletPropertyDescription.getUserContext());
+         GetPortletPropertyDescription result = WSRPTypeFactory.createGetPortletPropertyDescription(registrationContext, portletContext, userContext, getPortletPropertyDescription.getDesiredLocales());
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    public static class V1ToV2Extension implements Function<V1Extension, Extension>
    {
       public Extension apply(V1Extension from)

@@ -26,19 +26,25 @@ package org.gatein.wsrp.spec.v1;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1Contact;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1DestroyFailed;
+import org.oasis.wsrp.v1.V1DestroyPortletsResponse;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1Fault;
+import org.oasis.wsrp.v1.V1GetPortletPropertyDescription;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
 import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1MarkupParams;
+import org.oasis.wsrp.v1.V1MarkupResponse;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1ModelDescription;
 import org.oasis.wsrp.v1.V1ModelTypes;
@@ -47,16 +53,19 @@ import org.oasis.wsrp.v1.V1Online;
 import org.oasis.wsrp.v1.V1PersonName;
 import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
+import org.oasis.wsrp.v1.V1PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v1.V1Postal;
 import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1PropertyList;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1RegistrationState;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1Resource;
 import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.V1ResourceValue;
+import org.oasis.wsrp.v1.V1ReturnAny;
 import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
 import org.oasis.wsrp.v1.V1SessionContext;
@@ -68,18 +77,22 @@ import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.V1UserProfile;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
@@ -88,16 +101,19 @@ import org.oasis.wsrp.v2.Online;
 import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.RegistrationState;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceValue;
+import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
@@ -134,6 +150,7 @@ public class V2ToV1Converter
    public static final V2ToV1UploadContext UPLOADCONTEXT = new V2ToV1UploadContext();
    public static final V2ToV1Property PROPERTY = new V2ToV1Property();
    public static final V2ToV1ResetProperty RESETPROPERTY = new V2ToV1ResetProperty();
+   public static final V2ToV1FailedPortlets FAILEDPORTLET = new V2ToV1FailedPortlets();
 
 
    public static V1PortletContext toV1PortletContext(PortletContext portletContext)
@@ -509,7 +526,6 @@ public class V2ToV1Converter
          }
          v1MarkupContext.setCacheControl(toV1CacheControl(markupContext.getCacheControl()));
          v1MarkupContext.setLocale(markupContext.getLocale());
-         v1MarkupContext.setMimeType(markupContext.getMimeType());
          v1MarkupContext.setPreferredTitle(markupContext.getPreferredTitle());
          v1MarkupContext.setRequiresUrlRewriting(markupContext.isRequiresRewriting());
          v1MarkupContext.setUseCachedMarkup(markupContext.isUseCachedItem());
@@ -898,7 +914,137 @@ public class V2ToV1Converter
          return null;
       }
    }
+   
+   public static V1MarkupResponse toV1MarkupResponse(MarkupResponse markupResponse)
+   {
+      if (markupResponse != null)
+      {
+         V1MarkupResponse result = WSRP1TypeFactory.createMarkupResponse(toV1MarkupContext(markupResponse.getMarkupContext()));
+         result.setSessionContext(toV1SessionContext(markupResponse.getSessionContext()));
 
+         List<V1Extension> extensions = WSRPUtils.transform(markupResponse.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1ReturnAny toV1ReturnAny(ReturnAny returnAny)
+   {
+      if (returnAny != null)
+      {
+         V1ReturnAny result = new V1ReturnAny();
+         
+         List<V1Extension> extensions = WSRPUtils.transform(returnAny.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static V1RegistrationState toV1RegistrationState(RegistrationState registrationState)
+   {
+      if (registrationState != null)
+      {
+         V1RegistrationState result = new V1RegistrationState();
+         result.setRegistrationState(registrationState.getRegistrationState());
+         
+         List<V1Extension> extensions = WSRPUtils.transform(registrationState.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1BlockingInteractionResponse toV1BlockingInteractionResponse(BlockingInteractionResponse blockingInteractionResponse)
+   {
+      if (blockingInteractionResponse != null)
+      {
+         V1UpdateResponse updateResponse = toV1UpdateResponse(blockingInteractionResponse.getUpdateResponse());
+         V1BlockingInteractionResponse result = WSRP1TypeFactory.createBlockingInteractionResponse(updateResponse);
+         
+         result.setRedirectURL(blockingInteractionResponse.getRedirectURL());
+         
+         List<V1Extension> extensions = WSRPUtils.transform(blockingInteractionResponse.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1DestroyPortletsResponse toV1DestroyPortlesResponse(DestroyPortletsResponse destroyPortletResponse)
+   {
+      if (destroyPortletResponse != null)
+      {
+         
+         List<V1DestroyFailed> destroyedFailed = WSRPUtils.transform(destroyPortletResponse.getFailedPortlets(), FAILEDPORTLET);
+         V1DestroyPortletsResponse result = WSRP1TypeFactory.createDestroyPortletsResponse(destroyedFailed);
+
+         List<V1Extension> extensions = WSRPUtils.transform(destroyPortletResponse.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
+   public static V1PortletPropertyDescriptionResponse toV1PortletPropertyDescriptionResponse(PortletPropertyDescriptionResponse portletPropertyDescriptionResponse)
+   {
+      if (portletPropertyDescriptionResponse != null)
+      {
+         //todo use WSRP1TypeFactory instead
+         V1PortletPropertyDescriptionResponse result = new V1PortletPropertyDescriptionResponse();
+         result.setModelDescription(toV1ModelDescription(portletPropertyDescriptionResponse.getModelDescription()));
+         result.setResourceList(toV1ResourceList(portletPropertyDescriptionResponse.getResourceList()));
+         
+         List<V1Extension> extensions = WSRPUtils.transform(portletPropertyDescriptionResponse.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+         
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
@@ -1190,4 +1336,29 @@ public class V2ToV1Converter
          }
       }
    }
+   
+   private static class V2ToV1FailedPortlets implements Function<FailedPortlets, V1DestroyFailed>
+   {
+      public V1ResetProperty apply(ResetProperty from)
+      {
+         if (from != null)
+         {
+            return WSRP1TypeFactory.createResetProperty(from.getName().toString());
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public V1DestroyFailed apply(FailedPortlets from)
+      {
+         if (from != null)
+         {
+            return WSRP1TypeFactory.createDestroyFailed(from.getPortletHandles().get(0), from.getReason().toString());
+         }
+         return null;
+      }
+   }
+   
 }
