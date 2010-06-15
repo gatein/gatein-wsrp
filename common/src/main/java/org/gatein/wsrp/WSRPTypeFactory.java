@@ -215,9 +215,7 @@ public class WSRPTypeFactory
 
    public static GetPortletDescription createGetPortletDescription(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "registration context");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "portlet context");
-      ParameterValidation.throwIllegalArgExceptionIfNull(userContext, "user context");
       GetPortletDescription description = new GetPortletDescription();
       description.setPortletContext(portletContext);
       description.setRegistrationContext(registrationContext);
@@ -255,12 +253,6 @@ public class WSRPTypeFactory
    public static GetPortletProperties createGetPortletProperties(RegistrationContext registrationContext, PortletContext portletContext, UserContext userContext, List<String> names)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
-      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "RegistrationContext");
-      ParameterValidation.throwIllegalArgExceptionIfNull(userContext, "UserContext");
-      if (!ParameterValidation.existsAndIsNotEmpty(names))
-      {
-         throw new IllegalArgumentException("Must pass a non-null list of property names");
-      }
       GetPortletProperties properties = new GetPortletProperties();
       properties.setRegistrationContext(registrationContext);
       properties.setPortletContext(portletContext);
@@ -272,7 +264,7 @@ public class WSRPTypeFactory
    /** ====== WSRP Response objects ====== * */
 
    public static BlockingInteractionResponse createBlockingInteractionResponse(UpdateResponse updateResponse)
-   {
+   { 
       if (updateResponse == null)
       {
          throw new IllegalArgumentException("BlockingInteractionResponse requires either an UpdateResponse or a redirect URL.");
@@ -311,6 +303,7 @@ public class WSRPTypeFactory
       PortletDescription portletDescription = new PortletDescription();
       portletDescription.setPortletHandle(context.getPortletHandle());
       portletDescription.getMarkupTypes().addAll(markupTypes);
+      
       return portletDescription;
    }
 
@@ -392,6 +385,7 @@ public class WSRPTypeFactory
 
    public static RuntimeContext createRuntimeContext(String userAuthentication)
    {
+      //TODO: portletInstanceKey and NameSpacepPrefix are also required;
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userAuthentication, "user authentication", "RuntimeContext");
 
       RuntimeContext runtimeContext = new RuntimeContext();
@@ -509,6 +503,7 @@ public class WSRPTypeFactory
     */
    public static SessionContext createSessionContext(String sessionID, int expires)
    {
+      //TODO: a sessionID is minOccurs 0, it shouldn't be required, expires also is minOccurs 0
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(sessionID, "session Id", "SessionContext");
       if (expires < 0)
       {
@@ -540,6 +535,7 @@ public class WSRPTypeFactory
     */
    public static RegistrationData createRegistrationData(String consumerName, boolean methodGetSupported)
    {
+      //TODO: consumer agent requirement
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "consumer name", "RegistrationData");
       RegistrationData regData = createDefaultRegistrationData();
       regData.setConsumerName(consumerName);
@@ -572,6 +568,7 @@ public class WSRPTypeFactory
 
    public static Property createProperty(QName name, String lang, String stringValue)
    {
+      //TODO: stringValue is not required
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "language", "Property");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(stringValue, "String value", "Property");
@@ -728,7 +725,6 @@ public class WSRPTypeFactory
     */
    public static ClientData createClientData(String userAgent)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userAgent, "user agent", "ClientData");
       ClientData clientData = new ClientData();
       clientData.setUserAgent(userAgent);
       return clientData;
@@ -954,7 +950,6 @@ public class WSRPTypeFactory
 
    public static DestroyPortlets createDestroyPortlets(RegistrationContext registrationContext, List<String> portletHandles)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "RegistrationContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletHandles, "Portlet handles");
       if (!ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
@@ -1060,6 +1055,8 @@ public class WSRPTypeFactory
 
    public static MarkupType createMarkupType(String mimeType, List<String> modeNames, List<String> windowStateNames, List<String> localeNames)
    {
+      //TODO: modes and windowstates might need a check for null 
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME Type", "MarkupContext");
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
 
@@ -1090,6 +1087,7 @@ public class WSRPTypeFactory
    {
       if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
+         //TODO: reason should be able to be null
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(reason, "Reason for failure", "createFailedPortlets");
          FailedPortlets failedPortlets = new FailedPortlets();
          failedPortlets.getPortletHandles().addAll(portletHandles);
