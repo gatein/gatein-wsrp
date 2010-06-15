@@ -26,7 +26,6 @@ package org.gatein.wsrp.spec.v1;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1CacheControl;
@@ -37,8 +36,6 @@ import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1DestroyPortletsResponse;
 import org.oasis.wsrp.v1.V1EmployerInfo;
 import org.oasis.wsrp.v1.V1Extension;
-import org.oasis.wsrp.v1.V1Fault;
-import org.oasis.wsrp.v1.V1GetPortletPropertyDescription;
 import org.oasis.wsrp.v1.V1InteractionParams;
 import org.oasis.wsrp.v1.V1ItemDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
@@ -86,7 +83,6 @@ import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
-import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -914,7 +910,7 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1MarkupResponse toV1MarkupResponse(MarkupResponse markupResponse)
    {
       if (markupResponse != null)
@@ -935,19 +931,19 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1ReturnAny toV1ReturnAny(ReturnAny returnAny)
    {
       if (returnAny != null)
       {
          V1ReturnAny result = new V1ReturnAny();
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(returnAny.getExtensions(), EXTENSION);
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
          }
-         
+
          return result;
       }
       else
@@ -962,13 +958,13 @@ public class V2ToV1Converter
       {
          V1RegistrationState result = new V1RegistrationState();
          result.setRegistrationState(registrationState.getRegistrationState());
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(registrationState.getExtensions(), EXTENSION);
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
          }
-         
+
          return result;
       }
       else
@@ -976,22 +972,22 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1BlockingInteractionResponse toV1BlockingInteractionResponse(BlockingInteractionResponse blockingInteractionResponse)
    {
       if (blockingInteractionResponse != null)
       {
          V1UpdateResponse updateResponse = toV1UpdateResponse(blockingInteractionResponse.getUpdateResponse());
          V1BlockingInteractionResponse result = WSRP1TypeFactory.createBlockingInteractionResponse(updateResponse);
-         
+
          result.setRedirectURL(blockingInteractionResponse.getRedirectURL());
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(blockingInteractionResponse.getExtensions(), EXTENSION);
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
          }
-         
+
          return result;
       }
       else
@@ -999,12 +995,12 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1DestroyPortletsResponse toV1DestroyPortlesResponse(DestroyPortletsResponse destroyPortletResponse)
    {
       if (destroyPortletResponse != null)
       {
-         
+
          List<V1DestroyFailed> destroyedFailed = WSRPUtils.transform(destroyPortletResponse.getFailedPortlets(), FAILEDPORTLET);
          V1DestroyPortletsResponse result = WSRP1TypeFactory.createDestroyPortletsResponse(destroyedFailed);
 
@@ -1013,7 +1009,7 @@ public class V2ToV1Converter
          {
             result.getExtensions().addAll(extensions);
          }
-         
+
          return result;
       }
       else
@@ -1021,7 +1017,7 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1PortletPropertyDescriptionResponse toV1PortletPropertyDescriptionResponse(PortletPropertyDescriptionResponse portletPropertyDescriptionResponse)
    {
       if (portletPropertyDescriptionResponse != null)
@@ -1030,13 +1026,13 @@ public class V2ToV1Converter
          V1PortletPropertyDescriptionResponse result = new V1PortletPropertyDescriptionResponse();
          result.setModelDescription(toV1ModelDescription(portletPropertyDescriptionResponse.getModelDescription()));
          result.setResourceList(toV1ResourceList(portletPropertyDescriptionResponse.getResourceList()));
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(portletPropertyDescriptionResponse.getExtensions(), EXTENSION);
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
          }
-         
+
          return result;
       }
       else
@@ -1044,7 +1040,7 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
@@ -1336,7 +1332,7 @@ public class V2ToV1Converter
          }
       }
    }
-   
+
    private static class V2ToV1FailedPortlets implements Function<FailedPortlets, V1DestroyFailed>
    {
       public V1ResetProperty apply(ResetProperty from)
@@ -1360,5 +1356,5 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
 }

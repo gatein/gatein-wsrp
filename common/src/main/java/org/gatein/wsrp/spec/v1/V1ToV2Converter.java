@@ -31,7 +31,6 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1ClonePortlet;
@@ -83,7 +82,6 @@ import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.V1UserProfile;
-import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
@@ -878,7 +876,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static GetMarkup toV2GetMarkup(V1GetMarkup getMarkup)
    {
       if (getMarkup != null)
@@ -887,10 +885,10 @@ public class V1ToV2Converter
          RuntimeContext runtimeContext = toV2RuntimeContext(getMarkup.getRuntimeContext());
          MarkupParams markupParams = toV2MarkupParams(getMarkup.getMarkupParams());
          GetMarkup result = WSRPTypeFactory.createMarkupRequest(portletContext, runtimeContext, markupParams);
-         
+
          result.setRegistrationContext(toV2RegistrationContext(getMarkup.getRegistrationContext()));
          result.setUserContext(toV2UserContext(getMarkup.getUserContext()));
-         
+
          return result;
       }
       else
@@ -914,7 +912,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static ClonePortlet toV2ClonePortlet(V1ClonePortlet clonePortlet)
    {
       if (clonePortlet != null)
@@ -931,7 +929,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static PerformBlockingInteraction toV2PerformBlockingInteraction(V1PerformBlockingInteraction performBlockingInteraction)
    {
       if (performBlockingInteraction != null)
@@ -940,12 +938,12 @@ public class V1ToV2Converter
          MarkupParams markupParams = toV2MarkupParams(performBlockingInteraction.getMarkupParams());
          PortletContext portletContext = toV2PortletContext(performBlockingInteraction.getPortletContext());
          RuntimeContext runtimeContext = toV2RuntimeContext(performBlockingInteraction.getRuntimeContext());
-         
+
          PerformBlockingInteraction result = WSRPTypeFactory.createPerformBlockingInteraction(portletContext, runtimeContext, markupParams, interactionParams);
-         
+
          result.setRegistrationContext(toV2RegistrationContext(performBlockingInteraction.getRegistrationContext()));
          result.setUserContext(toV2UserContext(performBlockingInteraction.getUserContext()));
-         
+
          return result;
       }
       else
@@ -953,13 +951,13 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static DestroyPortlets toV2DestroyPortlets(V1DestroyPortlets destroyPortlets)
    {
       if (destroyPortlets != null)
       {
          RegistrationContext registrationContext = toV2RegistrationContext(destroyPortlets.getRegistrationContext());
-         DestroyPortlets result = WSRPTypeFactory.createDestroyPortlets(registrationContext, destroyPortlets.getPortletHandles());         
+         DestroyPortlets result = WSRPTypeFactory.createDestroyPortlets(registrationContext, destroyPortlets.getPortletHandles());
          return result;
       }
       else
@@ -967,7 +965,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static SetPortletProperties toV2SetPortletProperties(V1SetPortletProperties setPortletProperties)
    {
       if (setPortletProperties != null)
@@ -975,8 +973,8 @@ public class V1ToV2Converter
          RegistrationContext registrationContext = toV2RegistrationContext(setPortletProperties.getRegistrationContext());
          PortletContext portletContext = toV2PortletContext(setPortletProperties.getPortletContext());
          PropertyList propertyList = toV2PropertyList(setPortletProperties.getPropertyList());
-         SetPortletProperties result = WSRPTypeFactory.createSetPortletProperties(registrationContext, portletContext, propertyList);   
-         
+         SetPortletProperties result = WSRPTypeFactory.createSetPortletProperties(registrationContext, portletContext, propertyList);
+
          result.setUserContext(toV2UserContext(setPortletProperties.getUserContext()));
 
          return result;
@@ -986,7 +984,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static GetPortletProperties toV2GetPortletProperties(V1GetPortletProperties getPortletProperties)
    {
       if (getPortletProperties != null)
@@ -1003,14 +1001,14 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static ReleaseSessions toV2ReleaseSessions(V1ReleaseSessions releaseSessions)
    {
       if (releaseSessions != null)
       {
          RegistrationContext registrationContext = toV2RegistrationContext(releaseSessions.getRegistrationContext());
          ReleaseSessions result = WSRPTypeFactory.createReleaseSessions(registrationContext, releaseSessions.getSessionIDs());
-         
+
          return result;
       }
       else
@@ -1018,7 +1016,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static InitCookie toV2InitCookie(V1InitCookie initCookie)
    {
       if (initCookie != null)
@@ -1033,7 +1031,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static GetPortletPropertyDescription toV2GetPortletPropertyDescription(V1GetPortletPropertyDescription getPortletPropertyDescription)
    {
       if (getPortletPropertyDescription != null)
@@ -1042,7 +1040,7 @@ public class V1ToV2Converter
          PortletContext portletContext = toV2PortletContext(getPortletPropertyDescription.getPortletContext());
          UserContext userContext = toV2UserContext(getPortletPropertyDescription.getUserContext());
          GetPortletPropertyDescription result = WSRPTypeFactory.createGetPortletPropertyDescription(registrationContext, portletContext, userContext, getPortletPropertyDescription.getDesiredLocales());
-         
+
          return result;
       }
       else
@@ -1050,7 +1048,7 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
+
    public static class V1ToV2Extension implements Function<V1Extension, Extension>
    {
       public Extension apply(V1Extension from)

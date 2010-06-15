@@ -23,26 +23,20 @@
 
 package org.gatein.wsrp.producer.v1;
 
-import java.security.AccessControlException;
-import java.util.List;
-
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.registration.RegistrationManager;
-import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
-import org.gatein.wsrp.spec.v1.V2ToV1Converter.V2ToV1NamedString;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1ClonePortlet;
 import org.oasis.wsrp.v1.V1DestroyPortlets;
 import org.oasis.wsrp.v1.V1DestroyPortletsResponse;
-import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetPortletDescription;
 import org.oasis.wsrp.v1.V1GetPortletProperties;
@@ -211,8 +205,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-      ReturnAny returnAny = producer.deregister(V1ToV2Converter.toV2RegistrationContext(deregister));
-      return V2ToV1Converter.toV1ReturnAny(returnAny);
+         ReturnAny returnAny = producer.deregister(V1ToV2Converter.toV2RegistrationContext(deregister));
+         return V2ToV1Converter.toV1ReturnAny(returnAny);
       }
       catch (InvalidRegistration invalidRegistration)
       {
@@ -228,8 +222,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-      RegistrationState registrationState = producer.modifyRegistration(V1ToV2Converter.toV2ModifyRegistration(modifyRegistration));
-      return V2ToV1Converter.toV1RegistrationState(registrationState);
+         RegistrationState registrationState = producer.modifyRegistration(V1ToV2Converter.toV2ModifyRegistration(modifyRegistration));
+         return V2ToV1Converter.toV1RegistrationState(registrationState);
       }
       catch (MissingParameters missingParameters)
       {
@@ -243,7 +237,7 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, invalidRegistration);
       }
-      
+
    }
 
    public V1PortletDescriptionResponse getPortletDescription(V1GetPortletDescription getPortletDescription) throws V1AccessDenied, V1InvalidHandle, V1InvalidUserCategory, V1InconsistentParameters, V1MissingParameters, V1InvalidRegistration, V1OperationFailed
@@ -255,8 +249,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-      MarkupResponse markupResponse = producer.getMarkup(V1ToV2Converter.toV2GetMarkup(getMarkup));
-      return V2ToV1Converter.toV1MarkupResponse(markupResponse);
+         MarkupResponse markupResponse = producer.getMarkup(V1ToV2Converter.toV2GetMarkup(getMarkup));
+         return V2ToV1Converter.toV1MarkupResponse(markupResponse);
       }
       catch (UnsupportedMimeType unsupportedMimeType)
       {
@@ -316,8 +310,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-      PortletContext portletContext = producer.clonePortlet(V1ToV2Converter.toV2ClonePortlet(clonePortlet));
-      return V2ToV1Converter.toV1PortletContext(portletContext);
+         PortletContext portletContext = producer.clonePortlet(V1ToV2Converter.toV2ClonePortlet(clonePortlet));
+         return V2ToV1Converter.toV1PortletContext(portletContext);
       }
       catch (AccessDenied accessDenied)
       {
@@ -563,8 +557,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-      PortletPropertyDescriptionResponse portletPropertyDescriptionResponse = producer.getPortletPropertyDescription(V1ToV2Converter.toV2GetPortletPropertyDescription(getPortletPropertyDescription));
-      return V2ToV1Converter.toV1PortletPropertyDescriptionResponse(portletPropertyDescriptionResponse);
+         PortletPropertyDescriptionResponse portletPropertyDescriptionResponse = producer.getPortletPropertyDescription(V1ToV2Converter.toV2GetPortletPropertyDescription(getPortletPropertyDescription));
+         return V2ToV1Converter.toV1PortletPropertyDescriptionResponse(portletPropertyDescriptionResponse);
       }
       catch (MissingParameters missingParameters)
       {
