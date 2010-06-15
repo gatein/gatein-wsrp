@@ -58,6 +58,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    private RegistrationPolicy policy;
    private String policyClassName;
    private String validatorClassName;
+   private long lastModified;
 
    private Map<QName, RegistrationPropertyDescription> registrationProperties;
 
@@ -69,11 +70,22 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       this();
       this.requiresRegistration = requiresRegistration;
       this.fullServiceDescriptionRequiresRegistration = fullServiceDescriptionRequiresRegistration;
+      modifyNow();
    }
 
    public ProducerRegistrationRequirementsImpl()
    {
       registrationProperties = new HashMap<QName, RegistrationPropertyDescription>(7);
+   }
+
+   private void modifyNow()
+   {
+      lastModified = System.currentTimeMillis();
+   }
+
+   public long getLastModified()
+   {
+      return lastModified;
    }
 
    public boolean isRegistrationRequired()
@@ -89,7 +101,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          clearRegistrationProperties();
       }
 
-      this.requiresRegistration = requiresRegistration;
+      if (this.requiresRegistration != requiresRegistration)
+      {
+         this.requiresRegistration = requiresRegistration;
+         modifyNow();
+      }
    }
 
    public boolean isRegistrationRequiredForFullDescription()
@@ -99,7 +115,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationRequiredForFullDescription(boolean fullServiceDescriptionRequiresRegistration)
    {
-      this.fullServiceDescriptionRequiresRegistration = fullServiceDescriptionRequiresRegistration;
+      if (this.fullServiceDescriptionRequiresRegistration != fullServiceDescriptionRequiresRegistration)
+      {
+         this.fullServiceDescriptionRequiresRegistration = fullServiceDescriptionRequiresRegistration;
+         modifyNow();
+      }
    }
 
    public Map<QName, RegistrationPropertyDescription> getRegistrationProperties()
@@ -114,6 +134,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "Property name");
 
       registrationProperties.put(name, propertyDescription);
+      modifyNow();
       propertyDescription.setValueChangeListener(this);
       notifyRegistrationPropertyChangeListeners();
    }
@@ -137,13 +158,13 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public boolean acceptValueFor(String propertyName, Object value)
    {
-      return acceptValueFor(new QName(propertyName), value);
+      return acceptValueFor(QName.valueOf(propertyName), value);
    }
 
    public RegistrationPropertyDescription getRegistrationPropertyWith(String name)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "Property name", null);
-      return getRegistrationPropertyWith(new QName(name));
+      return getRegistrationPropertyWith(QName.valueOf(name));
    }
 
 
@@ -162,19 +183,23 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    public void removeRegistrationProperty(QName propertyName)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyName, "Property name");
-      registrationProperties.remove(propertyName);
-      notifyRegistrationPropertyChangeListeners();
+      if (registrationProperties.remove(propertyName) != null)
+      {
+         modifyNow();
+         notifyRegistrationPropertyChangeListeners();
+      }
    }
 
    public void clearRegistrationProperties()
    {
       registrationProperties.clear();
+      modifyNow();
       notifyRegistrationPropertyChangeListeners();
    }
 
    public void removeRegistrationProperty(String propertyName)
    {
-      removeRegistrationProperty(new QName(propertyName));
+      removeRegistrationProperty(QName.valueOf(propertyName));
    }
 
    /*
@@ -183,6 +208,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void valueHasChanged(RegistrationPropertyDescription originatingProperty, Object oldValue, Object newValue, boolean isName)
    {
+      modifyNow();
       notifyRegistrationPropertyChangeListeners();
       if (isName && oldValue instanceof QName)
       {
@@ -196,9 +222,10 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void notifyRegistrationPropertyChangeListeners()
    {
+      Map<QName, RegistrationPropertyDescription> newRegistrationProperties = Collections.unmodifiableMap(registrationProperties);
       for (RegistrationPropertyChangeListener listener : propertyChangeListeners)
       {
-         listener.propertiesHaveChanged(registrationProperties);
+         listener.propertiesHaveChanged(newRegistrationProperties);
       }
    }
 
@@ -275,6 +302,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
             }
          }
 
+         modifyNow();
          notifyRegistrationPolicyChangeListeners();
       }
    }
@@ -291,69 +319,80 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void reloadPolicyFrom(String policyClassName, String validatorClassName)
    {
-      if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
+      // only reload if we don't already have a policy or if the requested policy/validator classes are different
+      // from the ones we already have 
+      if (
+         policy == null ||
+            (
+               ParameterValidation.isOldAndNewDifferent(this.policyClassName, policyClassName) &&
+                  ParameterValidation.isOldAndNewDifferent(this.validatorClassName, validatorClassName)
+            )
+         )
       {
-         log.debug("Using registration policy: " + policyClassName);
-         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-         try
+         if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
-            Class policyClass = loader.loadClass(policyClassName);
-            if (!RegistrationPolicy.class.isAssignableFrom(policyClass))
-            {
-               throw new IllegalArgumentException("Policy class does not implement RegistrationPolicy!");
-            }
-            RegistrationPolicy policy = (RegistrationPolicy)policyClass.newInstance();
-
-            // wrap policy so that we can perform minimal sanitization of values
-            RegistrationPolicyWrapper wrapper = new RegistrationPolicyWrapper(policy);
-
-            setPolicy(wrapper);
-         }
-         catch (ClassNotFoundException e)
-         {
-            throw new IllegalArgumentException("Couldn't find policy class " + policyClassName + ".", e);
-         }
-         catch (Exception e)
-         {
-            throw new IllegalArgumentException("Couldn't instantiate policy class.", e);
-         }
-      }
-      else
-      {
-         log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
-         RegistrationPropertyValidator validator;
-         if (validatorClassName != null && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
-         {
-            log.debug("Using registration property validator: " + validatorClassName);
+            log.debug("Using registration policy: " + policyClassName);
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try
             {
-               Class validatorClass = loader.loadClass(validatorClassName);
-               if (!RegistrationPropertyValidator.class.isAssignableFrom(validatorClass))
+               Class policyClass = loader.loadClass(policyClassName);
+               if (!RegistrationPolicy.class.isAssignableFrom(policyClass))
                {
-                  throw new IllegalArgumentException("Validator class does not implement RegistrationPropertyValidator!");
+                  throw new IllegalArgumentException("Policy class does not implement RegistrationPolicy!");
                }
-               validator = (RegistrationPropertyValidator)validatorClass.newInstance();
+               RegistrationPolicy policy = (RegistrationPolicy)policyClass.newInstance();
+
+               // wrap policy so that we can perform minimal sanitization of values
+               RegistrationPolicyWrapper wrapper = new RegistrationPolicyWrapper(policy);
+
+               setPolicy(wrapper);
             }
             catch (ClassNotFoundException e)
             {
-               throw new IllegalArgumentException("Couldn't find validator class " + validatorClassName + ".", e);
+               throw new IllegalArgumentException("Couldn't find policy class " + policyClassName + ".", e);
             }
             catch (Exception e)
             {
-               throw new IllegalArgumentException("Couldn't instantiate validator class.", e);
+               throw new IllegalArgumentException("Couldn't instantiate policy class.", e);
             }
          }
          else
          {
-            log.debug("Using default registration property validator: " + DEFAULT_VALIDATOR_CLASS_NAME);
-            validator = new DefaultRegistrationPropertyValidator();
+            log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
+            RegistrationPropertyValidator validator;
+            if (validatorClassName != null && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
+            {
+               log.debug("Using registration property validator: " + validatorClassName);
+               ClassLoader loader = Thread.currentThread().getContextClassLoader();
+               try
+               {
+                  Class validatorClass = loader.loadClass(validatorClassName);
+                  if (!RegistrationPropertyValidator.class.isAssignableFrom(validatorClass))
+                  {
+                     throw new IllegalArgumentException("Validator class does not implement RegistrationPropertyValidator!");
+                  }
+                  validator = (RegistrationPropertyValidator)validatorClass.newInstance();
+               }
+               catch (ClassNotFoundException e)
+               {
+                  throw new IllegalArgumentException("Couldn't find validator class " + validatorClassName + ".", e);
+               }
+               catch (Exception e)
+               {
+                  throw new IllegalArgumentException("Couldn't instantiate validator class.", e);
+               }
+            }
+            else
+            {
+               log.debug("Using default registration property validator: " + DEFAULT_VALIDATOR_CLASS_NAME);
+               validator = new DefaultRegistrationPropertyValidator();
+            }
+
+
+            DefaultRegistrationPolicy policy = new DefaultRegistrationPolicy();
+            policy.setValidator(validator);
+            setPolicy(policy);
          }
-
-
-         DefaultRegistrationPolicy policy = new DefaultRegistrationPolicy();
-         policy.setValidator(validator);
-         setPolicy(policy);
       }
    }
 
@@ -368,6 +407,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          {
             registrationProperties.remove(oldName);
             registrationProperties.put(propertyDescription.getName(), propertyDescription);
+            modifyNow();
          }
       }
    }
