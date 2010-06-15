@@ -62,14 +62,13 @@ public interface ProducerConfiguration
    /**
     * Indicates whether or not the Producer requires the Consumer to assist with cookie support of the HTTP protocol.
     * Supported values and semantics: <ul> <li>{@link org.oasis.wsrp.v2.CookieProtocol#NONE}: The Producer does not need
-    * the Consumer to ever invoke {@link org.oasis.wsrp.v2.WSRPV1MarkupPortType#initCookie(org.oasis.wsrp.v2.RegistrationContext)}.</li>
-    * <li>{@link org.oasis.wsrp.v2.CookieProtocol#PER_USER}: The Consumer MUST invoke {@link
-    * org.oasis.wsrp.v2.WSRPV1MarkupPortType#initCookie(org.oasis.wsrp.v2.RegistrationContext)} once per user of the
-    * Consumer, and associate any returned cookies with subsequent invocations on behalf of that user.</li> <li>{@link
-    * org.oasis.wsrp.v2.CookieProtocol#PER_GROUP}: The Consumer MUST invoke {@link org.oasis.wsrp.v2.WSRPV1MarkupPortType#initCookie(org.oasis.wsrp.v2.RegistrationContext)}
-    * once per unique groupID from the PortletDescriptions for the Portlets it is aggregating on a page for each user of
-    * the Consumer, and associate any returned cookies with subsequent invocations on behalf of that user targeting
-    * Portlets with identical groupIDs.</li> </ul>
+    * the Consumer to ever invoke {@link org.oasis.wsrp.v2.WSRPV2MarkupPortType#initCookie}.</li> <li>{@link
+    * org.oasis.wsrp.v2.CookieProtocol#PER_USER}: The Consumer MUST invoke {@link org.oasis.wsrp.v2.WSRPV2MarkupPortType#initCookie}
+    * once per user of the Consumer, and associate any returned cookies with subsequent invocations on behalf of that
+    * user.</li> <li>{@link org.oasis.wsrp.v2.CookieProtocol#PER_GROUP}: The Consumer MUST invoke {@link
+    * org.oasis.wsrp.v2.WSRPV2MarkupPortType#initCookie} once per unique groupID from the PortletDescriptions for the
+    * Portlets it is aggregating on a page for each user of the Consumer, and associate any returned cookies with
+    * subsequent invocations on behalf of that user targeting Portlets with identical groupIDs.</li> </ul>
     *
     * @return the level of cookie support required from the Consumer
     */
