@@ -45,6 +45,7 @@ import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
@@ -62,6 +63,7 @@ import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -264,7 +266,7 @@ public class WSRPTypeFactory
    /** ====== WSRP Response objects ====== * */
 
    public static BlockingInteractionResponse createBlockingInteractionResponse(UpdateResponse updateResponse)
-   { 
+   {
       if (updateResponse == null)
       {
          throw new IllegalArgumentException("BlockingInteractionResponse requires either an UpdateResponse or a redirect URL.");
@@ -288,23 +290,6 @@ public class WSRPTypeFactory
    public static UpdateResponse createUpdateResponse()
    {
       return new UpdateResponse();
-   }
-
-   public static PortletDescription createPortletDescription(org.gatein.pc.api.PortletContext portletContext, List<MarkupType> markupTypes)
-   {
-      PortletContext context = WSRPUtils.convertToWSRPPortletContext(portletContext);
-
-      ParameterValidation.throwIllegalArgExceptionIfNull(markupTypes, "MarkupType");
-      if (markupTypes.isEmpty())
-      {
-         throw new IllegalArgumentException("Cannot create a PortletDescription with an empty list of MarkupTypes!");
-      }
-
-      PortletDescription portletDescription = new PortletDescription();
-      portletDescription.setPortletHandle(context.getPortletHandle());
-      portletDescription.getMarkupTypes().addAll(markupTypes);
-      
-      return portletDescription;
    }
 
    public static PortletDescription createPortletDescription(String portletHandle, List<MarkupType> markupTypes)
@@ -1154,5 +1139,21 @@ public class WSRPTypeFactory
       }
 
       return null;
+   }
+
+   public static ParameterDescription createParameterDescription(String identifier)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(identifier, "Parameter identifier", null);
+      ParameterDescription desc = new ParameterDescription();
+      desc.setIdentifier(identifier);
+      return desc;
+   }
+
+   public static EventDescription createEventDescription(QName name)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
+      EventDescription desc = new EventDescription();
+      desc.setName(name);
+      return desc;
    }
 }
