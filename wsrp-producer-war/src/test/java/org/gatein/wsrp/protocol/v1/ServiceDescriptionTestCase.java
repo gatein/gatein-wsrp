@@ -33,6 +33,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
@@ -127,7 +128,7 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       checkRequiredRegistrationProperties(sd, regProp);
 
       // No offered portlets without registration!
-      ExtendedAssert.assertNull(sd.getOfferedPortlets());
+      ExtendedAssert.assertTrue("Should not get any offered portlets back. Retrieved " + sd.getOfferedPortlets(), (sd.getOfferedPortlets() == null || sd.getOfferedPortlets().isEmpty()));
    }
 
    @Test
@@ -192,6 +193,6 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       List<V1PropertyDescription> propertyDescriptions = registrationPropertyDescription.getPropertyDescriptions();
       ExtendedAssert.assertNotNull(propertyDescriptions);
       ExtendedAssert.assertEquals(1, propertyDescriptions.size());
-      assertEquals(WSRPUtils.convertToPropertyDescription(regProp), propertyDescriptions.get(0));
+      assertEquals(V2ToV1Converter.toV1PropertyDescription(WSRPUtils.convertToPropertyDescription(regProp)), propertyDescriptions.get(0));
    }
 }

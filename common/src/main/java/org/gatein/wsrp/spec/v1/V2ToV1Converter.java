@@ -1073,6 +1073,27 @@ public class V2ToV1Converter
       }
    }
    
+   public static V1PropertyDescription toV1PropertyDescription(PropertyDescription propertyDescription)
+   {
+      if (propertyDescription != null)
+      {
+         V1PropertyDescription result = WSRP1TypeFactory.createPropertyDescription(propertyDescription.getName().toString(), propertyDescription.getType());
+         result.setHint(toV1LocalizedString(propertyDescription.getHint()));
+         result.setLabel(toV1LocalizedString(propertyDescription.getLabel()));
+         List<V1Extension> extensions = WSRPUtils.transform(propertyDescription.getExtensions(), EXTENSION);
+         if (extensions != null)
+         {
+            result.getExtensions().addAll(extensions);
+         }
+
+         return result;
+      }
+      else
+      {
+         return null;
+      }
+   }
+   
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)
@@ -1260,23 +1281,7 @@ public class V2ToV1Converter
 
       public V1PropertyDescription apply(PropertyDescription from)
       {
-         if (from != null)
-         {
-            V1PropertyDescription result = WSRP1TypeFactory.createPropertyDescription(from.getName().toString(), from.getType());
-            result.setHint(toV1LocalizedString(from.getHint()));
-            result.setLabel(toV1LocalizedString(from.getLabel()));
-            List<V1Extension> extensions = WSRPUtils.transform(from.getExtensions(), EXTENSION);
-            if (extensions != null)
-            {
-               result.getExtensions().addAll(extensions);
-            }
-
-            return result;
-         }
-         else
-         {
-            return null;
-         }
+         return toV1PropertyDescription(from);
       }
    }
 
