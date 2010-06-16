@@ -61,6 +61,7 @@ import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -246,7 +247,7 @@ public abstract class RequestProcessor
 
       // use user-desired locales
       List<String> locales = params.getLocales();
-      List<String> supportedLocales = markupType.getLocales();
+      List<String> supportedLocales = new ArrayList<String>(markupType.getLocales());
       if (supportedLocales != null)
       {
          // reset markup type locales
