@@ -305,6 +305,7 @@
              </container>
              <wait>false</wait>
              <configuration>
+               <home>${basedir}/target/cargo</home>
                <properties>
 		  <cargo.jvmargs>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs>                 
                </properties>
