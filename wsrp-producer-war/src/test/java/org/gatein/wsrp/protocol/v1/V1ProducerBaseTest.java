@@ -232,10 +232,12 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
             ExtendedAssert.fail(message + "Different classes or not both null.");
          }
 
-
          assertEquals(message + "Extensions", expected.getExtensions(), tested.getExtensions());
          assertEquals(message + "Locales", expected.getLocales(), tested.getLocales());
          assertEquals(message + "Modes", expected.getModes(), tested.getModes());
+         
+         Collections.sort(expected.getWindowStates());
+         Collections.sort(tested.getWindowStates());
          assertEquals(message + "Window states", expected.getWindowStates(), tested.getWindowStates());
       }
    }
