@@ -292,7 +292,10 @@
            <configuration>
              <container>
                <containerId>jboss51x</containerId>
-               <home>${JBOSS_HOME}</home>
+               <zipUrlInstaller>
+                 <url>${JBOSS_ZIP_URL}</url>
+                 <installDir>${basedir}/target/servers</installDir>
+               </zipUrlInstaller>
                <log>${basedir}/target/jboss51x/container.log</log>
                <systemProperties>
                  <!-- Since the tests run on the server, we need to pass system properties to the 
