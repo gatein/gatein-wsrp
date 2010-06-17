@@ -25,6 +25,7 @@ package org.gatein.wsrp.protocol.v2;
 
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.ProducerHolder;
+import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.oasis.wsrp.v2.GetServiceDescription;
@@ -35,11 +36,23 @@ import org.oasis.wsrp.v2.GetServiceDescription;
  */
 public class V2ProducerBaseTest extends WSRPProducerBaseTest
 {
-   protected WSRP2Producer producer = ProducerHolder.getV2Producer();
+   protected WSRP2Producer producer = ProducerHolder.getProducer(true);
+
+   public V2ProducerBaseTest() throws Exception
+   {
+      this("V2ProducerBaseTest");
+   }
 
    protected V2ProducerBaseTest(String name) throws Exception
    {
       super(name);
+      producer.start();
+   }
+
+   @Override
+   protected WSRPProducer getProducer()
+   {
+      return producer;
    }
 
    protected GetServiceDescription getNoRegistrationServiceDescriptionRequest()

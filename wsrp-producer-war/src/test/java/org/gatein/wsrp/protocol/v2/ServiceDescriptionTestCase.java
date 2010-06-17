@@ -24,8 +24,16 @@
 package org.gatein.wsrp.protocol.v2;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.ServiceDescription;
@@ -38,10 +46,38 @@ import java.util.List;
  */
 public class ServiceDescriptionTestCase extends V2ProducerBaseTest
 {
-   protected ServiceDescriptionTestCase() throws Exception
+   public ServiceDescriptionTestCase() throws Exception
    {
       super(ServiceDescriptionTestCase.class.getSimpleName());
    }
+
+   @Deployment
+   public static JavaArchive createDeployment()
+   {
+      return ShrinkWrap.create("test.jar", JavaArchive.class);
+   }
+
+   @Before
+   public void setUp() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.setUp();
+         //hack to get around having to have a httpservletrequest when accessing the producer services
+         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+      }
+   }
+
+   @After
+   public void tearDown() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.tearDown();
+      }
+   }
+
 
    public void testSupportedOptions() throws OperationFailed, InvalidRegistration
    {

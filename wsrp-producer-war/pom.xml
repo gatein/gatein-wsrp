@@ -128,7 +128,7 @@
          <scope>test</scope>
          <version>${project.version}</version>
       </dependency>
-     <dependency>
+      <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-controller</artifactId>
          <scope>test</scope>
@@ -142,10 +142,10 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-api</artifactId>
-        <version>1.0.0.Alpha2</version>
-        <scope>test</scope>
+         <groupId>org.jboss.arquillian</groupId>
+         <artifactId>arquillian-api</artifactId>
+         <version>1.0.0.Alpha2</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
@@ -164,19 +164,19 @@
          <artifactId>arquillian-jbossas-remote-51</artifactId>
          <version>1.0.0.Alpha2</version>
          <scope>test</scope>
-       </dependency>
-      <dependency>
-        <groupId>org.jboss.jbossas</groupId>
-        <artifactId>jboss-as-client</artifactId>
-        <version>5.1.0.GA</version>
-        <scope>test</scope>
-        <type>pom</type>
       </dependency>
-        <dependency>
-        <groupId>org.jboss.jbossas</groupId>
-        <artifactId>jboss-server-manager</artifactId>
-        <version>1.0.3.GA</version>
-        <scope>test</scope>
+      <dependency>
+         <groupId>org.jboss.jbossas</groupId>
+         <artifactId>jboss-as-client</artifactId>
+         <version>5.1.0.GA</version>
+         <scope>test</scope>
+         <type>pom</type>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.jbossas</groupId>
+         <artifactId>jboss-server-manager</artifactId>
+         <version>1.0.3.GA</version>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 
@@ -195,59 +195,59 @@
             </configuration>
          </plugin>
          <plugin>
-           <artifactId>maven-jar-plugin</artifactId>
-           <configuration>
-           </configuration>
-           <executions>
-             <execution>
-               <goals>
-                 <goal>test-jar</goal>
-               </goals>
-             </execution>
-           </executions>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>test-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
          <plugin>
-         <artifactId>maven-assembly-plugin</artifactId>
-         <configuration>
-           <finalName>test</finalName>
-           <appendAssemblyId>true</appendAssemblyId>
-           <!-- we don't want to add these archives into the repo -->
-           <attach>false</attach>
-           <outputDirectory>${project.build.directory}/test-archives</outputDirectory>
-           <descriptors>
-             <descriptor>src/test/assembly/test-producer.xml</descriptor>
-             <descriptor>src/test/assembly/test-markup-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-renderparam-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-session-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-basic-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-dispatcher-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-getlocales-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-encodeurl-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-usercontext-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-multivalued-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-implicitcloning-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-resource-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-resourcenoencodeurl-portlet.xml</descriptor>
-             <descriptor>src/test/assembly/test-applicationscope-portlet.xml</descriptor>
-           </descriptors>
-         </configuration>
-          <executions>
-            <execution>
-              <id>assemble</id>
-              <!-- note that package phase happens after the test phase and before the integration test phase -->
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-            </execution>
-          </executions>
-          <dependencies>
-          <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jboss-packaging-maven-plugin</artifactId>
-            <version>2.1.1</version>
-          </dependency>
-        </dependencies>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+               <finalName>test</finalName>
+               <appendAssemblyId>true</appendAssemblyId>
+               <!-- we don't want to add these archives into the repo -->
+               <attach>false</attach>
+               <outputDirectory>${project.build.directory}/test-archives</outputDirectory>
+               <descriptors>
+                  <descriptor>src/test/assembly/test-producer.xml</descriptor>
+                  <descriptor>src/test/assembly/test-markup-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-renderparam-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-session-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-basic-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-dispatcher-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-getlocales-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-encodeurl-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-usercontext-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-multivalued-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-implicitcloning-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-resource-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-resourcenoencodeurl-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-applicationscope-portlet.xml</descriptor>
+               </descriptors>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>assemble</id>
+                  <!-- note that package phase happens after the test phase and before the integration test phase -->
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>jboss-packaging-maven-plugin</artifactId>
+                  <version>2.1.1</version>
+               </dependency>
+            </dependencies>
 
          </plugin>
 
@@ -262,104 +262,99 @@
                </excludes>
             </configuration>
             <executions>
-              <execution>
-                <id>integration-tests</id>
-                <phase>integration-test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>false</skip>
-                  <!--<skip>false</skip>-->
-                  <includes>
-                    <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
-                    <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
-                   <!-- <include>org/gatein/wsrp/protocol/v1/ReleaseSessionTestCase.class</include> -->
-                    <include>org/gatein/wsrp/protocol/v1/ServiceDescriptionTestCase.class</include>
-                  </includes>
-                  <excludes>
-                    <exclude>org/gatein/wsrp/producer/**</exclude>
-                    <exclude>org/gatein/wsrp/registration/**</exclude>
-                  </excludes>
-                </configuration>
-              </execution>
+               <execution>
+                  <id>integration-tests</id>
+                  <phase>integration-test</phase>
+                  <goals>
+                     <goal>test</goal>
+                  </goals>
+                  <configuration>
+                     <skip>false</skip>
+                     <!--<skip>false</skip>-->
+                     <includes>
+                        <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
+                        <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
+                        <!-- <include>org/gatein/wsrp/protocol/v1/ReleaseSessionTestCase.class</include> -->
+                        <include>org/gatein/wsrp/protocol/v1/ServiceDescriptionTestCase.class</include>
+                        <include>org/gatein/wsrp/protocol/v2/ServiceDescriptionTestCase.class</include>
+                     </includes>
+                     <excludes>
+                        <exclude>org/gatein/wsrp/producer/**</exclude>
+                        <exclude>org/gatein/wsrp/registration/**</exclude>
+                     </excludes>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
          <plugin>
-           <groupId>org.codehaus.cargo</groupId>
-           <artifactId>cargo-maven2-plugin</artifactId>
-           <version>1.0.1</version>
-           <configuration>
-             <container>
-               <containerId>jboss51x</containerId>
-               <zipUrlInstaller>
-                 <url>${JBOSS_ZIP_URL}</url>
-                 <installDir>${basedir}/target/servers</installDir>
-               </zipUrlInstaller>
-               <log>${basedir}/target/jboss51x/container.log</log>
-               <systemProperties>
-                 <!-- Since the tests run on the server, we need to pass system properties to the 
-                      server so that the tests can use them. -->
-                 <!-- The tests need to deploy and undeploy artifacts during the test so we need to pass
-                      properties to enable this behaviour. -->
-                 <jboss.deploy.dir>${jboss.server.home.dir}/conf</jboss.deploy.dir>
-                 <test.deployables.dir>${basedir}/target/test-archives</test.deployables.dir>
-                 <jboss.deploy.url.prefix>http://localhost:8080/jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=deploy&amp;argType=java.net.URL&amp;arg0=</jboss.deploy.url.prefix>
-                 <jboss.undeploy.url.prefix>http://localhost:8080//jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=undeploy&amp;argType=java.net.URL&amp;arg0=</jboss.undeploy.url.prefix>
-               </systemProperties>
-             </container>
-             <wait>false</wait>
-             <configuration>
-               <home>${basedir}/target/cargo</home>
-               <properties>
-		  <cargo.jvmargs>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs>                 
-               </properties>
-               <deployables>
-                 <deployable>
-                   <groupId>org.gatein.wsrp</groupId>
-                   <artifactId>wsrp-producer</artifactId>
-                   <type>war</type>
-                   <properties>
-                     <context>wsrp-producer</context>
-                   </properties>
-                   <pingURL>http://localhost:8080/wsrp-producer/MarkupService?WSDL</pingURL>
-                 </deployable>
-                 <deployable>
-                   <location>${basedir}/target/test-archives/test-producer.sar</location>
-		   <type>sar</type>
-                 </deployable>
-               </deployables>
-               <configfiles>
-                 <configfile>
-                   <file>${basedir}/target/servers/jboss-5.1.0.GA-jdk6/jboss-5.1.0.GA/server/default/conf/jboss-log4j.xml</file>
-                   <tofile>/conf/jboss-log4j.xml</tofile>
-                 </configfile>
-               </configfiles>
-             </configuration>
-           </configuration>
-           <executions>
-             <execution>
-               <id>pre-integration-start-server</id>
-               <phase>pre-integration-test</phase>
-               <goals>
-                 <goal>start</goal>
-               </goals>
-             </execution>
-             <execution>
-               <id>post-integration-stop-server</id>
-               <phase>post-integration-test</phase>
-               <goals>
-                 <goal>stop</goal>
-               </goals>
-             </execution>
-           </executions>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <version>1.0.1</version>
+            <configuration>
+               <container>
+                  <containerId>jboss51x</containerId>
+                  <zipUrlInstaller>
+                     <url>${JBOSS_ZIP_URL}</url>
+                     <installDir>${basedir}/target/servers</installDir>
+                  </zipUrlInstaller>
+                  <log>${basedir}/target/jboss51x/container.log</log>
+                  <systemProperties>
+                     <!-- Since the tests run on the server, we need to pass system properties to the
+             server so that the tests can use them. -->
+                     <!-- The tests need to deploy and undeploy artifacts during the test so we need to pass
+                properties to enable this behaviour. -->
+                     <jboss.deploy.dir>${jboss.server.home.dir}/conf</jboss.deploy.dir>
+                     <test.deployables.dir>${basedir}/target/test-archives</test.deployables.dir>
+                     <jboss.deploy.url.prefix>http://localhost:8080/jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=deploy&amp;argType=java.net.URL&amp;arg0=</jboss.deploy.url.prefix>
+                     <jboss.undeploy.url.prefix>http://localhost:8080//jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=undeploy&amp;argType=java.net.URL&amp;arg0=</jboss.undeploy.url.prefix>
+                  </systemProperties>
+               </container>
+               <wait>false</wait>
+               <configuration>
+                  <home>${basedir}/target/cargo</home>
+                  <properties>
+                     <cargo.jvmargs>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs>
+                  </properties>
+                  <deployables>
+                     <deployable>
+                        <groupId>org.gatein.wsrp</groupId>
+                        <artifactId>wsrp-producer</artifactId>
+                        <type>war</type>
+                        <properties>
+                           <context>wsrp-producer</context>
+                        </properties>
+                        <pingURL>http://localhost:8080/wsrp-producer/MarkupService?WSDL</pingURL>
+                     </deployable>
+                     <deployable>
+                        <location>${basedir}/target/test-archives/test-producer.sar</location>
+                        <type>sar</type>
+                     </deployable>
+                  </deployables>
+               </configuration>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>pre-integration-start-server</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                     <goal>start</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>post-integration-stop-server</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                     <goal>stop</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
-     <testResources>
-       <testResource>
-         <directory>src/test/jboss-resources</directory>
-       </testResource>
-     </testResources>
+      <testResources>
+         <testResource>
+            <directory>src/test/jboss-resources</directory>
+         </testResource>
+      </testResources>
    </build>
 
 </project>

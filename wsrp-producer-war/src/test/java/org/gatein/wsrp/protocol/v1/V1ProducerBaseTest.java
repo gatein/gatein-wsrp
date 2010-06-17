@@ -31,7 +31,6 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.v1.WSRP1Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
@@ -61,7 +60,7 @@ import java.util.List;
 public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 {
    private static final String CONSUMER = "test-consumer";
-   protected WSRP1Producer producer = WSRP1Producer.getInstance();
+   protected WSRP1Producer producer = ProducerHolder.getV1Producer();
 
 
    public V1ProducerBaseTest() throws Exception
@@ -74,18 +73,10 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       super(name);
    }
 
-
-   public void setUp() throws Exception
+   @Override
+   protected WSRPProducer getProducer()
    {
-      super.setUp();
-
-      resetRegistrationInfo();
-   }
-
-   public void tearDown() throws Exception
-   {
-      resetRegistrationInfo();
-      super.tearDown();
+      return producer;
    }
 
    /**
@@ -201,16 +192,6 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       }
    }
 
-   protected void resetRegistrationInfo() throws RegistrationException
-   {
-      ProducerRegistrationRequirements registrationRequirements = producer.getConfigurationService().getConfiguration().getRegistrationRequirements();
-      registrationRequirements.setRegistrationRequired(false);
-      registrationRequirements.clearRegistrationProperties();
-      registrationRequirements.clearRegistrationPropertyChangeListeners();
-      producer.getRegistrationManager().clear();
-      registrationRequirements.removeRegistrationPropertyChangeListener(producer.getRegistrationManager());
-   }
-
    protected V1GetServiceDescription getNoRegistrationServiceDescriptionRequest()
    {
       V1GetServiceDescription gs = WSRP1TypeFactory.createGetServiceDescription();
@@ -235,7 +216,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
          assertEquals(message + "Extensions", expected.getExtensions(), tested.getExtensions());
          assertEquals(message + "Locales", expected.getLocales(), tested.getLocales());
          assertEquals(message + "Modes", expected.getModes(), tested.getModes());
-         
+
          Collections.sort(expected.getWindowStates());
          Collections.sort(tested.getWindowStates());
          assertEquals(message + "Window states", expected.getWindowStates(), tested.getWindowStates());
