@@ -248,9 +248,34 @@
                   <version>2.1.1</version>
                </dependency>
             </dependencies>
-
          </plugin>
-
+         <plugin>
+            <!-- Copy Google Portlet samples from PC module to test-archives so that they can be used in tests -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.1</version>
+            <executions>
+               <execution>
+                  <id>copy</id>
+                  <goals>
+                     <goal>copy</goal>
+                  </goals>
+                  <configuration>
+                     <artifactItems>
+                        <artifactItem>
+                           <groupId>org.gatein.pc</groupId>
+                           <artifactId>pc-samples</artifactId>
+                           <version>2.1.1-GA</version>
+                           <classifier>google-portlet</classifier>
+                           <type>war</type>
+                           <destFileName>google-portlet.war</destFileName>
+                           <outputDirectory>${project.build.directory}/test-archives</outputDirectory>
+                        </artifactItem>
+                     </artifactItems>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -258,7 +283,6 @@
                <skip>true</skip>
                <excludes>
                   <exclude>org/gatein/wsrp/protocol/v1/*</exclude>
-                  <exclude>org/gatein/wsrp/protocol/v1a/*</exclude>
                </excludes>
             </configuration>
             <executions>
@@ -270,7 +294,6 @@
                   </goals>
                   <configuration>
                      <skip>false</skip>
-                     <!--<skip>false</skip>-->
                      <includes>
                         <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
@@ -280,7 +303,6 @@
                      </includes>
                      <excludes>
                         <exclude>org/gatein/wsrp/producer/**</exclude>
-                        <exclude>org/gatein/wsrp/registration/**</exclude>
                      </excludes>
                   </configuration>
                </execution>
@@ -293,10 +315,7 @@
             <configuration>
                <container>
                   <containerId>jboss51x</containerId>
-                  <zipUrlInstaller>
-                     <url>${JBOSS_ZIP_URL}</url>
-                     <installDir>${basedir}/target/servers</installDir>
-                  </zipUrlInstaller>
+                  <home>${JBOSS_HOME}</home>
                   <log>${basedir}/target/jboss51x/container.log</log>
                   <systemProperties>
                      <!-- Since the tests run on the server, we need to pass system properties to the
@@ -313,18 +332,10 @@
                <configuration>
                   <home>${basedir}/target/cargo</home>
                   <properties>
+                     <cargo.logging>low</cargo.logging>
                      <cargo.jvmargs>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs>
                   </properties>
                   <deployables>
-                     <deployable>
-                        <groupId>org.gatein.wsrp</groupId>
-                        <artifactId>wsrp-producer</artifactId>
-                        <type>war</type>
-                        <properties>
-                           <context>wsrp-producer</context>
-                        </properties>
-                        <pingURL>http://localhost:8080/wsrp-producer/MarkupService?WSDL</pingURL>
-                     </deployable>
                      <deployable>
                         <location>${basedir}/target/test-archives/test-producer.sar</location>
                         <type>sar</type>

@@ -10,7 +10,7 @@
  * published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,           
+ * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
@@ -88,7 +88,7 @@ public abstract class WSRPProducerBaseTest extends TestCase
       }
       else
       {
-         throw new Exception("Could not find the jboss.deploy.url.prefix system property.");
+         throw new Exception("Could not find the jboss.undeploy.url.prefix system property.");
       }
    }
 
