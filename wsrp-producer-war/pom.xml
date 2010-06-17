@@ -304,6 +304,8 @@
                       properties to enable this behaviour. -->
                  <jboss.deploy.dir>${jboss.server.home.dir}/conf</jboss.deploy.dir>
                  <test.deployables.dir>${basedir}/target/test-archives</test.deployables.dir>
+                 <jboss.deploy.url.prefix>http://localhost:8080/jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=deploy&amp;argType=java.net.URL&amp;arg0=</jboss.deploy.url.prefix>
+                 <jboss.undeploy.url.prefix>http://localhost:8080//jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=undeploy&amp;argType=java.net.URL&amp;arg0=</jboss.undeploy.url.prefix>
                </systemProperties>
              </container>
              <wait>false</wait>
@@ -327,6 +329,12 @@
 		   <type>sar</type>
                  </deployable>
                </deployables>
+               <configfiles>
+                 <configfile>
+                   <file>${basedir}/target/servers/jboss-5.1.0.GA-jdk6/jboss-5.1.0.GA/server/default/conf/jboss-log4j.xml</file>
+                   <tofile>/conf/jboss-log4j.xml</tofile>
+                 </configfile>
+               </configfiles>
              </configuration>
            </configuration>
            <executions>

@@ -23,10 +23,17 @@
 
 package org.gatein.wsrp.producer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.FileChannel;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import junit.framework.TestCase;
 import org.gatein.common.NotYetImplemented;
@@ -38,7 +45,7 @@ import org.gatein.common.NotYetImplemented;
 public abstract class WSRPProducerBaseTest extends TestCase
 {
    protected WSRPProducerImpl producer = WSRPProducerImpl.getInstance();
-
+      
    protected WSRPProducerBaseTest(String name) throws Exception
    {
       super(name);
@@ -46,44 +53,55 @@ public abstract class WSRPProducerBaseTest extends TestCase
 
    public void deploy(String warFileName) throws Exception
    {
-       File archiveDirectory = getDirectory("test.deployables.dir");
-       File deployDirectory = getDirectory("jboss.server.home.dir", "deploy");
-       File archiveFile = getArchive(warFileName, archiveDirectory, true);
-       File deployArchive = getArchive(warFileName, deployDirectory, false);
-       
-       FileChannel inputChannel = new FileInputStream(archiveFile).getChannel();
-       FileChannel outputChannel = new FileOutputStream(deployArchive).getChannel();
-       
-       inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-       
-       Thread.currentThread().sleep(10000);
+       String deployURLPrefix = System.getProperty("jboss.deploy.url.prefix");
+       if (deployURLPrefix != null)
+       {
+          File archiveDirectory = getDirectory("test.deployables.dir");
+          File archiveFile = getArchive(warFileName, archiveDirectory);
+          
+          String deployURLString = deployURLPrefix + archiveFile.getAbsolutePath();
+          
+          URL deployURL = new URL(deployURLString);
+          URLConnection connection = deployURL.openConnection();
+          
+          BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+          reader.readLine();
+          reader.close();
+       }
+       else
+       {
+          throw new Exception ("Could not find the jboss.deploy.url.prefix system property.");
+       }
    }
 
    public void undeploy(String warFileName) throws Exception
    {
-      File deployDirectory = getDirectory("jboss.server.home.dir", "deploy");
-      File archive = getArchive(warFileName, deployDirectory, true);
-      
-      archive.delete();
-      
-      Thread.currentThread().sleep(10000);
-   }
-   
-   private File getDirectory (String property) throws Exception
-   {
-       return getDirectory(property, null);
+      String undeployURLPrefix = System.getProperty("jboss.undeploy.url.prefix");
+      if (undeployURLPrefix != null)
+      {
+         File archiveDirectory = getDirectory("test.deployables.dir");
+         File archiveFile = getArchive(warFileName, archiveDirectory);
+         
+         String undeployURLString = undeployURLPrefix + archiveFile.getAbsolutePath();
+         
+         URL undeployURL = new URL(undeployURLString);
+         URLConnection connection = undeployURL.openConnection();
+         
+         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+         reader.readLine();
+         reader.close();
+      }
+      else
+      {
+         throw new Exception ("Could not find the jboss.deploy.url.prefix system property.");
+      }
    }
     
-   private File getDirectory (String property, String subDirectory) throws Exception
+   private File getDirectory (String property) throws Exception
    {
        String deployableProperty = System.getProperty(property);
        if (deployableProperty != null)
        {
-           if (subDirectory != null)
-           {
-               deployableProperty += File.separator + subDirectory;
-           }
-           
            File deployableDir = new File(deployableProperty);
            if (deployableDir.exists() && deployableDir.isDirectory())
            {
@@ -101,26 +119,19 @@ public abstract class WSRPProducerBaseTest extends TestCase
    }
    
    
-   private File getArchive(String fileName, File deployDirectory, boolean shouldExist) throws Exception
+   private File getArchive(String fileName, File deployDirectory) throws Exception
    {
        if (fileName != null && deployDirectory != null && deployDirectory.exists() && deployDirectory.isDirectory())
        {
            File archiveFile = new File(deployDirectory.getAbsoluteFile() + File.separator + fileName);
-           return archiveFile;
-//         if (archiveFile.exists() && shouldExist)
-//         {
-//             return archiveFile;
-//         }
-//         else if (!archiveFile.exists() && !shouldExist)
-//         {
-//             return archiveFile;
-//         }
-//         else
-//         {
-//             //since its not what we are expecting we need to throw the opposite error message
-//             String existsString = shouldExist ? "does not exist" : "exists";
-//             throw new Exception("Archive " + fileName + " in directory " + deployDirectory + " " + existsString + " which is not expected.");
-//         }
+           if (archiveFile.exists())
+           {
+              return archiveFile;
+           }
+           else
+           {
+              throw new Exception ("Archive " + fileName + " in directory " + deployDirectory + " does not exist. Cannot deploy this file");
+           }
        }
        else
        {
