@@ -30,10 +30,13 @@ import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.ServiceDescription;
@@ -44,6 +47,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
+@RunWith(Arquillian.class)
 public class ServiceDescriptionTestCase extends V2ProducerBaseTest
 {
    public ServiceDescriptionTestCase() throws Exception
@@ -78,7 +82,7 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
       }
    }
 
-
+   @Test
    public void testSupportedOptions() throws OperationFailed, InvalidRegistration
    {
       ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
