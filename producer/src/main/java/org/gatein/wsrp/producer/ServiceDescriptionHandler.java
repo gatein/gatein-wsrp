@@ -107,8 +107,8 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
          serviceDescription.updateRegistrationProperties(requirements);
       }
 
-      boolean needsPortletDescriptions = registration == null && requirements.isRegistrationRequired()
-         && requirements.isRegistrationRequiredForFullDescription();
+      boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
+         && requirements.isRegistrationRequiredForFullDescription());
       if (needsPortletDescriptions)
       {
          Set<Portlet> portlets;
@@ -410,6 +410,12 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
             }
             registrationNoPortletsServiceDescription.setRegistrationPropertyDescription(registrationProperties);
             registrationPortletsServiceDescription.setRegistrationPropertyDescription(registrationProperties);
+
+            // update need to register
+            noRegistrationNoPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
+            noRegistrationPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
+            registrationNoPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
+            registrationPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
 
             lastGenerated = System.currentTimeMillis();
          }
