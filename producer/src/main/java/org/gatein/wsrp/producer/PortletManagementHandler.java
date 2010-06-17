@@ -134,7 +134,6 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       {
          Set keySet = prefsInfo.getKeys();
          descs = new ArrayList<PropertyDescription>(keySet.size());
-         int index = 0;
          for (Object key : keySet)
          {
             PreferenceInfo prefInfo = prefsInfo.getPreference((String)key);
