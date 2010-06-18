@@ -47,7 +47,7 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.1.1-GA</version.gatein.pc>
+      <version.gatein.pc>2.1.2-GA-SNAPSHOT</version.gatein.pc>
       <version.gatein.common>2.0.3-GA-SNAPSHOT</version.gatein.common>
       <version.gatein.wci>2.0.1-GA</version.gatein.wci>
 
