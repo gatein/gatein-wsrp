@@ -37,10 +37,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.ServiceDescription;
 
+import javax.xml.namespace.QName;
 import java.util.List;
 
 /**
@@ -94,4 +97,112 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
       ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_IMPORT));
       ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_EXPORT));
    }
+
+   @Test
+   public void testEventDescriptions() throws Exception
+   {
+      try
+      {
+         deploy("google-portlet.war");
+
+         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+
+         List<EventDescription> eventDescriptions = description.getEventDescriptions();
+         ExtendedAssert.assertNotNull(eventDescriptions);
+         ExtendedAssert.assertEquals(1, eventDescriptions.size());
+
+         QName zip = new QName("urn:jboss:portal:samples:event", "ZipEvent");
+         EventDescription event = eventDescriptions.get(0);
+         ExtendedAssert.assertEquals(zip, event.getName());
+         ExtendedAssert.assertTrue(event.getAliases().isEmpty());
+         ExtendedAssert.assertTrue(event.getLabel().getValue().contains(zip.toString()));
+
+         List<PortletDescription> portlets = description.getOfferedPortlets();
+         ExtendedAssert.assertEquals(2, portlets.size());
+
+         // get GoogleMap portlet description
+         for (PortletDescription portlet : portlets)
+         {
+            if (portlet.getPortletHandle().contains("GoogleMap"))
+            {
+               List<QName> publishedEvents = portlet.getPublishedEvents();
+               ExtendedAssert.assertEquals(1, publishedEvents.size());
+               ExtendedAssert.assertEquals(zip, publishedEvents.get(0));
+
+               ExtendedAssert.assertTrue(portlet.getHandledEvents().isEmpty());
+            }
+         }
+
+         deploy("test-basic-portlet.war");
+
+         // reload service description
+         description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+         eventDescriptions = description.getEventDescriptions();
+         portlets = description.getOfferedPortlets();
+
+         QName foo = new QName("urn:jboss:gatein", "foo");
+         ExtendedAssert.assertEquals(2, eventDescriptions.size());
+         for (EventDescription eventDesc : eventDescriptions)
+         {
+            QName name = eventDesc.getName();
+            boolean isZip = zip.equals(name);
+            boolean isFoo = foo.equals(name);
+            if (isZip || isFoo)
+            {
+               if (isFoo)
+               {
+                  ExtendedAssert.assertEquals(foo, eventDesc.getName());
+                  ExtendedAssert.assertTrue(eventDesc.getLabel().getValue().contains(foo.toString()));
+                  List<QName> aliases = eventDesc.getAliases();
+                  ExtendedAssert.assertEquals(2, aliases.size());
+                  ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "bar")));
+                  ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "baz")));
+               }
+            }
+            else
+            {
+               ExtendedAssert.fail("Only 2 events should be ZipEvent or foo!");
+            }
+         }
+
+         for (PortletDescription portlet : portlets)
+         {
+            if (portlet.getPortletHandle().contains("Simple Test Portlet"))
+            {
+               List<QName> events = portlet.getPublishedEvents();
+               ExtendedAssert.assertEquals(2, events.size());
+               ExtendedAssert.assertTrue(events.contains(zip));
+               ExtendedAssert.assertTrue(events.contains(foo));
+
+               events = portlet.getHandledEvents();
+               ExtendedAssert.assertEquals(1, events.size());
+               ExtendedAssert.assertTrue(events.contains(zip));
+            }
+         }
+      }
+      finally
+      {
+         undeploy("google-portlet.war");
+         undeploy("test-basic-portlet.war");
+      }
+
+   }
+
+   /*@Test
+   public void testParameterDescriptions() throws Exception
+   {
+      try
+      {
+         deploy("google-portlet.war");
+
+         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+
+         description.get
+      }
+      finally
+      {
+         undeploy("google-portlet.war");
+      }
+
+   }*/
 }

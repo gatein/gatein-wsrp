@@ -63,6 +63,7 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -357,7 +358,7 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
       private ServiceDescription registrationPortletsServiceDescription;
 
       private long lastGenerated;
-      private List<EventDescription> eventDescriptions;
+      private Map<QName, EventDescription> eventDescriptions;
 
       private static final List<String> OPTIONS = new ArrayList<String>(5);
 
@@ -428,20 +429,33 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
             Collection<PortletDescription> offeredPortletDescriptions = new ArrayList<PortletDescription>(portlets.size());
 
             // reset event descriptions as they will be repopulated when we build the portlet descriptions
-            eventDescriptions = new ArrayList<EventDescription>(portlets.size());
+            eventDescriptions = new HashMap<QName, EventDescription>(portlets.size());
 
             for (Portlet portlet : portlets)
             {
-               PortletDescription desc = getPortletDescription(portlet, desiredLocales);
+               PortletDescription desc = getPortletDescription(portlet, desiredLocales, this);
                offeredPortletDescriptions.add(desc);
             }
 
             // events
-            registrationPortletsServiceDescription.getEventDescriptions().addAll(eventDescriptions);
-            registrationNoPortletsServiceDescription.getEventDescriptions().addAll(eventDescriptions);
-            noRegistrationPortletsServiceDescription.getEventDescriptions().addAll(eventDescriptions);
-            noRegistrationNoPortletsServiceDescription.getEventDescriptions().addAll(eventDescriptions);
+            Collection<EventDescription> events = eventDescriptions.values();
+            List<EventDescription> eventDescriptions = registrationPortletsServiceDescription.getEventDescriptions();
+            eventDescriptions.clear();
+            eventDescriptions.addAll(events);
 
+            eventDescriptions = registrationNoPortletsServiceDescription.getEventDescriptions();
+            eventDescriptions.clear();
+            eventDescriptions.addAll(events);
+
+            eventDescriptions = noRegistrationPortletsServiceDescription.getEventDescriptions();
+            eventDescriptions.clear();
+            eventDescriptions.addAll(events);
+
+            eventDescriptions = noRegistrationNoPortletsServiceDescription.getEventDescriptions();
+            eventDescriptions.clear();
+            eventDescriptions.addAll(events);
+
+            // portlets
             List<PortletDescription> offeredPortlets = registrationPortletsServiceDescription.getOfferedPortlets();
             offeredPortlets.clear();
             offeredPortlets.addAll(offeredPortletDescriptions);
@@ -466,16 +480,20 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
 
       public void addEventInfo(EventInfo info, List<String> desiredLocales)
       {
-         EventDescription desc = WSRPTypeFactory.createEventDescription(info.getName());
-         desc.setDescription(Utils.convertToWSRPLocalizedString(info.getDescription(), desiredLocales));
-         desc.setLabel(Utils.convertToWSRPLocalizedString(info.getDisplayName(), desiredLocales));
-         Collection<QName> aliases = info.getAliases();
-         if (ParameterValidation.existsAndIsNotEmpty(aliases))
+         QName name = info.getName();
+         if (!eventDescriptions.containsKey(name))
          {
-            desc.getAliases().addAll(aliases);
+            EventDescription desc = WSRPTypeFactory.createEventDescription(name);
+            desc.setDescription(Utils.convertToWSRPLocalizedString(info.getDescription(), desiredLocales));
+            desc.setLabel(Utils.convertToWSRPLocalizedString(info.getDisplayName(), desiredLocales));
+            Collection<QName> aliases = info.getAliases();
+            if (ParameterValidation.existsAndIsNotEmpty(aliases))
+            {
+               desc.getAliases().addAll(aliases);
+            }
+            // todo: deal with type info...
+            eventDescriptions.put(name, desc);
          }
-         // todo: deal with type info...
-         eventDescriptions.add(desc);
       }
    }
 }

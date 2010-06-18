@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ JBoss, a division of Red Hat                                              ~
-  ~ Copyright 2006, Red Hat Middleware, LLC, and individual                   ~
-  ~ contributors as indicated by the @authors tag. See the                    ~
-  ~ copyright.txt in the distribution for a full listing of                   ~
-  ~ individual contributors.                                                  ~
-  ~                                                                           ~
-  ~ This is free software; you can redistribute it and/or modify it           ~
-  ~ under the terms of the GNU Lesser General Public License as               ~
-  ~ published by the Free Software Foundation; either version 2.1 of          ~
-  ~ the License, or (at your option) any later version.                       ~
-  ~                                                                           ~
-  ~ This software is distributed in the hope that it will be useful,          ~
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
-  ~ Lesser General Public License for more details.                           ~
-  ~                                                                           ~
-  ~ You should have received a copy of the GNU Lesser General Public          ~
-  ~ License along with this software; if not, write to the Free               ~
-  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
-  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' version='2.0'>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+<portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd'
+             xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+             xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd'
+             version='2.0'>
    <portlet>
       <portlet-name>Simple Test Portlet</portlet-name>
       <portlet-class>org.gatein.wsrp.portlet.BasicPortlet</portlet-class>
@@ -47,10 +50,40 @@
             <value>prefValue2</value>
          </preference>
       </portlet-preferences>
+      <supported-publishing-event>
+         <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
+      </supported-publishing-event>
+      <supported-publishing-event>
+         <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
+      </supported-publishing-event>
+      <supported-processing-event>
+         <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
+      </supported-processing-event>
+      <supported-public-render-parameter>zipcode</supported-public-render-parameter>
    </portlet>
 
-    <container-runtime-option>
+   <event-definition>
+      <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
+      <value-type>java.lang.String</value-type>
+   </event-definition>
+   <event-definition>
+      <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
+      <value-type>java.lang.String</value-type>
+      <alias xmlns:gtn='urn:jboss:gatein'>gtn:bar</alias>
+      <alias xmlns:gtn='urn:jboss:gatein'>gtn:baz</alias>
+   </event-definition>
+
+   <public-render-parameter>
+      <identifier>zipcode</identifier>
+      <qname xmlns:g='urn:jboss:portal:simple:google'>g:zipcode</qname>
+   </public-render-parameter>
+   <public-render-parameter>
+      <identifier>foo</identifier>
+      <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
+   </public-render-parameter>
+
+   <container-runtime-option>
       <name>org.gatein.pc.remotable</name>
       <value>true</value>
-    </container-runtime-option>
+   </container-runtime-option>
 </portlet-app>
