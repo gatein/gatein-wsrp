@@ -69,6 +69,7 @@
          </property>
        </activation>
        <properties>
+         <jboss.systemPath>${jboss.zip.url}</jboss.systemPath>
          <JBOSS_HOME>${project.build.directory}/cargo/servers/jboss-5.1.0.GA</JBOSS_HOME>
        </properties>
        <dependencies>
@@ -78,7 +79,7 @@
            <version>5.1.0.GA</version>
            <scope>system</scope>
            <type>zip</type>
-           <systemPath>${jboss.zip.url}</systemPath>
+           <systemPath>${jboss.systemPath}</systemPath>
          </dependency>
        </dependencies>
        <build>
