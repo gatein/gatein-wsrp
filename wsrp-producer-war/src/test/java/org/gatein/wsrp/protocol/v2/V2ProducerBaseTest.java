@@ -46,7 +46,6 @@ public class V2ProducerBaseTest extends WSRPProducerBaseTest
    protected V2ProducerBaseTest(String name) throws Exception
    {
       super(name);
-      producer.start();
    }
 
    @Override
