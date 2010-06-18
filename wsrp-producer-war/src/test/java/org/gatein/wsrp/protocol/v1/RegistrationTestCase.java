@@ -29,8 +29,19 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.MockHttpServletResponse;
+import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
@@ -49,6 +60,7 @@ import java.util.List;
  * @version $Revision: 12309 $
  * @since 2.4
  */
+@RunWith(Arquillian.class)
 public class RegistrationTestCase extends V1ProducerBaseTest
 {
    public RegistrationTestCase() throws Exception
@@ -56,11 +68,40 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       super("RegistrationTestCase");
    }
 
+   @Deployment
+   public static JavaArchive createDeployment()
+   {
+       return ShrinkWrap.create("test.jar", JavaArchive.class);
+   }
+   
+   @Before
+   public void setUp() throws Exception
+   {
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+       super.setUp();
+       //hack to get around having to have a httpservletrequest when accessing the producer services
+       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+      }
+   }
+   
+   
+   @After
+   public void tearDown() throws Exception
+   {
+       if (System.getProperty("test.deployables.dir") != null)
+       {
+          super.tearDown();
+       }
+   }
+   
    /**
     * R355: The portal MUST pass a name for itself that uniquely identifies it.
     *
     * @throws Exception
     */
+   @Test
    public void testUniqueNameRegistration() throws Exception
    {
       // not sure how to test this...
@@ -76,6 +117,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
     *
     * @throws Exception
     */
+   @Test
    public void testConsumerAgent() throws Exception
    {
       configureRegistrationSettings(true, false);
@@ -97,6 +139,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       producer.register(regData);
    }
 
+   @Test
    public void testRegistrationHandle() throws V1OperationFailed, V1MissingParameters, RegistrationException
    {
       // check that a registration handle was created
@@ -118,6 +161,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       assertEquals(expectedHandle, registrationHandle);
    }
 
+   @Test
    public void testDeregister() throws Exception
    {
       // initiate registration
@@ -161,6 +205,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       ExtendedAssert.assertNotNull(producer.getServiceDescription(gs));
    }
 
+   @Test
    public void testModifyRegistration() throws Exception
    {
       // initiate registration
@@ -237,6 +282,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       checkServiceDescriptionWithOnlyBasicPortlet(gs);
    }
 
+   @Test
    public void testModifyRegistrationIncorrectData() throws Exception
    {
       // initiate registration
@@ -264,6 +310,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
    }
 
+   @Test
    public void testRegister() throws Exception
    {
       configureRegistrationSettings(true, false);
@@ -280,6 +327,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       checkServiceDescriptionWithOnlyBasicPortlet(gs);
    }
 
+   @Test
    public void testRegisterWhenRegistrationNotRequired() throws Exception
    {
       configureRegistrationSettings(false, false);
@@ -295,6 +343,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
    }
 
+   @Test
    public void testDeregisterWhenRegistrationNotRequired() throws Exception
    {
       configureRegistrationSettings(false, false);
@@ -310,6 +359,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
    }
 
+   @Test
    public void testModifyRegistrationWhenRegistrationNotRequired() throws Exception
    {
       configureRegistrationSettings(false, false);
@@ -325,6 +375,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
    }
 
+   @Test
    public void testModifyRegistrationNoRegistrationWhenRegistrationRequired() throws Exception
    {
       configureRegistrationSettings(true, false);
@@ -344,6 +395,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       }
    }
 
+   @Test
    public void testDeregisterNoRegistrationWhenRegistrationRequired() throws Exception
    {
       configureRegistrationSettings(true, false);
