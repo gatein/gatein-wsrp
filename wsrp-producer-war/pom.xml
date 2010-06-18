@@ -35,6 +35,29 @@
    <packaging>war</packaging>
    <name>GateIn WSRP Producer WAR</name>
 
+   <profiles>
+      <profile>
+         <id>cargo-debug</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.cargo</groupId>
+                  <artifactId>cargo-maven2-plugin</artifactId>
+                  <version>1.0.1</version>
+                  <configuration>
+                     <configuration>
+                        <properties>
+                           <cargo.jvmargs>
+                              <![CDATA[-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y]]></cargo.jvmargs>
+                        </properties>
+                     </configuration>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
@@ -293,7 +316,7 @@
                      <goal>test</goal>
                   </goals>
                   <configuration>
-                     <skip>false</skip>
+                     <skip>${maven.test.skip}</skip>
                      <includes>
                         <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
@@ -367,5 +390,4 @@
          </testResource>
       </testResources>
    </build>
-
 </project>
