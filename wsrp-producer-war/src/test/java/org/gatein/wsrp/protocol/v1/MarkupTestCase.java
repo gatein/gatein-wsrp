@@ -27,6 +27,7 @@ import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
+import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -83,7 +84,11 @@ public class MarkupTestCase extends NeedPortletHandleTest
    @Deployment
    public static JavaArchive createDeployment()
    {
-      return ShrinkWrap.create("test.jar", JavaArchive.class);
+      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+      jar.addClass(NeedPortletHandleTest.class);
+      jar.addClass(V1ProducerBaseTest.class);
+      jar.addClass(WSRPProducerBaseTest.class);
+      return jar;
    }
 
    @Before

@@ -24,6 +24,9 @@
 package org.gatein.wsrp.protocol.v2;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.producer.WSRPProducerBaseTest;
+import org.gatein.wsrp.protocol.v1.NeedPortletHandleTest;
+import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -61,7 +64,11 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
    @Deployment
    public static JavaArchive createDeployment()
    {
-      return ShrinkWrap.create("test.jar", JavaArchive.class);
+      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+      jar.addClass(NeedPortletHandleTest.class);
+      jar.addClass(V2ProducerBaseTest.class);
+      jar.addClass(WSRPProducerBaseTest.class);
+      return jar;
    }
 
    @Before

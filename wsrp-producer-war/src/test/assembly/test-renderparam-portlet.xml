@@ -7,12 +7,11 @@
 
   <fileSets>
     <!-- Test Classes -->
-    <!-- TODO: we probably shouldn't be using all of these classes here -->
     <fileSet>
       <directory>target/test-classes</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory>WEB-INF/classes</outputDirectory>
       <includes>
-        <include>org/**MarkupPortlet.java</include>
+        <include>org/gatein/wsrp/portlet/RenderParamPortlet.class</include>
       </includes>
     </fileSet>
     <!-- Fileset for the sar strucuture -->

@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -73,7 +74,11 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
    @Deployment
    public static JavaArchive createDeployment()
    {
-       return ShrinkWrap.create("test.jar", JavaArchive.class);
+      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+      jar.addClass(NeedPortletHandleTest.class);
+      jar.addClass(V1ProducerBaseTest.class);
+      jar.addClass(WSRPProducerBaseTest.class);
+      return jar;
    }
 
    @Before
@@ -142,6 +147,7 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
             // so we need to wait for the proper case to init the registration context... Hackish! :(
             if (index == 0)
             {
+               System.out.println("REGISTRATIONCONTEXT : " + releaseSessions.getRegistrationContext());
                releaseSessions.setRegistrationContext(registerConsumer());
             }
          }
@@ -152,9 +158,14 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
       catch (V1OperationFailed operationFailedFault)
       {
          // expected fault.
+         operationFailedFault.printStackTrace();
       }
       finally
       {
+         if (index == 0 && useRegistration)
+         {
+            releaseSessions.setRegistrationContext(null);
+         }
          tearDown();
       }
    }

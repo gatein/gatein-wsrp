@@ -30,6 +30,7 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.servlet.ServletAccess;
@@ -71,7 +72,11 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
    @Deployment
    public static JavaArchive createDeployment()
    {
-       return ShrinkWrap.create("test.jar", JavaArchive.class);
+      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+      jar.addClass(NeedPortletHandleTest.class);
+      jar.addClass(V1ProducerBaseTest.class);
+      jar.addClass(WSRPProducerBaseTest.class);
+      return jar;
    }
    
    @Before

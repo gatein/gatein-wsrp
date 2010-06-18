@@ -28,6 +28,7 @@ import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
@@ -71,7 +72,11 @@ public class RegistrationTestCase extends V1ProducerBaseTest
    @Deployment
    public static JavaArchive createDeployment()
    {
-       return ShrinkWrap.create("test.jar", JavaArchive.class);
+      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+      jar.addClass(NeedPortletHandleTest.class);
+      jar.addClass(V1ProducerBaseTest.class);
+      jar.addClass(WSRPProducerBaseTest.class);
+      return jar;
    }
    
    @Before
