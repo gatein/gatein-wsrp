@@ -94,6 +94,7 @@ import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.Online;
 import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
@@ -124,8 +125,6 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.UserProfile;
-
-import sun.reflect.generics.visitor.Reifier;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -181,7 +180,11 @@ public class V2ToV1Converter
             markupParams.getMimeTypes(), markupParams.getMode(), markupParams.getWindowState());
 
          v1MarkupParams.setClientData(toV1ClientData(markupParams.getClientData()));
-         v1MarkupParams.setNavigationalState(markupParams.getNavigationalContext().getOpaqueValue());
+         NavigationalContext navigationalContext = markupParams.getNavigationalContext();
+         if (navigationalContext != null)
+         {
+            v1MarkupParams.setNavigationalState(navigationalContext.getOpaqueValue());
+         }
          v1MarkupParams.setValidateTag(markupParams.getValidateTag());
 
          List<String> charSets = markupParams.getMarkupCharacterSets();
@@ -992,7 +995,7 @@ public class V2ToV1Converter
          {
             result = WSRP1TypeFactory.createBlockingInteractionResponse(updateResponse);
          }
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(blockingInteractionResponse.getExtensions(), EXTENSION);
          if (extensions != null)
          {
@@ -1058,7 +1061,7 @@ public class V2ToV1Converter
       {
          V1PortletDescriptionResponse result = WSRP1TypeFactory.createPortletDescriptionResponse(toV1PortletDescription(portletDescriptionResponse.getPortletDescription()));
          result.setResourceList(toV1ResourceList(portletDescriptionResponse.getResourceList()));
-         
+
          List<V1Extension> extensions = WSRPUtils.transform(portletDescriptionResponse.getExtensions(), EXTENSION);
          if (extensions != null)
          {
@@ -1072,7 +1075,7 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    public static V1PropertyDescription toV1PropertyDescription(PropertyDescription propertyDescription)
    {
       if (propertyDescription != null)
@@ -1093,7 +1096,7 @@ public class V2ToV1Converter
          return null;
       }
    }
-   
+
    private static class V2ToV1Extension implements Function<Extension, V1Extension>
    {
       public V1Extension apply(Extension from)

@@ -46,6 +46,7 @@ import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
@@ -168,9 +169,11 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
       gm.setRuntimeContext(runtimeContext);
       gm.setUserContext(userContext);
 
+      NavigationalContext navigationalContext = markupParams.getNavigationalContext();
       String markupString = getMarkupString(WSRPUtils.getJSR168PortletModeFromWSRPName(markupParams.getMode()),
          WSRPUtils.getJSR168WindowStateFromWSRPName(markupParams.getWindowState()),
-         markupParams.getNavigationalContext().getOpaqueValue(), gm);
+         navigationalContext != null ? navigationalContext.getOpaqueValue() : null,
+         gm);
 
       markupContext.value = WSRPTypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString);
       markupContext.value.setRequiresRewriting(Boolean.TRUE);

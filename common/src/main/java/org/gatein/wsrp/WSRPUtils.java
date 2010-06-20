@@ -43,6 +43,7 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.StateChange;
 import org.slf4j.Logger;
@@ -369,9 +370,13 @@ public class WSRPUtils
          {
             sb.append("(secure)");
          }
-         sb.append("[M=").append(params.getMode()).append("][WS=").append(params.getWindowState()).append("]")
-            .append("[private NS=").append(params.getNavigationalContext().getOpaqueValue()).append("]")
-            .append("[public NS=").append(params.getNavigationalContext().getPublicValues()).append("]");
+         NavigationalContext navigationalContext = params.getNavigationalContext();
+         sb.append("[M=").append(params.getMode()).append("][WS=").append(params.getWindowState()).append("]");
+         if (navigationalContext != null)
+         {
+            sb.append("[private NS=").append(navigationalContext.getOpaqueValue()).append("]")
+               .append("[public NS=").append(navigationalContext.getPublicValues()).append("]");
+         }
          return sb.toString();
       }
       return null;
@@ -456,7 +461,7 @@ public class WSRPUtils
       }
       else
       {
-         return convertToLocalizedString(wsrpLocalizedString);
+         return convertToRegistrationLocalizedString(wsrpLocalizedString);
       }
    }
 
@@ -465,7 +470,7 @@ public class WSRPUtils
     * @return
     * @since 2.6
     */
-   public static LocalizedString convertToLocalizedString(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
+   public static LocalizedString convertToRegistrationLocalizedString(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(wsrpLocalizedString, "WSRP LocalizedString");
       String lang = wsrpLocalizedString.getLang();
@@ -521,6 +526,17 @@ public class WSRPUtils
       {
          return Lists.transform(fromList, function);
       }
+   }
+
+   public static org.gatein.common.i18n.LocalizedString convertToCommonLocalizedStringOrNull(org.oasis.wsrp.v2.LocalizedString wsrpLocalizedString)
+   {
+      if (wsrpLocalizedString != null)
+      {
+         return new org.gatein.common.i18n.LocalizedString(wsrpLocalizedString.getValue(),
+            getLocale(wsrpLocalizedString.getLang()));
+      }
+
+      return null;
    }
 
    /**
