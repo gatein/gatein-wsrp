@@ -46,11 +46,13 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PropertyDescription;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,11 +86,16 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
    private PreferencesInfo prefInfo;
    private ProducerInfo originatingProducer;
    private String portletHandle;
+   private final EventingInfo eventingInfo;
+   private final NavigationInfo navigationInfo;
 
    public WSRPPortletInfo(final PortletDescription portletDescription, ProducerInfo originatingProducerInfo)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletDescription, "PortletDescription");
       ParameterValidation.throwIllegalArgExceptionIfNull(originatingProducerInfo, "ProducerInfo");
+
+      this.originatingProducer = originatingProducerInfo;
+      this.portletHandle = portletDescription.getPortletHandle();
 
       createCapabilitiesInfo(portletDescription);
 
@@ -96,12 +103,86 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 
       createWSRPInfo(portletDescription, originatingProducerInfo.getId());
 
-      this.originatingProducer = originatingProducerInfo;
-      this.portletHandle = portletDescription.getPortletHandle();
+      this.eventingInfo = createEventingInfo(portletDescription);
+      this.navigationInfo = createNavigationInfo(portletDescription);
+   }
+
+   private NavigationInfo createNavigationInfo(PortletDescription portletDescription)
+   {
+      List<ParameterDescription> parameterDescriptions = portletDescription.getNavigationalPublicValueDescriptions();
+      if (!parameterDescriptions.isEmpty())
+      {
+         Collection<ParameterInfo> params = new ArrayList<ParameterInfo>(parameterDescriptions.size());
+         for (ParameterDescription parameterDescription : parameterDescriptions)
+         {
+            // WSRP doesn't distinguish between name and aliases as JSR-286 does so assume that first name is the name,
+            // rest are considered aliases...
+            List<QName> names = parameterDescription.getNames();
+            int nameNb = names.size();
+            QName name;
+            Collection<QName> aliases;
+            switch (nameNb)
+            {
+               case 0:
+                  throw new IllegalArgumentException("Parameter must at least have one name");
+               case 1:
+                  name = names.get(0);
+                  aliases = Collections.emptyList();
+                  break;
+               default:
+                  name = names.get(0);
+                  aliases = names.subList(1, nameNb);
+            }
+
+            // create new ParameterInfo and add it
+            params.add(
+               new WSRPParameterInfo(
+                  parameterDescription.getIdentifier(),
+                  name,
+                  aliases,
+                  WSRPUtils.convertToCommonLocalizedStringOrNull(parameterDescription.getDescription())));
+         }
+
+         return new WSRPNavigationInfo(params);
+      }
+      else
+      {
+         return new WSRPNavigationInfo(Collections.<ParameterInfo>emptyList());
+      }
+   }
+
+   private EventingInfo createEventingInfo(PortletDescription portletDescription)
+   {
+      Map<QName, EventInfo> produced = null;
+      Map<QName, EventInfo> consumed = null;
+
+      List<QName> events = portletDescription.getPublishedEvents();
+      if (!events.isEmpty())
+      {
+         produced = new HashMap<QName, EventInfo>(events.size());
+         for (QName event : events)
+         {
+            EventInfo desc = originatingProducer.getInfoForEvent(event);
+            produced.put(event, desc);
+         }
+      }
+
+      events = portletDescription.getHandledEvents();
+      if (!events.isEmpty())
+      {
+         consumed = new HashMap<QName, EventInfo>(events.size());
+         for (QName event : events)
+         {
+            EventInfo desc = originatingProducer.getInfoForEvent(event);
+            consumed.put(event, desc);
+         }
+      }
+
+      return new WSRPEventingInfo(produced, consumed);
    }
 
 
-   public WSRPPortletInfo(WSRPPortletInfo other, String newHandle)
+   public WSRPPortletInfo(final WSRPPortletInfo other, String newHandle)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(other, "WSRPPortletInfo");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(newHandle, "new portlet handle", "WSRPPortletInfo");
@@ -125,6 +206,9 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       metaInfo = new WSRPMetaInfo(new HashMap<String, org.gatein.common.i18n.LocalizedString>(otherMeta.metaInfos));
       WSRPPreferencesInfo otherPref = (WSRPPreferencesInfo)other.getPreferences();
       prefInfo = new WSRPPreferencesInfo(new HashMap<String, PreferenceInfo>(otherPref.preferences));
+
+      eventingInfo = other.eventingInfo;
+      navigationInfo = other.navigationInfo;
 
       originatingProducer = other.originatingProducer;
       portletHandle = newHandle;
@@ -166,8 +250,8 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
                   for (PropertyDescription desc : descs)
                   {
                      String keyAsString = desc.getName().toString();
-                     prefInfos.put(keyAsString, new WSRPPreferenceInfo(keyAsString, getPortalLocalizedStringOrNullFrom(desc.getLabel()),
-                        getPortalLocalizedStringOrNullFrom(desc.getHint())));
+                     prefInfos.put(keyAsString, new WSRPPreferenceInfo(keyAsString, WSRPUtils.convertToCommonLocalizedStringOrNull(desc.getLabel()),
+                        WSRPUtils.convertToCommonLocalizedStringOrNull(desc.getHint())));
                   }
                }
                else
@@ -229,41 +313,12 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
 
    public EventingInfo getEventing()
    {
-      //todo: revisit when implementing WSRP 2
-      return new EventingInfo()
-      {
-         public Map<QName, ? extends EventInfo> getProducedEvents()
-         {
-            return Collections.emptyMap();
-         }
-
-         public Map<QName, ? extends EventInfo> getConsumedEvents()
-         {
-            return Collections.emptyMap();
-         }
-      };
+      return eventingInfo;
    }
 
    public NavigationInfo getNavigation()
    {
-      //todo: revisit when implementing WSRP 2
-      return new NavigationInfo()
-      {
-         public ParameterInfo getPublicParameter(String s)
-         {
-            return null;
-         }
-
-         public ParameterInfo getPublicParameter(QName qName)
-         {
-            return null;
-         }
-
-         public Collection<? extends ParameterInfo> getPublicParameters()
-         {
-            return Collections.emptyList();
-         }
-      };
+      return navigationInfo;
    }
 
    public <T> T getAttachment(Class<T> tClass) throws IllegalArgumentException
@@ -366,10 +421,10 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
    private void createMetaInfo(PortletDescription portletDescription, String producerId)
    {
       final Map<String, org.gatein.common.i18n.LocalizedString> metaInfos = new HashMap<String, org.gatein.common.i18n.LocalizedString>();
-      metaInfos.put(MetaInfo.DESCRIPTION, getPortalLocalizedStringOrNullFrom(portletDescription.getDescription()));
-      metaInfos.put(MetaInfo.DISPLAY_NAME, getPortalLocalizedStringOrNullFrom(portletDescription.getDisplayName()));
-      metaInfos.put(MetaInfo.SHORT_TITLE, getPortalLocalizedStringOrNullFrom(portletDescription.getShortTitle()));
-      metaInfos.put(MetaInfo.TITLE, getPortalLocalizedStringOrNullFrom(portletDescription.getTitle()));
+      metaInfos.put(MetaInfo.DESCRIPTION, WSRPUtils.convertToCommonLocalizedStringOrNull(portletDescription.getDescription()));
+      metaInfos.put(MetaInfo.DISPLAY_NAME, WSRPUtils.convertToCommonLocalizedStringOrNull(portletDescription.getDisplayName()));
+      metaInfos.put(MetaInfo.SHORT_TITLE, WSRPUtils.convertToCommonLocalizedStringOrNull(portletDescription.getShortTitle()));
+      metaInfos.put(MetaInfo.TITLE, WSRPUtils.convertToCommonLocalizedStringOrNull(portletDescription.getTitle()));
 
       // keywords need to be concatenated
       List<LocalizedString> keywords = portletDescription.getKeywords();
@@ -401,17 +456,6 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       metaInfos.put(PRODUCER_NAME_META_INFO_KEY, new org.gatein.common.i18n.LocalizedString(producerId, locale));
 
       metaInfo = new WSRPMetaInfo(metaInfos);
-   }
-
-   private org.gatein.common.i18n.LocalizedString getPortalLocalizedStringOrNullFrom(LocalizedString wsrpLocalizedString)
-   {
-      if (wsrpLocalizedString != null)
-      {
-         return new org.gatein.common.i18n.LocalizedString(wsrpLocalizedString.getValue(),
-            WSRPUtils.getLocale(wsrpLocalizedString.getLang()));
-      }
-
-      return null;
    }
 
    class MediaTypeInfo
@@ -723,6 +767,42 @@ public class WSRPPortletInfo implements org.gatein.pc.api.info.PortletInfo
       public List<String> getDefaultValue()
       {
          return null;
+      }
+   }
+
+   private static class WSRPEventingInfo implements EventingInfo
+   {
+      private final Map<QName, ? extends EventInfo> produced;
+      private final Map<QName, ? extends EventInfo> consumed;
+
+      public WSRPEventingInfo(Map<QName, ? extends EventInfo> produced, Map<QName, ? extends EventInfo> consumed)
+      {
+         if (produced != null)
+         {
+            this.produced = Collections.unmodifiableMap(produced);
+         }
+         else
+         {
+            this.produced = Collections.emptyMap();
+         }
+         if (consumed != null)
+         {
+            this.consumed = Collections.unmodifiableMap(consumed);
+         }
+         else
+         {
+            this.consumed = Collections.emptyMap();
+         }
+      }
+
+      public Map<QName, ? extends EventInfo> getProducedEvents()
+      {
+         return produced;
+      }
+
+      public Map<QName, ? extends EventInfo> getConsumedEvents()
+      {
+         return consumed;
       }
    }
 }

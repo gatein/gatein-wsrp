@@ -23,16 +23,20 @@
 
 package org.gatein.wsrp.consumer;
 
+import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.info.EventInfo;
+import org.gatein.pc.api.info.TypeInfo;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
+import org.gatein.wsrp.consumer.portlet.info.WSRPEventInfo;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 import org.gatein.wsrp.servlet.UserAccess;
@@ -58,6 +62,8 @@ import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,6 +128,9 @@ public class ProducerInfo
 
    private Map<String, ItemDescription> customModes;
    private Map<String, ItemDescription> customWindowStates;
+
+   /** Events */
+   private Map<QName, EventInfo> eventDescriptions;
 
    /*protected org.oasis.wsrp.v1.ItemDescription[] userCategoryDescriptions;
    protected org.oasis.wsrp.v1.ItemDescription[] customUserProfileItemDescriptions;   
@@ -478,6 +487,37 @@ public class ProducerInfo
 
       // custom window state descriptions
       customWindowStates = toMap(serviceDescription.getCustomWindowStateDescriptions());
+
+      // event descriptions
+      List<EventDescription> eventDescriptions = serviceDescription.getEventDescriptions();
+      if (!eventDescriptions.isEmpty())
+      {
+         this.eventDescriptions = new HashMap<QName, EventInfo>(eventDescriptions.size());
+
+         for (final EventDescription event : eventDescriptions)
+         {
+            QName name = event.getName();
+            EventInfo eventInfo = new WSRPEventInfo(
+               name,
+               WSRPUtils.convertToCommonLocalizedStringOrNull(event.getLabel()),
+               WSRPUtils.convertToCommonLocalizedStringOrNull(event.getDescription()),
+               new TypeInfo()
+               {
+                  public String getName()
+                  {
+                     return event.getType().toString();
+                  }
+
+                  public XmlRootElement getXMLBinding()
+                  {
+                     throw new NotYetImplemented(); // todo
+                  }
+               },
+               event.getAliases());
+
+            this.eventDescriptions.put(name, eventInfo);
+         }
+      }
 
       // do we need to register?
       if (serviceDescription.isRequiresRegistration())
@@ -1167,5 +1207,10 @@ public class ProducerInfo
       registry.updateProducerInfo(this);
 
       log.warn(ERASED_LOCAL_REGISTRATION_INFORMATION);
+   }
+
+   public EventInfo getInfoForEvent(QName name)
+   {
+      return eventDescriptions.get(name);
    }
 }
