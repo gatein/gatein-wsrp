@@ -26,7 +26,6 @@ package org.gatein.wsrp.test.protocol.v1.behaviors;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
@@ -41,6 +40,7 @@ import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1InvalidUserCategory;
 import org.oasis.wsrp.v1.V1MarkupParams;
+import org.oasis.wsrp.v1.V1MarkupResponse;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PortletContext;
@@ -53,7 +53,6 @@ import org.oasis.wsrp.v1.V1UnsupportedMode;
 import org.oasis.wsrp.v1.V1UnsupportedWindowState;
 import org.oasis.wsrp.v1.V1UpdateResponse;
 import org.oasis.wsrp.v1.V1UserContext;
-import org.oasis.wsrp.v2.MarkupResponse;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -99,9 +98,9 @@ public class BasicMarkupBehavior extends MarkupBehavior
       updateResponse.value = ur;
    }
 
-   public void modifyResponseIfNeeded(MarkupResponse markupResponse)
+   public void modifyResponseIfNeeded(V1MarkupResponse markupResponse)
    {
       // fake markup caching
-      markupResponse.getMarkupContext().setCacheControl(WSRPTypeFactory.createCacheControl(15, WSRPConstants.CACHE_PER_USER));
+      markupResponse.getMarkupContext().setCacheControl(WSRP1TypeFactory.createCacheControl(15, WSRPConstants.CACHE_PER_USER));
    }
 }
