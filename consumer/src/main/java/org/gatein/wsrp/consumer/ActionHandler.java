@@ -224,7 +224,12 @@ public class ActionHandler extends InvocationHandler
       UpdateResponse updateResponse = blockingInteractionResponse.getUpdateResponse();
       if (redirectURL != null && updateResponse != null)
       {
-         return new ErrorResponse(new IllegalArgumentException("Response cannot both redirect and update state."));
+         return new ErrorResponse(new IllegalArgumentException("Producer error: response cannot both redirect and update state."));
+      }
+
+      if (redirectURL == null && updateResponse == null)
+      {
+         return new ErrorResponse(new IllegalArgumentException("Producer error: response must redirect or update state."));
       }
 
       if (redirectURL != null)
