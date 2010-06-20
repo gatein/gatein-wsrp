@@ -89,6 +89,13 @@
          <artifactId>test-framework</artifactId>
          <version>${project.version}</version>
       </dependency>
+
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.6</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <!-- Disable some tests for now until we can find some time to work on migrating them -->
@@ -99,7 +106,8 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <excludes>
-                  <exclude>org/gatein/wsrp/protocol/v1/*</exclude>
+                  <exclude>org/gatein/wsrp/protocol/v1/MarkupTestCase.*</exclude>
+                  <exclude>org/gatein/wsrp/test/**</exclude>
                </excludes>
             </configuration>
          </plugin>
