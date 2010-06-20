@@ -60,6 +60,7 @@
          <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
       </supported-processing-event>
       <supported-public-render-parameter>zipcode</supported-public-render-parameter>
+      <supported-public-render-parameter>foo</supported-public-render-parameter>
    </portlet>
 
    <event-definition>
@@ -79,7 +80,10 @@
    </public-render-parameter>
    <public-render-parameter>
       <identifier>foo</identifier>
-      <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
+      <qname xmlns:gtn='urn:jboss:gatein'>gtn:fooparam</qname>
+      <description>Foo param</description>
+      <alias xmlns:gtn='urn:jboss:gatein'>gtn:barparam</alias>
+      <alias xmlns:gtn='urn:jboss:gatein'>gtn:bazparam</alias>
    </public-render-parameter>
 
    <container-runtime-option>

@@ -26,7 +26,6 @@ package org.gatein.wsrp.protocol.v2;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.protocol.v1.NeedPortletHandleTest;
-import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -43,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.ServiceDescription;
 
@@ -195,21 +195,52 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
 
    }
 
-   /*@Test
+   @Test
    public void testParameterDescriptions() throws Exception
    {
       try
       {
-         deploy("google-portlet.war");
+         deploy("test-basic-portlet.war");
 
          ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
 
-         description.get
+         List<PortletDescription> portlets = description.getOfferedPortlets();
+         ExtendedAssert.assertEquals(1, portlets.size());
+         PortletDescription portlet = portlets.get(0);
+         QName fooparam = new QName("urn:jboss:gatein", "fooparam");
+         QName zipcode = new QName("urn:jboss:portal:simple:google", "zipcode");
+
+         List<ParameterDescription> publicValueDescriptions = portlet.getNavigationalPublicValueDescriptions();
+         ExtendedAssert.assertNotNull(publicValueDescriptions);
+         ExtendedAssert.assertEquals(2, publicValueDescriptions.size());
+         for (ParameterDescription param : publicValueDescriptions)
+         {
+            String identifier = param.getIdentifier();
+            if ("foo".equals(identifier))
+            {
+               List<QName> names = param.getNames();
+               ExtendedAssert.assertTrue(names.contains(fooparam));
+               ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "barparam")));
+               ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "bazparam")));
+               ExtendedAssert.assertEquals(identifier, param.getLabel().getValue());
+               ExtendedAssert.assertEquals("Foo param", param.getDescription().getValue());
+            }
+            else if ("zipcode".equals(identifier))
+            {
+               List<QName> names = param.getNames();
+               ExtendedAssert.assertEquals(1, names.size());
+               ExtendedAssert.assertTrue(names.contains(zipcode));
+            }
+            else
+            {
+               ExtendedAssert.fail("Unexpected parameter description: " + identifier);
+            }
+         }
       }
       finally
       {
-         undeploy("google-portlet.war");
+         undeploy("test-basic-portlet.war");
       }
 
-   }*/
+   }
 }
