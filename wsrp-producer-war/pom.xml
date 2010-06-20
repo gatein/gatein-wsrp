@@ -107,7 +107,7 @@
        </build>
      </profile>
      <profile>
-       <id>start-test-server</id>
+       <id>test-server</id>
        <build>
         <plugins>
          <plugin>
@@ -115,51 +115,8 @@
             <artifactId>cargo-maven2-plugin</artifactId>
             <version>1.0.1</version>
             <configuration>
-<!--               <container>-->
-                  <!--<containerId>jboss51x</containerId>
-                  <home>${JBOSS_HOME}</home>
-                  <log>${basedir}/target/jboss51x/container.log</log>
-                  <systemProperties>-->
-                     <!-- Since the tests run on the server, we need to pass system properties to the
-                          server so that the tests can use them. -->
-                     <!-- The tests need to deploy and undeploy artifacts during the test so we need to pass
-                          properties to enable this behaviour. -->
-<!--                     <jboss.deploy.dir>${jboss.server.home.dir}/conf</jboss.deploy.dir>
-                     <test.deployables.dir>${basedir}/target/test-archives</test.deployables.dir>
-                     <jboss.deploy.url.prefix>http://localhost:8080/jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=deploy&amp;argType=java.net.URL&amp;arg0=</jboss.deploy.url.prefix>
-                     <jboss.undeploy.url.prefix>http://localhost:8080//jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=undeploy&amp;argType=java.net.URL&amp;arg0=</jboss.undeploy.url.prefix>
-                  </systemProperties>
-               </container>-->
                <wait>true</wait>
-<!--               <configuration>
-                  <home>${basedir}/target/cargo/standalone</home>
-                  <properties>
-                     <cargo.logging>low</cargo.logging>
-                     <cargo.jvmargs>${cargo.jvmargs}</cargo.jvmargs>
-                  </properties>
-                  <deployables>
-                     <deployable>
-                        <location>${basedir}/target/test-archives/test-producer.sar</location>
-                        <type>sar</type>
-                     </deployable>
-                  </deployables>
-                  <configfiles>
-                 <configfile>
-                   <file>${JBOSS_HOME}/server/default/conf/jboss-log4j.xml</file>
-                   <tofile>/conf/jboss-log4j.xml</tofile>
-                 </configfile>
-               </configfiles>
-               </configuration>-->
             </configuration>
-<!--            <executions>
-               <execution>
-                  <id>pre-integration-test</id>
-                  <phase>pre-integration-test</phase>
-                  <goals>
-                     <goal>start</goal>
-                  </goals>
-               </execution>
-            </executions> -->
          </plugin>
         </plugins>
        </build>
