@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.test.support;
 
@@ -134,48 +134,60 @@ public class MockHttpServletRequest implements InvocationHandler, Serializable
 
             public boolean hasMoreElements()
             {
-				return false;
-			}
-			
+               return false;
+            }
+
             public String nextElement()
             {
-				return null;
-			}
-		};
+               return null;
+            }
+         };
       }
       if ("getCookies".equals(methodName))
       {
-    	  return new Cookie[0];
+         return new Cookie[0];
       }
       if ("getMethod".equals(methodName))
       {
-    	  return "GET";
+         return "GET";
       }
       if ("getContextPath".equals(methodName))
       {
-    	  return "/";
+         return "/";
       }
       if ("getPathInfo".equals(methodName))
       {
-    	  return "/";
-      }      
+         return "/";
+      }
       if ("getQueryString".equals(methodName))
       {
-    	  return "";
+         return "";
       }
       if ("getQueryURI".equals(methodName))
       {
-    	  return "";
+         return "";
       }
       if ("getRequestURI".equals(methodName))
       {
-    	  return "";
+         return "";
       }
       if ("getServletPath".equals(methodName))
       {
-    	  return "/";
+         return "/";
       }
-      
+      if ("getAuthType".equals(methodName))
+      {
+         return null;
+      }
+      if ("isSecure".equals(methodName))
+      {
+         return false;
+      }
+      if ("getUserPrincipal".equals(methodName))
+      {
+         return null;
+      }
+
       throw new UnsupportedOperationException("MockHttpServletRequest does not support: " + method);
    }
 }
