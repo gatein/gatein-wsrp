@@ -66,7 +66,9 @@ import org.oasis.wsrp.v1.V1ResourceList;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -75,6 +77,7 @@ import java.util.List;
  */
 public class MarkupTestCase extends V1ConsumerBaseTest
 {
+
    public MarkupTestCase() throws Exception
    {
       super();
@@ -282,9 +285,12 @@ public class MarkupTestCase extends V1ConsumerBaseTest
 
       render.setInstanceContext(new AbstractInstanceContext(portletHandle));
       render.setSecurityContext(new AbstractSecurityContext(MockHttpServletRequest.createMockRequest(null)));
-      render.setUserContext(new AbstractUserContext());
+      render.setUserContext(new MockUserContext());
       render.setWindowContext(new AbstractWindowContext("windowcontext"));
       render.setPortalContext(new AbstractPortalContext());
+
+      requestedMarkupBehavior = portletHandle;
+
       return render;
    }
 
@@ -294,8 +300,20 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ActionInvocation action = new ActionInvocation(ac);
       action.setInstanceContext(new AbstractInstanceContext(portletHandle));
       action.setSecurityContext(new AbstractSecurityContext(MockHttpServletRequest.createMockRequest(null)));
-      action.setUserContext(new AbstractUserContext());
+      action.setUserContext(new MockUserContext());
       action.setTarget(PortletContext.createPortletContext(portletHandle));
+
+      requestedMarkupBehavior = portletHandle;
+
       return action;
+   }
+
+   static class MockUserContext extends AbstractUserContext
+   {
+      @Override
+      public List<Locale> getLocales()
+      {
+         return Collections.singletonList(Locale.ENGLISH);
+      }
    }
 }

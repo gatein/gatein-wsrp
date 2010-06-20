@@ -24,8 +24,8 @@
 package org.gatein.wsrp.consumer;
 
 import junit.framework.TestCase;
-import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.gatein.wsrp.test.protocol.v1.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
 import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
@@ -65,13 +65,14 @@ public abstract class WSRPConsumerBaseTest extends TestCase
    protected TestWSRPProducer producer = new TestWSRPProducerImpl();
 
    /** . */
-   protected WSRPConsumer consumer = new WSRPConsumerImpl();
+   protected WSRPConsumerImpl consumer = new WSRPConsumerImpl();
 
    private boolean strict = true;
    private String sdClassName;
    private String mClassName;
    private String pmClassName;
    private String rClassName;
+   protected static String requestedMarkupBehavior;
 
 
    public void setUp() throws Exception
@@ -80,7 +81,8 @@ public abstract class WSRPConsumerBaseTest extends TestCase
       producer.reset();
 
       // set the test producer identifier
-      consumer.getProducerInfo().setId(TEST_PRODUCER_ID);
+      ProducerInfo producerInfo = consumer.getProducerInfo();
+      producerInfo.setId(TEST_PRODUCER_ID);
 
       // reset the behaviors
       BehaviorRegistry registry = producer.getBehaviorRegistry();
@@ -91,13 +93,16 @@ public abstract class WSRPConsumerBaseTest extends TestCase
       registerAdditionalMarkupBehaviors(registry);
 
       // use a fresh ConsumerRegistry
-      consumer.getProducerInfo().setRegistry(new MockConsumerRegistry());
+      producerInfo.setRegistry(new MockConsumerRegistry());
+
+      // use
+      producerInfo.setEndpointConfigurationInfo(new EndpointConfigurationInfo(new BehaviorBackedServiceFactory(registry)));
 
       // make sure we use clean producer info for each test
       consumer.refreshProducerInfo();
 
       // use cache to avoid un-necessary calls
-      consumer.getProducerInfo().setExpirationCacheSeconds(120);
+      producerInfo.setExpirationCacheSeconds(120);
    }
 
    protected void setRegistrationBehavior(RegistrationBehavior behavior)
@@ -127,26 +132,6 @@ public abstract class WSRPConsumerBaseTest extends TestCase
       }
 
       registry.setPortletManagementBehavior(behavior);
-   }
-
-   public TestWSRPProducer getProducer()
-   {
-      return producer;
-   }
-
-   public void setProducer(TestWSRPProducer producer)
-   {
-      this.producer = producer;
-   }
-
-   public WSRPConsumer getConsumer()
-   {
-      return consumer;
-   }
-
-   public void setConsumer(WSRPConsumer consumer)
-   {
-      this.consumer = consumer;
    }
 
    public void testProducerId()
@@ -245,5 +230,23 @@ public abstract class WSRPConsumerBaseTest extends TestCase
    protected int getPortletNumber()
    {
       return producer.getBehaviorRegistry().getServiceDescriptionBehavior().getPortletNumber();
+   }
+
+   /**
+    * So that BehaviorBackedServiceFactory can retrieve the proper behavior when retrieving the markup service for
+    * invocation.
+    *
+    * @return
+    */
+   public static String getRequestedMarkupBehavior()
+   {
+      return requestedMarkupBehavior;
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      // reset the requested markup behavior
+      requestedMarkupBehavior = null;
    }
 }

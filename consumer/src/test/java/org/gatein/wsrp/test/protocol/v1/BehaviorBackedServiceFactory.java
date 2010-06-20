@@ -26,6 +26,7 @@ package org.gatein.wsrp.test.protocol.v1;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.consumer.WSRPConsumerBaseTest;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.services.PortletManagementService;
 import org.gatein.wsrp.services.RegistrationService;
@@ -75,7 +76,12 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public BehaviorBackedServiceFactory()
    {
-      registry = new BehaviorRegistry();
+      this(new BehaviorRegistry());
+   }
+
+   public BehaviorBackedServiceFactory(BehaviorRegistry registry)
+   {
+      this.registry = registry;
       registry.registerMarkupBehavior(new SimpleMarkupBehavior());
    }
 
@@ -92,7 +98,13 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       }
       if (WSRPV1MarkupPortType.class.isAssignableFrom(serviceClass))
       {
-         return (T)registry.getMarkupBehaviorFor(MARKUP);
+         String requestedMarkupBehavior = WSRPConsumerBaseTest.getRequestedMarkupBehavior();
+         if (requestedMarkupBehavior == null)
+         {
+            requestedMarkupBehavior = MARKUP;
+         }
+
+         return (T)registry.getMarkupBehaviorFor(requestedMarkupBehavior);
       }
       if (WSRPV1PortletManagementPortType.class.isAssignableFrom(serviceClass))
       {
