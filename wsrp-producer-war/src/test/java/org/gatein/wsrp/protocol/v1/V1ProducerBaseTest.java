@@ -23,8 +23,10 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.registration.Consumer;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
+import org.gatein.registration.impl.ConsumerImpl;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
@@ -177,7 +179,8 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
          // create consumer for policy to be able to make decisions properly
          try
          {
-            registrationManager.createConsumer(CONSUMER);
+            Consumer consumer = registrationManager.createConsumer(CONSUMER);
+            ((ConsumerImpl)consumer).setPersistentKey("test_consumer_persistent_key");
          }
          catch (RegistrationException e)
          {

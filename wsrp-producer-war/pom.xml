@@ -386,9 +386,9 @@
                      <includes>
                         <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
-                        <!--<include>org/gatein/wsrp/protocol/v1/ReleaseSessionTestCase.class</include>-->
+                        <include>org/gatein/wsrp/protocol/v1/ReleaseSessionTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v1/ServiceDescriptionTestCase.class</include>
-                        <!--<include>org/gatein/wsrp/protocol/v1/RegistrationTestCase.class</include>-->
+                        <include>org/gatein/wsrp/protocol/v1/RegistrationTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v2/ServiceDescriptionTestCase.class</include>
                      </includes>
                      <excludes>
