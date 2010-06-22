@@ -36,91 +36,92 @@
    <name>GateIn WSRP Producer WAR</name>
 
    <properties>
-     <!-- the default jvmargs which should be used for the tests -->
-     <!-- We need to set the STRICT_SERVLET_COMPLIANCE to false since we are using mock http requests -->
-     <cargo.jvmargs.default>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs.default>
-     <cargo.jvmargs>${cargo.jvmargs.default}</cargo.jvmargs>
+      <!-- the default jvmargs which should be used for the tests -->
+      <!-- We need to set the STRICT_SERVLET_COMPLIANCE to false since we are using mock http requests -->
+      <cargo.jvmargs.default>-Dorg.apache.catalina.STRICT_SERVLET_COMPLIANCE=false</cargo.jvmargs.default>
+      <cargo.jvmargs>${cargo.jvmargs.default}</cargo.jvmargs>
    </properties>
 
    <profiles>
-     <profile>
-       <id>default</id>
-       <activation>
-         <activeByDefault>true</activeByDefault>
-       </activation>
-       <properties>
-         <cargo.jvmargs>${cargo.jvmargs.default}</cargo.jvmargs>
-       </properties>
-     </profile>
-     <profile>
-       <id>cargo-debug</id>
-       <properties>
-         <!-- add the jdwp setup for the testus -->
-         <cargo.jvmargs.debug>-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n</cargo.jvmargs.debug>
-         <cargo.jvmargs>${cargo.jvmargs.default} ${cargo.jvmargs.debug}</cargo.jvmargs>
-       </properties>
-     </profile>
-     <profile>
-       <!-- uses a zip of jboss as instead of an exploded directory -->
-       <id>server-url</id>
-       <activation>
-         <property>
-           <name>jboss.zip.url</name>
-         </property>
-       </activation>
-       <properties>
-         <jboss.systemPath>${jboss.zip.url}</jboss.systemPath>
-         <JBOSS_HOME>${project.build.directory}/cargo/servers/jboss-5.1.0.GA</JBOSS_HOME>
-       </properties>
-       <dependencies>
-         <dependency>
-           <groupId>org.jboss.jbossas</groupId>
-           <artifactId>jboss-as-distribution</artifactId>
-           <version>5.1.0.GA</version>
-           <scope>system</scope>
-           <type>zip</type>
-           <systemPath>${jboss.systemPath}</systemPath>
-         </dependency>
-       </dependencies>
-       <build>
-         <plugins>
-           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.1</version>
-            <executions>
-               <execution>
-                  <id>dependency-unpack</id>
-                  <phase>pre-integration-test</phase>
-                  <goals>
-                     <goal>unpack-dependencies</goal>
-                  </goals>
+      <profile>
+         <id>default</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <properties>
+            <cargo.jvmargs>${cargo.jvmargs.default}</cargo.jvmargs>
+         </properties>
+      </profile>
+      <profile>
+         <id>cargo-debug</id>
+         <properties>
+            <!-- add the jdwp setup for the testus -->
+            <cargo.jvmargs.debug>-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
+            </cargo.jvmargs.debug>
+            <cargo.jvmargs>${cargo.jvmargs.default} ${cargo.jvmargs.debug}</cargo.jvmargs>
+         </properties>
+      </profile>
+      <profile>
+         <!-- uses a zip of jboss as instead of an exploded directory -->
+         <id>server-url</id>
+         <activation>
+            <property>
+               <name>jboss.zip.url</name>
+            </property>
+         </activation>
+         <properties>
+            <jboss.systemPath>${jboss.zip.url}</jboss.systemPath>
+            <JBOSS_TEST_HOME>${project.build.directory}/cargo/servers/jboss-5.1.0.GA</JBOSS_TEST_HOME>
+         </properties>
+         <dependencies>
+            <dependency>
+               <groupId>org.jboss.jbossas</groupId>
+               <artifactId>jboss-as-distribution</artifactId>
+               <version>5.1.0.GA</version>
+               <scope>system</scope>
+               <type>zip</type>
+               <systemPath>${jboss.systemPath}</systemPath>
+            </dependency>
+         </dependencies>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <version>2.1</version>
+                  <executions>
+                     <execution>
+                        <id>dependency-unpack</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                           <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                           <includeGroupIds>org.jboss.jbossas</includeGroupIds>
+                           <includeArtifactIds>jboss-as-distribution</includeArtifactIds>
+                           <outputDirectory>${project.build.directory}/cargo/servers</outputDirectory>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>test-server</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.cargo</groupId>
+                  <artifactId>cargo-maven2-plugin</artifactId>
+                  <version>1.0.1</version>
                   <configuration>
-                       <includeGroupIds>org.jboss.jbossas</includeGroupIds>
-                       <includeArtifactIds>jboss-as-distribution</includeArtifactIds>
-                       <outputDirectory>${project.build.directory}/cargo/servers</outputDirectory>
+                     <wait>true</wait>
                   </configuration>
-               </execution>
-            </executions>
-           </plugin>
-         </plugins>
-       </build>
-     </profile>
-     <profile>
-       <id>test-server</id>
-       <build>
-        <plugins>
-         <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <version>1.0.1</version>
-            <configuration>
-               <wait>true</wait>
-            </configuration>
-         </plugin>
-        </plugins>
-       </build>
-     </profile>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 
    <dependencies>
@@ -404,7 +405,7 @@
             <configuration>
                <container>
                   <containerId>jboss51x</containerId>
-                  <home>${JBOSS_HOME}</home>
+                  <home>${JBOSS_TEST_HOME}</home>
                   <log>${basedir}/target/jboss51x/container.log</log>
                   <systemProperties>
                      <!-- Since the tests run on the server, we need to pass system properties to the
@@ -431,12 +432,12 @@
                      </deployable>
                   </deployables>
                   <configfiles>
-                 <!-- hack to get normal logging instead of incredibly versbose -->
-                 <configfile>
-                   <file>${JBOSS_HOME}/server/default/conf/jboss-log4j.xml</file>
-                   <tofile>/conf/jboss-log4j.xml</tofile>
-                 </configfile>
-               </configfiles>
+                     <!-- hack to get normal logging instead of incredibly versbose -->
+                     <configfile>
+                        <file>${JBOSS_TEST_HOME}/server/default/conf/jboss-log4j.xml</file>
+                        <tofile>/conf/jboss-log4j.xml</tofile>
+                     </configfile>
+                  </configfiles>
                </configuration>
             </configuration>
             <executions>

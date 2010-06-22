@@ -28,10 +28,17 @@
 
 if [ -z "$GATEIN_EAR_HOME" -o ! -d "$GATEIN_EAR_HOME" ]
 then
-   echo \=\=\> Please set GATEIN_EAR_HOME to point to the repository on your application that contains gatein.ear
+   echo \=\=\> Please set GATEIN_EAR_HOME to point to the repository on your application server that contains gatein.ear
    exit
 fi
 echo Using GateIn home at: $GATEIN_EAR_HOME
+
+if [ -z "$JBOSS_TEST_HOME" -o ! -d "$JBOSS_TEST_HOME" ]
+then
+   echo \=\=\> Please set JBOSS_TEST_HOME to point an installation directory of JBoss AS 5.1.x to be used for tests
+   exit
+fi
+echo Using JBoss AS home at: $JBOSS_TEST_HOME
 
 # Retrieve the current WSRP version as specified in the POM file
 export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n -e 's/.*<version>\(.*\)<\/.*/\1/p'`
