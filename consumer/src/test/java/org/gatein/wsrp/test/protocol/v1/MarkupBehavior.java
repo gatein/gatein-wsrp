@@ -171,6 +171,9 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
       V1MarkupResponse markupResponse = WSRP1TypeFactory.createMarkupResponse(markupContext.value);
 
       modifyResponseIfNeeded(markupResponse);
+      
+      // some markupbehaviours will have the session context set on the markupResponse object and we need to retrieve from there
+      sessionContext.value = markupResponse.getSessionContext();
    }
 
    public List<V1Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed

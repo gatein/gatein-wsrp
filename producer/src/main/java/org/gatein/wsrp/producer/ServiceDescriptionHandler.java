@@ -103,6 +103,7 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
 
       // if we don't have registration information but a registration is required, send registration props information
       boolean needsRegistrationProperties = registration == null && requirements.isRegistrationRequired();
+      // TODO: verify if this is the correct behaviour. We should always make this change, as if the reqistrationRequired goes from true to false, the serviceDescriptions will never occur.
       if (needsRegistrationProperties)
       {
          serviceDescription.updateRegistrationProperties(requirements);

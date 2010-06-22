@@ -106,7 +106,6 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <excludes>
-                  <exclude>org/gatein/wsrp/protocol/v1/MarkupTestCase.*</exclude>
                   <exclude>org/gatein/wsrp/test/**</exclude>
                </excludes>
             </configuration>
