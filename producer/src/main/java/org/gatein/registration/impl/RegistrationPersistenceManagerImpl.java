@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -126,7 +126,9 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    @Override
    protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName)
    {
-      return newConsumerSPI(consumerId, consumerName);
+      ConsumerSPI consumerSPI = newConsumerSPI(consumerId, consumerName);
+      consumerSPI.setPersistentKey(consumerId);
+      return consumerSPI;
    }
 
    public ConsumerSPI newConsumerSPI(String consumerId, String consumerName)
@@ -149,7 +151,9 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    @Override
    protected ConsumerGroupSPI internalCreateConsumerGroup(String name)
    {
-      return newConsumerGroupSPI(name);
+      ConsumerGroupSPI groupSPI = newConsumerGroupSPI(name);
+      groupSPI.setPersistentKey(name);
+      return groupSPI;
    }
 
    public ConsumerGroupSPI newConsumerGroupSPI(String name)

@@ -1,25 +1,25 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2006, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.gatein.registration;
 
 import junit.framework.TestCase;
@@ -80,13 +80,38 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       stopInteraction();
    }
 
+   public void testCreateConsumer() throws RegistrationException
+   {
+      startInteraction();
+      Consumer consumer = getManager().createConsumer("Bar", "Bar");
+      assertNotNull(consumer);
+      assertEquals("Bar", consumer.getName());
+      assertTrue(consumer.getRegistrations().isEmpty());
+      assertNull(consumer.getGroup());
+      assertNotNull(consumer.getPersistentKey());
+      assertNull(consumer.getConsumerAgent());
+      assertNotNull(consumer.getCapabilities());
+      assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
+      stopInteraction();
+   }
+
+   public void testCreateGroup() throws RegistrationException
+   {
+      startInteraction();
+      ConsumerGroup group = getManager().createConsumerGroup("Foo");
+      assertNotNull(group);
+      assertNotNull(group.getPersistentKey());
+      assertEquals("Foo", group.getName());
+      assertTrue(group.getConsumers().isEmpty());
+      assertEquals(RegistrationStatus.PENDING, group.getStatus());
+      stopInteraction();
+   }
+
    public void testAddGroup() throws Exception
    {
       startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       assertNotNull(group);
-      assertEquals("Foo", group.getName());
-      assertEquals(Collections.EMPTY_LIST, new ArrayList(group.getConsumers()));
       stopInteraction();
 
       // Test by retrieving the same consumer
@@ -201,9 +226,6 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       startInteraction();
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
-      assertNotNull(consumer);
-      assertEquals("Bar", consumer.getName());
-      assertEquals(Collections.EMPTY_LIST, new ArrayList(consumer.getRegistrations()));
       assertEquals("Foo", consumer.getGroup().getName());
       stopInteraction();
 
