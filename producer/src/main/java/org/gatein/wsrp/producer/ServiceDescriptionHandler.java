@@ -101,14 +101,12 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
 
       ProducerRegistrationRequirements requirements = producer.getProducerRegistrationRequirements();
 
+      //update the registration properties with the registration requirements
+      serviceDescription.updateRegistrationProperties(requirements);
+
       // if we don't have registration information but a registration is required, send registration props information
       boolean needsRegistrationProperties = registration == null && requirements.isRegistrationRequired();
-      // TODO: verify if this is the correct behaviour. We should always make this change, as if the reqistrationRequired goes from true to false, the serviceDescriptions will never occur.
-      if (needsRegistrationProperties)
-      {
-         serviceDescription.updateRegistrationProperties(requirements);
-      }
-
+      
       boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
          && requirements.isRegistrationRequiredForFullDescription());
       if (needsPortletDescriptions)
@@ -419,7 +417,7 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
             registrationNoPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
             registrationPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
 
-            lastGenerated = System.currentTimeMillis();
+            lastGenerated = System.nanoTime();
          }
       }
 

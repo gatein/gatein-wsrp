@@ -24,6 +24,7 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
@@ -46,6 +47,7 @@ import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
+import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1ModifyRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PropertyDescription;
@@ -144,9 +146,8 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       producer.register(regData);
    }
 
-   //TODO: reneable this test when its issues are fixed.
    //@Test
-   public void testRegistrationHandle() throws Exception//V1OperationFailed, V1MissingParameters, RegistrationException
+   public void testRegistrationHandle() throws Exception
    {
       try
       {

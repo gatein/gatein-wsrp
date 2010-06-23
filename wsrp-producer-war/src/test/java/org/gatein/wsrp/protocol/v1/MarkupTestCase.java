@@ -643,8 +643,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       return namedString;
    }
 
-   //TODO: enable this test, it doesn't work or make sense right now since we are using a mockhttpservletrequest
-   //@Test
+   @Test
    public void testGetMarkupWithResource() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -658,12 +657,13 @@ public class MarkupTestCase extends NeedPortletHandleTest
          String markupString = res.getMarkupContext().getMarkupString();
 
          // accept either localhost or 127.0.0.1 for the host part of the generated markup
+         // note that we are using a MockHttpServletRequest, so the host and port come from there.
          String markupStart = "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2F";
          String markupEnd = "%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
          String localhostMarkup = markupStart + "localhost" + markupEnd;
          String homeIPMarkup = markupStart + "127.0.0.1" + markupEnd;
          boolean result = localhostMarkup.equals(markupString) || homeIPMarkup.equals(markupString);
-         ExtendedAssert.assertTrue(result);
+         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'." , result);
       }
       finally
       {
@@ -671,8 +671,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
-   //TODO: enable this test, it doesn't work or make sense right now since we are using a mockhttpservletrequest
-   //@Test
+   @Test
    public void testGetMarkupWithNonURLEncodedResource() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -686,12 +685,13 @@ public class MarkupTestCase extends NeedPortletHandleTest
          String markupString = res.getMarkupContext().getMarkupString();
 
          // accept either localhost or 127.0.0.1 for the host part of the generated markup
+         // note that we are using a MockHttpServletRequest, so the host and port come from there.
          String markupStart = "<img src='http://";
          String markupEnd = ":8080/test-resourcenoencodeurl-portlet/gif/logo.gif'/>";
          String localhostMarkup = markupStart + "localhost" + markupEnd;
          String homeIPMarkup = markupStart + "127.0.0.1" + markupEnd;
          boolean result = localhostMarkup.equals(markupString) || homeIPMarkup.equals(markupString);
-         ExtendedAssert.assertTrue(result);
+         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'.", result);
       }
       finally
       {

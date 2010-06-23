@@ -179,8 +179,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertFalse(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
       
-      //TODO: look into the failure later, it doesn't seem like cookie are ever set in the session info.
-      //ExtendedAssert.assertNotNull(sessionInfo.getUserCookie());
+      ExtendedAssert.assertNotNull(sessionInfo.getUserCookie());
 
       ExtendedAssert.assertEquals(1, behavior.getInitCookieCallCount());
    }

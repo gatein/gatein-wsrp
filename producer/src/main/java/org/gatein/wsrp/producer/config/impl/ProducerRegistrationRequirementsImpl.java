@@ -80,7 +80,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    private void modifyNow()
    {
-      lastModified = System.currentTimeMillis();
+      lastModified = System.nanoTime();
    }
 
    public long getLastModified()

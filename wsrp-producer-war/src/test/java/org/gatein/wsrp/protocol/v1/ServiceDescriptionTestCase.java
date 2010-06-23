@@ -100,8 +100,7 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
        }
    }
 
-   //TODO: disable for now
-   //@Test
+   @Test
    public void testNotRequiringRegistration() throws Throwable
    {
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
@@ -115,6 +114,35 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
 
       // No registration properties
       ExtendedAssert.assertNull(sd.getRegistrationPropertyDescription());
+   }
+   
+   /**
+    * Test to make sure that when switching from required to not-required (and vise-versa) that
+    * the change properly persists to the service description.
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testNotRequiringRegistrationSwitching() throws Throwable
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
+      V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
+      V1ServiceDescription sd = producer.getServiceDescription(gs);
+      
+      // registration is not required
+      ExtendedAssert.assertFalse(sd.isRequiresRegistration());
+      
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      gs = getNoRegistrationServiceDescriptionRequest();
+      sd = producer.getServiceDescription(gs);
+      
+      ExtendedAssert.assertTrue(sd.isRequiresRegistration());
+      
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
+      gs = getNoRegistrationServiceDescriptionRequest();
+      sd = producer.getServiceDescription(gs);
+      
+      ExtendedAssert.assertFalse(sd.isRequiresRegistration());
    }
 
    @Test
