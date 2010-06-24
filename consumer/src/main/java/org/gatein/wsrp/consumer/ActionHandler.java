@@ -188,9 +188,10 @@ public class ActionHandler extends InvocationHandler
                {
                   String name = (String)param.getKey();
                   String[] values = (String[])param.getValue();
-                  NamedString formParameter = new NamedString();
+                  NamedString formParameter;
                   for (String value : values)
                   {
+                     formParameter = new NamedString();
                      formParameter.setName(name);
                      formParameter.setValue(value);
                      formParameters.add(formParameter);
