@@ -1050,8 +1050,8 @@ public class V1ToV2Converter
          return null;
       }
    }
-   
-   public static GetPortletDescription toV2GetPortletDescription (V1GetPortletDescription getPortletDescription)
+
+   public static GetPortletDescription toV2GetPortletDescription(V1GetPortletDescription getPortletDescription)
    {
       if (getPortletDescription != null)
       {
@@ -1059,9 +1059,9 @@ public class V1ToV2Converter
          PortletContext portletContext = toV2PortletContext(getPortletDescription.getPortletContext());
          UserContext userContext = toV2UserContext(getPortletDescription.getUserContext());
          GetPortletDescription result = WSRPTypeFactory.createGetPortletDescription(registrationContext, portletContext, userContext);
-         
+
          result.getDesiredLocales().addAll(getPortletDescription.getDesiredLocales());
-         
+
          return result;
       }
       else
@@ -1168,10 +1168,7 @@ public class V1ToV2Converter
       {
          if (v1NamedString != null)
          {
-            NamedString result = new NamedString();
-            result.setName(v1NamedString.getName());
-            result.setValue(v1NamedString.getValue());
-            return result;
+            return WSRPTypeFactory.createNamedString(v1NamedString.getName(), v1NamedString.getValue());
          }
          else
          {

@@ -45,13 +45,18 @@ import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventDescription;
+import org.oasis.wsrp.v2.EventParams;
+import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.HandleEvents;
+import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.LocalizedString;
@@ -62,6 +67,7 @@ import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.NamedStringArray;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
@@ -86,7 +92,9 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -1124,13 +1132,9 @@ public class WSRPTypeFactory
             for (Map.Entry<String, String[]> entry : publicNavigationalState.entrySet())
             {
                String name = entry.getKey();
-               NamedString namedString;
                for (String value : entry.getValue())
                {
-                  namedString = new NamedString();
-                  namedString.setName(name);
-                  namedString.setValue(value);
-                  context.getPublicValues().add(namedString);
+                  context.getPublicValues().add(WSRPTypeFactory.createNamedString(name, value));
                }
             }
          }
@@ -1155,5 +1159,88 @@ public class WSRPTypeFactory
       EventDescription desc = new EventDescription();
       desc.setName(name);
       return desc;
+   }
+
+   public static HandleEventsResponse createHandleEventsReponse()
+   {
+      return new HandleEventsResponse();
+   }
+
+   public static HandleEvents createHandleEvents(PortletContext portletContext, RuntimeContext runtimeContext,
+                                                 MarkupParams markupParams, EventParams eventParams)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletContext.getPortletHandle(), "portlet handle", "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(markupParams, "MarkupParams");
+      ParameterValidation.throwIllegalArgExceptionIfNull(eventParams, "EventParams");
+
+      HandleEvents handleEvents = new HandleEvents();
+      handleEvents.setPortletContext(portletContext);
+      handleEvents.setEventParams(eventParams);
+      handleEvents.setMarkupParams(markupParams);
+      handleEvents.setRuntimeContext(runtimeContext);
+      return handleEvents;
+   }
+
+   public static EventParams createEventParams(List<Event> events, StateChange portletStateChange)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(events))
+      {
+         throw new IllegalArgumentException("Must provide at least one Event to EventParams.");
+      }
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletStateChange, "StateChange");
+
+      EventParams eventParams = new EventParams();
+      eventParams.setPortletStateChange(portletStateChange);
+      eventParams.getEvents().addAll(events);
+      return eventParams;
+   }
+
+   public static Event createEvent(QName name, Serializable payload)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "Event name");
+      Event event = new Event();
+      event.setName(name);
+      if (payload != null)
+      {
+         Class<? extends Object> type = payload.getClass();
+         XmlRootElement annotation = type.getAnnotation(XmlRootElement.class);
+         if (annotation != null)
+         {
+            event.setType(new QName(annotation.namespace(), annotation.name()));
+            event.setPayload(WSRPTypeFactory.createEventPayloadAsAny(payload));
+         }
+         else
+         {
+            event.setPayload(WSRPTypeFactory.createEventPayloadAsNamedString(payload));
+         }
+      }
+      return event;
+   }
+
+   public static EventPayload createEventPayloadAsAny(Object value)
+   {
+      EventPayload payload = new EventPayload();
+      payload.setAny(value);
+      return payload;
+   }
+
+   public static NamedString createNamedString(String name, String value)
+   {
+      NamedString namedString = new NamedString();
+      namedString.setName(name);
+      namedString.setValue(value);
+      return namedString;
+   }
+
+   public static EventPayload createEventPayloadAsNamedString(Object payload)
+   {
+      // todo: fix me GTNWSRP-49
+      EventPayload result = new EventPayload();
+      NamedStringArray value = new NamedStringArray();
+      value.getNamedString().add(createNamedString("event", payload.toString()));
+      result.setNamedStringArray(value);
+      return result;
    }
 }
