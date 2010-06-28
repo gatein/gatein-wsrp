@@ -1,28 +1,28 @@
 /*
-* JBoss, a division of Red Hat
-* Copyright 2008, Red Hat Middleware, LLC, and individual contributors as indicated
-* by the @authors tag. See the copyright.txt in the distribution for a
-* full listing of individual contributors.
-*
-* This is free software; you can redistribute it and/or modify it
-* under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of
-* the License, or (at your option) any later version.
-*
-* This software is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this software; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.services.v2;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.services.MarkupService;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.EventParams;
@@ -80,7 +80,7 @@ public class V2MarkupService extends MarkupService<WSRPV2MarkupPortType>
    @Override
    public void getResource(RegistrationContext registrationContext, Holder<PortletContext> portletContext, RuntimeContext runtimeContext, UserContext userContext, ResourceParams resourceParams, Holder<ResourceContext> resourceContext, Holder<SessionContext> sessionContext, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      throw new NotYetImplemented();
+      service.getResource(registrationContext, portletContext, runtimeContext, userContext, resourceParams, resourceContext, sessionContext, extensions);
    }
 
    @Override
@@ -92,7 +92,7 @@ public class V2MarkupService extends MarkupService<WSRPV2MarkupPortType>
    @Override
    public void handleEvents(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, EventParams eventParams, Holder<UpdateResponse> updateResponse, Holder<List<HandleEventsFailed>> failedEvents, Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      throw new NotYetImplemented();
+      service.handleEvents(registrationContext, portletContext, runtimeContext, userContext, markupParams, eventParams, updateResponse, failedEvents, extensions);
    }
 
    @Override
@@ -106,28 +106,4 @@ public class V2MarkupService extends MarkupService<WSRPV2MarkupPortType>
    {
       return service.initCookie(registrationContext, userContext);
    }
-
-   /*@Override
-   public void performBlockingInteraction(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, InteractionParams interactionParams, Holder<UpdateResponse> updateResponseHolder, Holder<String> redirectURL, Holder<List<Extension>> listHolder) throws InvalidCookie, MissingParameters, InvalidSession, UnsupportedWindowState, InconsistentParameters, InvalidUserCategory, InvalidRegistration, OperationFailed, PortletStateChangeRequired, UnsupportedMode, InvalidHandle, ResourceSuspended, UnsupportedMimeType, ModifyRegistrationRequired, AccessDenied, UnsupportedLocale
-   {
-      service.performBlockingInteraction(registrationContext, portletContext, runtimeContext, userContext, markupParams, interactionParams, updateResponseHolder, redirectURL, listHolder);
-   }
-
-   @Override
-   public void getMarkup(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams, Holder<MarkupContext> markupContextHolder, Holder<SessionContext> sessionContextHolder, Holder<List<Extension>> listHolder) throws InvalidCookie, MissingParameters, InvalidSession, UnsupportedWindowState, InconsistentParameters, InvalidUserCategory, InvalidRegistration, OperationFailed, UnsupportedMode, InvalidHandle, ResourceSuspended, UnsupportedMimeType, ModifyRegistrationRequired, AccessDenied, UnsupportedLocale
-   {
-      service.getMarkup(registrationContext, portletContext, runtimeContext, userContext, markupParams, markupContextHolder, sessionContextHolder, listHolder);
-   }
-
-   @Override
-   public void initCookie(RegistrationContext registrationContext, UserContext userContext) throws OperationFailed, ResourceSuspended, OperationNotSupported, AccessDenied, ModifyRegistrationRequired, InvalidRegistration
-   {
-      service.initCookie(registrationContext, userContext);
-   }
-
-   @Override
-   public void releaseSessions(RegistrationContext registrationContext, List<String> idsToRelease, UserContext userContext) throws OperationFailed, ResourceSuspended, MissingParameters, OperationNotSupported, AccessDenied, ModifyRegistrationRequired, InvalidRegistration
-   {
-      service.releaseSessions(registrationContext, idsToRelease, userContext);
-   }*/
 }

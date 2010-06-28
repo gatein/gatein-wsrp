@@ -63,7 +63,6 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -161,29 +160,10 @@ public abstract class RequestProcessor
          StateString navigationalState = createNavigationalState(navigationalContext.getOpaqueValue());
          invocation.setNavigationalState(navigationalState);
 
-         // GTNWSRP-38: public NS
          List<NamedString> publicParams = navigationalContext.getPublicValues();
          if (ParameterValidation.existsAndIsNotEmpty(publicParams))
          {
-            Map<String, String[]> publicNS = new HashMap<String, String[]>(publicParams.size());
-            for (NamedString publicParam : publicParams)
-            {
-               String paramName = publicParam.getName();
-               String[] values = publicNS.get(paramName);
-               if (ParameterValidation.existsAndIsNotEmpty(values))
-               {
-                  int valuesNb = values.length;
-                  String[] newValues = new String[valuesNb + 1];
-                  System.arraycopy(values, 0, newValues, 0, valuesNb);
-                  newValues[valuesNb] = publicParam.getValue();
-                  publicNS.put(paramName, newValues);
-               }
-               else
-               {
-                  values = new String[]{publicParam.getValue()};
-                  publicNS.put(paramName, values);
-               }
-            }
+            Map<String, String[]> publicNS = WSRPUtils.createPublicNSFrom(publicParams);
             invocation.setPublicNavigationalState(publicNS);
          }
       }

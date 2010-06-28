@@ -74,14 +74,16 @@ public class RenderHandler extends InvocationHandler
 
       // Create the markup request
       PortletContext portletContext = requestPrecursor.getPortletContext();
-      log.debug("Consumer about to attempt rendering portlet '" + portletContext.getPortletHandle() + "'");
+      if (debug)
+      {
+         log.debug("Consumer about to attempt rendering portlet '" + portletContext.getPortletHandle() + "'");
+      }
       return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.runtimeContext, requestPrecursor.markupParams);
    }
 
    protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor)
    {
       MarkupResponse markupResponse = (MarkupResponse)response;
-      log.debug("Starting processing response");
 
       // process the response
       consumer.getSessionHandler().updateSessionIfNeeded(markupResponse.getSessionContext(), invocation,
@@ -137,11 +139,8 @@ public class RenderHandler extends InvocationHandler
       // generate appropriate CacheControl
       org.gatein.pc.api.cache.CacheControl cacheControl = createCacheControl(markupContext);
 
-      FragmentResponse result = new FragmentResponse(null, null, mimeType, null, markup,
+      return new FragmentResponse(null, null, mimeType, null, markup,
          markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
-
-      log.debug("Response processed");
-      return result;
    }
 
    protected void updateUserContext(Object request, UserContext userContext)
@@ -162,7 +161,10 @@ public class RenderHandler extends InvocationHandler
    protected Object performRequest(Object request) throws Exception
    {
       GetMarkup renderRequest = getRenderRequest(request);
-      log.debug("getMarkup on '" + renderRequest.getPortletContext().getPortletHandle() + "'");
+      if (debug)
+      {
+         log.debug("getMarkup on '" + renderRequest.getPortletContext().getPortletHandle() + "'");
+      }
 
       // invocation
       Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
@@ -220,7 +222,10 @@ public class RenderHandler extends InvocationHandler
          // check that we support the user scope...
          if (consumer.supportsUserScope(userScope))
          {
-            log.debug("RenderHandler.processRenderRequest: trying to cache markup " + userScope + " for " + expires + " seconds.");
+            if (debug)
+            {
+               log.debug("RenderHandler.processRenderRequest: trying to cache markup " + userScope + " for " + expires + " seconds.");
+            }
             CacheScope scope;
             if (WSRPConstants.CACHE_FOR_ALL.equals(userScope))
             {

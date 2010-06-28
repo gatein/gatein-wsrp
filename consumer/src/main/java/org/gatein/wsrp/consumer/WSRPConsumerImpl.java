@@ -31,6 +31,7 @@ import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.invocation.ActionInvocation;
+import org.gatein.pc.api.invocation.EventInvocation;
 import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
@@ -88,10 +89,11 @@ import java.util.Set;
  */
 public class WSRPConsumerImpl implements WSRPConsumer
 {
-   private ActionHandler actionHandler;
-   private RenderHandler renderHandler;
-   private ResourceHandler resourceHandler;
-   private SessionHandler sessionHandler;
+   private final ActionHandler actionHandler;
+   private final RenderHandler renderHandler;
+   private final ResourceHandler resourceHandler;
+   private final SessionHandler sessionHandler;
+   private final EventHandler eventHandler;
 
    private ProducerInfo producerInfo;
 
@@ -133,6 +135,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       renderHandler = new RenderHandler(this);
       sessionHandler = new SessionHandler(this);
       resourceHandler = new ResourceHandler(this);
+      eventHandler = new EventHandler(this);
    }
 
    public ProducerInfo getProducerInfo()
@@ -186,6 +189,10 @@ public class WSRPConsumerImpl implements WSRPConsumer
       else if (invocation instanceof ResourceInvocation)
       {
          handler = resourceHandler;
+      }
+      else if (invocation instanceof EventInvocation)
+      {
+         handler = eventHandler;
       }
       else
       {

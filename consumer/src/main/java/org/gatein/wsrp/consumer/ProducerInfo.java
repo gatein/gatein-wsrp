@@ -81,6 +81,7 @@ import java.util.Set;
 public class ProducerInfo
 {
    private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
+   private final static boolean debug = log.isDebugEnabled();
 
    // Persistent information
 
@@ -1047,10 +1048,16 @@ public class ProducerInfo
                   registrationContext.setRegistrationState(registrationState.value);
 
                   persistentRegistrationInfo.setRegistrationContext(registrationContext);
-                  String msg = "Consumer with id '" + persistentId + "' successfully registered with handle: '"
-                     + registrationContext.getRegistrationHandle() + "'";
-                  log.debug(msg);
+
+                  if (debug)
+                  {
+                     String msg = "Consumer with id '" + persistentId + "' successfully registered with handle: '"
+                        + registrationContext.getRegistrationHandle() + "'";
+                     log.debug(msg);
+                  }
+
                   RefreshResult res = new RefreshResult();
+
                   res.setRegistrationResult(result);
                   return res;
                }
@@ -1211,6 +1218,13 @@ public class ProducerInfo
 
    public EventInfo getInfoForEvent(QName name)
    {
-      return eventDescriptions.get(name);
+      if (eventDescriptions == null)
+      {
+         return null;
+      }
+      else
+      {
+         return eventDescriptions.get(name);
+      }
    }
 }

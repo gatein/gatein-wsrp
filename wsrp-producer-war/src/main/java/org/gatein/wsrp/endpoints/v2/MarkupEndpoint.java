@@ -23,13 +23,17 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
+import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsFailed;
+import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
@@ -101,7 +105,17 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode,
       UnsupportedWindowState
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      forceSessionAccess();
+
+      HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(portletContext, runtimeContext, markupParams, eventParams);
+      handleEvents.setRegistrationContext(registrationContext);
+      handleEvents.setUserContext(userContext);
+
+      HandleEventsResponse response = producer.handleEvents(handleEvents);
+
+      updateResponse.value = response.getUpdateResponse();
+      failedEvents.value = response.getFailedEvents();
+      extensions.value = response.getExtensions();
    }
 
    public List<Extension> releaseSessions(
@@ -168,7 +182,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
       ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      throw new NotYetImplemented();
    }
 
    public void performBlockingInteraction(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RuntimeContext runtimeContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") MarkupParams markupParams, @WebParam(name = "interactionParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") InteractionParams interactionParams, @WebParam(name = "updateResponse", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<UpdateResponse> updateResponse, @WebParam(name = "redirectURL", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> redirectURL, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState

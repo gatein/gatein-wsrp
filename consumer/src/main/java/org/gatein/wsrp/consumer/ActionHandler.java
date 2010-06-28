@@ -28,16 +28,13 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.pc.api.StateEvent;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ActionInvocation;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -46,7 +43,6 @@ import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.NamedString;
-import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
@@ -60,7 +56,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +64,7 @@ import java.util.Map;
  * @version $Revision: 13121 $
  * @since 2.4 (May 31, 2006)
  */
-public class ActionHandler extends InvocationHandler
+public class ActionHandler extends NavigationalStateUpdatingHandler
 {
    protected ActionHandler(WSRPConsumerImpl consumer)
    {
@@ -87,16 +82,21 @@ public class ActionHandler extends InvocationHandler
       ActionInvocation actionInvocation = (ActionInvocation)invocation;
 
       PortletContext portletContext = requestPrecursor.getPortletContext();
-      log.debug("Consumer about to attempt action on portlet '" + portletContext.getPortletHandle() + "'");
+      if (debug)
+      {
+         log.debug("Consumer about to attempt action on portlet '" + portletContext.getPortletHandle() + "'");
+      }
 
       // access mode
       InstanceContext instanceContext = invocation.getInstanceContext();
       ParameterValidation.throwIllegalArgExceptionIfNull(instanceContext, "instance context");
       AccessMode accessMode = instanceContext.getAccessMode();
       ParameterValidation.throwIllegalArgExceptionIfNull(accessMode, "access mode");
-      log.debug("Portlet is requesting " + accessMode + " access mode");
-      InteractionParams interactionParams =
-         WSRPTypeFactory.createInteractionParams(WSRPUtils.getStateChangeFromAccessMode(accessMode));
+      if (debug)
+      {
+         log.debug("Portlet is requesting " + accessMode + " access mode");
+      }
+      InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(WSRPUtils.getStateChangeFromAccessMode(accessMode));
 
       // interaction state
       StateString interactionState = actionInvocation.getInteractionState();
@@ -127,8 +127,12 @@ public class ActionHandler extends InvocationHandler
                if (!item.isFormField())
                {
                   String contentType = item.getContentType();
-                  log.debug("File field " + item.getFieldName() + " with file name " + item.getName() + " and content type "
-                     + contentType + " detected.");
+                  if (debug)
+                  {
+                     log.debug("File field " + item.getFieldName() + " with file name " + item.getName() + " and content type "
+                        + contentType + " detected.");
+                  }
+
                   BufferedInputStream bufIn = new BufferedInputStream(stream);
 
                   ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -150,16 +154,13 @@ public class ActionHandler extends InvocationHandler
 
                   List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
 
-                  NamedString mimeAttribute = new NamedString();
-                  mimeAttribute.setName(FileUpload.CONTENT_DISPOSITION);
-                  mimeAttribute.setValue(FileUpload.FORM_DATA + ";"
+                  String value = FileUpload.FORM_DATA + ";"
                      + " name=\"" + item.getFieldName() + "\";"
-                     + " filename=\"" + item.getName() + "\"");
+                     + " filename=\"" + item.getName() + "\"";
+                  NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
                   mimeAttributes.add(mimeAttribute);
 
-                  mimeAttribute = new NamedString();
-                  mimeAttribute.setName(FileUpload.CONTENT_TYPE);
-                  mimeAttribute.setValue(item.getContentType());
+                  mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
                   mimeAttributes.add(mimeAttribute);
 
                   uploadContext.getMimeAttributes().addAll(mimeAttributes);
@@ -168,9 +169,7 @@ public class ActionHandler extends InvocationHandler
                }
                else
                {
-                  NamedString formParameter = new NamedString();
-                  formParameter.setName(item.getFieldName());
-                  formParameter.setValue(Streams.asString(stream));
+                  NamedString formParameter = WSRPTypeFactory.createNamedString(item.getFieldName(), Streams.asString(stream));
                   formParameters.add(formParameter);
                }
             }
@@ -192,9 +191,7 @@ public class ActionHandler extends InvocationHandler
                   NamedString formParameter;
                   for (String value : values)
                   {
-                     formParameter = new NamedString();
-                     formParameter.setName(name);
-                     formParameter.setValue(value);
+                     formParameter = WSRPTypeFactory.createNamedString(name, value);
                      formParameters.add(formParameter);
                   }
                }
@@ -209,7 +206,10 @@ public class ActionHandler extends InvocationHandler
 
       // todo: need to deal with GET method in forms
 
-      log.debug(WSRPUtils.toString(interactionParams));
+      if (trace)
+      {
+         log.trace(WSRPUtils.toString(interactionParams));
+      }
 
       // Create the blocking action request
       return WSRPTypeFactory.createPerformBlockingInteraction(portletContext, requestPrecursor.runtimeContext,
@@ -219,7 +219,6 @@ public class ActionHandler extends InvocationHandler
    protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
    {
       BlockingInteractionResponse blockingInteractionResponse = (BlockingInteractionResponse)response;
-      log.debug("Starting processing response");
 
       String redirectURL = blockingInteractionResponse.getRedirectURL();
       UpdateResponse updateResponse = blockingInteractionResponse.getUpdateResponse();
@@ -241,75 +240,7 @@ public class ActionHandler extends InvocationHandler
       {
          // updateResponse.getMarkupContext(); // ignore bundled markup for now.
 
-         UpdateNavigationalStateResponse result = new UpdateNavigationalStateResponse();
-         // new mode
-         String newMode = updateResponse.getNewMode();
-         if (newMode != null)
-         {
-            result.setMode(WSRPUtils.getJSR168PortletModeFromWSRPName(newMode));
-         }
-         // new window state
-         String newWindowState = updateResponse.getNewWindowState();
-         if (newWindowState != null)
-         {
-            result.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(newWindowState));
-         }
-         // navigational state
-         NavigationalContext navigationalContext = updateResponse.getNavigationalContext();
-         if (navigationalContext != null)
-         {
-            String navigationalState = navigationalContext.getOpaqueValue();
-            if (navigationalState != null) // todo: check meaning of empty private NS
-            {
-               result.setNavigationalState(new OpaqueStateString(navigationalState));
-            }
-
-            // todo: public NS GTNWSRP-38
-         }
-
-         // check if the portlet was cloned
-         PortletContext portletContext = updateResponse.getPortletContext();
-         if (portletContext != null)
-         {
-            PortletContext originalContext = requestPrecursor.getPortletContext();
-            InstanceContext context = invocation.getInstanceContext();
-
-            String handle = portletContext.getPortletHandle();
-            if (!originalContext.getPortletHandle().equals(handle))
-            {
-               // todo: GTNWSRP-36 If the Producer returns a new portletHandle without returning a new sessionID, the Consumer MUST
-               // associate the current sessionID with the new portletHandle rather than the previous portletHandle.
-               log.debug("Portlet '" + requestPrecursor.getPortletHandle() + "' was implicitely cloned. New handle is '"
-                  + handle + "'");
-               StateEvent event = new StateEvent(WSRPUtils.convertToPortalPortletContext(portletContext), StateEvent.Type.PORTLET_CLONED_EVENT);
-               context.onStateEvent(event);
-            }
-            else
-            {
-               // check if the state was modified
-               byte[] originalState = originalContext.getPortletState();
-               byte[] newState = portletContext.getPortletState();
-               if (!Arrays.equals(originalState, newState))
-               {
-                  StateEvent event = new StateEvent(WSRPUtils.convertToPortalPortletContext(portletContext), StateEvent.Type.PORTLET_MODIFIED_EVENT);
-                  context.onStateEvent(event);
-               }
-            }
-
-            // update the session information associated with the portlet handle
-            consumer.getSessionHandler().updateSessionInfoFor(originalContext.getPortletHandle(), handle, invocation);
-         }
-         else
-         {
-            portletContext = requestPrecursor.getPortletContext();
-         }
-
-         // update the session info, using either the original or cloned portlet context, as appropriate
-         consumer.getSessionHandler().updateSessionIfNeeded(updateResponse.getSessionContext(), invocation,
-            portletContext.getPortletHandle());
-
-         log.debug("Response processed");
-         return result;
+         return processUpdateResponse(invocation, requestPrecursor, updateResponse);
       }
    }
 
@@ -335,17 +266,24 @@ public class ActionHandler extends InvocationHandler
       Holder<String> redirectURL = new Holder<String>();
 
       // invocation
-      log.debug("performBlockingInteraction on '" + interaction.getPortletContext().getPortletHandle() + "'");
+      if (debug)
+      {
+         log.debug("performBlockingInteraction on '" + interaction.getPortletContext().getPortletHandle() + "'");
+      }
       consumer.getMarkupService().performBlockingInteraction(interaction.getRegistrationContext(),
          interaction.getPortletContext(), interaction.getRuntimeContext(), interaction.getUserContext(),
          interaction.getMarkupParams(), interaction.getInteractionParams(), updateResponseHolder, redirectURL,
          new Holder<List<Extension>>());
 
       // construct response
-      BlockingInteractionResponse response = new BlockingInteractionResponse();
-      response.setRedirectURL(redirectURL.value);
-      response.setUpdateResponse(updateResponseHolder.value);
-      return response;
+      if (redirectURL.value != null)
+      {
+         return WSRPTypeFactory.createBlockingInteractionResponse(redirectURL.value);
+      }
+      else
+      {
+         return WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
+      }
    }
 
    private PerformBlockingInteraction getActionRequest(Object request)

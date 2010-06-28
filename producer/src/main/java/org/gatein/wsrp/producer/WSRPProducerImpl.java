@@ -47,7 +47,10 @@ import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.HandleEvents;
+import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InvalidCookie;
@@ -58,7 +61,9 @@ import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -70,6 +75,8 @@ import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
 import org.oasis.wsrp.v2.ReleaseSessions;
+import org.oasis.wsrp.v2.ResourceResponse;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SetPortletProperties;
@@ -193,6 +200,22 @@ public class WSRPProducerImpl implements WSRP2Producer
       ReturnAny returnAny = markupHandler.initCookie(initCookie);
       log.debug("end initCookie");
       return returnAny;
+   }
+
+   public HandleEventsResponse handleEvents(HandleEvents handleEvents) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
+   {
+      log.debug("handleEvents invoked");
+      HandleEventsResponse response = markupHandler.handleEvents(handleEvents);
+      log.debug("end handleEvents");
+      return response;
+   }
+
+   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
+   {
+      log.debug("getResource invoked");
+      ResourceResponse response = markupHandler.getResource(getResource);
+      log.debug("end getResource");
+      return response;
    }
 
    // Registration implementation **************************************************************************************

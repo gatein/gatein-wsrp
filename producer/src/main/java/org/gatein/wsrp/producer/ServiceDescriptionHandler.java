@@ -106,7 +106,8 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
 
       // if we don't have registration information but a registration is required, send registration props information
       boolean needsRegistrationProperties = registration == null && requirements.isRegistrationRequired();
-      
+
+      // if we allow sending portlet descriptions even when not registered
       boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
          && requirements.isRegistrationRequiredForFullDescription());
       if (needsPortletDescriptions)

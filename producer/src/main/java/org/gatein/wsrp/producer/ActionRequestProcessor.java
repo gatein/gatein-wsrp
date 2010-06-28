@@ -38,7 +38,6 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MissingParameters;
-import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
@@ -55,18 +54,16 @@ import org.oasis.wsrp.v2.UpdateResponse;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-class ActionRequestProcessor extends RequestProcessor
+class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
 {
    private final PerformBlockingInteraction performBlockingInteraction;
-   private final InteractionParams interactionParams;
 
-   public ActionRequestProcessor(WSRPProducerImpl producer, PerformBlockingInteraction performBlockingInteraction, InteractionParams interactionParams)
+   ActionRequestProcessor(WSRPProducerImpl producer, PerformBlockingInteraction performBlockingInteraction)
       throws UnsupportedMimeType, UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters,
       InvalidRegistration, OperationFailed
    {
       super(producer);
       this.performBlockingInteraction = performBlockingInteraction;
-      this.interactionParams = interactionParams;
       prepareInvocation();
    }
 
@@ -102,7 +99,7 @@ class ActionRequestProcessor extends RequestProcessor
 
    AccessMode getAccessMode() throws MissingParameters
    {
-      StateChange stateChange = interactionParams.getPortletStateChange();
+      StateChange stateChange = performBlockingInteraction.getInteractionParams().getPortletStateChange();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(stateChange, "portletStateChange", "InteractionParams");
       return WSRPUtils.getAccessModeFromStateChange(stateChange);
    }
@@ -110,6 +107,7 @@ class ActionRequestProcessor extends RequestProcessor
    PortletInvocation initInvocation(WSRPPortletInvocationContext context)
    {
       ActionInvocation invocation = new ActionInvocation(context);
+      InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
 
       // Request context
       WSRPRequestContext requestContext = WSRPRequestContext.createRequestContext(markupRequest, interactionParams);
@@ -129,22 +127,8 @@ class ActionRequestProcessor extends RequestProcessor
    {
       if (response instanceof UpdateNavigationalStateResponse)
       {
-         UpdateNavigationalStateResponse renderResult = (UpdateNavigationalStateResponse)response;
-         UpdateResponse updateResponse = WSRPTypeFactory.createUpdateResponse();
-         updateResponse.setNewMode(WSRPUtils.convertJSR168PortletModeNameToWSRPName(getNewStateOrNull(renderResult, true)));
-         updateResponse.setNewWindowState(WSRPUtils.convertJSR168WindowStateNameToWSRPName(getNewStateOrNull(renderResult, false)));
-         NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContextOrNull(
-            renderResult.getNavigationalState(),
-            renderResult.getPublicNavigationalStateUpdates()
-         );
-         updateResponse.setNavigationalContext(navigationalContext);
-
-         // deal with implicit cloning and state modification
-         if (instanceContext.wasModified())
-         {
-            PortletContext updatedPortletContext = WSRPUtils.convertToWSRPPortletContext(instanceContext.getPortletContext());
-            updateResponse.setPortletContext(updatedPortletContext);
-         }
+         UpdateNavigationalStateResponse stateResponse = (UpdateNavigationalStateResponse)response;
+         UpdateResponse updateResponse = createUpdateResponse(stateResponse);
 
          return WSRPTypeFactory.createBlockingInteractionResponse(updateResponse);
       }
@@ -154,11 +138,5 @@ class ActionRequestProcessor extends RequestProcessor
          HTTPRedirectionResponse redirectionResult = (HTTPRedirectionResponse)response;
          return WSRPTypeFactory.createBlockingInteractionResponse(redirectionResult.getLocation());
       }
-   }
-
-   private String getNewStateOrNull(UpdateNavigationalStateResponse renderResult, boolean forMode)
-   {
-      Object state = forMode ? renderResult.getMode() : renderResult.getWindowState();
-      return state != null ? state.toString() : null;
    }
 }

@@ -69,6 +69,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    private transient boolean modifiedSinceLastRefresh;
    private transient boolean modifyRegistrationNeeded;
    private transient ProducerInfo parent;
+   private transient RegistrationContext registrationContext;
 
    /**
     * Marker string to identify a RegistrationInfo created for a producer that might not require registration as a work
@@ -671,8 +672,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       setRegistrationValidInternalState();
    }
 
-   /** todo: revert to package-only once the tests are moved to same package */
-   public void setRegistrationValidInternalState()
+   void setRegistrationValidInternalState()
    {
       // update RegistrationData if needed
       getRegistrationData();

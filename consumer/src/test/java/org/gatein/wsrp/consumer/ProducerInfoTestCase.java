@@ -354,6 +354,11 @@ public class ProducerInfoTestCase extends TestCase
       assertFalse(invalid);
    }
 
+   public void testGetInfoForEvent()
+   {
+      assertNull(info.getInfoForEvent(null));
+   }
+
    private static class TestPortletManagementBehavior extends PortletManagementBehavior
    {
 

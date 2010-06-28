@@ -51,6 +51,8 @@ public abstract class InvocationHandler
    protected WSRPConsumerImpl consumer;
 
    protected static Logger log = LoggerFactory.getLogger(InvocationHandler.class);
+   protected static boolean debug = log.isDebugEnabled();
+   protected static boolean trace = log.isTraceEnabled();
 
    /**
     * Value indicating that we should not try further (unrecoverable error) for getMarkup and
@@ -93,7 +95,7 @@ public abstract class InvocationHandler
       // as long as we don't get a non-null response and we're allowed to try again, try to perform the request
       while (response == null && retryCount++ <= MAXIMUM_RETRY_NUMBER)
       {
-         if (log.isDebugEnabled())
+         if (debug)
          {
             log.debug("performRequest: " + retryCount + " attempt(s) out of " + MAXIMUM_RETRY_NUMBER + " possible");
          }
@@ -148,7 +150,7 @@ public abstract class InvocationHandler
             "properly transmitted. Look at server.log for clues as to what happened..."));
       }
 
-      if (log.isDebugEnabled())
+      if (debug)
       {
          log.debug("performRequest finished. Response is " + (response != null ? response.getClass().getName() : null));
       }
