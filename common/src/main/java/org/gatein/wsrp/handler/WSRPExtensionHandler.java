@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -47,7 +47,7 @@ public class WSRPExtensionHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static Logger log = LoggerFactory.getLogger(WSRPExtensionHandler.class);
    private boolean debug = false;
-   private boolean removeExtensions = true;
+   private boolean removeExtensions = false; // GTNWSRP-53: deactivated extensions handling for now
    private static final String EXTENSIONS = "extensions";
 
    public boolean handleMessage(SOAPMessageContext messageContext)
