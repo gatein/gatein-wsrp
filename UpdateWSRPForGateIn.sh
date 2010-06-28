@@ -50,10 +50,18 @@ echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
 echo Current WSRP version in project POM: \'$CURRENT_WSRP\'
 echo
 
-# If we have no argument, build. If you don't want to build just add an argument (value irrelevant) when calling the script
+# If we have no argument, build and test.
+# If we have one argument (irrelevant value), build but skip tests
+# If we have more than one argument (irrelevant values), only deploy the files without build
 if [ $# -eq 0 ]
 then
    mvn clean install
+else
+   if [ $# -eq 1 ]
+   then
+      echo Skipping tests!
+      mvn clean install '-Dmaven.test.skip=true'
+   fi
 fi
 
 # get the list of jar files we need to replace in lib
