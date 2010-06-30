@@ -84,9 +84,7 @@ public enum XSDTypeConverter
    DECIMAL("decimal")
       {
          @Override
-         public Serializable convert
-            (String
-               value)
+         public Serializable convert(String value)
          {
             return parseDecimal(value);
          }
