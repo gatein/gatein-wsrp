@@ -30,6 +30,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.NamedString;
@@ -95,7 +96,7 @@ public abstract class NavigationalStateUpdatingHandler extends InvocationHandler
          for (Event event : events)
          {
             EventPayload payload = event.getPayload();
-            result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), WSRPUtils.getPayloadAsSerializable(payload)));
+            result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), PayloadUtils.getPayloadAsSerializable(event.getType(), payload)));
          }
       }
 

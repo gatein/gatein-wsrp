@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer;
 
+import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.EventInvocation;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -31,6 +32,7 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
@@ -138,13 +140,18 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
 
       List<Event> events = handleEvents.getEventParams().getEvents();
 
+      if (events.size() > 1)
+      {
+         throw new NotYetImplemented("Need to support multiple events at once...");
+      }
+
       // since we currently don't support sending multiple events to process at once, assume there's only one
       Event event = events.get(0);
 
       eventInvocation.setName(event.getName());
       EventPayload payload = event.getPayload();
 
-      eventInvocation.setPayload(WSRPUtils.getPayloadAsSerializable(payload));
+      eventInvocation.setPayload(PayloadUtils.getPayloadAsSerializable(event.getType(), payload));
 
       return eventInvocation;
    }

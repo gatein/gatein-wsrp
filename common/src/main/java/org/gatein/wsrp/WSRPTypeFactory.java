@@ -38,6 +38,7 @@ import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.spi.PortletInvocationContext;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
@@ -1206,15 +1207,18 @@ public class WSRPTypeFactory
       {
          Class<? extends Object> type = payload.getClass();
          XmlRootElement annotation = type.getAnnotation(XmlRootElement.class);
+         QName typeName;
          if (annotation != null)
          {
-            event.setType(new QName(annotation.namespace(), annotation.name()));
-            event.setPayload(WSRPTypeFactory.createEventPayloadAsAny(payload));
+            typeName = new QName(annotation.namespace(), annotation.name());
          }
          else
          {
-            event.setPayload(WSRPTypeFactory.createEventPayloadAsNamedString(payload));
+            // use the java type
+            typeName = new QName(type.getName());
          }
+         event.setType(typeName);
+         event.setPayload(PayloadUtils.getPayloadAsEventPayload(typeName, payload));
       }
       return event;
    }

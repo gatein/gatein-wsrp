@@ -25,7 +25,6 @@ package org.gatein.wsrp;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.gatein.common.NotYetImplemented;
 import org.gatein.common.i18n.LocaleFormat;
 import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ConversionException;
@@ -41,11 +40,9 @@ import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.NamedString;
-import org.oasis.wsrp.v2.NamedStringArray;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.StateChange;
@@ -53,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -566,73 +562,6 @@ public class WSRPUtils
          }
       }
       return publicNS;
-   }
-
-   public static Serializable getPayloadAsSerializable(EventPayload payload)
-   {
-      // GTNWSRP-49
-      if (payload == null)
-      {
-         return null;
-      }
-
-      // for now only deal with plain Strings...
-      Object any = payload.getAny();
-      if (any == null)
-      {
-         NamedStringArray namedStringArray = payload.getNamedStringArray();
-         if (namedStringArray != null)
-         {
-            List<NamedString> namedStrings = namedStringArray.getNamedString();
-            if (ParameterValidation.existsAndIsNotEmpty(namedStrings))
-            {
-               int size = namedStrings.size();
-               switch (size)
-               {
-                  case 1:
-                     return namedStrings.get(0).getValue();
-
-                  default:
-                     String processedName = null;
-                     String[] value = new String[size];
-                     int i = 0;
-                     // check that all NamedString have all the same name (multi-valued object) or fail
-                     for (NamedString namedString : namedStrings)
-                     {
-                        String name = namedString.getName();
-                        if (processedName != null && !name.equals(processedName))
-                        {
-                           throw new UnsupportedOperationException("Cannot currently deal with NamedStringArray whose elements don't all have the same name!");
-                        }
-                        processedName = name;
-                        value[i++] = namedString.getValue();
-                     }
-                     return value;
-               }
-            }
-
-            return null;
-         }
-         else
-         {
-            return null;
-         }
-      }
-      else
-      {
-         throw new UnsupportedOperationException("TODO: Cannot deal with non NamedStringArray payloads at the moment! Got: " + any);
-      }
-   }
-
-   public EventPayload getPayloadAsEventPayload(Serializable payload)
-   {
-      // todo: complete GTNWSRP-49
-      if (payload instanceof String)
-      {
-         String payloadAsString = (String)payload;
-         return WSRPTypeFactory.createEventPayloadAsNamedString(payloadAsString);
-      }
-      throw new NotYetImplemented();
    }
 
    /**
