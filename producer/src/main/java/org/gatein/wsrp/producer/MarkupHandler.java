@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
@@ -75,6 +76,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 {
    static final String PBI = "PerformBlockingInteraction";
    static final String GET_MARKUP = "GetMarkup";
+   static final String GET_RESOURCE = "GetResource";
 
    MarkupHandler(WSRPProducerImpl producer)
    {
@@ -106,6 +108,33 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       checkForError(response);
 
       return (MarkupResponse)requestProcessor.processResponse(response);
+   }
+
+   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters,
+         InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters,
+         ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType,
+         UnsupportedMode, UnsupportedWindowState
+   {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getResource, GET_RESOURCE);
+      
+      ResourceRequestProcessor requestProcessor = new ResourceRequestProcessor(producer, getResource);
+      
+      String handle = requestProcessor.getPortletContext().getPortletHandle();
+      PortletInvocationResponse response;
+      try
+      {
+         log.debug("ResourceInvocation on portlet '" + handle + "'");
+         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
+         log.debug("ResourceInvocation done");
+      }
+      catch (PortletInvokerException e)
+      {
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not access portlet resource '" + handle + "'", e);
+      }
+      
+      checkForError(response);
+      
+      return (ResourceResponse)requestProcessor.processResponse(response);
    }
 
    public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction) throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed, UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired, InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters, InvalidHandle, InvalidCookie
@@ -188,11 +217,6 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       return (HandleEventsResponse)requestProcessor.processResponse(response);
    }
 
-   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
-   {
-      throw new NotYetImplemented();
-   }
-
    static void throwOperationFaultOnSessionOperation() throws OperationFailed
    {
       throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
@@ -221,7 +245,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, errorResult.getMessage(), cause);
 
       }
-      else if (!(response instanceof HTTPRedirectionResponse || response instanceof FragmentResponse || response instanceof UpdateNavigationalStateResponse))
+      else if (!(response instanceof HTTPRedirectionResponse || response instanceof FragmentResponse || response instanceof UpdateNavigationalStateResponse || response instanceof ContentResponse))
       {
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Unsupported result type: " + response.getClass().getName(), null);
       }

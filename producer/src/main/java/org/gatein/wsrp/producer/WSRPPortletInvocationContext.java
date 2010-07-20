@@ -136,7 +136,6 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
          if (url instanceof WSRPResourceURL)
          {
             WSRPResourceURL resourceURL = (WSRPResourceURL)url;
-            resourceURL.buildURLWith(request, instanceContext.getPortletContext());
          }
          return url.toString();
       }

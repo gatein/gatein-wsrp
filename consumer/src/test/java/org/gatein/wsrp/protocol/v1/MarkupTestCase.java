@@ -39,6 +39,7 @@ import org.gatein.pc.portlet.impl.spi.AbstractPortalContext;
 import org.gatein.pc.portlet.impl.spi.AbstractSecurityContext;
 import org.gatein.pc.portlet.impl.spi.AbstractUserContext;
 import org.gatein.pc.portlet.impl.spi.AbstractWindowContext;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.consumer.ProducerSessionInformation;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
@@ -66,6 +67,9 @@ import org.oasis.wsrp.v1.V1ResourceList;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -208,14 +212,16 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertEquals(3, behavior.getInitCookieCallCount());
    }
 
-   public void testResource() throws PortletInvokerException
+   public void testResource() throws PortletInvokerException, MalformedURLException
    {
       RenderInvocation render = createRenderInvocation(ResourceMarkupBehavior.PORTLET_HANDLE);
       PortletInvocationResponse response = consumer.invoke(render);
 
-      //TODO: fix this test properly, we can't test it properly right now without creating a new TestPortletInvocationContext as it will disrupt other tests
-      checkRenderResult(response, "<img src='Resource id=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif ns=null ws=null m=null'/>");
-      //checkRenderResult(response, "<img src='http://localhost:8080/test-resource-portlet/gif/logo.gif'/>");
+      String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
+      String expectedResult = "<img src='Resource id=" + resourceID + " ns=null ws=null m=null'/>";
+      
+      //NOTE: the value we get back is from the TestPortletInvocationContext, not what we would normally receive
+      checkRenderResult(response, expectedResult);
    }
 
    private ProducerSessionInformation commonInitCookieTest(String handle, InitCookieMarkupBehavior behavior, String cookieProtocol)

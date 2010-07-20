@@ -42,6 +42,7 @@ import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
@@ -102,7 +103,7 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
    }
 
    @Override
-   MarkupParams getMarkupParams()
+   MimeRequest getParams()
    {
       return handleEvents.getMarkupParams();
    }

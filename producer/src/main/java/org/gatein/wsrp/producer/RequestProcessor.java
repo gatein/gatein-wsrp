@@ -45,8 +45,8 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
@@ -102,8 +102,8 @@ public abstract class RequestProcessor
 
       checkForSessionIDs(runtimeContext);
 
-      // get markup parameters
-      final MarkupParams params = getMarkupParams();
+      // get parameters
+      final MimeRequest params = getParams();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", getContextName());
 
       // get portlet handle
@@ -176,7 +176,7 @@ public abstract class RequestProcessor
 
    abstract RuntimeContext getRuntimeContext();
 
-   abstract MarkupParams getMarkupParams();
+   abstract MimeRequest getParams();
 
    abstract PortletContext getPortletContext();
 
@@ -200,7 +200,7 @@ public abstract class RequestProcessor
     * @param portlet
     * @return a MarkupRequest containing the most appropriate information to base markup generation for this request
     */
-   private MarkupRequest createMarkupRequestFrom(List<MarkupType> markupTypes, MarkupParams params, Portlet portlet)
+   private MarkupRequest createMarkupRequestFrom(List<MarkupType> markupTypes, MimeRequest params, Portlet portlet)
       throws UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       List<String> desiredMIMETypes = params.getMimeTypes();
@@ -283,7 +283,7 @@ public abstract class RequestProcessor
       }
       catch (IllegalArgumentException e)
       {
-         throw WSRP2ExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state '" + params.getMode() + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(UnsupportedWindowState.class, "Unsupported window state '" + params.getWindowState() + "'", e);
       }
 
       // get the character set
@@ -400,7 +400,7 @@ public abstract class RequestProcessor
       return UserContextConverter.createPortalUserContextFrom(userContext, supportedLocales, preferredLocale);
    }
 
-   private PortalContext createPortalContext(final MarkupParams params, final MarkupRequest markupRequest)
+   private PortalContext createPortalContext(final MimeRequest params, final MarkupRequest markupRequest)
    {
       return new PortalContext()
       {
@@ -463,7 +463,7 @@ public abstract class RequestProcessor
 
    // fix-me: check that the correct semantics is used.
 
-   private SecurityContext createSecurityContext(final MarkupParams params, final RuntimeContext runtimeContext,
+   private SecurityContext createSecurityContext(final MimeRequest params, final RuntimeContext runtimeContext,
                                                  final org.oasis.wsrp.v2.UserContext wsrpUserContext)
    {
       return new SecurityContext()

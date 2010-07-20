@@ -136,5 +136,6 @@ public abstract class MarkupService<T> extends WSRPService<T> implements WSRPV2M
       UserContext userContext)
       throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
       ResourceSuspended;
-
+   
+   public abstract int getVersion();
 }

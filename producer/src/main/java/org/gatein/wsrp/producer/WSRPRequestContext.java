@@ -28,6 +28,7 @@ import org.gatein.common.util.ParameterMap;
 import org.gatein.pc.api.spi.RequestContext;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.NamedString;
+import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.UploadContext;
 
 import javax.mail.MessagingException;
@@ -231,10 +232,16 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
 
    public static WSRPRequestContext createRequestContext(MarkupRequest markupRequest, InteractionParams interactionParams)
    {
-      List<NamedString> formParams = interactionParams.getFormParameters();
-      List<UploadContext> uploadContexts = interactionParams.getUploadContexts();
-
-
+      return createRequestContext(markupRequest, interactionParams.getFormParameters(), interactionParams.getUploadContexts());
+   }
+   
+   public static WSRPRequestContext createRequestContext(MarkupRequest markupRequest, ResourceParams resourceParams)
+   {
+      return createRequestContext(markupRequest, resourceParams.getFormParameters(), resourceParams.getUploadContexts());
+   }
+   
+   public static WSRPRequestContext createRequestContext(MarkupRequest markupRequest, List<NamedString> formParams, List<UploadContext> uploadContexts)
+   {
       if (uploadContexts != null && !uploadContexts.isEmpty())
       {
          try

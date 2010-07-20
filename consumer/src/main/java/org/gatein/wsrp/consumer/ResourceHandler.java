@@ -23,6 +23,14 @@
 
 package org.gatein.wsrp.consumer;
 
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.ws.Holder;
+
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.io.IOTools;
 import org.gatein.common.net.media.MediaType;
@@ -30,20 +38,29 @@ import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.cache.CacheScope;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
+import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
+import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.WSRPResourceURL;
+import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.handler.CookieUtil;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
+import org.oasis.wsrp.v2.CacheControl;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetResource;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.ResourceContext;
+import org.oasis.wsrp.v2.ResourceParams;
+import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.UserContext;
-
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -51,6 +68,8 @@ import java.util.Map;
  */
 public class ResourceHandler extends InvocationHandler
 {
+   private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
+   
    protected ResourceHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
@@ -59,28 +78,136 @@ public class ResourceHandler extends InvocationHandler
    @Override
    protected void updateUserContext(Object request, UserContext userContext)
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      if (request instanceof GetResource)
+      {
+         getResourceRequest(request).setUserContext(userContext);
+      }
    }
 
    @Override
    protected void updateRegistrationContext(Object request) throws PortletInvokerException
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      if (request instanceof GetResource)
+      {
+         getResourceRequest(request).setRegistrationContext(consumer.getRegistrationContext());
+      }
    }
 
    @Override
    protected RuntimeContext getRuntimeContextFrom(Object request)
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      if (request instanceof GetResource)
+         return getResourceRequest(request).getRuntimeContext();
+      else
+         return null;
    }
 
    @Override
+   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   {
+      if (!(invocation instanceof ResourceInvocation))
+      {
+         throw new IllegalArgumentException("ResourceHandler can only handle ResourceInvocations!");
+      }
+      
+      ResourceInvocation resourceInvocation = (ResourceInvocation) invocation;
+      
+      String resourceInvocationId = resourceInvocation.getResourceId();
+      
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
+      
+      String resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+      String preferOperation = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+      
+      int version = 1;
+      try
+      {
+         version = consumer.getMarkupService().getVersion();
+      }
+      catch (PortletInvokerException portletInvokerException)
+      {
+         log.warn("Encountered an exception when trying to get the consumer's markup service's version, assuming WSRP 1.0 compliant.", portletInvokerException);
+      }
+      
+      if (version == 2 && resourceId != null && resourceId.length() > 0 && (preferOperation.equalsIgnoreCase("true") || resourceURL != null || resourceURL.isEmpty()))
+      {
+         return prepareGetResourceRequest(requestPrecursor, resourceInvocation, resourceId);
+      }
+      else
+      {
+         return resourceURL;
+      }
+
+   }
+
+   private GetResource prepareGetResourceRequest(RequestPrecursor requestPrecursor, ResourceInvocation invocation, String resourceId)
+   {
+      PortletContext portletContext = requestPrecursor.getPortletContext();
+      
+      ResourceParams resourceParams = new ResourceParams();
+      
+      resourceParams.setResourceID(resourceId);
+      
+      resourceParams.setClientData(requestPrecursor.markupParams.getClientData());
+      resourceParams.setMode(requestPrecursor.markupParams.getMode());
+      resourceParams.setNavigationalContext(requestPrecursor.markupParams.getNavigationalContext());
+      resourceParams.setSecureClientCommunication(requestPrecursor.markupParams.isSecureClientCommunication());
+      resourceParams.setValidateTag(requestPrecursor.markupParams.getValidateTag());
+      resourceParams.setWindowState(requestPrecursor.markupParams.getWindowState());
+      
+      resourceParams.getMimeTypes().addAll(requestPrecursor.markupParams.getMimeTypes());
+      
+      //TODO
+      //resourceParams.setPortletStateChange(...);
+      //resourceParams.setResourceCacheability(...);
+      
+      if (invocation.getResourceState() != null)
+      {
+         resourceParams.setResourceState(invocation.getResourceState().getStringValue());
+      }
+      
+      GetResource getResource = WSRPTypeFactory.createResourceRequest(portletContext, requestPrecursor.runtimeContext, resourceParams);
+      
+      return getResource;
+   }
+   
+   @Override
    protected Object performRequest(Object request) throws Exception
    {
-      ResourceInvocation invocation = (ResourceInvocation)request;
-      String resourceId = invocation.getResourceId();
+      if (request instanceof GetResource)
+      {
+         return performGetResourceRequest((GetResource)request);
+      }
+      else if (request instanceof String)
+      {
+         return performURLRequest((String)request);
+      }
+      else
+      {
+         throw new IllegalArgumentException("ResourceHandler performRequest can only be called with a GetResource or String object. Received : " + request);
+      }
 
-      URL url = new URL(resourceId);
+   }
+
+   private ResourceResponse performGetResourceRequest(GetResource getResource) throws Exception
+   {  
+      Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
+      Holder<ResourceContext> resourceContextHolder = new Holder<ResourceContext>();
+      Holder<PortletContext> portletContextHolder = new Holder<PortletContext>(getResource.getPortletContext());
+      
+      consumer.getMarkupService().getResource(getResource.getRegistrationContext(), portletContextHolder, getResource.getRuntimeContext(), 
+            getResource.getUserContext(), getResource.getResourceParams(), resourceContextHolder, sessionContextHolder, new Holder<List<Extension>>());
+      
+      ResourceResponse resourceResponse = WSRPTypeFactory.createResourceResponse(resourceContextHolder.value);
+      resourceResponse.setPortletContext(portletContextHolder.value);
+      resourceResponse.setSessionContext(sessionContextHolder.value);
+      return resourceResponse;
+   }
+   
+   private ContentResponse performURLRequest(String resourceURL) throws Exception
+   {
+      URL url = new URL(resourceURL);
       URLConnection urlConnection = url.openConnection();
       String contentType = urlConnection.getContentType();
 
@@ -149,28 +276,92 @@ public class ResourceHandler extends InvocationHandler
 
       return result;
    }
-
-   @Override
-   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
-   {
-      if (!(invocation instanceof ResourceInvocation))
-      {
-         throw new IllegalArgumentException("ResourceHandler can only handle ResourceInvocations!");
-      }
-
-      return invocation;
-   }
-
+   
    @Override
    protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
    {
-      if (response instanceof ContentResponse)
+      if (response instanceof ResourceResponse)
       {
-         return (ContentResponse)response;
+         return processGetResourceResponse((ResourceResponse)response, invocation, requestPrecursor);
+      }
+      else if (response instanceof ContentResponse)
+      {
+         return (ContentResponse) response;
       }
       else
       {
-         throw new PortletInvokerException("Invalid response object: " + response);
+         throw new PortletInvokerException("Invalid response object: " + response + ". Expected either a " + ContentResponse.class + " or a " + ResourceResponse.class);
       }
+   }
+   
+   private PortletInvocationResponse processGetResourceResponse(ResourceResponse resourceResponse, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
+   {
+      ResourceContext resourceContext = resourceResponse.getResourceContext();
+      
+      String chars = resourceContext.getItemString();
+      byte[] binary = resourceContext.getItemBinary();
+      
+      ResponseProperties properties = null;
+      Map<String, Object> attributes = null;
+      
+      String mimeType = resourceContext.getMimeType();
+      if (mimeType == null || mimeType.length() == 0)
+      {
+         return new ErrorResponse(new IllegalArgumentException("No MIME type was provided for portlet content."));
+      }
+      
+      // generate appropriate CacheControl
+      org.gatein.pc.api.cache.CacheControl cacheControl = createCacheControl(resourceContext);
+      
+      return new ContentResponse(properties, attributes, mimeType, binary, chars, cacheControl);
+   }
+   
+   private org.gatein.pc.api.cache.CacheControl createCacheControl(ResourceContext resourceContext)
+   {
+      CacheControl cacheControl = resourceContext.getCacheControl();
+      org.gatein.pc.api.cache.CacheControl result = DEFAULT_CACHE_CONTROL;
+
+      int expires;
+      if (cacheControl != null)
+      {
+         expires = cacheControl.getExpires();
+         String userScope = cacheControl.getUserScope();
+
+         // check that we support the user scope...
+         if (consumer.supportsUserScope(userScope))
+         {
+            if (debug)
+            {
+               log.debug("RenderHandler.processRenderRequest: trying to cache markup " + userScope + " for " + expires + " seconds.");
+            }
+            CacheScope scope;
+            if (WSRPConstants.CACHE_FOR_ALL.equals(userScope))
+            {
+               scope = CacheScope.PUBLIC;
+            }
+            else if (WSRPConstants.CACHE_PER_USER.equals(userScope))
+            {
+               scope = CacheScope.PRIVATE;
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unknown CacheControl user scope: " + userScope); // should not happen
+            }
+
+            result = new org.gatein.pc.api.cache.CacheControl(expires, scope, cacheControl.getValidateTag());
+         }
+      }
+
+      return result;
+   }
+   
+   private GetResource getResourceRequest(Object request)
+   {
+      if (request instanceof GetResource)
+      {
+         return (GetResource)request;
+      }
+
+      throw new IllegalArgumentException("ResourceHandler: Request is not a GetResource request!");
    }
 }

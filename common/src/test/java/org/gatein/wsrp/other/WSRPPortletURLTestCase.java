@@ -31,8 +31,10 @@ import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,7 +51,7 @@ public class WSRPPortletURLTestCase extends TestCase
       WSRPPortletURL.setStrict(true);
    }
 
-   public void testResource()
+   public void testResourceURL()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif" +
          "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
@@ -59,7 +61,78 @@ public class WSRPPortletURLTestCase extends TestCase
       WSRPResourceURL resource = (WSRPResourceURL)url;
       assertFalse(resource.requiresRewrite());
       assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
-      assertEquals("http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif", resource.getResourceId());
+      
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+      assertEquals("http://test.com/images/test.gif", resourceURL);
+
+      assertNull(resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID));
+      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+   }
+   
+   public void testResourceID()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
+      "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+      assertNull(resource.getResourceURL());
+
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      assertEquals("resource_123", resourceID);
+      
+      assertNull(resourceMap.get(WSRPRewritingConstants.RESOURCE_URL));
+      assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+   }
+   
+   public void testResources()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
+      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+      assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
+
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      assertEquals("resource_123", resourceID);
+      
+      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+      assertEquals("http://test.com/images/test.gif", resourceURL);
+      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+   }
+   
+   public void testPreferOperation()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
+      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-preferOperation=true&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+      assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
+
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      assertEquals("resource_123", resourceID);
+      
+      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+      assertEquals("http://test.com/images/test.gif", resourceURL);
+
+      String preferOperation = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+      assertEquals("true", preferOperation);
    }
 
    /** Declare a secure interaction back to the Portlet */

@@ -37,6 +37,7 @@ import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
@@ -77,7 +78,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
       return performBlockingInteraction.getRuntimeContext();
    }
 
-   MarkupParams getMarkupParams()
+   MimeRequest getParams()
    {
       return performBlockingInteraction.getMarkupParams();
    }

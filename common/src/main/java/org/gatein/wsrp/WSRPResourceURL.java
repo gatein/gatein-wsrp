@@ -32,6 +32,7 @@ import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.jboss.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,6 +56,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 
    private boolean requiresRewrite = false;
    private URL resourceURL;
+   private boolean preferOperation = false;
 
    private static final Map<String, MediaType> SUPPORTED_RESOURCE_TYPES = new HashMap<String, MediaType>(11);
 
@@ -95,10 +97,21 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    {
       if (resourceURL != null)
       {
-         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, getResourceId());
+         createURLParameter(sb, WSRPRewritingConstants.RESOURCE_URL, URLTools.encodeXWWWFormURL(resourceURL.toExternalForm()));
       }
 
       createURLParameter(sb, WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE, requiresRewrite ? "true" : "false");
+      
+      if (resourceId != null)
+      {
+         createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_ID, resourceId);
+      }
+      
+      // false is the default value, so we don't actually need to add it to the string
+      if (preferOperation != false)
+      {
+          createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION, Boolean.toString(preferOperation));
+      }
    }
 
    @Override
@@ -123,33 +136,43 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          try
          {
-            // todo: deal with resourceId properly, right now just use resourceURL if any
-            resourceId = paramValue; // keep the encoded value as it will be used in URLs
-
             paramValue = URLTools.decodeXWWWFormURL(paramValue);
-
-            resourceURL = new URL(paramValue);
-
+            this.resourceURL = new URL(paramValue);
             String extension = URLTools.getFileExtensionOrNullFrom(resourceURL);
-
             MediaType mediaType = SUPPORTED_RESOURCE_TYPES.get(extension);
             if (mediaType == null)
             {
                log.debug("Couldn't determine (based on extension) MIME type of file: " + resourceURL.getPath()
-                  + "\nRetrieving the associated resource will probably fail.");
+                     + "\nRetrieving the associated resource will probably fail.");
             }
 
             params.remove(WSRPRewritingConstants.RESOURCE_URL);
+            
          }
          catch (MalformedURLException e)
          {
             throw new IllegalArgumentException("Malformed URL: " + paramValue, e);
          }
       }
-      else
+      
+      String resourceIDParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_ID);
+      if (resourceIDParam != null)
       {
-         throw new IllegalArgumentException("The parsed parameters don't contain a value for the required "
-            + WSRPRewritingConstants.RESOURCE_URL + " parameter in " + originalURL);
+         resourceId = resourceIDParam;
+      }
+      
+      String preferOperationParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+      {
+         if (preferOperationParam != null)
+         {
+            preferOperation = Boolean.valueOf(preferOperationParam);
+         }
+      }
+      
+      if (resourceIDParam == null && paramValue == null)
+      {
+         throw new IllegalArgumentException("The parsed parameters don't contain a value for  "
+               + WSRPRewritingConstants.RESOURCE_URL + " or for " + WSRP2RewritingConstants.RESOURCE_ID + " parameter in " + originalURL);
       }
    }
 
@@ -173,11 +196,10 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 
    public String getResourceId()
    {
-      if (resourceId == null && resourceURL != null)
-      {
-         resourceId = URLTools.encodeXWWWFormURL(resourceURL.toExternalForm());
-      }
-      return resourceId;
+      // we need to return a representation of the wsrp resource identification, this is not necessarily just
+      // the wsrp-resourceID, we need to also consider the wsrp-url and other wsrp resource values.
+      // This value returned by this method is used by the PC ResourceInvocation
+      return encodeResource(resourceId, resourceURL, preferOperation);
    }
 
    /**
@@ -197,37 +219,6 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    public CacheLevel getCacheability()
    {
       return cacheability;
-   }
-
-   /**
-    * This method is a hack to provide a minimal resource support before WSRP 2 so that bridged portlets work. We
-    * basically build a resource URL based on the server address and the targeted portlet context (which hopefully can
-    * be mapped to the context path of the war file it's deployed in). JBoss Portlet Bridge 2.0 uses a resource ID that
-    * is the absolute path to resource inside web application context for static resources.
-    *
-    * @param request
-    * @param portletContext
-    * @deprecated should be removed when WSRP 2 is implemented
-    */
-   public void buildURLWith(HttpServletRequest request, PortletContext portletContext)
-   {
-      String url = createAbsoluteURLFrom(resourceId, URLTools.getServerAddressFrom(request), portletContext.getApplicationName());
-      try
-      {
-         resourceURL = new URL(url);
-         String extension = URLTools.getFileExtensionOrNullFrom(resourceURL);
-         MediaType type = SUPPORTED_RESOURCE_TYPES.get(extension);
-         if (MediaType.TEXT_CSS.equals(type) || MediaType.TEXT_JAVASCRIPT.equals(type) || MediaType.TEXT_HTML.equals(type))
-         {
-            requiresRewrite = true;
-         }
-      }
-      catch (MalformedURLException e)
-      {
-         throw new IllegalArgumentException("Malformed URL: " + url, e);
-      }
-
-      log.info("Attempted to build resource URL that could be accessed directly from consumer: " + resourceURL);
    }
 
    public static String createAbsoluteURLFrom(String initial, String serverAddress, String portletApplicationName)
@@ -262,5 +253,55 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    public boolean requiresRewrite()
    {
       return requiresRewrite;
+   }
+   
+   //TODO: figure out a more clean way to encode and decode the pc resource id (note: different from the wsrp resource id)
+   //we should either use a Map<String, String> directly or pass an object back
+   
+   /**
+    * Encodes the wsrp resource information into a single string.
+    * 
+    * @param resourceId The original resource ID
+    * @param resourceURL The originial resource url
+    * @param preferedOperation The preferedOperation value
+    * @return
+    */
+   public static String encodeResource(String resourceId, URL resourceURL, boolean preferedOperation)
+   {
+      Map<String, String[]> parameters = new HashMap<String, String[]>();
+      
+      if (resourceId != null)
+      {
+         parameters.put(WSRP2RewritingConstants.RESOURCE_ID, new String[]{resourceId});
+      }
+      
+      if (resourceURL != null)
+      {
+         parameters.put(WSRPRewritingConstants.RESOURCE_URL, new String[]{resourceURL.toString()});
+      }
+      
+      parameters.put(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION, new String[]{Boolean.toString(preferedOperation)});
+      
+      return StateString.encodeAsOpaqueValue(parameters);
+   }
+   
+   /**
+    * Decodes the resource information specified by the encodeResource back into proper resource values
+    * 
+    * @param resourceInfo
+    */
+   public static Map<String, String> decodeResource(String resourceInfo)
+   {
+      Map<String, String[]> resourceParameters =  StateString.decodeOpaqueValue(resourceInfo);
+      
+      Map<String, String> resource = new HashMap<String, String>();
+      
+      for (Map.Entry<String, String[]> entry : resourceParameters.entrySet())
+      {
+         if (entry.getValue() != null && entry.getValue().length > 0)
+         resource.put(entry.getKey(), entry.getValue()[0]);
+      }
+      
+      return resource;
    }
 }

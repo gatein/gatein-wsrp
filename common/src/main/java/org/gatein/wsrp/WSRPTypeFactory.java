@@ -55,6 +55,7 @@ import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
@@ -83,6 +84,9 @@ import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.ResourceContext;
+import org.oasis.wsrp.v2.ResourceParams;
+import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
@@ -165,6 +169,24 @@ public class WSRPTypeFactory
       return getMarkup;
    }
 
+   public static GetResource createDefaultResourceRequest(String handle, String resourceID)
+   {
+      return createResourceRequest(createPortletContext(handle), createDefaultRuntimeContext(), createDefaultResourceParams(resourceID));
+   }
+   
+   public static GetResource createResourceRequest(PortletContext portletContext, RuntimeContext runtimeContext, ResourceParams resourceParams)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(resourceParams, "ResourceParams");
+      
+      GetResource getResource = new GetResource();
+      getResource.setPortletContext(portletContext);
+      getResource.setRuntimeContext(runtimeContext);
+      getResource.setResourceParams(resourceParams);
+      return getResource;
+   }
+   
    /**
     * Same as createPerformBlockingInteraction(portletHandle, {@link #createDefaultRuntimeContext}(), {@link
     * #createDefaultMarkupParams}(), {@link #createDefaultInteractionParams}());
@@ -367,6 +389,45 @@ public class WSRPTypeFactory
       return markupParams;
    }
 
+   public static ResourceParams createDefaultResourceParams(String resourceID)
+   {
+      return createResourceParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
+            WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceID, StateChange.READ_ONLY);
+   }
+   
+   public static ResourceParams createResourceParams(boolean secureClientCommunication, List<String> locales, List<String> mimeTypes, String mode, String windowState, String resourceID, StateChange stateChange)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(locales, "locales");
+      if (locales.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a ResourceParams with an empty list of locales!");
+      }
+      ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "MIME types");
+      ParameterValidation.throwIllegalArgExceptionIfNull(stateChange, "State Change");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mode, "mode", "ResourceParams");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(windowState, "window state", "ResourceParams");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(resourceID, "Resource ID", "ResourceParams");
+      
+      ResourceParams resourceParams = new ResourceParams();
+      resourceParams.setSecureClientCommunication(secureClientCommunication);
+      resourceParams.setMode(mode);
+      resourceParams.setWindowState(windowState);
+      if (ParameterValidation.existsAndIsNotEmpty(locales))
+      {
+         resourceParams.getLocales().addAll(locales);
+      }
+      
+      if (ParameterValidation.existsAndIsNotEmpty(mimeTypes))
+      {
+         resourceParams.getMimeTypes().addAll(mimeTypes);
+      }
+      
+      resourceParams.setResourceID(resourceID);
+      resourceParams.setPortletStateChange(stateChange);
+      
+      return resourceParams;
+   }
+   
    /**
     * Same as createRuntimeContext({@link WSRPConstants#NONE_USER_AUTHENTICATION})
     *
@@ -445,6 +506,14 @@ public class WSRPTypeFactory
       markupResponse.setMarkupContext(markupContext);
       return markupResponse;
    }
+   
+   public static ResourceResponse createResourceResponse(ResourceContext resourceContext)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(resourceContext, "ResourceContext");
+      ResourceResponse resourceResponse = new ResourceResponse();
+      resourceResponse.setResourceContext(resourceContext);
+      return resourceResponse;
+   }
 
    /**
     * mimeType: The mime type of the returned markup. The mimeType field MUST be specified whenever markup is returned,
@@ -485,6 +554,54 @@ public class WSRPTypeFactory
       markupContext.setMimeType(mediaType);
       markupContext.setItemBinary(markupBinary);
       return markupContext;
+   }
+   
+   /**
+    * mimeType: The mime type of the returned resource. The mimeType field MUST be specified whenever resource is returned,
+    * and if the resourceBinary field is used to return the resource, the mime type MUST include the character set for
+    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this particular
+    * case this character set MAY be different than the response message.
+    * <p/>
+    */
+   public static ResourceContext createResourceContext(String mediaType, String resourceString)
+   {
+      return createResourceContext(mediaType, resourceString, null);
+   }
+
+   /**
+    * @param mediaType The mime type of the returned resource. The mimeType field MUST be specified whenever resource is
+    *                  returned, and if the resourceBinary field is used to return the resource, the mime type MUST include
+    *                  the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
+    *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than the
+    *                  response message.
+    * @return a new ResourceContext
+    */
+   public static ResourceContext createResourceContext(String mediaType, byte[] resourceBinary)
+   {
+      return createResourceContext(mediaType, null, resourceBinary);
+   }
+   
+   public static ResourceContext createResourceContext(String mediaType, String resourceString, byte[] resourceBinary)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "ResourceContext");
+      if ((resourceString == null) && (resourceBinary == null || resourceBinary.length == 0))
+      {
+         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
+      }
+      
+      ResourceContext resourceContext = new ResourceContext();
+      resourceContext.setMimeType(mediaType);
+      
+      if (resourceString != null)
+      {
+         resourceContext.setItemString(resourceString);
+      }
+      else
+      {
+         resourceContext.setItemBinary(resourceBinary);
+      }
+      
+      return resourceContext;
    }
 
    /**

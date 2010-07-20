@@ -307,4 +307,10 @@ public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
          throw V1ToV2Converter.toV2Exception(OperationFailed.class, operationFailed);
       }
    }
+
+   @Override
+   public int getVersion()
+   {
+      return 1;
+   }
 }

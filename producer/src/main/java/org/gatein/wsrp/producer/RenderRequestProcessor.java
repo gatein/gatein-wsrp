@@ -40,6 +40,7 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
@@ -78,7 +79,7 @@ public class RenderRequestProcessor extends RequestProcessor
       return getMarkup.getRuntimeContext();
    }
 
-   MarkupParams getMarkupParams()
+   MimeRequest getParams()
    {
       return getMarkup.getMarkupParams();
    }

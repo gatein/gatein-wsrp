@@ -106,4 +106,10 @@ public class V2MarkupService extends MarkupService<WSRPV2MarkupPortType>
    {
       return service.initCookie(registrationContext, userContext);
    }
+
+   @Override
+   public int getVersion()
+   {
+      return 2;
+   }
 }
