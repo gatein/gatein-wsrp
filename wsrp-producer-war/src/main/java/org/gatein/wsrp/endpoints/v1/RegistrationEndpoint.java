@@ -29,6 +29,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1MissingParameters;
@@ -41,9 +42,11 @@ import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
+import org.oasis.wsrp.v2.ResourceSuspended;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
@@ -120,6 +123,10 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public void deregister(
@@ -141,6 +148,14 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -178,6 +193,14 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 }

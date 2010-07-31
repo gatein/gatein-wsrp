@@ -52,11 +52,13 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.xml.namespace.QName;
@@ -86,7 +88,8 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
       serviceDescription = new ServiceDescriptionInfo(producer);
    }
 
-   public ServiceDescription getServiceDescription(GetServiceDescription gs) throws InvalidRegistration, OperationFailed
+   public ServiceDescription getServiceDescription(GetServiceDescription gs)
+      throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(gs, "GetServiceDescription");
 

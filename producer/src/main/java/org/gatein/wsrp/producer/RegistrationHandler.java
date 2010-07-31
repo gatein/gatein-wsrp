@@ -37,15 +37,23 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetRegistrationLifetime;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
-import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.SetRegistrationLifetime;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -67,7 +75,8 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       super(producer);
    }
 
-   public RegistrationContext register(RegistrationData registrationData) throws MissingParameters, OperationFailed
+   public RegistrationContext register(RegistrationData registrationData)
+      throws MissingParameters, OperationFailed, OperationNotSupported
    {
       ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
       if (registrationRequirements.isRegistrationRequired())
@@ -142,7 +151,8 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       producer.getRegistrationManager().getPersistenceManager().saveChangesTo(consumer);
    }
 
-   public ReturnAny deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration
+   public List<Extension> deregister(RegistrationContext deregister)
+      throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {
@@ -172,14 +182,14 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
             throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
          }
 
-         return new ReturnAny();
+         return Collections.emptyList();
       }
 
       throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Deregistration shouldn't be attempted if registration is not required", null);
    }
 
-   public RegistrationState modifyRegistration(ModifyRegistration modifyRegistration) throws MissingParameters,
-      OperationFailed, InvalidRegistration
+   public RegistrationState modifyRegistration(ModifyRegistration modifyRegistration)
+      throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {
@@ -234,6 +244,20 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
       }
 
       throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Modifying a registration shouldn't be attempted if registration is not required", null);
+   }
+
+   public Lifetime getRegistrationLifetime(GetRegistrationLifetime getRegistrationLifetime)
+      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended
+   {
+      throw WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "Lifetime operations are not currently supported.", null);
+   }
+
+   public Lifetime setRegistrationLifetime(SetRegistrationLifetime setRegistrationLifetime)
+      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended
+   {
+      throw WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "Lifetime operations are not currently supported.", null);
    }
 
    /**

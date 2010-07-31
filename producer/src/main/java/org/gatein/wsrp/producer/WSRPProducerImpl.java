@@ -41,16 +41,28 @@ import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.CookieProtocol;
+import org.oasis.wsrp.v2.CopyPortlets;
+import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.ExportByValueNotSupported;
+import org.oasis.wsrp.v2.ExportNoLongerValid;
+import org.oasis.wsrp.v2.ExportPortlets;
+import org.oasis.wsrp.v2.ExportPortletsResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetPortletsLifetime;
+import org.oasis.wsrp.v2.GetPortletsLifetimeResponse;
+import org.oasis.wsrp.v2.GetRegistrationLifetime;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
+import org.oasis.wsrp.v2.ImportPortlets;
+import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InvalidCookie;
@@ -58,6 +70,7 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
@@ -74,12 +87,16 @@ import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
+import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
+import org.oasis.wsrp.v2.SetPortletsLifetime;
+import org.oasis.wsrp.v2.SetPortletsLifetimeResponse;
+import org.oasis.wsrp.v2.SetRegistrationLifetime;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
@@ -159,148 +176,149 @@ public class WSRPProducerImpl implements WSRP2Producer
    // ServiceDescription implementation ********************************************************************************
 
    public ServiceDescription getServiceDescription(GetServiceDescription gs)
-      throws InvalidRegistration, OperationFailed
+      throws InvalidRegistration, OperationFailed, ResourceSuspended, ModifyRegistrationRequired
    {
-      log.debug("getServiceDescription invoked");
-      ServiceDescription sd = serviceDescriptionHandler.getServiceDescription(gs);
-      log.debug("end getServiceDescription");
-      return sd;
+      return serviceDescriptionHandler.getServiceDescription(gs);
    }
 
    // MarkupService implementation *************************************************************************************
 
 
-   public MarkupResponse getMarkup(GetMarkup getMarkup) throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied, InconsistentParameters, InvalidHandle, UnsupportedLocale, UnsupportedMode, OperationFailed, MissingParameters, InvalidUserCategory, InvalidRegistration, UnsupportedMimeType
+   public MarkupResponse getMarkup(GetMarkup getMarkup) throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied, InconsistentParameters, InvalidHandle, UnsupportedLocale, UnsupportedMode, OperationFailed, MissingParameters, InvalidUserCategory, InvalidRegistration, UnsupportedMimeType, ResourceSuspended, ModifyRegistrationRequired
    {
-      log.debug("getMarkup invoked");
-      MarkupResponse response = markupHandler.getMarkup(getMarkup);
-      log.debug("end getMarkup");
-      return response;
+      return markupHandler.getMarkup(getMarkup);
    }
 
-   public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction) throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed, UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired, InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters, InvalidHandle, InvalidCookie
+   public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction) throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed, UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired, InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters, InvalidHandle, InvalidCookie, ResourceSuspended, ModifyRegistrationRequired
    {
-      log.debug("performBlockingInteraction invoked");
-      BlockingInteractionResponse interactionResponse = markupHandler.performBlockingInteraction(performBlockingInteraction);
-      log.debug("end performBlockingInteraction");
-      return interactionResponse;
+      return markupHandler.performBlockingInteraction(performBlockingInteraction);
    }
 
-   public ReturnAny releaseSessions(ReleaseSessions releaseSessions) throws InvalidRegistration, OperationFailed, MissingParameters, AccessDenied
+   public List<Extension> releaseSessions(ReleaseSessions releaseSessions) throws InvalidRegistration, OperationFailed, MissingParameters, AccessDenied, ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("releaseSessions invoked");
-      ReturnAny returnAny = markupHandler.releaseSessions(releaseSessions);
-      log.debug("end releaseSessions");
-      return returnAny;
+      return markupHandler.releaseSessions(releaseSessions);
    }
 
-   public ReturnAny initCookie(InitCookie initCookie) throws AccessDenied, OperationFailed, InvalidRegistration
+   public List<Extension> initCookie(InitCookie initCookie) throws AccessDenied, OperationFailed, InvalidRegistration, ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("initCookie invoked");
-      ReturnAny returnAny = markupHandler.initCookie(initCookie);
-      log.debug("end initCookie");
-      return returnAny;
+      return markupHandler.initCookie(initCookie);
    }
 
    public HandleEventsResponse handleEvents(HandleEvents handleEvents) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      log.debug("handleEvents invoked");
-      HandleEventsResponse response = markupHandler.handleEvents(handleEvents);
-      log.debug("end handleEvents");
-      return response;
+      return markupHandler.handleEvents(handleEvents);
    }
 
-   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
+   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState, OperationNotSupported
    {
-      log.debug("getResource invoked");
-      ResourceResponse response = markupHandler.getResource(getResource);
-      log.debug("end getResource");
-      return response;
+      return markupHandler.getResource(getResource);
    }
 
    // Registration implementation **************************************************************************************
 
-   public RegistrationContext register(RegistrationData register) throws MissingParameters, OperationFailed
+   public RegistrationContext register(RegistrationData register) throws MissingParameters, OperationFailed, OperationNotSupported
    {
-      log.debug("register invoked");
-      RegistrationContext registrationContext = registrationHandler.register(register);
-      log.debug("end register");
-      return registrationContext;
+      return registrationHandler.register(register);
    }
 
-   public ReturnAny deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration
+   public List<Extension> deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration, ResourceSuspended, OperationNotSupported
    {
-      log.debug("deregister invoked");
-      ReturnAny returnAny = registrationHandler.deregister(deregister);
-      log.debug("end deregister");
-      return returnAny;
+      return registrationHandler.deregister(deregister);
    }
 
    public RegistrationState modifyRegistration(ModifyRegistration modifyRegistration) throws MissingParameters,
-      OperationFailed, InvalidRegistration
+      OperationFailed, InvalidRegistration, ResourceSuspended, OperationNotSupported
    {
-      log.debug("modifyRegistration invoked");
-      RegistrationState registrationState = registrationHandler.modifyRegistration(modifyRegistration);
-      log.debug("end modifyRegistration");
-      return registrationState;
+      return registrationHandler.modifyRegistration(modifyRegistration);
    }
 
-// PortletManagement implementation *********************************************************************************
+   public Lifetime getRegistrationLifetime(GetRegistrationLifetime getRegistrationLifetime) throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return registrationHandler.getRegistrationLifetime(getRegistrationLifetime);
+   }
+
+   public Lifetime setRegistrationLifetime(SetRegistrationLifetime setRegistrationLifetime) throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return registrationHandler.setRegistrationLifetime(setRegistrationLifetime);
+   }
+
+   // PortletManagement implementation *********************************************************************************
 
    public PortletDescriptionResponse getPortletDescription(GetPortletDescription getPortletDescription)
       throws AccessDenied, InvalidHandle, InvalidUserCategory, InconsistentParameters, MissingParameters,
-      InvalidRegistration, OperationFailed
+      InvalidRegistration, OperationFailed, ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("getPortletDescription invoked");
-      PortletDescriptionResponse description = portletManagementHandler.getPortletDescription(getPortletDescription);
-      log.debug("end getPortletDescription");
-      return description;
+      return portletManagementHandler.getPortletDescription(getPortletDescription);
    }
 
    public PortletContext clonePortlet(ClonePortlet clonePortlet) throws InvalidUserCategory, AccessDenied,
-      OperationFailed, InvalidHandle, InvalidRegistration, InconsistentParameters, MissingParameters
+      OperationFailed, InvalidHandle, InvalidRegistration, InconsistentParameters, MissingParameters,
+      ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("clonePortlet invoked");
-      PortletContext portletContext = portletManagementHandler.clonePortlet(clonePortlet);
-      log.debug("end clonePortlet");
-      return portletContext;
+      return portletManagementHandler.clonePortlet(clonePortlet);
    }
 
    public DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets) throws InconsistentParameters,
-      MissingParameters, InvalidRegistration, OperationFailed
+      MissingParameters, InvalidRegistration, OperationFailed, ResourceSuspended, OperationNotSupported,
+      ModifyRegistrationRequired
    {
-      log.debug("destroyPortlets invoked");
-      DestroyPortletsResponse destroyPortletsResponse = portletManagementHandler.destroyPortlets(destroyPortlets);
-      log.debug("end destroyPortlets");
-      return destroyPortletsResponse;
+      return portletManagementHandler.destroyPortlets(destroyPortlets);
    }
 
    public PortletContext setPortletProperties(SetPortletProperties setPortletProperties) throws OperationFailed,
-      InvalidHandle, MissingParameters, InconsistentParameters, InvalidUserCategory, AccessDenied, InvalidRegistration
+      InvalidHandle, MissingParameters, InconsistentParameters, InvalidUserCategory, AccessDenied, InvalidRegistration,
+      ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("setPortletProperties invoked");
-      PortletContext portletContext = portletManagementHandler.setPortletProperties(setPortletProperties);
-      log.debug("end setPortletProperties");
-      return portletContext;
+      return portletManagementHandler.setPortletProperties(setPortletProperties);
    }
 
    public PropertyList getPortletProperties(GetPortletProperties getPortletProperties) throws InvalidHandle,
-      MissingParameters, InvalidRegistration, AccessDenied, OperationFailed, InconsistentParameters, InvalidUserCategory
+      MissingParameters, InvalidRegistration, AccessDenied, OperationFailed, InconsistentParameters, InvalidUserCategory,
+      ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("getPortletProperties invoked");
-      PropertyList list = portletManagementHandler.getPortletProperties(getPortletProperties);
-      log.debug("end getPortletProperties");
-      return list;
+      return portletManagementHandler.getPortletProperties(getPortletProperties);
    }
 
    public PortletPropertyDescriptionResponse getPortletPropertyDescription(GetPortletPropertyDescription getPortletPropertyDescription)
       throws MissingParameters, InconsistentParameters, InvalidUserCategory, InvalidRegistration, AccessDenied,
-      InvalidHandle, OperationFailed
+      InvalidHandle, OperationFailed, ResourceSuspended, OperationNotSupported, ModifyRegistrationRequired
    {
-      log.debug("getPortletPropertyDescription invoked");
-      PortletPropertyDescriptionResponse descriptionResponse = portletManagementHandler.getPortletPropertyDescription(getPortletPropertyDescription);
-      log.debug("end getPortletPropertyDescription");
-      return descriptionResponse;
+      return portletManagementHandler.getPortletPropertyDescription(getPortletPropertyDescription);
+   }
+
+   public GetPortletsLifetimeResponse getPortletsLifetime(GetPortletsLifetime getPortletsLifetime) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.getPortletsLifetime(getPortletsLifetime);
+   }
+
+   public SetPortletsLifetimeResponse setPortletsLifetime(SetPortletsLifetime setPortletsLifetime) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.setPortletsLifetime(setPortletsLifetime);
+   }
+
+   public CopyPortletsResponse copyPortlets(CopyPortlets copyPortlets) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.copyPortlets(copyPortlets);
+   }
+
+   public ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets) throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.exportPortlets(exportPortlets);
+   }
+
+   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets) throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.importPortlets(importPortlets);
+   }
+
+   public List<Extension> releaseExport(ReleaseExport releaseExport)
+   {
+      return portletManagementHandler.releaseExport(releaseExport);
+   }
+
+   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      return portletManagementHandler.setExportLifetime(setExportLifetime);
    }
 
    private ProducerConfiguration getProducerConfiguration()

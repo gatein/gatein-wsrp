@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer;
 
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.HandleEvents;
@@ -46,11 +47,12 @@ import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -59,22 +61,14 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
 public interface MarkupInterface
 {
    MarkupResponse getMarkup(GetMarkup getMarkup)
-      throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied,
-      InconsistentParameters, InvalidHandle, UnsupportedLocale, UnsupportedMode,
-      OperationFailed, MissingParameters, InvalidUserCategory, InvalidRegistration,
-      UnsupportedMimeType;
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended,
+      UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState;
 
    BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction)
-      throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed,
-      UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired,
-      InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters,
-      InvalidHandle, InvalidCookie;
-
-   ReturnAny releaseSessions(ReleaseSessions releaseSessions)
-      throws InvalidRegistration, OperationFailed, MissingParameters, AccessDenied;
-
-   ReturnAny initCookie(InitCookie initCookie)
-      throws AccessDenied, OperationFailed, InvalidRegistration;
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired,
+      ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState;
 
    HandleEventsResponse handleEvents(HandleEvents handleEvents)
       throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
@@ -84,6 +78,14 @@ public interface MarkupInterface
 
    ResourceResponse getResource(GetResource getResource)
       throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
-      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended,
-      UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState;
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState;
+
+   List<Extension> releaseSessions(ReleaseSessions releaseSessions)
+      throws AccessDenied, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended;
+
+   List<Extension> initCookie(InitCookie initCookie)
+      throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      ResourceSuspended;
 }

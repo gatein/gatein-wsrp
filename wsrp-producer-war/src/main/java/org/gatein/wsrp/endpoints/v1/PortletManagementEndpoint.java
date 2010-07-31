@@ -29,6 +29,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1Extension;
@@ -60,11 +61,14 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.SetPortletProperties;
 
 import javax.jws.HandlerChain;
@@ -141,6 +145,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public void setPortletProperties(
@@ -194,6 +210,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public void clonePortlet(
@@ -245,6 +273,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -304,6 +344,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public void getPortletProperties(
@@ -359,6 +411,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public void destroyPortlets(
@@ -393,6 +457,18 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 }

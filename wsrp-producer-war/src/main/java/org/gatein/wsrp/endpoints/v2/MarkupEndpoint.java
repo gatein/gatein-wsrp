@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -59,7 +58,6 @@ import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.UnsupportedLocale;
@@ -133,9 +131,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       releaseSessions.setRegistrationContext(registrationContext);
       releaseSessions.getSessionIDs().addAll(sessionIDs);
 
-      ReturnAny returnAny = producer.releaseSessions(releaseSessions);
-
-      return returnAny.getExtensions();
+      return producer.releaseSessions(releaseSessions);
    }
 
    public List<Extension> initCookie(
@@ -148,9 +144,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       InitCookie initCookie = new InitCookie();
       initCookie.setRegistrationContext(registrationContext);
 
-      ReturnAny returnAny = producer.initCookie(initCookie);
-
-      return returnAny.getExtensions();
+      return producer.initCookie(initCookie);
    }
 
    public void getMarkup(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RuntimeContext runtimeContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") MarkupParams markupParams, @WebParam(name = "markupContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<MarkupContext> markupContext, @WebParam(name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<SessionContext> sessionContext, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
@@ -191,9 +185,9 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       getResource.setResourceParams(resourceParams);
       getResource.setRuntimeContext(runtimeContext);
       getResource.setUserContext(userContext);
-      
+
       ResourceResponse response = producer.getResource(getResource);
-      
+
       resourceContext.value = response.getResourceContext();
       sessionContext.value = response.getSessionContext();
       portletContext.value = response.getPortletContext();

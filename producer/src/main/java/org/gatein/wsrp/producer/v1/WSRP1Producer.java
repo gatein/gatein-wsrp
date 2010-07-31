@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.producer.v1;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.producer.ProducerHolder;
@@ -32,6 +31,7 @@ import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1BlockingInteractionResponse;
 import org.oasis.wsrp.v1.V1ClonePortlet;
@@ -81,7 +81,9 @@ import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
@@ -89,7 +91,7 @@ import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationState;
-import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
@@ -182,6 +184,14 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
 
    }
 
@@ -200,14 +210,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public V1ReturnAny deregister(V1RegistrationContext deregister) throws V1OperationFailed, V1InvalidRegistration
    {
       try
       {
-         ReturnAny returnAny = producer.deregister(V1ToV2Converter.toV2RegistrationContext(deregister));
-         return V2ToV1Converter.toV1ReturnAny(returnAny);
+         producer.deregister(V1ToV2Converter.toV2RegistrationContext(deregister));
+         return null;
       }
       catch (InvalidRegistration invalidRegistration)
       {
@@ -216,6 +230,14 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -237,6 +259,14 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (InvalidRegistration invalidRegistration)
       {
          throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, invalidRegistration);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
 
    }
@@ -275,6 +305,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
 
    }
@@ -338,6 +380,14 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
    }
 
    public V1PortletContext clonePortlet(V1ClonePortlet clonePortlet) throws V1InvalidUserCategory, V1AccessDenied, V1OperationFailed, V1InvalidHandle, V1InvalidRegistration, V1InconsistentParameters, V1MissingParameters
@@ -374,6 +424,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (MissingParameters missingParameters)
       {
          throw V2ToV1Converter.toV1Exception(V1MissingParameters.class, missingParameters);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -440,6 +502,14 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidCookie.class, invalidCookie);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
    }
 
    public V1DestroyPortletsResponse destroyPortlets(V1DestroyPortlets destroyPortlets) throws V1InconsistentParameters, V1MissingParameters, V1InvalidRegistration, V1OperationFailed
@@ -464,6 +534,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -502,14 +584,26 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public V1ReturnAny releaseSessions(V1ReleaseSessions releaseSessions) throws V1InvalidRegistration, V1OperationFailed, V1MissingParameters, V1AccessDenied
    {
       try
       {
-         ReturnAny returnAny = producer.releaseSessions(V1ToV2Converter.toV2ReleaseSessions(releaseSessions));
-         return V2ToV1Converter.toV1ReturnAny(returnAny);
+         producer.releaseSessions(V1ToV2Converter.toV2ReleaseSessions(releaseSessions));
+         return null;
       }
       catch (InvalidRegistration invalidRegistration)
       {
@@ -526,6 +620,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (AccessDenied accessDenied)
       {
          throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -564,14 +670,26 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidUserCategory.class, invalidUserCategory);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
    }
 
    public V1ReturnAny initCookie(V1InitCookie initCookie) throws V1AccessDenied, V1OperationFailed, V1InvalidRegistration
    {
       try
       {
-         ReturnAny returnAny = producer.initCookie(V1ToV2Converter.toV2InitCookie(initCookie));
-         return V2ToV1Converter.toV1ReturnAny(returnAny);
+         producer.initCookie(V1ToV2Converter.toV2InitCookie(initCookie));
+         return null;
       }
       catch (AccessDenied accessDenied)
       {
@@ -584,6 +702,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (InvalidRegistration invalidRegistration)
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 
@@ -621,6 +751,18 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
    }
 }

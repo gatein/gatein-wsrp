@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.producer;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
@@ -36,6 +35,7 @@ import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.HandleEvents;
@@ -58,7 +58,6 @@ import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
@@ -66,6 +65,8 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
 
 import javax.portlet.PortletModeException;
 import javax.portlet.WindowStateException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -86,7 +87,10 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
    // Markup implementation ********************************************************************************************
 
 
-   public MarkupResponse getMarkup(GetMarkup getMarkup) throws UnsupportedWindowState, InvalidCookie, InvalidSession, AccessDenied, InconsistentParameters, InvalidHandle, UnsupportedLocale, UnsupportedMode, OperationFailed, MissingParameters, InvalidUserCategory, InvalidRegistration, UnsupportedMimeType
+   public MarkupResponse getMarkup(GetMarkup getMarkup)
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended,
+      UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
 
@@ -110,15 +114,15 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       return (MarkupResponse)requestProcessor.processResponse(response);
    }
 
-   public ResourceResponse getResource(GetResource getResource) throws AccessDenied, InconsistentParameters,
-         InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters,
-         ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType,
-         UnsupportedMode, UnsupportedWindowState
+   public ResourceResponse getResource(GetResource getResource)
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getResource, GET_RESOURCE);
-      
+
       ResourceRequestProcessor requestProcessor = new ResourceRequestProcessor(producer, getResource);
-      
+
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       PortletInvocationResponse response;
       try
@@ -131,13 +135,16 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       {
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not access portlet resource '" + handle + "'", e);
       }
-      
+
       checkForError(response);
-      
-      return (ResourceResponse)requestProcessor.processResponse(response);
+
+      return requestProcessor.processResponse(response);
    }
 
-   public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction) throws InvalidSession, UnsupportedMode, UnsupportedMimeType, OperationFailed, UnsupportedWindowState, UnsupportedLocale, AccessDenied, PortletStateChangeRequired, InvalidRegistration, MissingParameters, InvalidUserCategory, InconsistentParameters, InvalidHandle, InvalidCookie
+   public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction)
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired,
+      ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(performBlockingInteraction, PBI);
       final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
@@ -167,14 +174,18 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       return (BlockingInteractionResponse)requestProcessor.processResponse(response);
    }
 
-   public ReturnAny releaseSessions(ReleaseSessions releaseSessions) throws InvalidRegistration, OperationFailed, MissingParameters, AccessDenied
+   public List<Extension> releaseSessions(ReleaseSessions releaseSessions)
+      throws AccessDenied, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended
    {
       // our producer never sends session ids so a Consumer trying to release sessions is an error condition
       throwOperationFaultOnSessionOperation();
       return null;
    }
 
-   public ReturnAny initCookie(InitCookie initCookie) throws AccessDenied, OperationFailed, InvalidRegistration
+   public List<Extension> initCookie(InitCookie initCookie)
+      throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(initCookie, "InitCookie");
       producer.getRegistrationOrFailIfInvalid(initCookie.getRegistrationContext());
@@ -184,13 +195,14 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       String sessionId = ServletAccess.getRequest().getSession().getId();
       log.debug("Got init cookie operation, created a session with id " + sessionId);
 
-      return new ReturnAny();
+      return Collections.emptyList();
    }
 
-   public HandleEventsResponse handleEvents(HandleEvents handleEvents) throws AccessDenied, InconsistentParameters,
-      InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters,
-      ModifyRegistrationRequired, OperationFailed, OperationNotSupported, PortletStateChangeRequired, ResourceSuspended,
-      UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
+   public HandleEventsResponse handleEvents(HandleEvents handleEvents)
+      throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode,
+      UnsupportedWindowState
    {
       EventRequestProcessor requestProcessor = new EventRequestProcessor(producer, handleEvents);
 

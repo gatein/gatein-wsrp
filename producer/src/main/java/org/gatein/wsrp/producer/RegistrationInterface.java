@@ -23,14 +23,24 @@
 
 package org.gatein.wsrp.producer;
 
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetRegistrationLifetime;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
-import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.SetRegistrationLifetime;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -38,10 +48,20 @@ import org.oasis.wsrp.v2.ReturnAny;
  */
 public interface RegistrationInterface
 {
-   RegistrationContext register(RegistrationData register) throws MissingParameters, OperationFailed;
+   RegistrationContext register(RegistrationData register)
+      throws MissingParameters, OperationFailed, OperationNotSupported;
 
-   ReturnAny deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration;
+   List<Extension> deregister(RegistrationContext deregister)
+      throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   RegistrationState modifyRegistration(ModifyRegistration modifyRegistration) throws MissingParameters,
-      OperationFailed, InvalidRegistration;
+   RegistrationState modifyRegistration(ModifyRegistration modifyRegistration)
+      throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended;
+
+   public Lifetime getRegistrationLifetime(GetRegistrationLifetime getRegistrationLifetime)
+      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended;
+
+   public Lifetime setRegistrationLifetime(SetRegistrationLifetime setRegistrationLifetime)
+      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended;
 }

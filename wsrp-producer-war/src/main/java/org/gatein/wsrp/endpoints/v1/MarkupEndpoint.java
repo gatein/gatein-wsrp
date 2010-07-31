@@ -28,6 +28,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InconsistentParameters;
@@ -55,6 +56,7 @@ import org.oasis.wsrp.v1.V1UserContext;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
@@ -65,11 +67,13 @@ import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.ReleaseSessions;
-import org.oasis.wsrp.v2.ReturnAny;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
@@ -185,6 +189,14 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       {
          throw V2ToV1Converter.toV1Exception(V1InconsistentParameters.class, inconsistentParameters);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
 
       updateResponse.value = V2ToV1Converter.toV1UpdateResponse(interactionResponse.getUpdateResponse());
       redirectURL.value = interactionResponse.getRedirectURL();
@@ -203,10 +215,10 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
          sessionIDs
       );
 
-      ReturnAny returnAny;
+      List<Extension> extensions;
       try
       {
-         returnAny = producer.releaseSessions(releaseSessions);
+         extensions = producer.releaseSessions(releaseSessions);
       }
       catch (InvalidRegistration invalidRegistration)
       {
@@ -224,8 +236,20 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       {
          throw V2ToV1Converter.toV1Exception(V1AccessDenied.class, accessDenied);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
 
-      return Lists.transform(returnAny.getExtensions(), V2ToV1Converter.EXTENSION);
+      return Lists.transform(extensions, V2ToV1Converter.EXTENSION);
    }
 
    public void getMarkup(
@@ -308,6 +332,14 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       {
          throw V2ToV1Converter.toV1Exception(V1UnsupportedMimeType.class, unsupportedMimeType);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
 
       markupContext.value = V2ToV1Converter.toV1MarkupContext(response.getMarkupContext());
       sessionContext.value = V2ToV1Converter.toV1SessionContext(response.getSessionContext());
@@ -322,10 +354,10 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
 
       InitCookie initCookie = WSRPTypeFactory.createInitCookie(V1ToV2Converter.toV2RegistrationContext(registrationContext));
 
-      ReturnAny returnAny;
+      List<Extension> extensions;
       try
       {
-         returnAny = producer.initCookie(initCookie);
+         extensions = producer.initCookie(initCookie);
       }
       catch (AccessDenied accessDenied)
       {
@@ -339,7 +371,19 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       {
          throw V2ToV1Converter.toV1Exception(V1InvalidRegistration.class, invalidRegistration);
       }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
+      }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
 
-      return Lists.transform(returnAny.getExtensions(), V2ToV1Converter.EXTENSION);
+      return Lists.transform(extensions, V2ToV1Converter.EXTENSION);
    }
 }

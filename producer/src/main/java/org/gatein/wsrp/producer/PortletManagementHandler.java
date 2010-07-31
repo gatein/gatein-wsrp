@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import org.gatein.common.NotYetImplemented;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.pc.api.InvalidPortletIdException;
 import org.gatein.pc.api.NoSuchPortletException;
@@ -45,18 +46,32 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.CopyPortlets;
+import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.ExportByValueNotSupported;
+import org.oasis.wsrp.v2.ExportNoLongerValid;
+import org.oasis.wsrp.v2.ExportPortlets;
+import org.oasis.wsrp.v2.ExportPortletsResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetPortletsLifetime;
+import org.oasis.wsrp.v2.GetPortletsLifetimeResponse;
+import org.oasis.wsrp.v2.ImportPortlets;
+import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
@@ -64,8 +79,13 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
+import org.oasis.wsrp.v2.SetPortletsLifetime;
+import org.oasis.wsrp.v2.SetPortletsLifetimeResponse;
 import org.oasis.wsrp.v2.UserContext;
 
 import java.util.ArrayList;
@@ -93,8 +113,8 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    }
 
    public PortletDescriptionResponse getPortletDescription(GetPortletDescription getPortletDescription)
-      throws AccessDenied, InvalidHandle, InvalidUserCategory, InconsistentParameters,
-      MissingParameters, InvalidRegistration, OperationFailed
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletDescription, GET_PORTLET_DESCRIPTION);
       Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletDescription.getRegistrationContext());
@@ -111,8 +131,8 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    }
 
    public PortletPropertyDescriptionResponse getPortletPropertyDescription(GetPortletPropertyDescription getPortletPropertyDescription)
-      throws MissingParameters, InconsistentParameters, InvalidUserCategory, InvalidRegistration, AccessDenied,
-      InvalidHandle, OperationFailed
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletPropertyDescription, GET_PORTLET_PROPERTY_DESCRIPTION);
 
@@ -156,8 +176,9 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       return WSRPTypeFactory.createPortletPropertyDescriptionResponse(descs);
    }
 
-   public PortletContext clonePortlet(ClonePortlet clonePortlet) throws InvalidUserCategory, AccessDenied, OperationFailed,
-      InvalidHandle, InvalidRegistration, InconsistentParameters, MissingParameters
+   public PortletContext clonePortlet(ClonePortlet clonePortlet)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(clonePortlet, "ClonePortlet");
 
@@ -194,8 +215,9 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
    }
 
-   public DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets) throws InconsistentParameters,
-      MissingParameters, InvalidRegistration, OperationFailed
+   public DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets)
+      throws InconsistentParameters, InvalidRegistration, MissingParameters, ModifyRegistrationRequired,
+      OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(destroyPortlets, "DestroyPortlets");
 
@@ -249,8 +271,57 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       }
    }
 
-   public PortletContext setPortletProperties(SetPortletProperties setPortletProperties) throws OperationFailed,
-      InvalidHandle, MissingParameters, InconsistentParameters, InvalidUserCategory, AccessDenied, InvalidRegistration
+   public GetPortletsLifetimeResponse getPortletsLifetime(GetPortletsLifetime getPortletsLifetime)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired,
+      OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      throw WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "Lifetime operations are not currently supported.", null);
+   }
+
+   public SetPortletsLifetimeResponse setPortletsLifetime(SetPortletsLifetime setPortletsLifetime)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired,
+      OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      throw WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "Lifetime operations are not currently supported.", null);
+   }
+
+   public CopyPortletsResponse copyPortlets(CopyPortlets copyPortlets)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      throw new NotYetImplemented();
+   }
+
+   public ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets)
+      throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration,
+      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
+      ResourceSuspended
+   {
+      throw new NotYetImplemented();
+   }
+
+   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets)
+      throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      throw new NotYetImplemented();
+   }
+
+   public List<Extension> releaseExport(ReleaseExport releaseExport)
+   {
+      throw new NotYetImplemented();
+   }
+
+   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime)
+      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
+      OperationNotSupported, ResourceSuspended
+   {
+      throw new NotYetImplemented();
+   }
+
+   public PortletContext setPortletProperties(SetPortletProperties setPortletProperties)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(setPortletProperties, "SetPortletProperties");
 
@@ -332,8 +403,9 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       return portletContext;
    }
 
-   public PropertyList getPortletProperties(GetPortletProperties getPortletProperties) throws InvalidHandle,
-      MissingParameters, InvalidRegistration, AccessDenied, OperationFailed, InconsistentParameters, InvalidUserCategory
+   public PropertyList getPortletProperties(GetPortletProperties getPortletProperties)
+      throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getPortletProperties, GET_PORTLET_PROPERTIES);
 

@@ -25,7 +25,9 @@ package org.gatein.wsrp.producer;
 
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 /**
@@ -34,5 +36,6 @@ import org.oasis.wsrp.v2.ServiceDescription;
  */
 public interface ServiceDescriptionInterface
 {
-   ServiceDescription getServiceDescription(GetServiceDescription gs) throws InvalidRegistration, OperationFailed;
+   ServiceDescription getServiceDescription(GetServiceDescription gs)
+      throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended;
 }

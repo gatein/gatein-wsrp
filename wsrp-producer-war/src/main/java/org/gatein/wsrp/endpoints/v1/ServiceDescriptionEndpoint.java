@@ -28,6 +28,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
+import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
@@ -40,7 +41,9 @@ import org.oasis.wsrp.v1.V1ResourceList;
 import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.jws.HandlerChain;
@@ -95,6 +98,14 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       catch (OperationFailed operationFailed)
       {
          throw V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Need to call modifyRegistration", modifyRegistrationRequired);
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Resource suspended", resourceSuspended);
       }
 
       requiresRegistration.value = description.isRequiresRegistration();
