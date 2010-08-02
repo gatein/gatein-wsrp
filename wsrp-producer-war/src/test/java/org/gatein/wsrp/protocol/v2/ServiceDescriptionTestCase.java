@@ -39,12 +39,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.oasis.wsrp.v2.EventDescription;
-import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.ParameterDescription;
-import org.oasis.wsrp.v2.PortletDescription;
-import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.*;
 
 import javax.xml.namespace.QName;
 import java.util.List;
@@ -54,193 +49,162 @@ import java.util.List;
  * @version $Revision$
  */
 @RunWith(Arquillian.class)
-public class ServiceDescriptionTestCase extends V2ProducerBaseTest
-{
-   public ServiceDescriptionTestCase() throws Exception
-   {
-      super(ServiceDescriptionTestCase.class.getSimpleName());
-   }
+public class ServiceDescriptionTestCase extends V2ProducerBaseTest {
+    public ServiceDescriptionTestCase() throws Exception {
+        super(ServiceDescriptionTestCase.class.getSimpleName());
+    }
 
-   @Deployment
-   public static JavaArchive createDeployment()
-   {
-      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
-      jar.addClass(NeedPortletHandleTest.class);
-      jar.addClass(V2ProducerBaseTest.class);
-      jar.addClass(WSRPProducerBaseTest.class);
-      return jar;
-   }
+    @Deployment
+    public static JavaArchive createDeployment() {
+        JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
+        jar.addClass(NeedPortletHandleTest.class);
+        jar.addClass(V2ProducerBaseTest.class);
+        jar.addClass(WSRPProducerBaseTest.class);
+        return jar;
+    }
 
-   @Before
-   public void setUp() throws Exception
-   {
-      if (System.getProperty("test.deployables.dir") != null)
-      {
-         super.setUp();
-         //hack to get around having to have a httpservletrequest when accessing the producer services
-         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
-      }
-   }
+    @Before
+    public void setUp() throws Exception {
+        if (System.getProperty("test.deployables.dir") != null) {
+            super.setUp();
+            //hack to get around having to have a httpservletrequest when accessing the producer services
+            //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+            ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+        }
+    }
 
-   @After
-   public void tearDown() throws Exception
-   {
-      if (System.getProperty("test.deployables.dir") != null)
-      {
-         super.tearDown();
-      }
-   }
+    @After
+    public void tearDown() throws Exception {
+        if (System.getProperty("test.deployables.dir") != null) {
+            super.tearDown();
+        }
+    }
 
-   @Test
-   public void testSupportedOptions() throws OperationFailed, InvalidRegistration
-   {
-      ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+    @Test
+    public void testSupportedOptions() throws OperationFailed, InvalidRegistration, ResourceSuspended, ModifyRegistrationRequired {
+        ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
 
-      ExtendedAssert.assertNotNull(description);
-      List<String> options = description.getSupportedOptions();
-      ExtendedAssert.assertTrue(ParameterValidation.existsAndIsNotEmpty(options));
-      ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_EVENTS));
-      ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_IMPORT));
-      ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_EXPORT));
-   }
+        ExtendedAssert.assertNotNull(description);
+        List<String> options = description.getSupportedOptions();
+        ExtendedAssert.assertTrue(ParameterValidation.existsAndIsNotEmpty(options));
+        ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_EVENTS));
+        ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_IMPORT));
+        ExtendedAssert.assertTrue(options.contains(WSRP2Constants.OPTIONS_EXPORT));
+    }
 
-   @Test
-   public void testEventDescriptions() throws Exception
-   {
-      try
-      {
-         deploy("google-portlet.war");
+    @Test
+    public void testEventDescriptions() throws Exception {
+        try {
+            deploy("google-portlet.war");
 
-         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+            ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
 
-         List<EventDescription> eventDescriptions = description.getEventDescriptions();
-         ExtendedAssert.assertNotNull(eventDescriptions);
-         ExtendedAssert.assertEquals(1, eventDescriptions.size());
+            List<EventDescription> eventDescriptions = description.getEventDescriptions();
+            ExtendedAssert.assertNotNull(eventDescriptions);
+            ExtendedAssert.assertEquals(1, eventDescriptions.size());
 
-         QName zip = new QName("urn:jboss:portal:samples:event", "ZipEvent");
-         EventDescription event = eventDescriptions.get(0);
-         ExtendedAssert.assertEquals(zip, event.getName());
-         ExtendedAssert.assertTrue(event.getAliases().isEmpty());
-         ExtendedAssert.assertTrue(event.getLabel().getValue().contains(zip.toString()));
+            QName zip = new QName("urn:jboss:portal:samples:event", "ZipEvent");
+            EventDescription event = eventDescriptions.get(0);
+            ExtendedAssert.assertEquals(zip, event.getName());
+            ExtendedAssert.assertTrue(event.getAliases().isEmpty());
+            ExtendedAssert.assertTrue(event.getLabel().getValue().contains(zip.toString()));
 
-         List<PortletDescription> portlets = description.getOfferedPortlets();
-         ExtendedAssert.assertEquals(2, portlets.size());
+            List<PortletDescription> portlets = description.getOfferedPortlets();
+            ExtendedAssert.assertEquals(2, portlets.size());
 
-         // get GoogleMap portlet description
-         for (PortletDescription portlet : portlets)
-         {
-            if (portlet.getPortletHandle().contains("GoogleMap"))
-            {
-               List<QName> publishedEvents = portlet.getPublishedEvents();
-               ExtendedAssert.assertEquals(1, publishedEvents.size());
-               ExtendedAssert.assertEquals(zip, publishedEvents.get(0));
+            // get GoogleMap portlet description
+            for (PortletDescription portlet : portlets) {
+                if (portlet.getPortletHandle().contains("GoogleMap")) {
+                    List<QName> publishedEvents = portlet.getPublishedEvents();
+                    ExtendedAssert.assertEquals(1, publishedEvents.size());
+                    ExtendedAssert.assertEquals(zip, publishedEvents.get(0));
 
-               ExtendedAssert.assertTrue(portlet.getHandledEvents().isEmpty());
+                    ExtendedAssert.assertTrue(portlet.getHandledEvents().isEmpty());
+                }
             }
-         }
 
-         deploy("test-basic-portlet.war");
+            deploy("test-basic-portlet.war");
 
-         // reload service description
-         description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
-         eventDescriptions = description.getEventDescriptions();
-         portlets = description.getOfferedPortlets();
+            // reload service description
+            description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+            eventDescriptions = description.getEventDescriptions();
+            portlets = description.getOfferedPortlets();
 
-         QName foo = new QName("urn:jboss:gatein", "foo");
-         ExtendedAssert.assertEquals(2, eventDescriptions.size());
-         for (EventDescription eventDesc : eventDescriptions)
-         {
-            QName name = eventDesc.getName();
-            boolean isZip = zip.equals(name);
-            boolean isFoo = foo.equals(name);
-            if (isZip || isFoo)
-            {
-               if (isFoo)
-               {
-                  ExtendedAssert.assertEquals(foo, eventDesc.getName());
-                  ExtendedAssert.assertTrue(eventDesc.getLabel().getValue().contains(foo.toString()));
-                  List<QName> aliases = eventDesc.getAliases();
-                  ExtendedAssert.assertEquals(2, aliases.size());
-                  ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "bar")));
-                  ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "baz")));
-               }
+            QName foo = new QName("urn:jboss:gatein", "foo");
+            ExtendedAssert.assertEquals(2, eventDescriptions.size());
+            for (EventDescription eventDesc : eventDescriptions) {
+                QName name = eventDesc.getName();
+                boolean isZip = zip.equals(name);
+                boolean isFoo = foo.equals(name);
+                if (isZip || isFoo) {
+                    if (isFoo) {
+                        ExtendedAssert.assertEquals(foo, eventDesc.getName());
+                        ExtendedAssert.assertTrue(eventDesc.getLabel().getValue().contains(foo.toString()));
+                        List<QName> aliases = eventDesc.getAliases();
+                        ExtendedAssert.assertEquals(2, aliases.size());
+                        ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "bar")));
+                        ExtendedAssert.assertTrue(aliases.contains(new QName("urn:jboss:gatein", "baz")));
+                    }
+                } else {
+                    ExtendedAssert.fail("Only 2 events should be ZipEvent or foo!");
+                }
             }
-            else
-            {
-               ExtendedAssert.fail("Only 2 events should be ZipEvent or foo!");
+
+            for (PortletDescription portlet : portlets) {
+                if (portlet.getPortletHandle().contains("Simple Test Portlet")) {
+                    List<QName> events = portlet.getPublishedEvents();
+                    ExtendedAssert.assertEquals(2, events.size());
+                    ExtendedAssert.assertTrue(events.contains(zip));
+                    ExtendedAssert.assertTrue(events.contains(foo));
+
+                    events = portlet.getHandledEvents();
+                    ExtendedAssert.assertEquals(1, events.size());
+                    ExtendedAssert.assertTrue(events.contains(zip));
+                }
             }
-         }
+        } finally {
+            undeploy("google-portlet.war");
+            undeploy("test-basic-portlet.war");
+        }
 
-         for (PortletDescription portlet : portlets)
-         {
-            if (portlet.getPortletHandle().contains("Simple Test Portlet"))
-            {
-               List<QName> events = portlet.getPublishedEvents();
-               ExtendedAssert.assertEquals(2, events.size());
-               ExtendedAssert.assertTrue(events.contains(zip));
-               ExtendedAssert.assertTrue(events.contains(foo));
+    }
 
-               events = portlet.getHandledEvents();
-               ExtendedAssert.assertEquals(1, events.size());
-               ExtendedAssert.assertTrue(events.contains(zip));
+    @Test
+    public void testParameterDescriptions() throws Exception {
+        try {
+            deploy("test-basic-portlet.war");
+
+            ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+
+            List<PortletDescription> portlets = description.getOfferedPortlets();
+            ExtendedAssert.assertEquals(1, portlets.size());
+            PortletDescription portlet = portlets.get(0);
+            QName fooparam = new QName("urn:jboss:gatein", "fooparam");
+            QName zipcode = new QName("urn:jboss:portal:simple:google", "zipcode");
+
+            List<ParameterDescription> publicValueDescriptions = portlet.getNavigationalPublicValueDescriptions();
+            ExtendedAssert.assertNotNull(publicValueDescriptions);
+            ExtendedAssert.assertEquals(2, publicValueDescriptions.size());
+            for (ParameterDescription param : publicValueDescriptions) {
+                String identifier = param.getIdentifier();
+                if ("foo".equals(identifier)) {
+                    List<QName> names = param.getNames();
+                    ExtendedAssert.assertTrue(names.contains(fooparam));
+                    ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "barparam")));
+                    ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "bazparam")));
+                    ExtendedAssert.assertEquals(identifier, param.getLabel().getValue());
+                    ExtendedAssert.assertEquals("Foo param", param.getDescription().getValue());
+                } else if ("zipcode".equals(identifier)) {
+                    List<QName> names = param.getNames();
+                    ExtendedAssert.assertEquals(1, names.size());
+                    ExtendedAssert.assertTrue(names.contains(zipcode));
+                } else {
+                    ExtendedAssert.fail("Unexpected parameter description: " + identifier);
+                }
             }
-         }
-      }
-      finally
-      {
-         undeploy("google-portlet.war");
-         undeploy("test-basic-portlet.war");
-      }
+        } finally {
+            undeploy("test-basic-portlet.war");
+        }
 
-   }
-
-   @Test
-   public void testParameterDescriptions() throws Exception
-   {
-      try
-      {
-         deploy("test-basic-portlet.war");
-
-         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
-
-         List<PortletDescription> portlets = description.getOfferedPortlets();
-         ExtendedAssert.assertEquals(1, portlets.size());
-         PortletDescription portlet = portlets.get(0);
-         QName fooparam = new QName("urn:jboss:gatein", "fooparam");
-         QName zipcode = new QName("urn:jboss:portal:simple:google", "zipcode");
-
-         List<ParameterDescription> publicValueDescriptions = portlet.getNavigationalPublicValueDescriptions();
-         ExtendedAssert.assertNotNull(publicValueDescriptions);
-         ExtendedAssert.assertEquals(2, publicValueDescriptions.size());
-         for (ParameterDescription param : publicValueDescriptions)
-         {
-            String identifier = param.getIdentifier();
-            if ("foo".equals(identifier))
-            {
-               List<QName> names = param.getNames();
-               ExtendedAssert.assertTrue(names.contains(fooparam));
-               ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "barparam")));
-               ExtendedAssert.assertTrue(names.contains(new QName("urn:jboss:gatein", "bazparam")));
-               ExtendedAssert.assertEquals(identifier, param.getLabel().getValue());
-               ExtendedAssert.assertEquals("Foo param", param.getDescription().getValue());
-            }
-            else if ("zipcode".equals(identifier))
-            {
-               List<QName> names = param.getNames();
-               ExtendedAssert.assertEquals(1, names.size());
-               ExtendedAssert.assertTrue(names.contains(zipcode));
-            }
-            else
-            {
-               ExtendedAssert.fail("Unexpected parameter description: " + identifier);
-            }
-         }
-      }
-      finally
-      {
-         undeploy("test-basic-portlet.war");
-      }
-
-   }
+    }
 }
