@@ -50,6 +50,9 @@ import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.EventPayload;
+import org.oasis.wsrp.v2.ExportPortlets;
+import org.oasis.wsrp.v2.ExportPortletsResponse;
+import org.oasis.wsrp.v2.ExportedPortlet;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
@@ -59,8 +62,14 @@ import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
+import org.oasis.wsrp.v2.ImportPortlet;
+import org.oasis.wsrp.v2.ImportPortlets;
+import org.oasis.wsrp.v2.ImportPortletsFailed;
+import org.oasis.wsrp.v2.ImportPortletsResponse;
+import org.oasis.wsrp.v2.ImportedPortlet;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
@@ -82,14 +91,17 @@ import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.ResourceContext;
+import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Templates;
@@ -1194,19 +1206,19 @@ public class WSRPTypeFactory
     * @param reason
     * @return
     */
-   public static FailedPortlets createFailedPortlets(Collection<String> portletHandles, String reason)
+   public static FailedPortlets createFailedPortlets(Collection<String> portletHandles, ErrorCodes.Codes errorCode, String reason)
    {
+      //TODO: reason should be a LocalizedString
+      ParameterValidation.throwIllegalArgExceptionIfNull(errorCode, "ErrorCode");
       if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
-         //TODO: reason should be able to be null
-         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(reason, "Reason for failure", "createFailedPortlets");
          FailedPortlets failedPortlets = new FailedPortlets();
          failedPortlets.getPortletHandles().addAll(portletHandles);
          if (reason != null)
          {
             failedPortlets.setReason(createLocalizedString(reason));
          }
-         failedPortlets.setErrorCode(ErrorCodes.OperationFailed);
+         failedPortlets.setErrorCode(ErrorCodes.getQname(errorCode));
 
          return failedPortlets;
       }
@@ -1363,5 +1375,148 @@ public class WSRPTypeFactory
       value.getNamedString().add(createNamedString("event", payload.toString()));
       result.setNamedStringArray(value);
       return result;
+   }
+   
+   public static ExportPortlets createExportPortlets(RegistrationContext registrationContext, List<PortletContext> portletContexts, UserContext userContext, Lifetime lifetime, Boolean exportByValue)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
+      {
+         throw new IllegalArgumentException("Must provide at least one PortletContext to ExportPortlets.");
+      }
+      
+      ExportPortlets exportPortlets = new ExportPortlets();
+      exportPortlets.setRegistrationContext(registrationContext);
+      exportPortlets.getPortletContext().addAll(portletContexts);
+      exportPortlets.setUserContext(userContext);
+      exportPortlets.setLifetime(lifetime);
+      exportPortlets.setExportByValueRequired(exportByValue);
+      
+      return exportPortlets;
+   }
+   
+   public static ExportPortletsResponse createExportPortletsResponse(byte[] exportContext, List<ExportedPortlet> exportedPortlets, List<FailedPortlets> failedPortlets, Lifetime lifetime, ResourceList resourceList)
+   {
+      // everything can be empty or nillable, there is no need to check for null values
+      ExportPortletsResponse response = new ExportPortletsResponse();
+      response.setExportContext(exportContext);
+      response.getExportedPortlet().addAll(exportedPortlets);
+      response.getFailedPortlets().addAll(failedPortlets);
+      response.setLifetime(lifetime);
+      response.setResourceList(resourceList);
+      
+      return response;
+   }
+
+   public static ExportedPortlet createExportedPortlet(String portletHandle, byte[] exportData)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletHandle, "PortletHandle");
+      
+      ExportedPortlet exportedPortlet = new ExportedPortlet();
+      exportedPortlet.setPortletHandle(portletHandle);
+      exportedPortlet.setExportData(exportData);
+      
+      return exportedPortlet;
+   }
+   
+   public static ImportPortlets createImportPortlets(RegistrationContext registrationContext, byte[] importContext, List<ImportPortlet> importPortlet, UserContext userContext, Lifetime lifetime)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(importPortlet))
+      {
+         throw new IllegalArgumentException("Must provide at least one ImportPortlet to ImportPortlets.");
+      }
+      
+      ImportPortlets importPortlets = new ImportPortlets();
+      importPortlets.setRegistrationContext(registrationContext);
+      importPortlets.setImportContext(importContext);
+      importPortlets.getImportPortlet().addAll(importPortlet);
+      importPortlets.setUserContext(userContext);
+      importPortlets.setLifetime(lifetime);
+      
+      return importPortlets;
+   }
+   
+   public static ImportPortlet createImportPorlet(String importID, byte[] exportData)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(importID, "ImportID");
+      ParameterValidation.throwIllegalArgExceptionIfNull(exportData, "ExportData");
+      
+      ImportPortlet importPortlet = new ImportPortlet();
+      importPortlet.setImportID(importID);
+      importPortlet.setExportData(exportData);
+      return importPortlet;
+   }
+   
+   public static ImportPortletsResponse createImportPortletsResponse (List<ImportedPortlet> importedPortlets, List<ImportPortletsFailed> importPortletsFailed, ResourceList resourceList)
+   {
+      // everything can be empty or nillable, no need to check for null values
+      ImportPortletsResponse response = new ImportPortletsResponse();
+      response.getImportedPortlets().addAll(importedPortlets);
+      response.getImportFailed().addAll(importPortletsFailed);
+      response.setResourceList(resourceList);
+      
+      return response;
+   }
+   
+   public static ImportPortletsFailed createImportPortletsFailed(List<String> importIds, ErrorCodes.Codes errorCode, String reason)
+   {
+      //TODO: reason should be a LocalizedString
+      ParameterValidation.throwIllegalArgExceptionIfNull(errorCode, "ErrorCode");
+      if (ParameterValidation.existsAndIsNotEmpty(importIds))
+      {
+         ImportPortletsFailed failedPortlets = new ImportPortletsFailed();
+         failedPortlets.getImportID().addAll(importIds);
+         if (reason != null)
+         {
+            failedPortlets.setReason(createLocalizedString(reason));
+         }
+         failedPortlets.setErrorCode(ErrorCodes.getQname(errorCode));
+
+         return failedPortlets;
+      }
+
+      throw new IllegalArgumentException("Must provide non-null, non-empty portlet handle list.");      
+   }
+   
+   public static ImportedPortlet createImportedPortlet(String portletID, PortletContext portletContext)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletID, "PortletID");
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      
+      ImportedPortlet importedPortlet = new ImportedPortlet();
+      importedPortlet.setImportID(portletID);
+      importedPortlet.setNewPortletContext(portletContext);
+      
+      return importedPortlet;
+   }
+   
+   public static ReleaseExport createReleaseExport(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext)
+   {
+      if (exportContext == null || exportContext.length == 0)
+      {
+         throw new IllegalArgumentException("Must provide a non null or empty exportContext to ReleaseExport.");
+      }
+      
+      ReleaseExport releaseExport = new ReleaseExport();
+      releaseExport.setRegistrationContext(registrationContext);
+      releaseExport.setExportContext(exportContext);
+      releaseExport.setUserContext(userContext);
+      
+      return releaseExport;
+   }
+   
+   public static SetExportLifetime createSetExportLifetime(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext, Lifetime lifetime)
+   {
+      if (exportContext == null || exportContext.length == 0)
+      {
+         throw new IllegalArgumentException("Must provide a non null or empty exportContext to SetExportLifetime.");
+      }
+      
+      SetExportLifetime setExportLifetime = new SetExportLifetime();
+      setExportLifetime.setRegistrationContext(registrationContext);
+      setExportLifetime.setExportContext(exportContext);
+      setExportLifetime.setUserContext(userContext);
+      setExportLifetime.setLifetime(lifetime);
+      
+      return setExportLifetime;
    }
 }

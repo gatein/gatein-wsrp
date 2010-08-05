@@ -25,8 +25,11 @@ package org.gatein.wsrp.producer;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.i18n.LocalizedString;
+import org.gatein.exports.data.ExportContext;
+import org.gatein.exports.data.ExportPortletData;
 import org.gatein.pc.api.InvalidPortletIdException;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
@@ -41,8 +44,10 @@ import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ClonePortlet;
@@ -51,18 +56,22 @@ import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
-import org.oasis.wsrp.v2.ExportNoLongerValid;
 import org.oasis.wsrp.v2.ExportPortlets;
 import org.oasis.wsrp.v2.ExportPortletsResponse;
+import org.oasis.wsrp.v2.ExportedPortlet;
+import org.oasis.wsrp.v2.ExportNoLongerValid;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.ImportPortlet;
+import org.oasis.wsrp.v2.ImportPortlets;
+import org.oasis.wsrp.v2.ImportPortletsFailed;
+import org.oasis.wsrp.v2.ImportPortletsResponse;
+import org.oasis.wsrp.v2.ImportedPortlet;
 import org.oasis.wsrp.v2.GetPortletsLifetime;
 import org.oasis.wsrp.v2.GetPortletsLifetimeResponse;
-import org.oasis.wsrp.v2.ImportPortlets;
-import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -71,6 +80,7 @@ import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -81,15 +91,19 @@ import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.SetPortletsLifetime;
 import org.oasis.wsrp.v2.SetPortletsLifetimeResponse;
 import org.oasis.wsrp.v2.UserContext;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -251,7 +265,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
             failedPortlets = new ArrayList<FailedPortlets>(reasonToHandles.size());
             for (String reason : reasonToHandles.keys())
             {
-               failedPortlets.add(WSRPTypeFactory.createFailedPortlets(reasonToHandles.get(reason), reason));
+               failedPortlets.add(WSRPTypeFactory.createFailedPortlets(reasonToHandles.get(reason),ErrorCodes.Codes.OPERATIONFAILED, reason));
             }
          }
          else
@@ -288,33 +302,6 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
    public CopyPortletsResponse copyPortlets(CopyPortlets copyPortlets)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
-   {
-      throw new NotYetImplemented();
-   }
-
-   public ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets)
-      throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration,
-      InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
-      ResourceSuspended
-   {
-      throw new NotYetImplemented();
-   }
-
-   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets)
-      throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory,
-      MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
-   {
-      throw new NotYetImplemented();
-   }
-
-   public List<Extension> releaseExport(ReleaseExport releaseExport)
-   {
-      throw new NotYetImplemented();
-   }
-
-   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime)
-      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
-      OperationNotSupported, ResourceSuspended
    {
       throw new NotYetImplemented();
    }
@@ -471,6 +458,296 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
       catch (PortletInvokerException e)
       {
          throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not retrieve properties for portlet '" + portletContext + "'", e);
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
+   }
+
+   public ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets) throws AccessDenied,
+         ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
+         MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(exportPortlets, "ExportPortlets");
+      
+      List<PortletContext> portletContexts = exportPortlets.getPortletContext();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContexts, "PortletContext", "ExportPortlets");
+       
+      
+      Registration registration = producer.getRegistrationOrFailIfInvalid(exportPortlets.getRegistrationContext());
+   
+      UserContext userContext = exportPortlets.getUserContext();
+      checkUserAuthorization(userContext);
+      
+      boolean exportByValueRequired = exportPortlets.isExportByValueRequired();
+      
+      //check that the export manager can handle export by value
+      if (exportByValueRequired && !producer.getExportManager().supportExportByValue())
+      {
+         //TODO: instead of passing a string here, we should pass a resource so that its localized
+         WSRP2ExceptionFactory.throwWSException(ExportByValueNotSupported.class, "The consumer is requesting portlets to be exported by value, but this consumer only supports export by reference.", null);
+      }
+      
+      
+      List<ExportedPortlet> exportedPortlets = new ArrayList<ExportedPortlet>();
+      Map<String, FailedPortlets> failedPortletsMap = new HashMap<String, FailedPortlets>();
+      
+      try
+      {
+         RegistrationLocal.setRegistration(registration);
+      
+         //TODO: try catch here?
+         ExportContext exportContext = producer.getExportManager().createExportContext(exportPortlets.isExportByValueRequired(), exportPortlets.getLifetime());
+         
+         for (PortletContext portletContext : exportPortlets.getPortletContext())
+         {
+            try
+            {
+               byte[] exportData;
+               
+               String portletHandle = portletContext.getPortletHandle();
+               byte[] portletState = portletContext.getPortletState();
+               
+               if (portletHandle != null)
+               {
+                  org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
+                  if (producer.getPortletInvoker().getPortlet(portalPC) == null)
+                  {
+                     WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);
+                  }
+               }
+               else
+               {
+                  WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "A portlet handle cannot be null.", null);
+               }
+               
+               //get the exportPortletData
+               ExportPortletData exportPortletData = producer.getExportManager().createExportPortletData(exportContext, portletHandle, portletState);
+               
+               //Create the exportedPortlet
+               ExportedPortlet exportedPortlet = WSRPTypeFactory.createExportedPortlet(portletHandle, exportPortletData.encodeAsBytes());
+               exportedPortlets.add(exportedPortlet);
+            }
+            
+            //TODO: this is very messy, make this better
+            catch (UnsupportedEncodingException e)
+            {
+               if(!failedPortletsMap.containsKey(e.getClass().toString()))
+               {
+                  List<String> portletHandles = new ArrayList<String>();
+                  portletHandles.add(portletContext.getPortletHandle());
+                  
+                  FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, ErrorCodes.Codes.OPERATIONFAILED, "Error encoding the portlet for export.");
+                  failedPortletsMap.put(e.getClass().toString(), failedPortlets);
+               }
+               else
+               {
+                  FailedPortlets failedPortlets = failedPortletsMap.get(e.getClass().toString());
+                  failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
+               }
+            }
+            catch (NoSuchPortletException e)
+            {
+               if(!failedPortletsMap.containsKey(e.getClass().toString()))
+               {
+                  List<String> portletHandles = new ArrayList<String>();
+                  portletHandles.add(portletContext.getPortletHandle());
+                  
+                  FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, ErrorCodes.Codes.INVALIDHANDLE, "The specified porlet handle is invalid.");
+                  failedPortletsMap.put(e.getClass().toString(), failedPortlets);
+               }
+               else
+               {
+                  FailedPortlets failedPortlets = failedPortletsMap.get(e.getClass().toString());
+                  failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
+               }
+            }
+            catch (InvalidHandle e)
+            {
+               if(!failedPortletsMap.containsKey(e.getClass().toString()))
+               {
+                  List<String> portletHandles = new ArrayList<String>();
+                  portletHandles.add(portletContext.getPortletHandle());
+                  
+                  FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, ErrorCodes.Codes.INVALIDHANDLE, "The specified portlet handle is invalid.");
+                  failedPortletsMap.put(e.getClass().toString(), failedPortlets);
+               }
+               else
+               {
+                  FailedPortlets failedPortlets = failedPortletsMap.get(e.getClass().toString());
+                  failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
+               }
+            }
+            catch (Exception e)
+            {
+               if(!failedPortletsMap.containsKey(e.getClass().toString()))
+               {
+                  List<String> portletHandles = new ArrayList<String>();
+                  portletHandles.add(portletContext.getPortletHandle());
+                  
+                  FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, ErrorCodes.Codes.OPERATIONFAILED, "An exception occured when trying to export this portlet for export.");
+                  e.printStackTrace();
+                  failedPortletsMap.put(e.getClass().toString(), failedPortlets);
+               }
+               else
+               {
+                  FailedPortlets failedPortlets = failedPortletsMap.get(e.getClass().toString());
+                  failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
+               }
+            }
+         }
+         
+         
+         
+         //TODO: handle resourceLists better (should be using for things like errors)
+         ResourceList resourceList = null;
+         
+         return WSRPTypeFactory.createExportPortletsResponse(exportContext.encodeAsBytes(), exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), exportContext.getLifeTime(), resourceList);
+      }
+      catch (Exception e)//TODO ADD PROPER EXCEPTION HANDLING
+      {
+         e.printStackTrace();
+         throw new OperationFailed("TODO: add proper error handling", new OperationFailedFault());
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
+   }
+
+   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets) throws OperationFailed, InvalidRegistration, MissingParameters
+   {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(importPortlets, "ImportPortlets");
+      
+      List<ImportPortlet> importPortletList = importPortlets.getImportPortlet();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(importPortletList, "ImportPortlet", "ImportPortlets");
+      
+      Registration registration = producer.getRegistrationOrFailIfInvalid(importPortlets.getRegistrationContext());
+      
+      // check if we have a valid userContext or not
+      UserContext userContext = importPortlets.getUserContext();
+      checkUserAuthorization(userContext);
+      
+      try
+      {
+         RegistrationLocal.setRegistration(registration);
+         
+         byte[] importContext = importPortlets.getImportContext();
+         
+         Lifetime lifeTime = importPortlets.getLifetime();
+         
+         List<ImportedPortlet> importedPortlets = new ArrayList<ImportedPortlet>();
+         Map<String, ImportPortletsFailed> failedPortletsMap = new HashMap<String, ImportPortletsFailed>();
+         
+         ExportContext exportContext = producer.getExportManager().createExportContext(importContext);
+         
+         for (ImportPortlet importPortlet : importPortletList)
+         {
+            try
+            {
+               byte[] portletData = importPortlet.getExportData();
+
+               ExportPortletData exportPortletData = producer.getExportManager().createExportPortletData(exportContext, lifeTime, portletData);
+
+               String portletHandle = exportPortletData.getPortletHandle();
+               byte[] portletState = exportPortletData.getPortletState();
+
+               PortletContext pc = WSRPTypeFactory.createPortletContext(portletHandle, portletState);
+               org.gatein.pc.api.PortletContext pcPortletContext = WSRPUtils.convertToPortalPortletContext(pc);
+
+               org.gatein.pc.api.PortletContext cpc = producer.getPortletInvoker().createClone(PortletStateType.OPAQUE, pcPortletContext);
+               PortletContext wpc = WSRPUtils.convertToWSRPPortletContext(cpc);
+
+               ImportedPortlet importedPortlet = WSRPTypeFactory.createImportedPortlet(importPortlet.getImportID(), wpc);
+
+               importedPortlets.add(importedPortlet);
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+               if(!failedPortletsMap.containsKey(e.getClass().toString()))
+               {
+                  List<String> importIds = new ArrayList<String>();
+                  importIds.add(importPortlet.getImportID());
+                  
+                  ImportPortletsFailed failedPortlets = WSRPTypeFactory.createImportPortletsFailed(importIds, ErrorCodes.Codes.OPERATIONFAILED, "The import portlet operation failed");
+                  
+                  failedPortletsMap.put(e.getClass().toString(), failedPortlets);
+               }
+               else
+               {
+                  ImportPortletsFailed failedPortlets = failedPortletsMap.get(e.getClass().toString());
+                  failedPortlets.getImportID().add(importPortlet.getImportID());
+               }
+            }
+         }
+         
+         ResourceList resourceList = null; //TODO: figure out what exactly should be stored in the resource list here
+         
+         return WSRPTypeFactory.createImportPortletsResponse(importedPortlets, new ArrayList<ImportPortletsFailed>(failedPortletsMap.values()), resourceList);
+      }
+      catch (Exception e)
+      {
+         //TODO: put proper error messages here
+         e.printStackTrace();
+         throw new NotYetImplemented();
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
+   }
+
+   public List<Extension> releaseExport(ReleaseExport releaseExport)
+   {
+      try
+      {
+         if (releaseExport != null)
+         {
+            ExportContext exportContext = producer.getExportManager().createExportContext(releaseExport.getExportContext());
+            producer.getExportManager().releaseExport(exportContext);
+         }
+      }
+      catch (Exception e)
+      {
+         //TODO: this method doesn't return anything, should we do more than just output the stacktrace?
+         e.printStackTrace();
+      }
+      
+      //this method shouldn't return anything
+      return new ReturnAny().getExtensions();
+   }
+
+   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration
+   {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(setExportLifetime, "setExportLifetimePortlets");
+      
+      byte[] exportContextBytes = setExportLifetime.getExportContext();
+      //NOTE: we can't throw a MissingParameterException since its not allowed as part of the spec
+      if (exportContextBytes == null)
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot call setExportLifetime with an empty ExportContext.", null);
+      }
+      
+      Registration registration = producer.getRegistrationOrFailIfInvalid(setExportLifetime.getRegistrationContext());
+      
+      // check if we have a valid userContext or not
+      UserContext userContext = setExportLifetime.getUserContext();
+      checkUserAuthorization(userContext);
+      
+      try
+      {
+         RegistrationLocal.setRegistration(registration);
+         
+         ExportContext exportContext = producer.getExportManager().createExportContext(exportContextBytes);
+         
+         return producer.getExportManager().setExportLifetime(exportContext,setExportLifetime.getLifetime());
+         
+      }
+      catch (Exception e)
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Operation Failed while trying to setExportLifetime.", e);
       }
       finally
       {

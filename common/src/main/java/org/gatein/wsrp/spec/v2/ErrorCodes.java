@@ -47,4 +47,35 @@ public final class ErrorCodes
    public static final QName ResourceSuspended = new QName(WSRP2_TYPES_NS, "ResourceSuspended");
    public static final QName TooBusy = new QName(WSRP2_TYPES_NS, "TooBusy");
    public static final QName TooManyRequests = new QName(WSRP2_TYPES_NS, "TooManyRequests");
+   
+   public static enum Codes
+   {
+      ACCESSDENIED, EXPORTNOLONGERVALID, INCONSISTENTPARAMETERS, INVALIDREGISTRATION, INVALIDCOOKIE, INVALIDHANDLE, INVALIDSESSION,
+      INVALIDUSERCATEGORY, MODIFYREGISTRATIONREQUIRED, MISSINGPARAMETERS, OPERATIONFAILED, OPERATIONNOTSUPPORTED, RESOURCESUSPENDED,
+      TOOBUSY, TOOMANYREQUESTS
+   }
+   
+   public static QName getQname(Codes code)
+   {
+      switch(code)
+      {
+         case ACCESSDENIED: return AccessDenied;
+         case EXPORTNOLONGERVALID: return ExportNoLongerValid;
+         case INCONSISTENTPARAMETERS: return InconsistentParameters;
+         case INVALIDREGISTRATION: return InvalidRegistration;
+         case INVALIDCOOKIE: return InvalidCookie;
+         case INVALIDHANDLE: return InvalidHandle;
+         case INVALIDSESSION: return InvalidSession;
+         case INVALIDUSERCATEGORY: return InvalidUserCategory;
+         case MODIFYREGISTRATIONREQUIRED: return ModifyRegistrationRequired;
+         case MISSINGPARAMETERS: return MissingParameters;
+         case OPERATIONFAILED: return OperationFailed;
+         case OPERATIONNOTSUPPORTED: return OperationNotSupported;
+         case RESOURCESUSPENDED: return ResourceSuspended;
+         case TOOBUSY: return TooBusy;
+         case TOOMANYREQUESTS: return TooManyRequests;
+
+         default: return OperationFailed;
+      }
+   }
 }

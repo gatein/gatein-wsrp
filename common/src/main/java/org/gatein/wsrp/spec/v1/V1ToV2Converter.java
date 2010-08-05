@@ -31,6 +31,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.oasis.wsrp.v1.V1CacheControl;
 import org.oasis.wsrp.v1.V1ClientData;
 import org.oasis.wsrp.v1.V1ClonePortlet;
@@ -710,7 +711,7 @@ public class V1ToV2Converter
          List<FailedPortlets> result = new ArrayList<FailedPortlets>(destroyFailed.size());
          for (V1DestroyFailed failed : destroyFailed)
          {
-            result.add(WSRPTypeFactory.createFailedPortlets(Collections.singletonList(failed.getPortletHandle()), failed.getReason()));
+            result.add(WSRPTypeFactory.createFailedPortlets(Collections.singletonList(failed.getPortletHandle()), ErrorCodes.Codes.OPERATIONFAILED, failed.getReason()));
          }
 
          return result;

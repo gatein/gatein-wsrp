@@ -25,6 +25,7 @@ package org.gatein.wsrp.test.protocol.v2.behaviors;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.MarkupBehavior;
@@ -148,7 +149,7 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
          {
             ArrayList<String> failed = new ArrayList<String>();
             failed.add(handle);
-            failedPortlets.value.add(WSRPTypeFactory.createFailedPortlets(failed, "Handle '" + handle + "' doesn't exist"));
+            failedPortlets.value.add(WSRPTypeFactory.createFailedPortlets(failed, ErrorCodes.Codes.OPERATIONFAILED, "Handle '" + handle + "' doesn't exist"));
          }
       }
    }

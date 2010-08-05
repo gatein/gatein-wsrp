@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ClonePortlet;
@@ -31,6 +32,8 @@ import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
 import org.oasis.wsrp.v2.ExportNoLongerValid;
+import org.oasis.wsrp.v2.ExportPortlets;
+import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportedPortlet;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
@@ -38,7 +41,9 @@ import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
 import org.oasis.wsrp.v2.ImportPortlet;
+import org.oasis.wsrp.v2.ImportPortlets;
 import org.oasis.wsrp.v2.ImportPortletsFailed;
+import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.ImportedPortlet;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -58,6 +63,7 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
@@ -69,6 +75,8 @@ import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -233,7 +241,16 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      ExportPortlets exportPortlets = WSRPTypeFactory.createExportPortlets(registrationContext, portletContext, userContext, lifetime.value, exportByValueRequired);
+      
+      ExportPortletsResponse exportPortletsResponse = producer.exportPortlets(exportPortlets);
+      
+      lifetime.value = exportPortletsResponse.getLifetime();
+      exportContext.value = exportPortletsResponse.getExportContext();
+      exportedPortlet.value = exportPortletsResponse.getExportedPortlet();
+      failedPortlets.value = exportPortletsResponse.getFailedPortlets();
+      resourceList.value = exportPortletsResponse.getResourceList();
+      extensions.value = exportPortletsResponse.getExtensions();
    }
 
    public void importPortlets(
@@ -248,7 +265,14 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      ImportPortlets importPortlets = WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortlet, userContext, lifetime);
+      
+      ImportPortletsResponse importPortletsResponse = producer.importPortlets(importPortlets);
+      
+      importedPortlets.value = importPortletsResponse.getImportedPortlets();
+      importFailed.value = importPortletsResponse.getImportFailed();
+      resourceList.value = importPortletsResponse.getResourceList();
+      extensions.value = importPortletsResponse.getExtensions();
    }
 
    public List<Extension> releaseExport(
@@ -256,14 +280,20 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "exportContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") byte[] exportContext,
       @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext)
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      ReleaseExport releaseExport = WSRPTypeFactory.createReleaseExport(registrationContext, exportContext, userContext);
+      
+      producer.releaseExport(releaseExport);
+      
+      //release export isn't suppose to return anything
+      return new ArrayList<Extension>();
    }
 
    public Lifetime setExportLifetime(
       @WebParam(name = "setExportLifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", partName = "setExportLifetime") SetExportLifetime setExportLifetime)
       throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      //Note: we are getting a SetExportLifetime instead of the components for some reason.
+      return producer.setExportLifetime(setExportLifetime);
    }
 
    public void setPortletProperties(

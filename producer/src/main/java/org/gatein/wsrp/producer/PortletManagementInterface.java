@@ -56,6 +56,7 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.SetPortletsLifetime;

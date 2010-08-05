@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer;
 
+import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
@@ -45,6 +46,9 @@ import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.ExportByValueNotSupported;
+import org.oasis.wsrp.v2.ExportPortlets;
+import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
 import org.oasis.wsrp.v2.ExportNoLongerValid;
 import org.oasis.wsrp.v2.ExportPortlets;
@@ -141,6 +145,9 @@ public class WSRPProducerImpl implements WSRP2Producer
    /** configuration service */
    private ProducerConfigurationService configurationService; //todo: make sure it's multi-thread safe
 
+   /** export manager */
+   private ExportManager exportManager; 
+   
    private boolean started = false;
 
    // On-demand class holder Singleton pattern (multi-thread safe)
@@ -346,6 +353,16 @@ public class WSRPProducerImpl implements WSRP2Producer
       return configurationService;
    }
 
+   public void setExportManager(ExportManager exportManger)
+   {
+      this.exportManager = exportManger;
+   }
+   
+   public ExportManager getExportManager()
+   {
+      return exportManager;
+   }
+   
    public synchronized void start()
    {
       if (!started)

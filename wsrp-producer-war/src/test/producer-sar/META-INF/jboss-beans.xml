@@ -47,6 +47,9 @@
       <property name="configurationService">
          <inject bean="ConfigurationService"/>
       </property>
+      <property name="exportManager">
+         <inject bean="ExportManager"/>
+      </property>
    </bean>
 
    <bean name="PortletInvoker" class="org.gatein.pc.portlet.state.producer.ProducerPortletInvoker">
@@ -92,39 +95,6 @@
 
    <bean name="ServletAccess" class="org.gatein.wsrp.servlet.ServletAccess"/>
 
+   <bean name="ExportManager" class="org.gatein.exports.impl.ExportManagerImpl"/>
+
 </deployment>
-
-   <!-- Dummy test WSRP Producer implementation -->
-   <!--   <bean name="DummyWSRPProducer" class="org.gatein.wsrp.test.TestWSRPProducerImpl"/> -->
-
-   <!-- Hack to get access to req/resp -->
-   <!--   <bean name="ServletAccess" class="org.gatein.wsrp.servlet.ServletAccessFilter"/> -->
-
-   <!--   <bean name="ServiceFactory" class="org.gatein.wsrp.services.PerEndpointSOAPInvokerServiceFactory">
-         <property name="ServiceDescriptionURL">http://localhost:8080/test-wsrp-consumer/ServiceDescriptionService</property>
-         <property name="MarkupURL">http://localhost:8080/test-wsrp-consumer/MarkupService</property>
-         <property name="RegistrationURL">http://localhost:8080/test-wsrp-consumer/RegistrationService</property>
-         <property name="PortletManagementURL">http://localhost:8080/test-wsrp-consumer/PortletManagementService</property>
-         <property name="Env">
-            java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
-            java.naming.provider.url=jnp://localhost:1099
-            java.naming.factory.url.pkgs=org.jboss.naming.client
-            j2ee.clientName=wsrp-client
-         </property>
-         <property name="PortJNDIMapping">
-            org.gatein.wsrp.core.WSRP_v1_ServiceDescription_PortType=java:comp/env/service/ServiceDescriptionService
-            org.gatein.wsrp.core.WSRP_v1_Markup_PortType=java:comp/env/service/MarkupService
-            org.gatein.wsrp.core.WSRP_v1_Registration_PortType=java:comp/env/service/RegistrationService
-            org.gatein.wsrp.core.WSRP_v1_PortletManagement_PortType=java:comp/env/service/PortletManagementService
-         </property>
-      </bean>
-
-      <bean name="CachingServiceFactory" class="CachingServiceFactory">
-         <property name="Delegate"><inject bean="ServiceFactory"/></property>
-      </bean>
-
-      <bean name="WSRPConsumer" class="org.gatein.wsrp.consumer.WSRPConsumerImpl">
-         <property name="ServiceFactory"><inject bean="CachingServiceFactory"/></property>
-      </bean>
-   -->
-   <!--</deployment> -->
