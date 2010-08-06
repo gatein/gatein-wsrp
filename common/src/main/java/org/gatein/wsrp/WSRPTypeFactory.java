@@ -75,6 +75,7 @@ import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MarkupType;
+import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.NamedString;
@@ -185,20 +186,20 @@ public class WSRPTypeFactory
    {
       return createResourceRequest(createPortletContext(handle), createDefaultRuntimeContext(), createDefaultResourceParams(resourceID));
    }
-   
+
    public static GetResource createResourceRequest(PortletContext portletContext, RuntimeContext runtimeContext, ResourceParams resourceParams)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(resourceParams, "ResourceParams");
-      
+
       GetResource getResource = new GetResource();
       getResource.setPortletContext(portletContext);
       getResource.setRuntimeContext(runtimeContext);
       getResource.setResourceParams(resourceParams);
       return getResource;
    }
-   
+
    /**
     * Same as createPerformBlockingInteraction(portletHandle, {@link #createDefaultRuntimeContext}(), {@link
     * #createDefaultMarkupParams}(), {@link #createDefaultInteractionParams}());
@@ -404,9 +405,9 @@ public class WSRPTypeFactory
    public static ResourceParams createDefaultResourceParams(String resourceID)
    {
       return createResourceParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
-            WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceID, StateChange.READ_ONLY);
+         WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceID, StateChange.READ_ONLY);
    }
-   
+
    public static ResourceParams createResourceParams(boolean secureClientCommunication, List<String> locales, List<String> mimeTypes, String mode, String windowState, String resourceID, StateChange stateChange)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(locales, "locales");
@@ -419,7 +420,7 @@ public class WSRPTypeFactory
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mode, "mode", "ResourceParams");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(windowState, "window state", "ResourceParams");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(resourceID, "Resource ID", "ResourceParams");
-      
+
       ResourceParams resourceParams = new ResourceParams();
       resourceParams.setSecureClientCommunication(secureClientCommunication);
       resourceParams.setMode(mode);
@@ -428,18 +429,18 @@ public class WSRPTypeFactory
       {
          resourceParams.getLocales().addAll(locales);
       }
-      
+
       if (ParameterValidation.existsAndIsNotEmpty(mimeTypes))
       {
          resourceParams.getMimeTypes().addAll(mimeTypes);
       }
-      
+
       resourceParams.setResourceID(resourceID);
       resourceParams.setPortletStateChange(stateChange);
-      
+
       return resourceParams;
    }
-   
+
    /**
     * Same as createRuntimeContext({@link WSRPConstants#NONE_USER_AUTHENTICATION})
     *
@@ -518,7 +519,7 @@ public class WSRPTypeFactory
       markupResponse.setMarkupContext(markupContext);
       return markupResponse;
    }
-   
+
    public static ResourceResponse createResourceResponse(ResourceContext resourceContext)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(resourceContext, "ResourceContext");
@@ -567,53 +568,50 @@ public class WSRPTypeFactory
       markupContext.setItemBinary(markupBinary);
       return markupContext;
    }
-   
-   /**
-    * mimeType: The mime type of the returned resource. The mimeType field MUST be specified whenever resource is returned,
-    * and if the resourceBinary field is used to return the resource, the mime type MUST include the character set for
-    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this particular
-    * case this character set MAY be different than the response message.
-    * <p/>
-    */
-   public static ResourceContext createResourceContext(String mediaType, String resourceString)
-   {
-      return createResourceContext(mediaType, resourceString, null);
-   }
 
    /**
     * @param mediaType The mime type of the returned resource. The mimeType field MUST be specified whenever resource is
-    *                  returned, and if the resourceBinary field is used to return the resource, the mime type MUST include
-    *                  the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
+    *                  returned, and if the resourceBinary field is used to return the resource, the mime type MUST
+    *                  include the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
     *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than the
     *                  response message.
     * @return a new ResourceContext
     */
-   public static ResourceContext createResourceContext(String mediaType, byte[] resourceBinary)
-   {
-      return createResourceContext(mediaType, null, resourceBinary);
-   }
-   
    public static ResourceContext createResourceContext(String mediaType, String resourceString, byte[] resourceBinary)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "ResourceContext");
-      if ((resourceString == null) && (resourceBinary == null || resourceBinary.length == 0))
+      return createMimeResponse(mediaType, resourceString, resourceBinary, ResourceContext.class);
+   }
+
+   public static <T extends MimeResponse> T createMimeResponse(String mimeType, String itemString, byte[] itemBinary, Class<T> clazz)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME type", "MimeResponse");
+      if ((itemString == null) && (itemBinary == null || itemBinary.length == 0))
       {
-         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
+         throw new IllegalArgumentException("MimeResponse requires either a non-null markup string or binary markup.");
       }
-      
-      ResourceContext resourceContext = new ResourceContext();
-      resourceContext.setMimeType(mediaType);
-      
-      if (resourceString != null)
+
+      T mimeResponse;
+      try
       {
-         resourceContext.setItemString(resourceString);
+         mimeResponse = clazz.newInstance();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Couldn't instantiate " + clazz.getSimpleName(), e);
+      }
+
+      mimeResponse.setMimeType(mimeType);
+
+      if (itemString != null)
+      {
+         mimeResponse.setItemString(itemString);
       }
       else
       {
-         resourceContext.setItemBinary(resourceBinary);
+         mimeResponse.setItemBinary(itemBinary);
       }
-      
-      return resourceContext;
+
+      return mimeResponse;
    }
 
    /**
@@ -1376,24 +1374,24 @@ public class WSRPTypeFactory
       result.setNamedStringArray(value);
       return result;
    }
-   
+
    public static ExportPortlets createExportPortlets(RegistrationContext registrationContext, List<PortletContext> portletContexts, UserContext userContext, Lifetime lifetime, Boolean exportByValue)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
       {
          throw new IllegalArgumentException("Must provide at least one PortletContext to ExportPortlets.");
       }
-      
+
       ExportPortlets exportPortlets = new ExportPortlets();
       exportPortlets.setRegistrationContext(registrationContext);
       exportPortlets.getPortletContext().addAll(portletContexts);
       exportPortlets.setUserContext(userContext);
       exportPortlets.setLifetime(lifetime);
       exportPortlets.setExportByValueRequired(exportByValue);
-      
+
       return exportPortlets;
    }
-   
+
    public static ExportPortletsResponse createExportPortletsResponse(byte[] exportContext, List<ExportedPortlet> exportedPortlets, List<FailedPortlets> failedPortlets, Lifetime lifetime, ResourceList resourceList)
    {
       // everything can be empty or nillable, there is no need to check for null values
@@ -1403,60 +1401,60 @@ public class WSRPTypeFactory
       response.getFailedPortlets().addAll(failedPortlets);
       response.setLifetime(lifetime);
       response.setResourceList(resourceList);
-      
+
       return response;
    }
 
    public static ExportedPortlet createExportedPortlet(String portletHandle, byte[] exportData)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletHandle, "PortletHandle");
-      
+
       ExportedPortlet exportedPortlet = new ExportedPortlet();
       exportedPortlet.setPortletHandle(portletHandle);
       exportedPortlet.setExportData(exportData);
-      
+
       return exportedPortlet;
    }
-   
+
    public static ImportPortlets createImportPortlets(RegistrationContext registrationContext, byte[] importContext, List<ImportPortlet> importPortlet, UserContext userContext, Lifetime lifetime)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(importPortlet))
       {
          throw new IllegalArgumentException("Must provide at least one ImportPortlet to ImportPortlets.");
       }
-      
+
       ImportPortlets importPortlets = new ImportPortlets();
       importPortlets.setRegistrationContext(registrationContext);
       importPortlets.setImportContext(importContext);
       importPortlets.getImportPortlet().addAll(importPortlet);
       importPortlets.setUserContext(userContext);
       importPortlets.setLifetime(lifetime);
-      
+
       return importPortlets;
    }
-   
+
    public static ImportPortlet createImportPorlet(String importID, byte[] exportData)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(importID, "ImportID");
       ParameterValidation.throwIllegalArgExceptionIfNull(exportData, "ExportData");
-      
+
       ImportPortlet importPortlet = new ImportPortlet();
       importPortlet.setImportID(importID);
       importPortlet.setExportData(exportData);
       return importPortlet;
    }
-   
-   public static ImportPortletsResponse createImportPortletsResponse (List<ImportedPortlet> importedPortlets, List<ImportPortletsFailed> importPortletsFailed, ResourceList resourceList)
+
+   public static ImportPortletsResponse createImportPortletsResponse(List<ImportedPortlet> importedPortlets, List<ImportPortletsFailed> importPortletsFailed, ResourceList resourceList)
    {
       // everything can be empty or nillable, no need to check for null values
       ImportPortletsResponse response = new ImportPortletsResponse();
       response.getImportedPortlets().addAll(importedPortlets);
       response.getImportFailed().addAll(importPortletsFailed);
       response.setResourceList(resourceList);
-      
+
       return response;
    }
-   
+
    public static ImportPortletsFailed createImportPortletsFailed(List<String> importIds, ErrorCodes.Codes errorCode, String reason)
    {
       //TODO: reason should be a LocalizedString
@@ -1474,49 +1472,49 @@ public class WSRPTypeFactory
          return failedPortlets;
       }
 
-      throw new IllegalArgumentException("Must provide non-null, non-empty portlet handle list.");      
+      throw new IllegalArgumentException("Must provide non-null, non-empty portlet handle list.");
    }
-   
+
    public static ImportedPortlet createImportedPortlet(String portletID, PortletContext portletContext)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletID, "PortletID");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
-      
+
       ImportedPortlet importedPortlet = new ImportedPortlet();
       importedPortlet.setImportID(portletID);
       importedPortlet.setNewPortletContext(portletContext);
-      
+
       return importedPortlet;
    }
-   
+
    public static ReleaseExport createReleaseExport(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext)
    {
       if (exportContext == null || exportContext.length == 0)
       {
          throw new IllegalArgumentException("Must provide a non null or empty exportContext to ReleaseExport.");
       }
-      
+
       ReleaseExport releaseExport = new ReleaseExport();
       releaseExport.setRegistrationContext(registrationContext);
       releaseExport.setExportContext(exportContext);
       releaseExport.setUserContext(userContext);
-      
+
       return releaseExport;
    }
-   
+
    public static SetExportLifetime createSetExportLifetime(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext, Lifetime lifetime)
    {
       if (exportContext == null || exportContext.length == 0)
       {
          throw new IllegalArgumentException("Must provide a non null or empty exportContext to SetExportLifetime.");
       }
-      
+
       SetExportLifetime setExportLifetime = new SetExportLifetime();
       setExportLifetime.setRegistrationContext(registrationContext);
       setExportLifetime.setExportContext(exportContext);
       setExportLifetime.setUserContext(userContext);
       setExportLifetime.setLifetime(lifetime);
-      
+
       return setExportLifetime;
    }
 }

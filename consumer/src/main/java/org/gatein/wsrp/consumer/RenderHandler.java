@@ -23,21 +23,13 @@
 
 package org.gatein.wsrp.consumer;
 
-import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.pc.api.URLFormat;
-import org.gatein.pc.api.cache.CacheScope;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
-import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.spi.PortletInvocationContext;
-import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.MarkupContext;
@@ -49,20 +41,41 @@ import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12082 $
  * @since 2.4 (May 31, 2006)
  */
-public class RenderHandler extends InvocationHandler
+public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupContext>
 {
-
-   private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
 
    protected RenderHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
+   }
+
+   @Override
+   protected SessionContext getSessionContextFrom(MarkupResponse response)
+   {
+      return response.getSessionContext();
+   }
+
+   @Override
+   protected MarkupContext getMimeResponseFrom(MarkupResponse markupResponse)
+   {
+      return markupResponse.getMarkupContext();
+   }
+
+   @Override
+   protected PortletInvocationResponse createContentResponse(MarkupContext markupContext, PortletInvocation invocation,
+                                                             ResponseProperties properties, Map<String, Object> attributes,
+                                                             String mimeType, byte[] bytes, String markup,
+                                                             org.gatein.pc.api.cache.CacheControl cacheControl)
+   {
+      return new FragmentResponse(properties, attributes, mimeType, bytes, markup, markupContext.getPreferredTitle(),
+         cacheControl, invocation.getPortalContext().getModes());
    }
 
    protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
@@ -79,68 +92,6 @@ public class RenderHandler extends InvocationHandler
          log.debug("Consumer about to attempt rendering portlet '" + portletContext.getPortletHandle() + "'");
       }
       return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.runtimeContext, requestPrecursor.markupParams);
-   }
-
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor)
-   {
-      MarkupResponse markupResponse = (MarkupResponse)response;
-
-      // process the response
-      consumer.getSessionHandler().updateSessionIfNeeded(markupResponse.getSessionContext(), invocation,
-         requestPrecursor.getPortletHandle());
-
-      MarkupContext markupContext = markupResponse.getMarkupContext();
-      String markup = markupContext.getItemString();
-      byte[] binary = markupContext.getItemBinary();
-      if (markup != null && binary != null)
-      {
-         return new ErrorResponse(new IllegalArgumentException("Markup response cannot contain both string and binary " +
-            "markup. Per Section 6.1.10 of the WSRP specification, this is a Producer error."));
-      }
-
-      if (markup == null && binary == null)
-      {
-         if (markupContext.isUseCachedItem())
-         {
-            //todo: deal with cache GTNWSRP-40
-         }
-         else
-         {
-            return new ErrorResponse(new IllegalArgumentException("Markup response must contain at least string or binary" +
-               " markup. Per Section 6.1.10 of the WSRP specification, this is a Producer error."));
-         }
-      }
-
-      if (markup != null && markup.length() > 0)
-      {
-         if (Boolean.TRUE.equals(markupContext.isRequiresRewriting()))
-         {
-            markup = processMarkup(
-               markup,
-               getNamespaceFrom(invocation.getWindowContext()),
-               invocation.getContext(),
-               invocation.getTarget(),
-               new URLFormat(invocation.getSecurityContext().isSecure(), invocation.getSecurityContext().isAuthenticated(), true, true),
-               consumer
-            );
-         }
-      }
-      else
-      {
-         // todo: need to deal with binary
-      }
-
-      String mimeType = markupContext.getMimeType();
-      if (mimeType == null || mimeType.length() == 0)
-      {
-         return new ErrorResponse(new IllegalArgumentException("No MIME type was provided for portlet content."));
-      }
-
-      // generate appropriate CacheControl
-      org.gatein.pc.api.cache.CacheControl cacheControl = createCacheControl(markupContext);
-
-      return new FragmentResponse(null, null, mimeType, null, markup,
-         markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
    }
 
    protected void updateUserContext(Object request, UserContext userContext)
@@ -188,62 +139,4 @@ public class RenderHandler extends InvocationHandler
       throw new IllegalArgumentException("RenderHandler: Request is not a GetMarkup request!");
    }
 
-   static String processMarkup(String markup, String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, WSRPConsumer consumer)
-   {
-      // fix-me: how to deal with fragment header? => interceptor?
-
-      // todo: remove, this is a work-around for GTNWSRP-12
-      markup = markup.replaceFirst("%3ftimeout%3d.*%2f", "%2f");
-
-      markup = TextTools.replaceBoundedString(
-         markup,
-         WSRPRewritingConstants.WSRP_REWRITE,
-         WSRPRewritingConstants.END_WSRP_REWRITE,
-         new MarkupProcessor(namespace, context, target, format, consumer.getProducerInfo()),
-         true,
-         false,
-         true
-      );
-
-      return markup;
-   }
-
-   private org.gatein.pc.api.cache.CacheControl createCacheControl(MarkupContext markupContext)
-   {
-      CacheControl cacheControl = markupContext.getCacheControl();
-      org.gatein.pc.api.cache.CacheControl result = DEFAULT_CACHE_CONTROL;
-
-      int expires;
-      if (cacheControl != null)
-      {
-         expires = cacheControl.getExpires();
-         String userScope = cacheControl.getUserScope();
-
-         // check that we support the user scope...
-         if (consumer.supportsUserScope(userScope))
-         {
-            if (debug)
-            {
-               log.debug("RenderHandler.processRenderRequest: trying to cache markup " + userScope + " for " + expires + " seconds.");
-            }
-            CacheScope scope;
-            if (WSRPConstants.CACHE_FOR_ALL.equals(userScope))
-            {
-               scope = CacheScope.PUBLIC;
-            }
-            else if (WSRPConstants.CACHE_PER_USER.equals(userScope))
-            {
-               scope = CacheScope.PRIVATE;
-            }
-            else
-            {
-               throw new IllegalArgumentException("Unknown CacheControl user scope: " + userScope); // should not happen
-            }
-
-            result = new org.gatein.pc.api.cache.CacheControl(expires, scope, cacheControl.getValidateTag());
-         }
-      }
-
-      return result;
-   }
 }

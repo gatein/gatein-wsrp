@@ -138,7 +138,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       checkForError(response);
 
-      return requestProcessor.processResponse(response);
+      return (ResourceResponse)requestProcessor.processResponse(response);
    }
 
    public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction)

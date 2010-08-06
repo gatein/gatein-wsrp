@@ -29,17 +29,16 @@ import org.gatein.common.i18n.LocaleFormat;
 import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ConversionException;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.ActionURL;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletStateType;
-import org.gatein.pc.api.PortletURL;
-import org.gatein.pc.api.RenderURL;
 import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.pc.api.WindowState;
+import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.NamedString;
@@ -69,6 +68,7 @@ public class WSRPUtils
    private final static Map<String, WindowState> WSRP_JSR168_WINDOW_STATES = new HashMap<String, WindowState>(7);
    private final static Map<String, String> JSR168_WSRP_MODES = new HashMap<String, String>(7);
    private final static Map<String, Mode> WSRP_JSR168_MODES = new HashMap<String, Mode>(7);
+   private final static Map<CacheLevel, String> JSR286_WSRP_CACHE = new HashMap<CacheLevel, String>(7);
    private static final String SET_OF_LOCALES = "set of Locales";
    private static final String MODE = "Mode";
    private static final String WSRP_MODE_NAME = "wsrp portlet name";
@@ -107,6 +107,10 @@ public class WSRPUtils
 
       DEFAULT_JSR168_MODES = new HashSet<Mode>(WSRP_JSR168_MODES.values());
       DEFAULT_JSR168_WINDOWSTATES = new HashSet<WindowState>(WSRP_JSR168_WINDOW_STATES.values());
+
+      JSR286_WSRP_CACHE.put(CacheLevel.FULL, WSRP2Constants.RESOURCE_CACHEABILITY_FULL);
+      JSR286_WSRP_CACHE.put(CacheLevel.PAGE, WSRP2Constants.RESOURCE_CACHEABILITY_PAGE);
+      JSR286_WSRP_CACHE.put(CacheLevel.PORTLET, WSRP2Constants.RESOURCE_CACHEABILITY_PORTLET);
    }
 
    private WSRPUtils()
@@ -210,26 +214,6 @@ public class WSRPUtils
    }
 
 
-   public static String getWSRPURLTypeFrom(PortletURL url)
-   {
-      if (url instanceof WSRPPortletURL)
-      {
-         return ((WSRPPortletURL)url).getURLType();
-      }
-
-      if (url instanceof RenderURL)
-      {
-         return WSRPRewritingConstants.URL_TYPE_RENDER;
-      }
-
-      if (url instanceof ActionURL)
-      {
-         return WSRPRewritingConstants.URL_TYPE_BLOCKING_ACTION;
-      }
-
-      throw new IllegalArgumentException("Unrecognized URL type.");
-   }
-
    public static String convertRequestAuthTypeToWSRPAuthType(String authType)
    {
       if (authType == null)
@@ -302,6 +286,21 @@ public class WSRPUtils
          }
       }
       return result;
+   }
+
+   public static String getResourceCacheabilityFromCacheLevel(CacheLevel cacheLevel)
+   {
+      return cacheLevel == null ? null : cacheLevel.name().toLowerCase(Locale.ENGLISH);
+   }
+
+   public static CacheLevel getCacheLevelFromResourceCacheability(String resourceCacheability)
+   {
+      // if we don't pass a resource cacheability, assume Page for maximum compatibility
+      if (resourceCacheability == null)
+      {
+         return CacheLevel.PAGE;
+      }
+      return CacheLevel.valueOf(resourceCacheability.toUpperCase(Locale.ENGLISH));
    }
 
 

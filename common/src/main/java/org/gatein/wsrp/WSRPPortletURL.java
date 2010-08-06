@@ -234,10 +234,6 @@ public abstract class WSRPPortletURL implements ContainerURL
       }
       else if (encodedURL.startsWith(WSRPRewritingConstants.URL_TYPE_RESOURCE))
       {
-         if (log.isDebugEnabled())
-         {
-            log.debug("Using experimental resource URL support...");
-         }
          urlType = WSRPRewritingConstants.URL_TYPE_RESOURCE;
          url = new WSRPResourceURL();
       }
@@ -257,11 +253,6 @@ public abstract class WSRPPortletURL implements ContainerURL
 
          // extract the other parameters
          params = extractParams(encodedURL, originalURL, customModes, customWindowStates);
-      }
-      else if (WSRPRewritingConstants.URL_TYPE_RESOURCE.equals(urlType))
-      {
-         throw new IllegalArgumentException("Both the 'wsrp-url' and 'wsrp-requiresRewrite' parameters MUST also be specified for resource URL '"
-            + originalURL + "'");
       }
 
       url.setParams(params, originalURL);

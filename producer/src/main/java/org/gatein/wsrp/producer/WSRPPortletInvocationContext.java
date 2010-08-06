@@ -37,7 +37,6 @@ import org.gatein.pc.portlet.impl.spi.AbstractClientContext;
 import org.gatein.pc.portlet.impl.spi.AbstractPortletInvocationContext;
 import org.gatein.pc.portlet.impl.spi.AbstractServerContext;
 import org.gatein.wsrp.WSRPPortletURL;
-import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
@@ -133,10 +132,6 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
          Boolean wantSecureBool = urlFormat.getWantSecure();
          boolean wantSecure = (wantSecureBool != null ? wantSecureBool : false);
          WSRPPortletURL url = WSRPPortletURL.create(containerURL, wantSecure);
-         if (url instanceof WSRPResourceURL)
-         {
-            WSRPResourceURL resourceURL = (WSRPResourceURL)url;
-         }
          return url.toString();
       }
       return null;
