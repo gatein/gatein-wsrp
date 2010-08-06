@@ -23,11 +23,20 @@
 
 package org.gatein.wsrp.protocol.v2;
 
+import javax.xml.namespace.QName;
+
+import org.gatein.registration.RegistrationException;
+import org.gatein.registration.RegistrationManager;
+import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
+import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
+import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.test.ExtendedAssert;
 import org.oasis.wsrp.v2.GetServiceDescription;
 
 /**
@@ -37,6 +46,8 @@ import org.oasis.wsrp.v2.GetServiceDescription;
 public class V2ProducerBaseTest extends WSRPProducerBaseTest
 {
    protected WSRP2Producer producer = ProducerHolder.getProducer(true);
+   
+   private static final String CONSUMER = "test-consumer";
 
    public V2ProducerBaseTest() throws Exception
    {
@@ -60,5 +71,48 @@ public class V2ProducerBaseTest extends WSRPProducerBaseTest
       gs.getDesiredLocales().add("en-US");
       gs.getDesiredLocales().add("en");
       return gs;
+   }
+   
+   protected RegistrationPropertyDescription configureRegistrationSettings(boolean requiresRegistration, boolean provideUnregisteredFullDescription)
+   {
+      // define expected registration infos
+      ProducerRegistrationRequirements registrationRequirements = producer.getConfigurationService().getConfiguration().getRegistrationRequirements();
+      registrationRequirements.setRegistrationRequired(requiresRegistration);
+      registrationRequirements.setRegistrationRequiredForFullDescription(!provideUnregisteredFullDescription);
+
+      if (requiresRegistration)
+      {
+         // fix-me: http://jira.jboss.com/jira/browse/JBPORTAL-821
+         RegistrationPropertyDescription regProp = new RegistrationPropertyDescription("regProp",
+            new QName("urn:oasis:names:tc:wsrp:v1:types", "LocalizedString", "ns1"));
+         regProp.setDefaultLabel("Registration Property");
+         registrationRequirements.addRegistrationProperty(regProp);
+
+         // Use default registration policy: this wiring is normally handled at the producer start, should maybe use a
+         // registration policy that is automatically configured when none is provided to avoid having a null one?
+         DefaultRegistrationPolicy defaultRegistrationPolicy = new DefaultRegistrationPolicy();
+         defaultRegistrationPolicy.setValidator(new DefaultRegistrationPropertyValidator());
+         registrationRequirements.setPolicy(defaultRegistrationPolicy);
+
+         RegistrationManager registrationManager = producer.getRegistrationManager();
+         registrationManager.setPolicy(defaultRegistrationPolicy);
+         registrationRequirements.addRegistrationPropertyChangeListener(registrationManager);
+
+         // create consumer for policy to be able to make decisions properly
+         try
+         {
+            registrationManager.createConsumer(CONSUMER);
+         }
+         catch (RegistrationException e)
+         {
+            ExtendedAssert.fail("Couldn't create consumer. Cause: " + e.getLocalizedMessage());
+         }
+
+         return regProp;
+      }
+      else
+      {
+         return null;
+      }
    }
 }
