@@ -56,46 +56,70 @@ public abstract class ExportData
    
    public static double getVersion(byte[] bytes) throws UnsupportedEncodingException
    {
-      String dataString = new String(bytes, ENCODING);
-      String[] split = dataString.split(SEPARATOR, 3);
-      
-      if (split.length >= 2)
+      if (bytes != null && bytes.length > 0)
       {
-         double version = Double.parseDouble(split[1]);
-         return version;
+         String dataString = new String(bytes, ENCODING);
+         String[] split = dataString.split(SEPARATOR, 3);
+
+         if (split.length >= 2)
+         {
+            double version = Double.parseDouble(split[1]);
+            return version;
+         }
+         else
+         {
+            //if a version could not be found, return -1
+            return -1;
+         }
       }
-   
-      //if a version could not be found, return -1
-      return -1;
+      else
+      {
+         return -1;
+      }
    }
    
    public static String getType(byte[] bytes) throws UnsupportedEncodingException
    {
-      String dataString = new String(bytes, ENCODING);
-      String[] split = dataString.split(SEPARATOR, 2);
-      
-      if (split.length >= 2)
+      if (bytes != null && bytes.length > 0)
       {
-         return split[0];
+         String dataString = new String(bytes, ENCODING);
+         String[] split = dataString.split(SEPARATOR, 2);
+
+         if (split.length >= 2)
+         {
+            return split[0];
+         }
+         else
+         {
+            return null;
+         }
       }
-      
-      //if we could not find a type, then return null
-      return null;
+      else
+      {
+         return null;
+      }
    }
 
    public static byte[] getInternalBytes(byte[] bytes) throws UnsupportedEncodingException
    {
-      String dataString = new String(bytes, ENCODING);
-      String[] split = dataString.split(SEPARATOR, 3);
-      
-      if (split.length >= 3)
+      if (bytes != null && bytes.length > 0)
       {
-         String internalString = split[2];
-         return internalString.getBytes(ENCODING);
+         String dataString = new String(bytes, ENCODING);
+         String[] split = dataString.split(SEPARATOR, 3);
+
+         if (split.length >= 3)
+         {
+            String internalString = split[2];
+            return internalString.getBytes(ENCODING);
+         }
+         else
+         {
+            //if we could not find the internal bytes, return null
+            return null;
+         }
       }
       else
       {
-         //if we could not find the internal bytes, return null
          return null;
       }
    }

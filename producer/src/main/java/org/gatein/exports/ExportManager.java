@@ -44,11 +44,11 @@ public interface ExportManager
    
    ExportContext createExportContext(boolean exportByValueRequired, Lifetime lifetime) throws UnsupportedEncodingException;
    
-   ExportContext createExportContext(byte[] bytes);
+   ExportContext createExportContext(byte[] bytes) throws OperationFailed;
    
    ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle, byte[] portletState) throws UnsupportedEncodingException;
    
-   ExportPortletData createExportPortletData(ExportContext exportContext, Lifetime lifetime, byte[] bytes);
+   ExportPortletData createExportPortletData(ExportContext exportContext, Lifetime lifetime, byte[] bytes) throws OperationFailed;
    
    byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws UnsupportedEncodingException;
    

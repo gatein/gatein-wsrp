@@ -1433,7 +1433,7 @@ public class WSRPTypeFactory
       return importPortlets;
    }
 
-   public static ImportPortlet createImportPorlet(String importID, byte[] exportData)
+   public static ImportPortlet createImportPortlet(String importID, byte[] exportData)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(importID, "ImportID");
       ParameterValidation.throwIllegalArgExceptionIfNull(exportData, "ExportData");

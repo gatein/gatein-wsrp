@@ -77,27 +77,25 @@ public class ExportManagerImpl implements ExportManager
       return supportExportByValue;
    }
    
-   public ExportContext createExportContext(byte[] bytes)
+   public ExportContext createExportContext(byte[] bytes) throws OperationFailed
    {
       try
       {
-         String type = ExportData.getType(bytes);
-         double version = ExportData.getVersion(bytes);
-         if (ExportContext.TYPE.equals(type) && ExportContext.VERSION==version)
-         {
-            byte[] internalBytes = ExportData.getInternalBytes(bytes);
-            return ExportContext.create(internalBytes);
-         }
-         else
-         {
-            //TODO: throw an error here about not being a recognized type
-            throw new IllegalArgumentException("byte[] format unreconized.");
-         }
-      }
-      catch (Exception e)
+      String type = ExportData.getType(bytes);
+      double version = ExportData.getVersion(bytes);
+      if (ExportContext.TYPE.equals(type) && ExportContext.VERSION==version)
       {
-         e.printStackTrace();
-         throw new NotYetImplemented();
+         byte[] internalBytes = ExportData.getInternalBytes(bytes);
+         return ExportContext.create(internalBytes);
+      }
+      else
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not compatible.", null);
+      }
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
       }
    }
 
@@ -107,7 +105,7 @@ public class ExportManagerImpl implements ExportManager
       return new ExportPortletData(portletHandle, portletState);
    }
 
-   public ExportPortletData createExportPortletData(ExportContext exportContextData, Lifetime lifetime, byte[] bytes)
+   public ExportPortletData createExportPortletData(ExportContext exportContextData, Lifetime lifetime, byte[] bytes) throws OperationFailed
    {
       try
       {
@@ -120,14 +118,12 @@ public class ExportManagerImpl implements ExportManager
          }
          else
          {
-            //TODO: throw an error here about not being a recognized type
-            throw new IllegalArgumentException("byte[] format unreconized.");
+            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Bytes array format not compatible", null);
          }
       }
-      catch (Exception e)
+      catch (UnsupportedEncodingException e)
       {
-         e.printStackTrace();
-         throw new NotYetImplemented();
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
       }
    }
 
