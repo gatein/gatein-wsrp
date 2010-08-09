@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.io.IOTools;
@@ -43,6 +43,7 @@ import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.Extension;
@@ -70,7 +71,7 @@ import java.util.Map;
 public class ResourceHandler extends MimeResponseHandler<ResourceResponse, ResourceContext>
 {
 
-   protected ResourceHandler(WSRPConsumerImpl consumer)
+   public ResourceHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
    }
@@ -163,7 +164,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
       PortletContext portletContext = requestPrecursor.getPortletContext();
 
       // since we actually extracted the data into MarkupParams in the RequestPrecursor, use that! :)
-      MarkupParams params = requestPrecursor.markupParams;
+      MarkupParams params = requestPrecursor.getMarkupParams();
 
       // access mode
       InstanceContext instanceContext = invocation.getInstanceContext();
@@ -200,7 +201,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
          }
       }
 
-      return WSRPTypeFactory.createResourceRequest(portletContext, requestPrecursor.runtimeContext, resourceParams);
+      return WSRPTypeFactory.createResourceRequest(portletContext, requestPrecursor.getRuntimeContext(), resourceParams);
    }
 
    @Override

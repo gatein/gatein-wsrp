@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.PortletInvokerException;
@@ -35,12 +35,18 @@ import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.WSRPPortletURL;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.consumer.InvocationHandler;
+import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.SessionContext;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -178,5 +184,62 @@ public abstract class MimeResponseHandler<Response, LocalMimeResponse extends Mi
       }
 
       return result;
+   }
+
+   /**
+    * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+    * @version $Revision$
+    */
+   private static class MarkupProcessor implements TextTools.StringReplacementGenerator
+   {
+      private final PortletInvocationContext context;
+      private final URLFormat format;
+      private final Set<String> supportedCustomModes;
+      private final Set<String> supportedCustomWindowStates;
+      private final String namespace;
+
+      protected MarkupProcessor(String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
+      {
+         this.namespace = namespace;
+         this.context = context;
+         this.format = format;
+         supportedCustomModes = info.getSupportedCustomModes();
+         supportedCustomWindowStates = info.getSupportedCustomWindowStates();
+      }
+
+      public String getReplacementFor(String match, String prefix, String suffix)
+      {
+         if (prefix.equals(match))
+         {
+            return namespace;
+         }
+         else if (match.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE_END))
+         {
+            // remove end of rewrite token
+            match = match.substring(WSRPRewritingConstants.BEGIN_WSRP_REWRITE_END.length());
+
+            WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
+            return context.renderURL(portletURL, format);
+         }
+         else
+         {
+            // match is not something we know how to process
+            return match;
+         }
+      }
+
+
+      static String getResourceURL(String urlAsString, WSRPResourceURL resource)
+      {
+         String resourceURL = resource.getResourceURL().toExternalForm();
+         if (log.isDebugEnabled())
+         {
+            log.debug("URL '" + urlAsString + "' refers to a resource which are not currently well supported. " +
+               "Attempting to craft a URL that we might be able to work with: '" + resourceURL + "'");
+         }
+
+         // right now the resourceURL should be output as is, because it will be used directly but it really should be encoded
+         return resourceURL;
+      }
    }
 }

@@ -201,7 +201,7 @@ public class SessionHandler implements SessionEventListener
       {
          String sessionId = producerSessionInfo.getSessionIdForPortlet(portletHandle);
          SessionParams sessionParams = runtimeContext.getSessionParams();
-         if(sessionParams == null)
+         if (sessionParams == null)
          {
             sessionParams = new SessionParams();
             runtimeContext.setSessionParams(sessionParams);
@@ -210,7 +210,7 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
-   void updateSessionIfNeeded(SessionContext sessionContext, PortletInvocation invocation, String portletHandle)
+   public void updateSessionIfNeeded(SessionContext sessionContext, PortletInvocation invocation, String portletHandle)
    {
       if (sessionContext != null)
       {

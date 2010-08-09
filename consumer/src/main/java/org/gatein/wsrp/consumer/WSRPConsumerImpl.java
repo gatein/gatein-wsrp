@@ -49,6 +49,10 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.SessionEvent;
+import org.gatein.wsrp.consumer.handlers.ActionHandler;
+import org.gatein.wsrp.consumer.handlers.EventHandler;
+import org.gatein.wsrp.consumer.handlers.RenderHandler;
+import org.gatein.wsrp.consumer.handlers.ResourceHandler;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
@@ -486,7 +490,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       refreshProducerInfo(true);
    }
 
-   RegistrationContext getRegistrationContext() throws PortletInvokerException
+   public RegistrationContext getRegistrationContext() throws PortletInvokerException
    {
       return producerInfo.getRegistrationContext();
    }

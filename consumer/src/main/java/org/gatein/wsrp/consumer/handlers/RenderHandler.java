@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -30,6 +30,7 @@ import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.MarkupContext;
@@ -51,7 +52,7 @@ import java.util.Map;
 public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupContext>
 {
 
-   protected RenderHandler(WSRPConsumerImpl consumer)
+   public RenderHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
    }
@@ -91,7 +92,7 @@ public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupCon
       {
          log.debug("Consumer about to attempt rendering portlet '" + portletContext.getPortletHandle() + "'");
       }
-      return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.runtimeContext, requestPrecursor.markupParams);
+      return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.getRuntimeContext(), requestPrecursor.getMarkupParams());
    }
 
    protected void updateUserContext(Object request, UserContext userContext)

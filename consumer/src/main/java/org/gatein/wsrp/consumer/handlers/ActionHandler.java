@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -36,9 +36,11 @@ import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.InstanceContext;
+import org.gatein.pc.api.spi.RequestContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InteractionParams;
@@ -54,6 +56,7 @@ import javax.xml.ws.Holder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +69,7 @@ import java.util.Map;
  */
 public class ActionHandler extends NavigationalStateUpdatingHandler
 {
-   protected ActionHandler(WSRPConsumerImpl consumer)
+   public ActionHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
    }
@@ -212,8 +215,8 @@ public class ActionHandler extends NavigationalStateUpdatingHandler
       }
 
       // Create the blocking action request
-      return WSRPTypeFactory.createPerformBlockingInteraction(portletContext, requestPrecursor.runtimeContext,
-         requestPrecursor.markupParams, interactionParams);
+      return WSRPTypeFactory.createPerformBlockingInteraction(portletContext, requestPrecursor.getRuntimeContext(),
+         requestPrecursor.getMarkupParams(), interactionParams);
    }
 
    protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
@@ -294,5 +297,40 @@ public class ActionHandler extends NavigationalStateUpdatingHandler
       }
 
       throw new IllegalArgumentException("ActionHandler: request is not a PerformBlockingInteraction request!");
+   }
+
+   /**
+    * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+    * @version $Revision: 10198 $
+    * @since 2.6
+    */
+   public static class RequestContextWrapper implements org.apache.commons.fileupload.RequestContext
+   {
+      private RequestContext requestContext;
+
+      public RequestContextWrapper(RequestContext requestContext)
+      {
+         this.requestContext = requestContext;
+      }
+
+      public String getCharacterEncoding()
+      {
+         return requestContext.getCharacterEncoding();
+      }
+
+      public String getContentType()
+      {
+         return requestContext.getContentType();
+      }
+
+      public int getContentLength()
+      {
+         return requestContext.getContentLength();
+      }
+
+      public InputStream getInputStream() throws IOException
+      {
+         return requestContext.getInputStream();
+      }
    }
 }

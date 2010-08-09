@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
@@ -33,6 +33,8 @@ import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.InvocationHandler;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.Extension;
@@ -84,9 +86,9 @@ public class EventHandler extends NavigationalStateUpdatingHandler
    {
       HandleEvents eventRequest = getHandleEvents(request);
 
-      if (debug)
+      if (InvocationHandler.debug)
       {
-         log.debug("handleEvents on '" + eventRequest.getPortletContext().getPortletHandle() + "'");
+         InvocationHandler.log.debug("handleEvents on '" + eventRequest.getPortletContext().getPortletHandle() + "'");
       }
 
       Holder<List<HandleEventsFailed>> failedEvents = new Holder<List<HandleEventsFailed>>();
@@ -106,7 +108,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler
    }
 
    @Override
-   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   protected Object prepareRequest(InvocationHandler.RequestPrecursor requestPrecursor, PortletInvocation invocation)
    {
       if (!(invocation instanceof EventInvocation))
       {
@@ -116,9 +118,9 @@ public class EventHandler extends NavigationalStateUpdatingHandler
       EventInvocation eventInvocation = (EventInvocation)invocation;
 
       PortletContext portletContext = requestPrecursor.getPortletContext();
-      if (debug)
+      if (InvocationHandler.debug)
       {
-         log.debug("Consumer about to attempt action on portlet '" + portletContext.getPortletHandle() + "'");
+         InvocationHandler.log.debug("Consumer about to attempt action on portlet '" + portletContext.getPortletHandle() + "'");
       }
 
       // access mode
@@ -126,9 +128,9 @@ public class EventHandler extends NavigationalStateUpdatingHandler
       ParameterValidation.throwIllegalArgExceptionIfNull(instanceContext, "instance context");
       AccessMode accessMode = instanceContext.getAccessMode();
       ParameterValidation.throwIllegalArgExceptionIfNull(accessMode, "access mode");
-      if (debug)
+      if (InvocationHandler.debug)
       {
-         log.debug("Portlet is requesting " + accessMode + " access mode");
+         InvocationHandler.log.debug("Portlet is requesting " + accessMode + " access mode");
       }
 
       // events
@@ -137,12 +139,12 @@ public class EventHandler extends NavigationalStateUpdatingHandler
       Event event = WSRPTypeFactory.createEvent(name, payload);
       EventParams eventParams = WSRPTypeFactory.createEventParams(Collections.singletonList(event), WSRPUtils.getStateChangeFromAccessMode(accessMode));
 
-      return WSRPTypeFactory.createHandleEvents(portletContext, requestPrecursor.runtimeContext,
-         requestPrecursor.markupParams, eventParams);
+      return WSRPTypeFactory.createHandleEvents(portletContext, requestPrecursor.getRuntimeContext(),
+         requestPrecursor.getMarkupParams(), eventParams);
    }
 
    @Override
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
+   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, InvocationHandler.RequestPrecursor requestPrecursor) throws PortletInvokerException
    {
       HandleEventsResponse handleEventsResponse = (HandleEventsResponse)response;
 

@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.OpaqueStateString;
@@ -30,6 +30,8 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.InvocationHandler;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventPayload;

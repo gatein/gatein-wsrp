@@ -23,23 +23,36 @@
 
 package org.gatein.wsrp.consumer;
 
+import org.gatein.common.util.ContentInfo;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.InstanceContext;
+import org.gatein.pc.api.spi.PortletInvocationContext;
+import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
+import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -48,7 +61,7 @@ import java.rmi.RemoteException;
  */
 public abstract class InvocationHandler
 {
-   protected WSRPConsumerImpl consumer;
+   protected final WSRPConsumerImpl consumer;
 
    protected static Logger log = LoggerFactory.getLogger(InvocationHandler.class);
    protected static boolean debug = log.isDebugEnabled();
@@ -62,7 +75,6 @@ public abstract class InvocationHandler
 
    /** Maximum number of tries before giving up. */
    private static final int MAXIMUM_RETRY_NUMBER = 3;
-
 
    protected InvocationHandler(WSRPConsumerImpl consumer)
    {
@@ -157,7 +169,7 @@ public abstract class InvocationHandler
       return response;
    }
 
-   static String getNamespaceFrom(WindowContext windowContext)
+   protected static String getNamespaceFrom(WindowContext windowContext)
    {
       if (windowContext != null)
       {
@@ -255,4 +267,125 @@ public abstract class InvocationHandler
 
    protected abstract PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException;
 
+   /**
+    * Extracts basic required elements for all invocation requests.
+    *
+    * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+    * @version $Revision: 13121 $
+    * @since 2.4
+    */
+   protected static class RequestPrecursor
+   {
+      private final static Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
+
+      private PortletContext portletContext;
+      private RuntimeContext runtimeContext;
+      private MarkupParams markupParams;
+      private static final String PORTLET_HANDLE = "portlet handle";
+      private static final String SECURITY_CONTEXT = "security context";
+      private static final String USER_CONTEXT = "user context";
+      private static final String INVOCATION_CONTEXT = "invocation context";
+      private static final String STREAM_INFO = "stream info in invocation context";
+      private static final String USER_AGENT = "User-Agent";
+
+      public RequestPrecursor(WSRPConsumerImpl wsrpConsumer, PortletInvocation invocation) throws PortletInvokerException
+      {
+         // retrieve handle
+         portletContext = WSRPUtils.convertToWSRPPortletContext(WSRPConsumerImpl.getPortletContext(invocation));
+         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(getPortletHandle(), PORTLET_HANDLE, null);
+         if (log.isDebugEnabled())
+         {
+            log.debug("About to invoke on portlet: " + getPortletHandle());
+         }
+
+         // create runtime context
+         SecurityContext securityContext = invocation.getSecurityContext();
+         ParameterValidation.throwIllegalArgExceptionIfNull(securityContext, SECURITY_CONTEXT);
+         String authType = WSRPUtils.convertRequestAuthTypeToWSRPAuthType(securityContext.getAuthType());
+         setRuntimeContext(WSRPTypeFactory.createRuntimeContext(authType));
+
+         // set the session id if needed
+         wsrpConsumer.getSessionHandler().setSessionIdIfNeeded(invocation, getRuntimeContext(), getPortletHandle());
+
+         wsrpConsumer.setTemplatesIfNeeded(invocation, getRuntimeContext());
+
+         // create markup params
+         org.gatein.pc.api.spi.UserContext userContext = invocation.getUserContext();
+         ParameterValidation.throwIllegalArgExceptionIfNull(userContext, USER_CONTEXT);
+         PortletInvocationContext context = invocation.getContext();
+         ParameterValidation.throwIllegalArgExceptionIfNull(context, INVOCATION_CONTEXT);
+         ContentInfo streamInfo = context.getMarkupInfo();
+         ParameterValidation.throwIllegalArgExceptionIfNull(streamInfo, STREAM_INFO);
+
+         String mode;
+         try
+         {
+            mode = WSRPUtils.getWSRPNameFromJSR168PortletMode(invocation.getMode());
+         }
+         catch (Exception e)
+         {
+            log.debug("Mode was null in context.");
+            mode = WSRPConstants.VIEW_MODE;
+         }
+
+         String windowState;
+         try
+         {
+            windowState = WSRPUtils.getWSRPNameFromJSR168WindowState(invocation.getWindowState());
+         }
+         catch (Exception e)
+         {
+            log.debug("WindowState was null in context.");
+            windowState = WSRPConstants.NORMAL_WINDOW_STATE;
+         }
+
+         setMarkupParams(WSRPTypeFactory.createMarkupParams(securityContext.isSecure(),
+            WSRPUtils.convertLocalesToRFC3066LanguageTags(userContext.getLocales()),
+            Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState));
+         String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
+         getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
+
+         // navigational state
+         StateString navigationalState = invocation.getNavigationalState();
+         Map<String, String[]> publicNavigationalState = invocation.getPublicNavigationalState();
+         NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContextOrNull(navigationalState, publicNavigationalState);
+         getMarkupParams().setNavigationalContext(navigationalContext);
+
+         if (log.isDebugEnabled())
+         {
+            log.debug(WSRPUtils.toString(getMarkupParams()));
+         }
+      }
+
+      public String getPortletHandle()
+      {
+         return portletContext.getPortletHandle();
+      }
+
+
+      public PortletContext getPortletContext()
+      {
+         return portletContext;
+      }
+
+      public RuntimeContext getRuntimeContext()
+      {
+         return runtimeContext;
+      }
+
+      private void setRuntimeContext(RuntimeContext runtimeContext)
+      {
+         this.runtimeContext = runtimeContext;
+      }
+
+      public MarkupParams getMarkupParams()
+      {
+         return markupParams;
+      }
+
+      private void setMarkupParams(MarkupParams markupParams)
+      {
+         this.markupParams = markupParams;
+      }
+   }
 }
