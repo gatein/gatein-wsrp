@@ -1,0 +1,72 @@
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.gatein.wsrp;
+
+import junit.framework.TestCase;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
+import org.gatein.wsrp.test.ExtendedAssert;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ * @version $Revision$
+ */
+public class WSRPRenderURLTestCase extends TestCase
+{
+   public void testNullPublicNavigationalState()
+   {
+      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, null);
+      assertFalse(url.toString().contains(WSRP2RewritingConstants.NAVIGATIONAL_VALUES));
+   }
+
+   public void testEmptyPublicNavigationalState()
+   {
+      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, Collections.<String, String[]>emptyMap());
+      assertFalse(url.toString().contains(WSRP2RewritingConstants.NAVIGATIONAL_VALUES));
+   }
+
+   public void testPublicNavigationalStateEncoding()
+   {
+      //use a TreeMap here to guarantee order of parameters to facilitate testing
+      Map<String, String[]> publicNS = new TreeMap<String, String[]>();
+      publicNS.put("p1", new String[]{"value1", "value2"});
+      publicNS.put("p2", null);
+
+      String actual = WSRPRenderURL.encodePublicNS(publicNS);
+      assertEquals("p1%3Dvalue1%26p1%3Dvalue2%26p2", actual);
+   }
+
+   public void testPublicNavigationalStateDecoding()
+   {
+      Map<String, String[]> publicNS = WSRPRenderURL.decodePublicNS("p1%3Dvalue1%26p1%3Dvalue2%26p2");
+
+      assertEquals(2, publicNS.size());
+      assertTrue(publicNS.containsKey("p2"));
+      assertEquals(null, publicNS.get("p2"));
+      ExtendedAssert.assertEquals(new String[]{"value1", "value2"}, publicNS.get("p1"));
+   }
+}

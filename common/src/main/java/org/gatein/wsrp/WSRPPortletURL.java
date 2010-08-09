@@ -51,10 +51,10 @@ public abstract class WSRPPortletURL implements ContainerURL
 {
    private static final Logger log = LoggerFactory.getLogger(WSRPPortletURL.class);
 
-   private static final String EQUALS = "=";
+   protected static final String EQUALS = "=";
+   protected static final String AMPERSAND = "&";
 
    private static final String ENCODED_AMPERSAND = "&amp;";
-   private static final String AMPERSAND = "&";
    private static final String AMP_AMP = "&amp;amp;";
 
    private static final String PARAM_SEPARATOR = "|";

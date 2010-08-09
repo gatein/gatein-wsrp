@@ -545,22 +545,27 @@ public class WSRPUtils
       for (NamedString publicParam : publicParams)
       {
          String paramName = publicParam.getName();
-         String[] values = publicNS.get(paramName);
-         if (ParameterValidation.existsAndIsNotEmpty(values))
-         {
-            int valuesNb = values.length;
-            String[] newValues = new String[valuesNb + 1];
-            System.arraycopy(values, 0, newValues, 0, valuesNb);
-            newValues[valuesNb] = publicParam.getValue();
-            publicNS.put(paramName, newValues);
-         }
-         else
-         {
-            values = new String[]{publicParam.getValue()};
-            publicNS.put(paramName, values);
-         }
+         addMultiValuedValueTo(publicNS, paramName, publicParam.getValue());
       }
       return publicNS;
+   }
+
+   public static void addMultiValuedValueTo(Map<String, String[]> paramMap, String paramName, String paramValue)
+   {
+      String[] values = paramMap.get(paramName);
+      if (ParameterValidation.existsAndIsNotEmpty(values))
+      {
+         int valuesNb = values.length;
+         String[] newValues = new String[valuesNb + 1];
+         System.arraycopy(values, 0, newValues, 0, valuesNb);
+         newValues[valuesNb] = paramValue;
+         paramMap.put(paramName, newValues);
+      }
+      else
+      {
+         values = new String[]{paramValue};
+         paramMap.put(paramName, values);
+      }
    }
 
    /**
