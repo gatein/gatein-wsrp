@@ -24,7 +24,6 @@
 package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
@@ -49,7 +48,7 @@ import java.util.Map;
  * @version $Revision: 12082 $
  * @since 2.4 (May 31, 2006)
  */
-public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupContext>
+public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMarkup, MarkupResponse, MarkupContext>
 {
 
    public RenderHandler(WSRPConsumerImpl consumer)
@@ -70,7 +69,7 @@ public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupCon
    }
 
    @Override
-   protected PortletInvocationResponse createContentResponse(MarkupContext markupContext, PortletInvocation invocation,
+   protected PortletInvocationResponse createContentResponse(MarkupContext markupContext, RenderInvocation invocation,
                                                              ResponseProperties properties, Map<String, Object> attributes,
                                                              String mimeType, byte[] bytes, String markup,
                                                              org.gatein.pc.api.cache.CacheControl cacheControl)
@@ -79,13 +78,8 @@ public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupCon
          cacheControl, invocation.getPortalContext().getModes());
    }
 
-   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   protected GetMarkup prepareRequest(RequestPrecursor<RenderInvocation> requestPrecursor, RenderInvocation invocation)
    {
-      if (!(invocation instanceof RenderInvocation))
-      {
-         throw new IllegalArgumentException("RenderHandler can only handle RenderInvocations!");
-      }
-
       // Create the markup request
       PortletContext portletContext = requestPrecursor.getPortletContext();
       if (debug)
@@ -95,49 +89,37 @@ public class RenderHandler extends MimeResponseHandler<MarkupResponse, MarkupCon
       return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.getRuntimeContext(), requestPrecursor.getMarkupParams());
    }
 
-   protected void updateUserContext(Object request, UserContext userContext)
+   protected void updateUserContext(GetMarkup request, UserContext userContext)
    {
-      getRenderRequest(request).setUserContext(userContext);
+      request.setUserContext(userContext);
    }
 
-   protected void updateRegistrationContext(Object request) throws PortletInvokerException
+   protected void updateRegistrationContext(GetMarkup request) throws PortletInvokerException
    {
-      getRenderRequest(request).setRegistrationContext(consumer.getRegistrationContext());
+      request.setRegistrationContext(consumer.getRegistrationContext());
    }
 
-   protected RuntimeContext getRuntimeContextFrom(Object request)
+   protected RuntimeContext getRuntimeContextFrom(GetMarkup request)
    {
-      return getRenderRequest(request).getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
-   protected Object performRequest(Object request) throws Exception
+   protected MarkupResponse performRequest(GetMarkup request) throws Exception
    {
-      GetMarkup renderRequest = getRenderRequest(request);
       if (debug)
       {
-         log.debug("getMarkup on '" + renderRequest.getPortletContext().getPortletHandle() + "'");
+         log.debug("getMarkup on '" + request.getPortletContext().getPortletHandle() + "'");
       }
 
       // invocation
       Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
       Holder<MarkupContext> markupContextHolder = new Holder<MarkupContext>();
-      consumer.getMarkupService().getMarkup(renderRequest.getRegistrationContext(), renderRequest.getPortletContext(),
-         renderRequest.getRuntimeContext(), renderRequest.getUserContext(), renderRequest.getMarkupParams(),
+      consumer.getMarkupService().getMarkup(request.getRegistrationContext(), request.getPortletContext(),
+         request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
          markupContextHolder, sessionContextHolder, new Holder<List<Extension>>());
       MarkupResponse markupResponse = new MarkupResponse();
       markupResponse.setMarkupContext(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
       return markupResponse;
    }
-
-   private GetMarkup getRenderRequest(Object request)
-   {
-      if (request instanceof GetMarkup)
-      {
-         return (GetMarkup)request;
-      }
-
-      throw new IllegalArgumentException("RenderHandler: Request is not a GetMarkup request!");
-   }
-
 }

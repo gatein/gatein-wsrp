@@ -30,12 +30,7 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
-import org.gatein.pc.api.invocation.ActionInvocation;
-import org.gatein.pc.api.invocation.EventInvocation;
-import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.PortletInvocation;
-import org.gatein.pc.api.invocation.RenderInvocation;
-import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.state.DestroyCloneFailure;
@@ -49,10 +44,7 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.SessionEvent;
-import org.gatein.wsrp.consumer.handlers.ActionHandler;
-import org.gatein.wsrp.consumer.handlers.EventHandler;
-import org.gatein.wsrp.consumer.handlers.RenderHandler;
-import org.gatein.wsrp.consumer.handlers.ResourceHandler;
+import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
@@ -93,11 +85,9 @@ import java.util.Set;
  */
 public class WSRPConsumerImpl implements WSRPConsumer
 {
-   private final ActionHandler actionHandler;
-   private final RenderHandler renderHandler;
-   private final ResourceHandler resourceHandler;
    private final SessionHandler sessionHandler;
-   private final EventHandler eventHandler;
+
+   private final InvocationDispatcher dispatcher;
 
    private ProducerInfo producerInfo;
 
@@ -135,11 +125,8 @@ public class WSRPConsumerImpl implements WSRPConsumer
       ParameterValidation.throwIllegalArgExceptionIfNull(info, "ProducerInfo");
 
       producerInfo = info;
-      actionHandler = new ActionHandler(this);
-      renderHandler = new RenderHandler(this);
       sessionHandler = new SessionHandler(this);
-      resourceHandler = new ResourceHandler(this);
-      eventHandler = new EventHandler(this);
+      dispatcher = new InvocationDispatcher(this);
    }
 
    public ProducerInfo getProducerInfo()
@@ -180,30 +167,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    public PortletInvocationResponse invoke(PortletInvocation invocation) throws PortletInvokerException
    {
-      InvocationHandler handler;
-
-      if (invocation instanceof RenderInvocation)
-      {
-         handler = renderHandler;
-      }
-      else if (invocation instanceof ActionInvocation)
-      {
-         handler = actionHandler;
-      }
-      else if (invocation instanceof ResourceInvocation)
-      {
-         handler = resourceHandler;
-      }
-      else if (invocation instanceof EventInvocation)
-      {
-         handler = eventHandler;
-      }
-      else
-      {
-         throw new InvocationException("Unknown invocation type: " + invocation);
-      }
-
-      return handler.handle(invocation);
+      return dispatcher.dispatchAndHandle(invocation);
    }
 
    public PortletContext createClone(PortletStateType stateType, PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException

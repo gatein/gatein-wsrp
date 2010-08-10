@@ -250,7 +250,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    }
 
    /**
-    * Decodes the resource information specified by the encodeResource back into proper resource values
+    * Decodes the resource information specified by the encodeResource back into proper resource values todo: improve
     *
     * @param resourceInfo
     */

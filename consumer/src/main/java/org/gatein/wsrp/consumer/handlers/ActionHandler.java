@@ -31,7 +31,6 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ActionInvocation;
-import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
@@ -67,15 +66,59 @@ import java.util.Map;
  * @version $Revision: 13121 $
  * @since 2.4 (May 31, 2006)
  */
-public class ActionHandler extends NavigationalStateUpdatingHandler
+public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvocation, PerformBlockingInteraction, BlockingInteractionResponse>
 {
    public ActionHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
    }
 
-   @SuppressWarnings({"CastToConcreteClass"})
-   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   @Override
+   protected void updateUserContext(PerformBlockingInteraction performBlockingInteraction, UserContext userContext)
+   {
+      performBlockingInteraction.setUserContext(userContext);
+   }
+
+   @Override
+   protected void updateRegistrationContext(PerformBlockingInteraction performBlockingInteraction) throws PortletInvokerException
+   {
+      performBlockingInteraction.setRegistrationContext(consumer.getRegistrationContext());
+   }
+
+   @Override
+   protected RuntimeContext getRuntimeContextFrom(PerformBlockingInteraction performBlockingInteraction)
+   {
+      return performBlockingInteraction.getRuntimeContext();
+   }
+
+   @Override
+   protected BlockingInteractionResponse performRequest(PerformBlockingInteraction interaction) throws Exception
+   {
+      Holder<UpdateResponse> updateResponseHolder = new Holder<UpdateResponse>();
+      Holder<String> redirectURL = new Holder<String>();
+
+      // invocation
+      if (debug)
+      {
+         log.debug("performBlockingInteraction on '" + interaction.getPortletContext().getPortletHandle() + "'");
+      }
+      consumer.getMarkupService().performBlockingInteraction(interaction.getRegistrationContext(),
+         interaction.getPortletContext(), interaction.getRuntimeContext(), interaction.getUserContext(),
+         interaction.getMarkupParams(), interaction.getInteractionParams(), updateResponseHolder, redirectURL,
+         new Holder<List<Extension>>());
+
+      // construct response
+      if (redirectURL.value != null)
+      {
+         return WSRPTypeFactory.createBlockingInteractionResponse(redirectURL.value);
+      }
+      else
+      {
+         return WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
+      }
+   }
+
+   protected PerformBlockingInteraction prepareRequest(RequestPrecursor<ActionInvocation> requestPrecursor, ActionInvocation invocation)
    {
       if (!(invocation instanceof ActionInvocation))
       {
@@ -219,7 +262,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler
          requestPrecursor.getMarkupParams(), interactionParams);
    }
 
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
+   protected PortletInvocationResponse processResponse(BlockingInteractionResponse response, ActionInvocation invocation, RequestPrecursor<ActionInvocation> requestPrecursor) throws PortletInvokerException
    {
       BlockingInteractionResponse blockingInteractionResponse = (BlockingInteractionResponse)response;
 
@@ -245,58 +288,6 @@ public class ActionHandler extends NavigationalStateUpdatingHandler
 
          return processUpdateResponse(invocation, requestPrecursor, updateResponse);
       }
-   }
-
-   protected void updateUserContext(Object request, UserContext userContext)
-   {
-      getActionRequest(request).setUserContext(userContext);
-   }
-
-   protected void updateRegistrationContext(Object request) throws PortletInvokerException
-   {
-      getActionRequest(request).setRegistrationContext(consumer.getRegistrationContext());
-   }
-
-   protected RuntimeContext getRuntimeContextFrom(Object request)
-   {
-      return getActionRequest(request).getRuntimeContext();
-   }
-
-   protected Object performRequest(Object request) throws Exception
-   {
-      PerformBlockingInteraction interaction = getActionRequest(request);
-      Holder<UpdateResponse> updateResponseHolder = new Holder<UpdateResponse>();
-      Holder<String> redirectURL = new Holder<String>();
-
-      // invocation
-      if (debug)
-      {
-         log.debug("performBlockingInteraction on '" + interaction.getPortletContext().getPortletHandle() + "'");
-      }
-      consumer.getMarkupService().performBlockingInteraction(interaction.getRegistrationContext(),
-         interaction.getPortletContext(), interaction.getRuntimeContext(), interaction.getUserContext(),
-         interaction.getMarkupParams(), interaction.getInteractionParams(), updateResponseHolder, redirectURL,
-         new Holder<List<Extension>>());
-
-      // construct response
-      if (redirectURL.value != null)
-      {
-         return WSRPTypeFactory.createBlockingInteractionResponse(redirectURL.value);
-      }
-      else
-      {
-         return WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
-      }
-   }
-
-   private PerformBlockingInteraction getActionRequest(Object request)
-   {
-      if (request instanceof PerformBlockingInteraction)
-      {
-         return (PerformBlockingInteraction)request;
-      }
-
-      throw new IllegalArgumentException("ActionHandler: request is not a PerformBlockingInteraction request!");
    }
 
    /**

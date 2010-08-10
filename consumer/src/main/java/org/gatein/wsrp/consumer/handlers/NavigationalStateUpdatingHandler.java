@@ -48,14 +48,14 @@ import java.util.Map;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public abstract class NavigationalStateUpdatingHandler extends InvocationHandler
+public abstract class NavigationalStateUpdatingHandler<Invocation extends PortletInvocation, Request, Response> extends InvocationHandler<Invocation, Request, Response>
 {
    public NavigationalStateUpdatingHandler(WSRPConsumerImpl consumer)
    {
       super(consumer);
    }
 
-   protected UpdateNavigationalStateResponse processUpdateResponse(PortletInvocation invocation, RequestPrecursor requestPrecursor, UpdateResponse updateResponse)
+   protected UpdateNavigationalStateResponse processUpdateResponse(Invocation invocation, RequestPrecursor<Invocation> requestPrecursor, UpdateResponse updateResponse)
    {
       UpdateNavigationalStateResponse result = new UpdateNavigationalStateResponse();
 

@@ -52,7 +52,7 @@ import java.util.Set;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public abstract class MimeResponseHandler<Response, LocalMimeResponse extends MimeResponse> extends InvocationHandler
+public abstract class MimeResponseHandler<Invocation extends PortletInvocation, Request, Response, LocalMimeResponse extends MimeResponse> extends InvocationHandler<Invocation, Request, Response>
 {
    private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
 
@@ -66,14 +66,12 @@ public abstract class MimeResponseHandler<Response, LocalMimeResponse extends Mi
    protected abstract LocalMimeResponse getMimeResponseFrom(Response response);
 
    @Override
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
+   protected PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException
    {
-      Response localResponse = (Response)response;
-
-      consumer.getSessionHandler().updateSessionIfNeeded(getSessionContextFrom(localResponse), invocation,
+      consumer.getSessionHandler().updateSessionIfNeeded(getSessionContextFrom(response), invocation,
          requestPrecursor.getPortletHandle());
 
-      LocalMimeResponse mimeResponse = getMimeResponseFrom(localResponse);
+      LocalMimeResponse mimeResponse = getMimeResponseFrom(response);
       String markup = mimeResponse.getItemString();
       byte[] binary = mimeResponse.getItemBinary();
       if (markup != null && binary != null)
@@ -119,7 +117,7 @@ public abstract class MimeResponseHandler<Response, LocalMimeResponse extends Mi
       return createContentResponse(mimeResponse, invocation, null, null, mimeType, binary, markup, createCacheControl(mimeResponse));
    }
 
-   protected PortletInvocationResponse createContentResponse(LocalMimeResponse mimeResponse, PortletInvocation invocation,
+   protected PortletInvocationResponse createContentResponse(LocalMimeResponse mimeResponse, Invocation invocation,
                                                              ResponseProperties properties, Map<String, Object> attributes,
                                                              String mimeType, byte[] bytes, String markup,
                                                              org.gatein.pc.api.cache.CacheControl cacheControl)

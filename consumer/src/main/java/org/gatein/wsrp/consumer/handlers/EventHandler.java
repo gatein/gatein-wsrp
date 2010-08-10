@@ -26,7 +26,6 @@ package org.gatein.wsrp.consumer.handlers;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.EventInvocation;
-import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.InstanceContext;
@@ -56,7 +55,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class EventHandler extends NavigationalStateUpdatingHandler
+public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocation, HandleEvents, HandleEventsResponse>
 {
    public EventHandler(WSRPConsumerImpl consumer)
    {
@@ -64,38 +63,36 @@ public class EventHandler extends NavigationalStateUpdatingHandler
    }
 
    @Override
-   protected void updateUserContext(Object request, UserContext userContext)
+   protected void updateUserContext(HandleEvents request, UserContext userContext)
    {
-      getHandleEvents(request).setUserContext(userContext);
+      request.setUserContext(userContext);
    }
 
    @Override
-   protected void updateRegistrationContext(Object request) throws PortletInvokerException
+   protected void updateRegistrationContext(HandleEvents request) throws PortletInvokerException
    {
-      getHandleEvents(request).setRegistrationContext(consumer.getRegistrationContext());
+      request.setRegistrationContext(consumer.getRegistrationContext());
    }
 
    @Override
-   protected RuntimeContext getRuntimeContextFrom(Object request)
+   protected RuntimeContext getRuntimeContextFrom(HandleEvents request)
    {
-      return getHandleEvents(request).getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    @Override
-   protected Object performRequest(Object request) throws Exception
+   protected HandleEventsResponse performRequest(HandleEvents request) throws Exception
    {
-      HandleEvents eventRequest = getHandleEvents(request);
-
       if (InvocationHandler.debug)
       {
-         InvocationHandler.log.debug("handleEvents on '" + eventRequest.getPortletContext().getPortletHandle() + "'");
+         InvocationHandler.log.debug("handleEvents on '" + request.getPortletContext().getPortletHandle() + "'");
       }
 
       Holder<List<HandleEventsFailed>> failedEvents = new Holder<List<HandleEventsFailed>>();
       Holder<UpdateResponse> updateResponse = new Holder<UpdateResponse>();
-      consumer.getMarkupService().handleEvents(eventRequest.getRegistrationContext(), eventRequest.getPortletContext(),
-         eventRequest.getRuntimeContext(), eventRequest.getUserContext(), eventRequest.getMarkupParams(),
-         eventRequest.getEventParams(), updateResponse, failedEvents,
+      consumer.getMarkupService().handleEvents(request.getRegistrationContext(), request.getPortletContext(),
+         request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
+         request.getEventParams(), updateResponse, failedEvents,
          new Holder<List<Extension>>());
 
       HandleEventsResponse response = WSRPTypeFactory.createHandleEventsReponse();
@@ -108,14 +105,8 @@ public class EventHandler extends NavigationalStateUpdatingHandler
    }
 
    @Override
-   protected Object prepareRequest(InvocationHandler.RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   protected HandleEvents prepareRequest(RequestPrecursor<EventInvocation> requestPrecursor, EventInvocation invocation)
    {
-      if (!(invocation instanceof EventInvocation))
-      {
-         throw new IllegalArgumentException("EventHandler can only handle EventInvocations!");
-      }
-
-      EventInvocation eventInvocation = (EventInvocation)invocation;
 
       PortletContext portletContext = requestPrecursor.getPortletContext();
       if (InvocationHandler.debug)
@@ -134,8 +125,8 @@ public class EventHandler extends NavigationalStateUpdatingHandler
       }
 
       // events
-      QName name = eventInvocation.getName();
-      Serializable payload = eventInvocation.getPayload();
+      QName name = invocation.getName();
+      Serializable payload = invocation.getPayload();
       Event event = WSRPTypeFactory.createEvent(name, payload);
       EventParams eventParams = WSRPTypeFactory.createEventParams(Collections.singletonList(event), WSRPUtils.getStateChangeFromAccessMode(accessMode));
 
@@ -144,26 +135,14 @@ public class EventHandler extends NavigationalStateUpdatingHandler
    }
 
    @Override
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, InvocationHandler.RequestPrecursor requestPrecursor) throws PortletInvokerException
+   protected PortletInvocationResponse processResponse(HandleEventsResponse response, EventInvocation invocation, RequestPrecursor<EventInvocation> requestPrecursor) throws PortletInvokerException
    {
-      HandleEventsResponse handleEventsResponse = (HandleEventsResponse)response;
-
-      List<HandleEventsFailed> failed = handleEventsResponse.getFailedEvents();
+      List<HandleEventsFailed> failed = response.getFailedEvents();
       if (ParameterValidation.existsAndIsNotEmpty(failed))
       {
          return new ErrorResponse("Couldn't process events: " + failed);
       }
 
-      return processUpdateResponse(invocation, requestPrecursor, handleEventsResponse.getUpdateResponse());
-   }
-
-   private HandleEvents getHandleEvents(Object request)
-   {
-      if (request instanceof HandleEvents)
-      {
-         return (HandleEvents)request;
-      }
-
-      throw new IllegalArgumentException("EventHandler: request is not a HandleEvents request!");
+      return processUpdateResponse(invocation, requestPrecursor, response.getUpdateResponse());
    }
 }

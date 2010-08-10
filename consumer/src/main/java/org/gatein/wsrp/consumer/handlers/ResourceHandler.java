@@ -23,28 +23,16 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.apache.commons.httpclient.Cookie;
-import org.gatein.common.io.IOTools;
-import org.gatein.common.net.media.MediaType;
-import org.gatein.common.net.media.TypeDef;
-import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.common.util.Tools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
-import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
-import org.gatein.pc.api.invocation.response.ContentResponse;
-import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPResourceURL;
-import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
-import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetResource;
@@ -58,9 +46,6 @@ import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +53,7 @@ import java.util.Map;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class ResourceHandler extends MimeResponseHandler<ResourceResponse, ResourceContext>
+public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, GetResource, ResourceResponse, ResourceContext>
 {
 
    public ResourceHandler(WSRPConsumerImpl consumer)
@@ -89,78 +74,30 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
    }
 
    @Override
-   protected void updateUserContext(Object request, UserContext userContext)
+   protected void updateUserContext(GetResource request, UserContext userContext)
    {
-      if (request instanceof GetResource)
-      {
-         getResourceRequest(request).setUserContext(userContext);
-      }
+      request.setUserContext(userContext);
    }
 
    @Override
-   protected void updateRegistrationContext(Object request) throws PortletInvokerException
+   protected void updateRegistrationContext(GetResource request) throws PortletInvokerException
    {
-      if (request instanceof GetResource)
-      {
-         getResourceRequest(request).setRegistrationContext(consumer.getRegistrationContext());
-      }
+      request.setRegistrationContext(consumer.getRegistrationContext());
    }
 
    @Override
-   protected RuntimeContext getRuntimeContextFrom(Object request)
+   protected RuntimeContext getRuntimeContextFrom(GetResource request)
    {
-      if (request instanceof GetResource)
-      {
-         return getResourceRequest(request).getRuntimeContext();
-      }
-      else
-      {
-         return null;
-      }
+      return request.getRuntimeContext();
    }
 
    @Override
-   protected Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation)
+   protected GetResource prepareRequest(RequestPrecursor<ResourceInvocation> requestPrecursor, ResourceInvocation invocation)
    {
-      if (!(invocation instanceof ResourceInvocation))
-      {
-         throw new IllegalArgumentException("ResourceHandler can only handle ResourceInvocations!");
-      }
-
-      ResourceInvocation resourceInvocation = (ResourceInvocation)invocation;
-
-      String resourceInvocationId = resourceInvocation.getResourceId();
-
+      String resourceInvocationId = invocation.getResourceId();
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
-
       String resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
-      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
-      String preferOperationAsString = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
-      boolean preferOperation = (preferOperationAsString != null && Boolean.parseBoolean(preferOperationAsString));
 
-      int version = 1;
-      try
-      {
-         version = consumer.getMarkupService().getVersion();
-      }
-      catch (PortletInvokerException portletInvokerException)
-      {
-         log.warn("Encountered an exception when trying to get the consumer's markup service's version, assuming WSRP 1.0 compliant.", portletInvokerException);
-      }
-
-      if (version == 2 && (preferOperation || resourceURL == null || (resourceId != null && resourceId.length() > 0)))
-      {
-         return prepareGetResourceRequest(requestPrecursor, resourceInvocation, resourceId);
-      }
-      else
-      {
-         return resourceURL;
-      }
-
-   }
-
-   private GetResource prepareGetResourceRequest(RequestPrecursor requestPrecursor, ResourceInvocation invocation, String resourceId)
-   {
       PortletContext portletContext = requestPrecursor.getPortletContext();
 
       // since we actually extracted the data into MarkupParams in the RequestPrecursor, use that! :)
@@ -205,31 +142,14 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
    }
 
    @Override
-   protected Object performRequest(Object request) throws Exception
-   {
-      if (request instanceof GetResource)
-      {
-         return performGetResourceRequest((GetResource)request);
-      }
-      else if (request instanceof String)
-      {
-         return performURLRequest((String)request);
-      }
-      else
-      {
-         throw new IllegalArgumentException("ResourceHandler performRequest can only be called with a GetResource or String object. Received : " + request);
-      }
-
-   }
-
-   private ResourceResponse performGetResourceRequest(GetResource getResource) throws Exception
+   protected ResourceResponse performRequest(GetResource request) throws Exception
    {
       Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
       Holder<ResourceContext> resourceContextHolder = new Holder<ResourceContext>();
-      Holder<PortletContext> portletContextHolder = new Holder<PortletContext>(getResource.getPortletContext());
+      Holder<PortletContext> portletContextHolder = new Holder<PortletContext>(request.getPortletContext());
 
-      consumer.getMarkupService().getResource(getResource.getRegistrationContext(), portletContextHolder, getResource.getRuntimeContext(),
-         getResource.getUserContext(), getResource.getResourceParams(), resourceContextHolder, sessionContextHolder, new Holder<List<Extension>>());
+      consumer.getMarkupService().getResource(request.getRegistrationContext(), portletContextHolder, request.getRuntimeContext(),
+         request.getUserContext(), request.getResourceParams(), resourceContextHolder, sessionContextHolder, new Holder<List<Extension>>());
 
       ResourceResponse resourceResponse = WSRPTypeFactory.createResourceResponse(resourceContextHolder.value);
       resourceResponse.setPortletContext(portletContextHolder.value);
@@ -237,102 +157,4 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
       return resourceResponse;
    }
 
-   private ContentResponse performURLRequest(String resourceURL) throws Exception
-   {
-      URL url = new URL(resourceURL);
-      URLConnection urlConnection = url.openConnection();
-      String contentType = urlConnection.getContentType();
-
-      // init ResponseProperties for ContentResponse result
-      Map<String, List<String>> headers = urlConnection.getHeaderFields();
-      ResponseProperties props = new ResponseProperties();
-      MultiValuedPropertyMap<String> transportHeaders = props.getTransportHeaders();
-      for (Map.Entry<String, List<String>> entry : headers.entrySet())
-      {
-         String key = entry.getKey();
-         if (key != null)
-         {
-            List<String> values = entry.getValue();
-            if (values != null)
-            {
-               if (CookieUtil.SET_COOKIE.equals(key))
-               {
-                  Cookie[] cookies = CookieUtil.extractCookiesFrom(url, values.toArray(new String[values.size()]));
-                  List<javax.servlet.http.Cookie> propCookies = props.getCookies();
-                  for (Cookie cookie : cookies)
-                  {
-                     propCookies.add(CookieUtil.convertFrom(cookie));
-                  }
-               }
-               else
-               {
-                  for (String value : values)
-                  {
-                     transportHeaders.addValue(key, value);
-                  }
-               }
-            }
-         }
-      }
-
-      int length = urlConnection.getContentLength();
-      // if length is not known, use a default value
-      length = (length > 0 ? length : Tools.DEFAULT_BUFFER_SIZE * 8);
-      byte[] bytes = IOTools.getBytes(urlConnection.getInputStream(), length);
-
-      ContentResponse result;
-      MediaType type = MediaType.create(contentType);
-      if (TypeDef.TEXT.equals(type.getType()))
-      {
-         // determine the charset of the content, if any
-         String charset = "UTF-8";
-         if (contentType != null)
-         {
-            for (String part : contentType.split(";"))
-            {
-               if (part.startsWith("charset="))
-               {
-                  charset = part.substring("charset=".length());
-               }
-            }
-         }
-
-         // build a String-based content response
-         result = new ContentResponse(props, Collections.<String, Object>emptyMap(), contentType, null, new String(bytes, charset), null);
-      }
-      else
-      {
-         // build a byte-based content response
-         result = new ContentResponse(props, Collections.<String, Object>emptyMap(), contentType, bytes, null, null);
-      }
-
-      return result;
-   }
-
-   @Override
-   protected PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException
-   {
-      if (response instanceof ResourceResponse)
-      {
-         return super.processResponse(response, invocation, requestPrecursor);
-      }
-      else if (response instanceof ContentResponse)
-      {
-         return (ContentResponse)response;
-      }
-      else
-      {
-         throw new PortletInvokerException("Invalid response object: " + response + ". Expected either a " + ContentResponse.class + " or a " + ResourceResponse.class);
-      }
-   }
-
-   private GetResource getResourceRequest(Object request)
-   {
-      if (request instanceof GetResource)
-      {
-         return (GetResource)request;
-      }
-
-      throw new IllegalArgumentException("ResourceHandler: Request is not a GetResource request!");
-   }
 }

@@ -59,7 +59,7 @@ import java.util.Map;
  * @version $Revision: 13121 $
  * @since 2.4 (May 31, 2006)
  */
-public abstract class InvocationHandler
+public abstract class InvocationHandler<Invocation extends PortletInvocation, Request, Response>
 {
    protected final WSRPConsumerImpl consumer;
 
@@ -81,28 +81,49 @@ public abstract class InvocationHandler
       this.consumer = consumer;
    }
 
-   PortletInvocationResponse handle(PortletInvocation invocation) throws PortletInvokerException
+   public PortletInvocationResponse handle(Invocation invocation) throws PortletInvokerException
    {
       // Extracts basic required information from invocation
-      RequestPrecursor requestPrecursor = new RequestPrecursor(consumer, invocation);
+      RequestPrecursor<Invocation> requestPrecursor = new RequestPrecursor<Invocation>(consumer, invocation);
 
       // create the specific request
-      Object request = prepareRequest(requestPrecursor, invocation);
+      Request request = prepareRequest(requestPrecursor, invocation);
 
       // Perform the request
-      Object response = performRequest(request, invocation);
-      if (response instanceof ErrorResponse)
+      try
+      {
+         Response response = performRequest(request, invocation);
+         return processResponse(response, invocation, requestPrecursor);
+      }
+      catch (Exception e)
+      {
+         if (!(e instanceof PortletInvokerException))
+         {
+            ErrorResponse errorResponse = dealWithError(e, invocation, getRuntimeContextFrom(request));
+            if (errorResponse != null)
+            {
+               return unwrapWSRPError(errorResponse);
+            }
+            else
+            {
+               return new ErrorResponse(e);
+            }
+         }
+         else
+         {
+            throw (PortletInvokerException)e;
+         }
+      }
+      /*if (response instanceof ErrorResponse)
       {
          return unwrapWSRPError((ErrorResponse)response);
-      }
-
-      return processResponse(response, invocation, requestPrecursor);
+      }*/
    }
 
-   protected Object performRequest(Object request, PortletInvocation invocation) throws PortletInvokerException
+   protected Response performRequest(Request request, PortletInvocation invocation) throws Exception
    {
       int retryCount = 0;
-      Object response = null;
+      Response response = null;
 
       // as long as we don't get a non-null response and we're allowed to try again, try to perform the request
       while (response == null && retryCount++ <= MAXIMUM_RETRY_NUMBER)
@@ -140,14 +161,14 @@ public abstract class InvocationHandler
 
             sessionHandler.updateCookiesIfNeeded(invocation);
          }
-         catch (Exception e)
+         /*catch (Exception e)
          {
             ErrorResponse errorResponse = dealWithError(e, invocation, runtimeContext);
             if (errorResponse != null)
             {
                return errorResponse;
             }
-         }
+         }*/
          finally
          {
             // we're done: reset currently held information
@@ -157,9 +178,12 @@ public abstract class InvocationHandler
 
       if (retryCount >= MAXIMUM_RETRY_NUMBER)
       {
-         return new ErrorResponse(new RuntimeException("Tried to perform request " + MAXIMUM_RETRY_NUMBER
+         /*return new ErrorResponse(new RuntimeException("Tried to perform request " + MAXIMUM_RETRY_NUMBER
             + " times before giving up. This usually happens if an error in the WS stack prevented the messages to be " +
-            "properly transmitted. Look at server.log for clues as to what happened..."));
+            "properly transmitted. Look at server.log for clues as to what happened..."));*/
+         throw new RuntimeException("Tried to perform request " + MAXIMUM_RETRY_NUMBER
+            + " times before giving up. This usually happens if an error in the WS stack prevented the messages to be " +
+            "properly transmitted. Look at server.log for clues as to what happened...");
       }
 
       if (debug)
@@ -189,7 +213,7 @@ public abstract class InvocationHandler
     * @return an ErrorResponse if the error couldn't be dealt with or <code>null</code> if the error was correctly
     *         handled
     */
-   private ErrorResponse dealWithError(Exception error, PortletInvocation invocation, RuntimeContext runtimeContext)
+   private ErrorResponse dealWithError(Exception error, Invocation invocation, RuntimeContext runtimeContext)
       throws PortletInvokerException
    {
       log.error("The portlet threw an exception", error);
@@ -255,17 +279,17 @@ public abstract class InvocationHandler
       }
    }
 
-   protected abstract void updateUserContext(Object request, UserContext userContext);
+   protected abstract void updateUserContext(Request request, UserContext userContext);
 
-   protected abstract void updateRegistrationContext(Object request) throws PortletInvokerException;
+   protected abstract void updateRegistrationContext(Request request) throws PortletInvokerException;
 
-   protected abstract RuntimeContext getRuntimeContextFrom(Object request);
+   protected abstract RuntimeContext getRuntimeContextFrom(Request request);
 
-   protected abstract Object performRequest(Object request) throws Exception;
+   protected abstract Response performRequest(Request request) throws Exception;
 
-   protected abstract Object prepareRequest(RequestPrecursor requestPrecursor, PortletInvocation invocation);
+   protected abstract Request prepareRequest(RequestPrecursor<Invocation> requestPrecursor, Invocation invocation);
 
-   protected abstract PortletInvocationResponse processResponse(Object response, PortletInvocation invocation, RequestPrecursor requestPrecursor) throws PortletInvokerException;
+   protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
 
    /**
     * Extracts basic required elements for all invocation requests.
@@ -274,7 +298,7 @@ public abstract class InvocationHandler
     * @version $Revision: 13121 $
     * @since 2.4
     */
-   protected static class RequestPrecursor
+   protected static class RequestPrecursor<Invocation extends PortletInvocation>
    {
       private final static Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
 
@@ -288,7 +312,7 @@ public abstract class InvocationHandler
       private static final String STREAM_INFO = "stream info in invocation context";
       private static final String USER_AGENT = "User-Agent";
 
-      public RequestPrecursor(WSRPConsumerImpl wsrpConsumer, PortletInvocation invocation) throws PortletInvokerException
+      public RequestPrecursor(WSRPConsumerImpl wsrpConsumer, Invocation invocation) throws PortletInvokerException
       {
          // retrieve handle
          portletContext = WSRPUtils.convertToWSRPPortletContext(WSRPConsumerImpl.getPortletContext(invocation));
