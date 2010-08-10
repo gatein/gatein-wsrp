@@ -27,6 +27,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v2.GetResource;
@@ -110,7 +111,12 @@ public class ResourceRequestProcessor extends MimeResponseProcessor<ResourceCont
 
       ResourceParams resourceParams = this.getResource.getResourceParams();
 
-      resourceInvocation.setResourceId(this.getResource.getResourceParams().getResourceID());
+      // only set the resource id if it's different from the place holder we use if the portlet doesn't set one
+      String id = this.getResource.getResourceParams().getResourceID();
+      if (!WSRPResourceURL.DEFAULT_RESOURCE_ID.equals(id))
+      {
+         resourceInvocation.setResourceId(id);
+      }
 
       WSRPRequestContext requestContext = WSRPRequestContext.createRequestContext(markupRequest, resourceParams);
       resourceInvocation.setRequestContext(requestContext);

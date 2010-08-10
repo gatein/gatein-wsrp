@@ -177,9 +177,9 @@ public class ResourceHandler extends MimeResponseHandler<ResourceResponse, Resou
       }
 
       // if the portlet didn't request a resource id, use the fake one:
-      if (resourceId == null || resourceId.length() == 0)
+      if (ParameterValidation.isNullOrEmpty(resourceId))
       {
-         resourceId = WSRPResourceURL.DEFAULT_RESOURCE_ID;
+         throw new IllegalArgumentException("GetResource needs a valid resource id.");
       }
 
       // Create ResourceParams
