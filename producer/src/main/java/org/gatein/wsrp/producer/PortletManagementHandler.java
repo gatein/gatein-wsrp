@@ -524,7 +524,16 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
                if (portletHandle != null)
                {
                   org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
-                  if (producer.getPortletInvoker().getPortlet(portalPC) == null)
+                  
+                  producer.getPortletInvoker().getPortlet(portalPC);
+                  
+                  org.gatein.pc.api.PortletContext exportedPortalPC = producer.getPortletInvoker().exportPortletContext(PortletStateType.OPAQUE, portalPC);
+                  
+                  PortletContext exportedPortalContext = WSRPUtils.convertToWSRPPortletContext(exportedPortalPC);
+                  portletHandle = exportedPortalContext.getPortletHandle();
+                  portletState = exportedPortalContext.getPortletState();
+                  
+                  if (exportedPortalPC == null)
                   {
                      WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);
                   }
@@ -642,7 +651,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
                PortletContext pc = WSRPTypeFactory.createPortletContext(portletHandle, portletState);
                org.gatein.pc.api.PortletContext pcPortletContext = WSRPUtils.convertToPortalPortletContext(pc);
 
-               org.gatein.pc.api.PortletContext cpc = producer.getPortletInvoker().createClone(PortletStateType.OPAQUE, pcPortletContext);
+               org.gatein.pc.api.PortletContext cpc = producer.getPortletInvoker().importPortletContext(PortletStateType.OPAQUE, pcPortletContext);
                PortletContext wpc = WSRPUtils.convertToWSRPPortletContext(cpc);
 
                ImportedPortlet importedPortlet = WSRPTypeFactory.createImportedPortlet(importPortlet.getImportID(), wpc);

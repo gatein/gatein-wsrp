@@ -23,12 +23,14 @@
 
 package org.gatein.wsrp.test.support;
 
+import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.wsrp.WSRPConsumer;
@@ -166,5 +168,17 @@ public class MockWSRPConsumer implements WSRPConsumer
 
    public void onSessionEvent(SessionEvent event)
    {
+   }
+
+   public PortletContext exportPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+         throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+   
+   public PortletContext importPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+   throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
    }
 }

@@ -22,11 +22,11 @@
  ******************************************************************************/
 package org.gatein.exports.data;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
-import org.gatein.pc.api.ParametersStateString;
-import org.gatein.pc.api.StateString;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -71,51 +71,46 @@ public class ExportPortletData extends ExportData
       return VERSION;
    }
 
-   public static ExportPortletData create(byte[] bytes) throws UnsupportedEncodingException
+   public static ExportPortletData create(byte[] bytes) throws IOException
    {      
-      //why isn't there a way for a ParameterStateString to directly create itself from the string?
-      Map<String, String[]> map = StateString.decodeOpaqueValue(new String(bytes, ENCODING));
-
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      ObjectInputStream ois = new ObjectInputStream(bais);
+      
       String portletHandle;
       byte[] portletState;
-
-      String[] portletHandles = map.get(PORTLETHANDLEKEY);
-      if (portletHandles != null && portletHandles.length > 0)
+      
+      portletHandle = ois.readUTF();
+      
+      if (ois.available() > 0)
       {
-         portletHandle = portletHandles[0];
-      }
-      else
-      {
-         return null; //TODO: should probably throw an error here about not getting a proper value
-      }
-
-      String[] portletStates = map.get(PORTLETSTATEKEY);
-      if (portletStates != null && portletStates.length > 0)
-      {
-         portletState = portletStates[0].getBytes(ENCODING);
+         portletState = new byte[ois.available()];
+         ois.readFully(portletState);
       }
       else
       {
          portletState = null;
       }
+      
+      ois.close();
 
       return new ExportPortletData(portletHandle, portletState);
    }
    
-   protected byte[] internalEncodeAsBytes() throws UnsupportedEncodingException
+   protected byte[] internalEncodeAsBytes() throws IOException
    {
-      ParametersStateString parameterStateString = ParametersStateString.create();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      
+      oos.writeUTF(portletHandle);
+      
       if (portletState != null)
       {
-         //TODO: if might be better to use something other than a statestring that can handle byte[] directly
-         String state = new String(portletState, ENCODING);
-         parameterStateString.setValue(PORTLETSTATEKEY, state);
+         oos.write(portletState);
       }
-
-      parameterStateString.setValue(PORTLETHANDLEKEY, portletHandle);
       
-      String stateString = parameterStateString.getStringValue();
-      return stateString.getBytes(ENCODING);
+      oos.close();
+      
+      return baos.toByteArray();
    }
 
 }

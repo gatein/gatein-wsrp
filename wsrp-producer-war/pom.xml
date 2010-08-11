@@ -175,6 +175,7 @@
                   <descriptor>src/test/assembly/test-resource-portlet.xml</descriptor>
                   <descriptor>src/test/assembly/test-resourcenoencodeurl-portlet.xml</descriptor>
                   <descriptor>src/test/assembly/test-applicationscope-portlet.xml</descriptor>
+                  <descriptor>src/test/assembly/test-portletstate-portlet.xml</descriptor>
                </descriptors>
             </configuration>
             <executions>

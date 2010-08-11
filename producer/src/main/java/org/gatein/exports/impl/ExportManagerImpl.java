@@ -22,6 +22,7 @@
  ******************************************************************************/
 package org.gatein.exports.impl;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.gatein.common.NotYetImplemented;
@@ -97,6 +98,10 @@ public class ExportManagerImpl implements ExportManager
       {
          throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
       }
+      catch (IOException e)
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+      }
    }
 
    public ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle,
@@ -125,9 +130,13 @@ public class ExportManagerImpl implements ExportManager
       {
          throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
       }
+      catch (IOException e)
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+      }
    }
 
-   public byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws UnsupportedEncodingException
+   public byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws IOException
    {
       if (exportContextData.isExportByValue())
       {
@@ -139,7 +148,7 @@ public class ExportManagerImpl implements ExportManager
       }
    }
 
-   public byte[] encodeExportContextData(ExportContext exportContextData) throws UnsupportedEncodingException
+   public byte[] encodeExportContextData(ExportContext exportContextData) throws IOException
    {
       if (exportContextData.isExportByValue())
       {

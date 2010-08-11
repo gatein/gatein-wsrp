@@ -20,43 +20,72 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
-package org.gatein.exports;
+package org.gatein.wsrp.portlet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.PrintWriter;
 
-import org.gatein.exports.data.ExportContext;
-import org.gatein.exports.data.ExportPortletData;
-import org.oasis.wsrp.v2.Lifetime;
-import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationNotSupported;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.GenericPortlet;
+import javax.portlet.PortletException;
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletSecurityException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public interface ExportManager
+public class StatePortlet extends GenericPortlet
 {
-   void setPersistanceManager (ExportPersistenceManager exportPersistenceManager);
-   
-   ExportPersistenceManager getPersistenceManager();
-   
-   boolean supportExportByValue();
-   
-   ExportContext createExportContext(boolean exportByValueRequired, Lifetime lifetime) throws UnsupportedEncodingException;
-   
-   ExportContext createExportContext(byte[] bytes) throws OperationFailed;
-   
-   ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle, byte[] portletState) throws UnsupportedEncodingException;
-   
-   ExportPortletData createExportPortletData(ExportContext exportContext, Lifetime lifetime, byte[] bytes) throws OperationFailed;
-   
-   byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws UnsupportedEncodingException, IOException;
-   
-   byte[] encodeExportContextData (ExportContext exportContextData) throws UnsupportedEncodingException, IOException;
+   private static final String COUNT = "count";
 
-   Lifetime setExportLifetime(ExportContext exportContext, Lifetime lifetime) throws OperationFailed, OperationNotSupported;
+   public void processAction(ActionRequest request, ActionResponse response) throws PortletException, PortletSecurityException, IOException
+   {
+      System.out.println("PROCESSACTION");
+      String value = request.getParameter("value");
+      if (value == null)
+      {
+         value = "default";
+      }
 
-   void releaseExport(ExportContext exportContext);
+      PortletPreferences pp = request.getPreferences();
+      pp.setValue("name", value);
+      pp.store();
+   }
+   
+   protected void doView(RenderRequest req, RenderResponse resp) throws PortletException, PortletSecurityException, IOException
+   {
+      System.out.println("DOVIEW");
+      resp.setContentType("text/html");
+      PortletPreferences pp = req.getPreferences();
+      String value = pp.getValue("name", "default");
+      resp.getWriter().write(value);
+   }
+   
+   
+//   protected void doView(RenderRequest req, RenderResponse resp) throws PortletException, PortletSecurityException, IOException
+//   {
+//      resp.setContentType("text/html");
+//      PrintWriter writer = resp.getWriter();
+//      
+//      PortletPreferences pp = req.getPreferences();
+//      int count = 0;
+//      
+//      if (!pp.getValue(COUNT, "0").equals("0"))
+//      {
+//         count = Integer.parseInt(pp.getValue(COUNT, "0")) + 1;
+//      }
+//      
+//      pp.setValue(COUNT, "" + count);
+//      pp.store();
+//      
+//      writer.write("<p>count = " + count + "</p>");
+//
+//      //
+//      writer.close();
+//   }
 }
 

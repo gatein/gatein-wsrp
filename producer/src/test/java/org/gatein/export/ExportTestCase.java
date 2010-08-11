@@ -22,6 +22,7 @@
  ******************************************************************************/
 package org.gatein.export;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.gatein.exports.data.ExportData;
@@ -36,7 +37,7 @@ import junit.framework.TestCase;
  */
 public class ExportTestCase extends TestCase
 {
-   public void testTransformationByValueStateless() throws UnsupportedEncodingException
+   public void testTransformationByValueStateless() throws IOException
    {
       String portletId = "TestPortletID_123";
       double version = 1.0;
@@ -48,8 +49,6 @@ public class ExportTestCase extends TestCase
 
       byte[] bytes = exportPortletData.encodeAsBytes();
       
-      String dataAsString = new String(bytes, "UTF-8");
-      
       byte[] internalBytes = ExportData.getInternalBytes(bytes);
       ExportPortletData portletDataFromBytes = ExportPortletData.create(internalBytes);
       assertEquals(version, portletDataFromBytes.getVersion());
@@ -59,11 +58,11 @@ public class ExportTestCase extends TestCase
       assertNull(portletDataFromBytes.getPortletState());
    }
    
-   public void testTransformationByValueStatefull() throws UnsupportedEncodingException
+   public void testTransformationByValueStatefull() throws IOException
    {
       String portletId = "TestPortletID_123";
       double version = 1.0;
-      byte[] state = new byte[]{0, 1, 2, 3, 'a', 'b', 'c'};
+      byte[] state = new byte[]{-66, 0, 1, 2, 3, 'a', 'b', 'c'};
       
       ExportPortletData exportPortletData = new ExportPortletData(portletId, state);
       assertEquals(version, exportPortletData.getVersion());
@@ -73,17 +72,16 @@ public class ExportTestCase extends TestCase
 
       byte[] bytes = exportPortletData.encodeAsBytes();
       
-      String dataAsString = new String(bytes, "UTF-8");
-      
       byte[] internalBytes = ExportData.getInternalBytes(bytes);
       ExportPortletData portletDataFromBytes = ExportPortletData.create(internalBytes);
       assertEquals(version, portletDataFromBytes.getVersion());
       
       assertEquals(portletId, portletDataFromBytes.getPortletHandle());
       assertEquals(version, portletDataFromBytes.getVersion());
+      assertNotNull(portletDataFromBytes.getPortletState());
+      assertEquals(state.length, portletDataFromBytes.getPortletState().length);
       ExtendedAssert.assertEquals(state, portletDataFromBytes.getPortletState());
    }
-   
    
    /**
     * ADD MORE TESTS

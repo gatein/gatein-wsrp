@@ -22,9 +22,12 @@
  ******************************************************************************/
 package org.gatein.exports.data;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
-
-import org.gatein.common.NotYetImplemented;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -36,7 +39,7 @@ public abstract class ExportData
    public abstract double getVersion();
    public abstract String getType();
    
-   protected abstract byte[] internalEncodeAsBytes() throws UnsupportedEncodingException;
+   protected abstract byte[] internalEncodeAsBytes() throws UnsupportedEncodingException, IOException;
    
    
    //The encoding used to create the byte array
@@ -44,33 +47,37 @@ public abstract class ExportData
    
    protected static final String SEPARATOR = "_@_";
    
-   public byte[] encodeAsBytes() throws UnsupportedEncodingException 
+   public byte[] encodeAsBytes() throws IOException 
    {
       byte[] internalBytes = internalEncodeAsBytes();
       
-      String token =  this.getType() + SEPARATOR + this.getVersion() + SEPARATOR;
-      String dataString = new String(internalBytes, ENCODING);
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
       
-      return (token + dataString).getBytes(ENCODING);
+      oos.writeUTF(this.getType());
+      oos.writeDouble(this.getVersion());
+      
+      if (internalBytes != null)
+      {
+         oos.write(internalBytes);
+      }
+      
+      oos.close();
+      
+      return baos.toByteArray();
    }
    
-   public static double getVersion(byte[] bytes) throws UnsupportedEncodingException
+   public static double getVersion(byte[] bytes) throws IOException
    {
       if (bytes != null && bytes.length > 0)
       {
-         String dataString = new String(bytes, ENCODING);
-         String[] split = dataString.split(SEPARATOR, 3);
+         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+         ObjectInputStream ois = new ObjectInputStream(bais);
 
-         if (split.length >= 2)
-         {
-            double version = Double.parseDouble(split[1]);
-            return version;
-         }
-         else
-         {
-            //if a version could not be found, return -1
-            return -1;
-         }
+         String type = ois.readUTF();
+         Double version = ois.readDouble();
+
+         return version.doubleValue();
       }
       else
       {
@@ -78,21 +85,14 @@ public abstract class ExportData
       }
    }
    
-   public static String getType(byte[] bytes) throws UnsupportedEncodingException
+   public static String getType(byte[] bytes) throws IOException
    {
       if (bytes != null && bytes.length > 0)
       {
-         String dataString = new String(bytes, ENCODING);
-         String[] split = dataString.split(SEPARATOR, 2);
+         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+         ObjectInputStream ois = new ObjectInputStream(bais);
 
-         if (split.length >= 2)
-         {
-            return split[0];
-         }
-         else
-         {
-            return null;
-         }
+         return ois.readUTF();
       }
       else
       {
@@ -100,29 +100,28 @@ public abstract class ExportData
       }
    }
 
-   public static byte[] getInternalBytes(byte[] bytes) throws UnsupportedEncodingException
+   public static byte[] getInternalBytes(byte[] bytes) throws IOException
    {
       if (bytes != null && bytes.length > 0)
       {
-         String dataString = new String(bytes, ENCODING);
-         String[] split = dataString.split(SEPARATOR, 3);
+         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+         ObjectInputStream ois = new ObjectInputStream(bais);
 
-         if (split.length >= 3)
+         String type = ois.readUTF();
+         Double version = ois.readDouble();
+
+         byte[] internalBytes = null;
+         if (ois.available() > 0)
          {
-            String internalString = split[2];
-            return internalString.getBytes(ENCODING);
+            internalBytes = new byte[ois.available()];
+            ois.readFully(internalBytes);
          }
-         else
-         {
-            //if we could not find the internal bytes, return null
-            return null;
-         }
+         return internalBytes;
       }
       else
       {
          return null;
       }
    }
-   
 }
 

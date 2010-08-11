@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer;
 
+import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.pc.api.NoSuchPortletException;
@@ -390,8 +391,20 @@ public class WSRPConsumerImpl implements WSRPConsumer
       }
    }
 
-   // Accessors ********************************************************************************************************
+   public PortletContext exportPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+         throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+   
+   public PortletContext importPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+         throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
 
+   // Accessors ********************************************************************************************************
+   
    public String getProducerId()
    {
       return producerInfo.getId();

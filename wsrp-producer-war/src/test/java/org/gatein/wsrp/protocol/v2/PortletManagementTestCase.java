@@ -22,17 +22,30 @@
  ******************************************************************************/
 package org.gatein.wsrp.protocol.v2;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gatein.exports.ExportManager;
 import org.gatein.exports.data.ExportContext;
+import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.exports.impl.ExportManagerImpl;
+import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.PortletStateType;
+import org.gatein.pc.api.state.PropertyMap;
+import org.gatein.pc.portlet.state.SimplePropertyMap;
+import org.gatein.pc.portlet.state.producer.PortletState;
+import org.gatein.pc.portlet.state.producer.ProducerPortletInvoker;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
@@ -44,6 +57,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.ExportPortlets;
 import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportedPortlet;
@@ -53,14 +68,30 @@ import org.oasis.wsrp.v2.ImportPortlet;
 import org.oasis.wsrp.v2.ImportPortlets;
 import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.ImportedPortlet;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InvalidCookie;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.InvalidUserCategory;
 import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UserContext;
 
 /**
@@ -71,7 +102,6 @@ import org.oasis.wsrp.v2.UserContext;
 public class PortletManagementTestCase extends NeedPortletHandleTest
 {
    private static final String TEST_BASIC_PORTLET_WAR = "test-markup-portlet.war";
-   
 
    public PortletManagementTestCase() throws Exception
    {
@@ -111,7 +141,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    
    /*TODO:
     * - tests usercontexts (not sure exactly what needs to be tested for this)
-    * - test portlet states
     */
    
    @Test
@@ -220,7 +249,33 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
-         ExtendedAssert.fail("ImportPortlets should fail if registration is required and non is provided");
+         ExtendedAssert.fail("ExportPortlets should fail if registration is required and none is provided");
+      }
+      catch (InvalidRegistration e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testExportBadRegistrationHandle() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      
+      RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext("foo123");
+      
+      List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
+      
+      boolean exportByValueRequired = true;
+      Lifetime lifetime = null;
+      UserContext userContext = null;
+      
+      ExportPortlets exportPortlets =  WSRPTypeFactory.createExportPortlets(registrationContext, portletContexts, userContext, lifetime, exportByValueRequired);
+      
+      try
+      {
+         ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
+         ExtendedAssert.fail("ExportPortlets should fail if registration is required and an invalid registration handle is provided");
       }
       catch (InvalidRegistration e)
       {
@@ -335,9 +390,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       assertEquals(importID, portlet.getImportID());
       
       PortletContext portletContext = portlet.getNewPortletContext();
-      //check that we are getting a new portlet handle back and not the original one
-      ExtendedAssert.assertNotSame(getDefaultHandle(), portletContext.getPortletHandle());
-     
+
       //check that the new portlet handle is valid and we can access the portlet
       GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
       MarkupResponse markupResponse = producer.getMarkup(markup);
@@ -400,8 +453,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       assertEquals(importID, portlet.getImportID());
       
       PortletContext portletContext = portlet.getNewPortletContext();
-      //check that we are getting a new portlet handle back and not the original one
-      ExtendedAssert.assertNotSame(getDefaultHandle(), portletContext.getPortletHandle());
      
       //check that the new portlet handle is valid and we can access the portlet
       GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
@@ -410,6 +461,38 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       MarkupResponse markupResponse = producer.getMarkup(markup);
       assertNotNull(markupResponse.getMarkupContext());
       assertEquals("<p>symbol unset stock value: value unset</p>", new String(markupResponse.getMarkupContext().getItemString()));
+   }
+   
+   @Test
+   public void testImportBadRegistration() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+
+      RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext("FAkeREgistrationHAndle");
+      
+      String importID = "foo";
+      
+      Lifetime lifetime = null;
+      UserContext userContext = null;
+      
+      List<String> portletList = new ArrayList<String>();
+      portletList.add(getDefaultHandle());
+      ExportContext exportContextData = new ExportContext();
+      byte[] importContext = exportContextData.encodeAsBytes();
+      
+      ImportPortlet importPortlet = createSimpleImportPortlet(importID, getDefaultHandle());
+      List<ImportPortlet> importPortletsList = createImportPortletList(importPortlet);
+      
+      ImportPortlets importPortlets = WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortletsList, userContext, lifetime);
+      try
+      {
+         ImportPortletsResponse response = producer.importPortlets(importPortlets);
+         ExtendedAssert.fail("Should have failed when registration is required and an invalid registration handle is used.");
+      }
+      catch (InvalidRegistration e)
+      {
+         //expected
+      }
    }
    
    @Test
@@ -581,8 +664,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       assertEquals(importID, portlet.getImportID());
       
       PortletContext portletContext = portlet.getNewPortletContext();
-      //check that we are getting a new portlet handle back and not the original one
-      ExtendedAssert.assertNotSame(getDefaultHandle(), portletContext.getPortletHandle());
      
       //check that the new portlet handle is valid and we can access the portlet
       GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
@@ -590,8 +671,207 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       assertNotNull(markupResponse.getMarkupContext());
       assertEquals("<p>symbol unset stock value: value unset</p>", new String(markupResponse.getMarkupContext().getItemString()));
    }
+      
+   @Test
+   public void testExportWithState() throws Exception
+   {
+      undeploy(TEST_BASIC_PORTLET_WAR);
+      String sessionPortletArchive = "test-portletstate-portlet.war";
+      deploy(sessionPortletArchive);
+      
+      try
+      {
+         String originalHandle = getHandleForCurrentlyDeployedArchive();
+         
+         //check the session portlet to make sure its at the inital state
+         checkStatePortlet(originalHandle, "initial");
+         
+         PortletContext portletContext = performBlockingInteractionOnSessionPortlet(originalHandle, "new value", StateChange.CLONE_BEFORE_WRITE);
+         //check that we have a new portlet context
+         ExtendedAssert.assertFalse(originalHandle.equals(portletContext.getPortletHandle()));
+         
+         checkStatePortlet(portletContext.getPortletHandle(), "new value");
+         
+         List<PortletContext> portletContexts = createPortletContextList(portletContext.getPortletHandle());
+         ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
+         ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
+         
+         ExtendedAssert.assertFalse(response.getExportedPortlet().isEmpty());
+         
+         List<PortletContext> portletContextsFromExport = getPortletContext(response);
+         
+         ExtendedAssert.assertNotNull(portletContextsFromExport.isEmpty());
+         ExtendedAssert.assertEquals(1,portletContexts.size());
+         
+         PortletContext portletContextFromExport = portletContextsFromExport.get(0);
+         //we should be getting the handle of the stateless portlet
+         assertEquals(originalHandle, portletContextFromExport.getPortletHandle());
+         //assert that we have a portlet state returned
+         assertNotNull(portletContextFromExport.getPortletState());
+         
+         //quick check that the imported portlet has the right state
+         ImportPortletsResponse importResponse = createImportPortletsResponse("foo", portletContextFromExport);
+         checkStatePortlet(importResponse.getImportedPortlets().get(0).getNewPortletContext().getPortletHandle(), "new value");
+         
+      }
+      finally
+      {
+         undeploy(sessionPortletArchive);
+      }
+   }
    
-   protected ImportPortlet createSimpleImportPortlet(String importId, String handle) throws UnsupportedEncodingException
+   //Tests the situation in which we have a stateful export from one server and importing into another
+   @Test
+   public void testImportWithState() throws Exception
+   {
+      undeploy(TEST_BASIC_PORTLET_WAR);
+      String sessionPortletArchive = "test-portletstate-portlet.war";
+      deploy(sessionPortletArchive);
+
+      try
+      {
+         String importStringValue = "import value";
+         byte[] portletState = createSessionByteValue(getHandleForCurrentlyDeployedArchive(), importStringValue);
+
+         String importID = "foo";
+
+         List<String> portletList = new ArrayList<String>();
+         portletList.add(getDefaultHandle());
+         byte[] importContext = new ExportContext().encodeAsBytes();
+
+         ExportPortletData exportPortletData = new ExportPortletData(getHandleForCurrentlyDeployedArchive(), portletState);
+         byte[] exportData = exportPortletData.encodeAsBytes();
+         ImportPortlet importPortlet =  WSRPTypeFactory.createImportPortlet(importID, exportData);
+
+         List<ImportPortlet> importPortletsList = createImportPortletList(importPortlet);
+
+         ImportPortlets importPortlets = createSimpleImportPortlets(importContext, importPortletsList);
+         ImportPortletsResponse response = producer.importPortlets(importPortlets); 
+
+         ImportedPortlet importedPortlet = response.getImportedPortlets().get(0);
+         
+         //since its a stateful, the portlet handles shouldn't be the same
+         assertNotSame(getHandleForCurrentlyDeployedArchive(), importedPortlet.getNewPortletContext().getPortletHandle());
+         //the pc should be storing the state, so it shouldn't appear in the imported portlet context
+         assertNull(importedPortlet.getNewPortletContext().getPortletState());
+         
+         checkStatePortlet(importedPortlet.getNewPortletContext().getPortletHandle(), importStringValue);
+
+      }
+      finally
+      {
+         undeploy(sessionPortletArchive);
+      }
+   }
+   
+   protected ImportPortletsResponse createImportPortletsResponse(String importID, PortletContext portletContext) throws Exception
+   {
+      byte[] importContext = new ExportContext().encodeAsBytes();
+      ExportPortletData exportPortletData = new ExportPortletData(portletContext.getPortletHandle(), portletContext.getPortletState());
+      byte[] exportData = exportPortletData.encodeAsBytes();
+      ImportPortlet importPortlet =  WSRPTypeFactory.createImportPortlet(importID, exportData);
+      List<ImportPortlet> importPortletsList = createImportPortletList(importPortlet);
+      ImportPortlets importPortlets = createSimpleImportPortlets(importContext, importPortletsList);
+      return producer.importPortlets(importPortlets);
+   }
+   
+   protected byte[] createSessionByteValue(String portletHandle, String value) throws Exception
+   {
+      ProducerPortletInvoker ppinvoker = (ProducerPortletInvoker) producer.getPortletInvoker();
+      Map<String, List<String>> properties = new HashMap<String, List<String>>();
+      List<String> values = new ArrayList<String>();
+      values.add(value);
+      properties.put("name", values);
+      
+      PropertyMap property = new SimplePropertyMap(properties);
+      PortletState sstate = new PortletState(portletHandle, property);
+      return ppinvoker.getStateConverter().marshall(PortletStateType.OPAQUE, sstate);
+   }
+   
+   @Test
+   public void testExportWithoutSession() throws Exception
+   {
+      undeploy(TEST_BASIC_PORTLET_WAR);
+      String sessionPortletArchive = "test-portletstate-portlet.war";
+      deploy(sessionPortletArchive);
+      
+      try
+      {
+         String originalHandle = getHandleForCurrentlyDeployedArchive();
+         
+         //check the session portlet to make sure its at the inital state
+         checkStatePortlet(originalHandle, "initial");
+                  
+         //export the cloned portlet context we get from the performBlockingInteraction
+         List<PortletContext> portletContexts = createPortletContextList(originalHandle);
+         ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
+         ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
+         
+         ExtendedAssert.assertFalse(response.getExportedPortlet().isEmpty());
+         
+         List<PortletContext> portletContextsFromExport = getPortletContext(response);
+         
+         ExtendedAssert.assertNotNull(portletContextsFromExport.isEmpty());
+         ExtendedAssert.assertEquals(1,portletContexts.size());
+         
+         PortletContext portletContextFromExport = portletContextsFromExport.get(0);
+         assertEquals(originalHandle, portletContextFromExport.getPortletHandle());
+         assertNull(portletContextFromExport.getPortletState());
+      }
+      finally
+      {
+         undeploy(sessionPortletArchive);
+      }
+   }
+   
+   protected List<PortletContext> getPortletContext(ExportPortletsResponse exportPortletsResponse) throws Exception
+   {
+      List<PortletContext> portletContexts = new ArrayList<PortletContext>();
+      
+      ExportManager exportManager = new ExportManagerImpl();
+      ExportContext exportContext = exportManager.createExportContext(exportPortletsResponse.getExportContext());
+      
+      List<ExportedPortlet> exportedPortlets = exportPortletsResponse.getExportedPortlet();
+      
+      for (ExportedPortlet exportPortlet : exportedPortlets)
+      {
+         ExportPortletData exportPortletData = exportManager.createExportPortletData(exportContext, exportPortletsResponse.getLifetime(), exportPortlet.getExportData());
+         String portletHandle = exportPortletData.getPortletHandle();
+         byte[] portletState = exportPortletData.getPortletState();
+         portletContexts.add(WSRPTypeFactory.createPortletContext(portletHandle, portletState));
+      }
+      
+      return portletContexts;
+   }
+   
+   protected void checkStatePortlet(String handle, String expectedValue) throws Exception
+   {
+      GetMarkup getMarkupOriginalStateless = createMarkupRequest(handle);
+      MarkupResponse responseOriginalStateless = producer.getMarkup(getMarkupOriginalStateless);
+      ExtendedAssert.assertEquals(expectedValue, responseOriginalStateless.getMarkupContext().getItemString());
+   }
+   
+   protected PortletContext performBlockingInteractionOnSessionPortlet(String handle, String value, StateChange stateChange) throws Exception
+   {
+      //perform a blocking interaction to set a state on the portlet;
+      PerformBlockingInteraction pbi = WSRPTypeFactory.createDefaultPerformBlockingInteraction(handle);
+      pbi.getInteractionParams().setPortletStateChange(stateChange);
+      pbi.getInteractionParams().getFormParameters().add(createNamedString("value", value));
+      BlockingInteractionResponse response = producer.performBlockingInteraction(pbi);
+      PortletContext portletContext = response.getUpdateResponse().getPortletContext();
+      
+      return portletContext;
+   }
+
+   private NamedString createNamedString(String name, String value)
+   {
+      NamedString namedString = new NamedString();
+      namedString.setName(name);
+      namedString.setValue(value);
+      return namedString;
+   }
+   
+   protected ImportPortlet createSimpleImportPortlet(String importId, String handle) throws IOException
    {
       ExportPortletData exportPortletData = new ExportPortletData(handle, null);
       byte[] exportData = exportPortletData.encodeAsBytes();
@@ -618,7 +898,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       return WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortletsList, userContext, lifetime);
    }
    
-   @Override
    protected String getMostUsedPortletWARFileName()
    {
       return TEST_BASIC_PORTLET_WAR;
