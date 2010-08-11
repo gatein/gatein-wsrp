@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Mode;
@@ -35,6 +35,8 @@ import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.RegistrationUtils;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.RegistrationInterface;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -68,9 +70,9 @@ import java.util.Map;
  * @version $Revision: 13202 $
  * @since 2.4
  */
-class RegistrationHandler extends ServiceHandler implements RegistrationInterface
+public class RegistrationHandler extends ServiceHandler implements RegistrationInterface
 {
-   RegistrationHandler(WSRPProducerImpl producer)
+   public RegistrationHandler(WSRPProducerImpl producer)
    {
       super(producer);
    }
@@ -266,7 +268,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
     * @return
     * @since 2.6.2
     */
-   boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed
+   public boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed
    {
       if (reg == null)
       {
@@ -314,7 +316,7 @@ class RegistrationHandler extends ServiceHandler implements RegistrationInterfac
     * @return
     * @since 2.6.2
     */
-   Registration getRegistrationFrom(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
+   public Registration getRegistrationFrom(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
    {
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {

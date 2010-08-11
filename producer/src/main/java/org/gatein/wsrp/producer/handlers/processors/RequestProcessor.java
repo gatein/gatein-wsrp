@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.MarkupInfo;
@@ -42,6 +42,8 @@ import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.Utils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -178,7 +180,7 @@ public abstract class RequestProcessor
 
    abstract MimeRequest getParams();
 
-   abstract PortletContext getPortletContext();
+   public abstract PortletContext getPortletContext();
 
    abstract org.oasis.wsrp.v2.UserContext getUserContext();
 
@@ -188,7 +190,7 @@ public abstract class RequestProcessor
 
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
-   abstract Object processResponse(PortletInvocationResponse response);
+   public abstract Object processResponse(PortletInvocationResponse response);
 
 
    /**
@@ -351,7 +353,7 @@ public abstract class RequestProcessor
       SessionParams sessionParams = runtimeContext.getSessionParams();
       if (sessionParams != null && sessionParams.getSessionID() != null)
       {
-         MarkupHandler.throwOperationFaultOnSessionOperation();
+         Utils.throwOperationFaultOnSessionOperation();
       }
    }
 

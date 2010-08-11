@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -30,6 +30,8 @@ import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
+import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -50,7 +52,7 @@ import org.oasis.wsrp.v2.UserContext;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext>
+class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext>
 {
    private final GetResource getResource;
 

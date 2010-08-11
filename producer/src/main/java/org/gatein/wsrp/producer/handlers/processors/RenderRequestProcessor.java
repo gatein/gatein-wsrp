@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
@@ -29,6 +29,8 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
+import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -48,7 +50,7 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-public class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext>
+class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext>
 {
    private final GetMarkup getMarkup;
 
@@ -75,7 +77,7 @@ public class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext>
       return getMarkup.getMarkupParams();
    }
 
-   PortletContext getPortletContext()
+   public PortletContext getPortletContext()
    {
       return getMarkup.getPortletContext();
    }

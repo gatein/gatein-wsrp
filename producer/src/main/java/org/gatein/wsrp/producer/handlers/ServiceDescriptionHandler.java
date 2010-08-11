@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers;
 
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.ParameterValidation;
@@ -41,6 +41,9 @@ import org.gatein.pc.api.info.WindowStateInfo;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.ServiceDescriptionInterface;
+import org.gatein.wsrp.producer.Utils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
@@ -76,13 +79,13 @@ import java.util.Set;
  * @version $Revision: 12017 $
  * @since 2.4
  */
-class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface
+public class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface
 {
    // JBPORTAL-1220: force call to initCookie... Required so that BEA version < 9.2 will behave properly as a Consumer
    private static final CookieProtocol BEA_8_CONSUMER_FIX = CookieProtocol.PER_USER;
    private ServiceDescriptionInfo serviceDescription;
 
-   ServiceDescriptionHandler(WSRPProducerImpl producer)
+   public ServiceDescriptionHandler(WSRPProducerImpl producer)
    {
       super(producer);
       serviceDescription = new ServiceDescriptionInfo(producer);
@@ -154,7 +157,7 @@ class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescrip
     * @param desiredLocales the user desired locales (ordered according to user preferences) to use for the description
     * @return a PortletDescription describing the specified portlet
     */
-   static PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales)
+   public static PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales)
    {
       return getPortletDescription(portlet, desiredLocales, null);
    }

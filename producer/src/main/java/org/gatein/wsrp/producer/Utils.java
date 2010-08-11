@@ -28,7 +28,9 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
+import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.ModelDescription;
+import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -191,5 +193,12 @@ public class Utils
          return WSRPTypeFactory.createLocalizedString(language, null, value);
       }
       return null;
+   }
+
+   public static void throwOperationFaultOnSessionOperation() throws OperationFailed
+   {
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
+         " manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
+         null);
    }
 }

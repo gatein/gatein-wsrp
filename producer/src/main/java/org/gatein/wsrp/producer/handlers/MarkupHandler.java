@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers;
 
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.response.ContentResponse;
@@ -31,6 +31,11 @@ import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.portlet.state.producer.PortletStateChangeRequiredException;
+import org.gatein.wsrp.producer.MarkupInterface;
+import org.gatein.wsrp.producer.Utils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
+import org.gatein.wsrp.producer.handlers.processors.ProcessorFactory;
+import org.gatein.wsrp.producer.handlers.processors.RequestProcessor;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -73,13 +78,14 @@ import java.util.List;
  * @version $Revision: 10090 $
  * @since 2.4
  */
-class MarkupHandler extends ServiceHandler implements MarkupInterface
+public class MarkupHandler extends ServiceHandler implements MarkupInterface
 {
-   static final String PBI = "PerformBlockingInteraction";
-   static final String GET_MARKUP = "GetMarkup";
-   static final String GET_RESOURCE = "GetResource";
+   public static final String PBI = "PerformBlockingInteraction";
+   public static final String GET_MARKUP = "GetMarkup";
+   public static final String GET_RESOURCE = "GetResource";
+   public static final String HANDLE_EVENTS = "HandleEvents";
 
-   MarkupHandler(WSRPProducerImpl producer)
+   public MarkupHandler(WSRPProducerImpl producer)
    {
       super(producer);
    }
@@ -94,7 +100,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
 
-      RequestProcessor requestProcessor = new RenderRequestProcessor(producer, getMarkup);
+      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, getMarkup);
 
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       PortletInvocationResponse response;
@@ -121,7 +127,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getResource, GET_RESOURCE);
 
-      ResourceRequestProcessor requestProcessor = new ResourceRequestProcessor(producer, getResource);
+      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, getResource);
 
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       PortletInvocationResponse response;
@@ -150,7 +156,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", PBI);
 
-      RequestProcessor requestProcessor = new ActionRequestProcessor(producer, performBlockingInteraction);
+      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, performBlockingInteraction);
 
       PortletInvocationResponse response;
       String handle = requestProcessor.getPortletContext().getPortletHandle();
@@ -179,7 +185,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       OperationNotSupported, ResourceSuspended
    {
       // our producer never sends session ids so a Consumer trying to release sessions is an error condition
-      throwOperationFaultOnSessionOperation();
+      Utils.throwOperationFaultOnSessionOperation();
       return null;
    }
 
@@ -204,7 +210,7 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode,
       UnsupportedWindowState
    {
-      EventRequestProcessor requestProcessor = new EventRequestProcessor(producer, handleEvents);
+      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, handleEvents);
 
       PortletInvocationResponse response;
       String handle = requestProcessor.getPortletContext().getPortletHandle();
@@ -227,13 +233,6 @@ class MarkupHandler extends ServiceHandler implements MarkupInterface
       checkForError(response);
 
       return (HandleEventsResponse)requestProcessor.processResponse(response);
-   }
-
-   static void throwOperationFaultOnSessionOperation() throws OperationFailed
-   {
-      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
-         " manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
-         null);
    }
 
    private void checkForError(PortletInvocationResponse response)

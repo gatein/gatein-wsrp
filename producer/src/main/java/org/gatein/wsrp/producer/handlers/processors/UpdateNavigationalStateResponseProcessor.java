@@ -21,12 +21,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.UpdateResponse;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public abstract class UpdateNavigationalStateResponseProcessor extends RequestProcessor
+abstract class UpdateNavigationalStateResponseProcessor extends RequestProcessor
 {
    public UpdateNavigationalStateResponseProcessor(WSRPProducerImpl producer)
    {

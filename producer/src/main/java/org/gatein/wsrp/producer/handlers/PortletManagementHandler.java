@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -48,6 +48,9 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.PortletManagementInterface;
+import org.gatein.wsrp.producer.Utils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -113,7 +116,7 @@ import java.util.Set;
  * @version $Revision: 11147 $
  * @since 2.4
  */
-class PortletManagementHandler extends ServiceHandler implements PortletManagementInterface
+public class PortletManagementHandler extends ServiceHandler implements PortletManagementInterface
 {
    private static final String GET_PORTLET_PROPERTY_DESCRIPTION = "GetPortletPropertyDescription";
    private static final String GET_PORTLET_PROPERTIES = "GetPortletProperties";
@@ -122,7 +125,7 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
 
    private static final Logger log = LoggerFactory.getLogger(PortletManagementHandler.class);
 
-   PortletManagementHandler(WSRPProducerImpl producer)
+   public PortletManagementHandler(WSRPProducerImpl producer)
    {
       super(producer);
    }
@@ -524,15 +527,15 @@ class PortletManagementHandler extends ServiceHandler implements PortletManageme
                if (portletHandle != null)
                {
                   org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
-                  
+
                   producer.getPortletInvoker().getPortlet(portalPC);
-                  
+
                   org.gatein.pc.api.PortletContext exportedPortalPC = producer.getPortletInvoker().exportPortletContext(PortletStateType.OPAQUE, portalPC);
-                  
+
                   PortletContext exportedPortalContext = WSRPUtils.convertToWSRPPortletContext(exportedPortalPC);
                   portletHandle = exportedPortalContext.getPortletHandle();
                   portletState = exportedPortalContext.getPortletState();
-                  
+
                   if (exportedPortalPC == null)
                   {
                      WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);

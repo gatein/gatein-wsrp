@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
@@ -33,6 +33,8 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.payload.PayloadUtils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
+import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
@@ -41,7 +43,6 @@ import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -62,7 +63,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor
+class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor
 {
    private HandleEvents handleEvents;
 
@@ -73,7 +74,7 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
 
       // validate request parameters
       EventParams eventParams = handleEvents.getEventParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", "HandleEvents");
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", getContextName());
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams.getPortletStateChange(), "portletStateChange", "EventParams");
       List<Event> events = eventParams.getEvents();
       if (!ParameterValidation.existsAndIsNotEmpty(events))
@@ -109,7 +110,7 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
    }
 
    @Override
-   PortletContext getPortletContext()
+   public PortletContext getPortletContext()
    {
       return handleEvents.getPortletContext();
    }
@@ -123,7 +124,7 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
    @Override
    String getContextName()
    {
-      return "HandleEvents";
+      return MarkupHandler.HANDLE_EVENTS;
    }
 
    @Override
@@ -158,7 +159,7 @@ public class EventRequestProcessor extends UpdateNavigationalStateResponseProces
    }
 
    @Override
-   Object processResponse(PortletInvocationResponse response)
+   public Object processResponse(PortletInvocationResponse response)
    {
       if (response instanceof UpdateNavigationalStateResponse)
       {

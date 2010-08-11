@@ -36,6 +36,10 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.handlers.MarkupHandler;
+import org.gatein.wsrp.producer.handlers.PortletManagementHandler;
+import org.gatein.wsrp.producer.handlers.RegistrationHandler;
+import org.gatein.wsrp.producer.handlers.ServiceDescriptionHandler;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
@@ -46,9 +50,6 @@ import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
-import org.oasis.wsrp.v2.ExportByValueNotSupported;
-import org.oasis.wsrp.v2.ExportPortlets;
-import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
 import org.oasis.wsrp.v2.ExportNoLongerValid;
 import org.oasis.wsrp.v2.ExportPortlets;
@@ -146,8 +147,8 @@ public class WSRPProducerImpl implements WSRP2Producer
    private ProducerConfigurationService configurationService; //todo: make sure it's multi-thread safe
 
    /** export manager */
-   private ExportManager exportManager; 
-   
+   private ExportManager exportManager;
+
    private boolean started = false;
 
    // On-demand class holder Singleton pattern (multi-thread safe)
@@ -175,7 +176,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       portletManagementHandler = new PortletManagementHandler(this);
    }
 
-   ProducerRegistrationRequirements getProducerRegistrationRequirements()
+   public ProducerRegistrationRequirements getProducerRegistrationRequirements()
    {
       return getProducerConfiguration().getRegistrationRequirements();
    }
@@ -357,12 +358,12 @@ public class WSRPProducerImpl implements WSRP2Producer
    {
       this.exportManager = exportManger;
    }
-   
+
    public ExportManager getExportManager()
    {
       return exportManager;
    }
-   
+
    public synchronized void start()
    {
       if (!started)
@@ -420,7 +421,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       this.invoker = invoker;
    }
 
-   Portlet getPortletWith(org.gatein.pc.api.PortletContext portletContext, Registration registration) throws InvalidHandle, PortletInvokerException
+   public Portlet getPortletWith(org.gatein.pc.api.PortletContext portletContext, Registration registration) throws InvalidHandle, PortletInvokerException
    {
       Portlet portlet;
       try
@@ -445,7 +446,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       return portlet;
    }
 
-   Set<Portlet> getRemotablePortlets() throws PortletInvokerException
+   public Set<Portlet> getRemotablePortlets() throws PortletInvokerException
    {
       log.debug("Retrieving remotable portlets");
       Set<Portlet> allPortlets = invoker.getPortlets();
@@ -477,7 +478,7 @@ public class WSRPProducerImpl implements WSRP2Producer
       return serviceDescriptionHandler.getPortletDescription(portlet, locales);
    }
 
-   Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
+   public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
    {
       Registration registration = registrationHandler.getRegistrationFrom(registrationContext);
       registrationHandler.isRegistrationValid(registration, true);

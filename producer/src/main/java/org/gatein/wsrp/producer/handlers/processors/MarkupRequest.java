@@ -21,11 +21,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.pc.api.Mode;
-import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPUtils;
 import org.oasis.wsrp.v2.MarkupType;
 

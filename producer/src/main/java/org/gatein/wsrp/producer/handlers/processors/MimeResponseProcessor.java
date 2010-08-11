@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
 import org.gatein.pc.api.invocation.response.ContentResponse;
@@ -30,6 +30,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.oasis.wsrp.v2.MimeResponse;
 
@@ -37,7 +38,7 @@ import org.oasis.wsrp.v2.MimeResponse;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse> extends RequestProcessor
+abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse> extends RequestProcessor
 {
    protected String namespace;
    private static final String EMPTY = "";
@@ -62,7 +63,7 @@ public abstract class MimeResponseProcessor<LocalMimeResponse extends MimeRespon
       return result;
    }
 
-   Object processResponse(PortletInvocationResponse response)
+   public Object processResponse(PortletInvocationResponse response)
    {
       ContentResponse content = (ContentResponse)response;
       String itemString = null;

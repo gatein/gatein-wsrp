@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.apache.commons.fileupload.FileUpload;
 import org.gatein.common.util.ParameterMap;
@@ -234,12 +234,12 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
    {
       return createRequestContext(markupRequest, interactionParams.getFormParameters(), interactionParams.getUploadContexts());
    }
-   
+
    public static WSRPRequestContext createRequestContext(MarkupRequest markupRequest, ResourceParams resourceParams)
    {
       return createRequestContext(markupRequest, resourceParams.getFormParameters(), resourceParams.getUploadContexts());
    }
-   
+
    public static WSRPRequestContext createRequestContext(MarkupRequest markupRequest, List<NamedString> formParams, List<UploadContext> uploadContexts)
    {
       if (uploadContexts != null && !uploadContexts.isEmpty())

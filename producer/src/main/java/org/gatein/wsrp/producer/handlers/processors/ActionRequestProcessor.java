@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ActionInvocation;
@@ -32,11 +32,12 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
+import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
-import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -83,7 +84,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
       return performBlockingInteraction.getMarkupParams();
    }
 
-   PortletContext getPortletContext()
+   public PortletContext getPortletContext()
    {
       return performBlockingInteraction.getPortletContext();
    }
@@ -124,7 +125,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
       return invocation;
    }
 
-   Object processResponse(PortletInvocationResponse response)
+   public Object processResponse(PortletInvocationResponse response)
    {
       if (response instanceof UpdateNavigationalStateResponse)
       {
