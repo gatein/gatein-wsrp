@@ -43,11 +43,17 @@ import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,9 +70,9 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean isV2 = false;
 
    private static final String WSRP_V1_URN = "urn:oasis:names:tc:wsrp:v1:wsdl";
-   private final static QName V1_SERVICE = new QName(WSRP_V1_URN, "WSRPService");
+   private static final String WSRP_V1_BINDING = "urn:oasis:names:tc:wsrp:v1:bind";
    private static final String WSRP_V2_URN = "urn:oasis:names:tc:wsrp:v2:wsdl";
-   private final static QName V2_SERVICE = new QName(WSRP_V2_URN, "WSRPService");
+   private static final String WSRP_V2_BINDING = "urn:oasis:names:tc:wsrp:v2:bind";
 
    private Map<Class, Object> services = new ConcurrentHashMap<Class, Object>();
    private String markupURL;
@@ -219,13 +225,17 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       try
       {
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
-         URI wsdlURL = new URI(wsdlDefinitionURL);
+         URL wsdlURL = new URI(wsdlDefinitionURL).toURL();
+
+         WSDLInfo wsdlInfo = new WSDLInfo(wsdlDefinitionURL);
 
          // try to get v2 of service if possible, first
+         QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
+         QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
          Service service;
-         try
+         if (wsrp2 != null)
          {
-            service = Service.create(wsdlURL.toURL(), V2_SERVICE);
+            service = Service.create(wsdlURL, wsrp2);
 
             WSRPV2MarkupPortType markupPortType = service.getPort(WSRPV2MarkupPortType.class);
             services.put(WSRPV2MarkupPortType.class, markupPortType);
@@ -247,39 +257,33 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             setAvailable(true);
             isV2 = true;
          }
-         catch (IllegalArgumentException e)
+         else if (wsrp1 != null)
          {
-            // if exception message contains both URNs, then it should mean that we only have V1 service, so get that
-            // todo: we could allow user to choose what happens here instead of proceeding automatically...
-            String message = e.getMessage();
-            if (message.contains(WSRP_V1_URN) && message.contains(WSRP_V2_URN))
-            {
-               service = Service.create(wsdlURL.toURL(), V1_SERVICE);
+            service = Service.create(wsdlURL, wsrp1);
 
-               WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);
-               services.put(WSRPV1MarkupPortType.class, markupPortType);
-               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);
+            services.put(WSRPV1MarkupPortType.class, markupPortType);
+            markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPV1ServiceDescriptionPortType.class);
-               services.put(WSRPV1ServiceDescriptionPortType.class, sdPort);
-               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPV1ServiceDescriptionPortType.class);
+            services.put(WSRPV1ServiceDescriptionPortType.class, sdPort);
+            serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPV1PortletManagementPortType.class);
-               services.put(WSRPV1PortletManagementPortType.class, managementPortType);
-               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPV1PortletManagementPortType.class);
+            services.put(WSRPV1PortletManagementPortType.class, managementPortType);
+            portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPV1RegistrationPortType.class);
-               services.put(WSRPV1RegistrationPortType.class, registrationPortType);
-               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPV1RegistrationPortType.class);
+            services.put(WSRPV1RegistrationPortType.class, registrationPortType);
+            registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               setFailed(false);
-               setAvailable(true);
-               isV2 = false;
-            }
-            else
-            {
-               throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
-            }
+            setFailed(false);
+            setAvailable(true);
+            isV2 = false;
+         }
+         else
+         {
+            throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
          }
       }
       catch (MalformedURLException e)
@@ -349,6 +353,97 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          WSRPV1RegistrationPortType port = getService(WSRPV1RegistrationPortType.class);
          return new V1RegistrationService(port);
+      }
+   }
+
+   protected class WSDLInfo
+   {
+      private final QName wsrp2ServiceQName;
+      private final QName wsrp1ServiceQName;
+
+      public WSDLInfo(String wsdlURL) throws WSDLException
+      {
+         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+
+         wsdlReader.setFeature("javax.wsdl.verbose", false);
+         wsdlReader.setFeature("javax.wsdl.importDocuments", false);
+
+         Definition definition = wsdlReader.readWSDL(wsdlURL);
+         Map<QName, javax.wsdl.Service> services = definition.getServices();
+         int serviceNb = services.size();
+         if (serviceNb > 2)
+         {
+            throw new WSDLException(WSDLException.OTHER_ERROR,
+               "The specified WSDL contains more than 2 services definitions when we expected at most 2: one for WSRP 1 and one for WSRP 2.");
+         }
+
+         QName wsrp1 = null, wsrp2 = null;
+         for (QName name : services.keySet())
+         {
+            String ns = name.getNamespaceURI();
+            javax.wsdl.Service service = services.get(name);
+
+            // if the namespace is using one of the WSRP-defined ones, we have a potential candidate
+            if (WSRP_V1_URN.equals(ns) || WSRP_V2_URN.equals(ns))
+            {
+               // but we need to check that the port namespaces to really know which version of the service we've found
+               // this is needed for http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=All
+               // where the WSRP1 service name has the WSRP2 global target namespace so we need more processing :(
+               Map<String, Port> ports = service.getPorts();
+               String bindingNSURI = null;
+               for (Port port : ports.values())
+               {
+                  String newBindingNS = port.getBinding().getQName().getNamespaceURI();
+                  if (bindingNSURI != null && !bindingNSURI.equals(newBindingNS))
+                  {
+                     throw new WSDLException(WSDLException.OTHER_ERROR, "Inconsistend NS in port bindings. Aborting.");
+                  }
+                  bindingNSURI = newBindingNS;
+               }
+               if (WSRP_V1_BINDING.equals(bindingNSURI))
+               {
+                  wsrp1 = checkPotentialServiceName(wsrp1, name, ns);
+               }
+               else if (WSRP_V2_BINDING.equals(bindingNSURI))
+               {
+                  wsrp2 = checkPotentialServiceName(wsrp2, name, ns);
+               }
+            }
+            else
+            {
+               log.debug("Unknown service namespace: " + ns);
+            }
+         }
+
+         wsrp2ServiceQName = wsrp2;
+         wsrp1ServiceQName = wsrp1;
+
+         if (wsrp1 == null && wsrp2 == null)
+         {
+            throw new WSDLException(WSDLException.INVALID_WSDL,
+               "Found no service definition with WSRP specification namespaces.");
+         }
+      }
+
+      public QName getWSRP2ServiceQName()
+      {
+         return wsrp2ServiceQName;
+      }
+
+      public QName getWSRP1ServiceQName()
+      {
+         return wsrp1ServiceQName;
+      }
+
+      private QName checkPotentialServiceName(QName potentiallyExisting, QName candidate, String namespace) throws WSDLException
+      {
+         if (potentiallyExisting != null)
+         {
+            throw new WSDLException(WSDLException.OTHER_ERROR, "Found 2 different services using the "
+               + namespace + " namespace. Cannot decide which one to use for service so aborting.");
+         }
+         return candidate;
       }
    }
 }
