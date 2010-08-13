@@ -170,13 +170,13 @@ public class MockWSRPConsumer implements WSRPConsumer
    {
    }
 
-   public PortletContext exportPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+   public PortletContext exportPortlet(PortletStateType stateType, PortletContext originalPortletContext)
          throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
    
-   public PortletContext importPortletContext(PortletStateType stateType, PortletContext originalPortletContext)
+   public PortletContext importPortlet(PortletStateType stateType, PortletContext originalPortletContext)
    throws PortletInvokerException
    {
       throw new NotYetImplemented();

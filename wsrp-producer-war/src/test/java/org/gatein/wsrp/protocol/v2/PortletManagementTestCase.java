@@ -816,7 +816,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          
          PortletContext portletContextFromExport = portletContextsFromExport.get(0);
          assertEquals(originalHandle, portletContextFromExport.getPortletHandle());
-         assertNull(portletContextFromExport.getPortletState());
       }
       finally
       {
