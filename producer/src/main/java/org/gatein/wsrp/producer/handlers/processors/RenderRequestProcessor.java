@@ -35,6 +35,7 @@ import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -50,7 +51,7 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext>
+class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, MarkupResponse>
 {
    private final GetMarkup getMarkup;
 
@@ -107,7 +108,7 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext>
    }
 
    @Override
-   protected Object createResponse(MarkupContext mimeResponse)
+   protected MarkupResponse createResponse(MarkupContext mimeResponse)
    {
       return WSRPTypeFactory.createMarkupResponse(mimeResponse);
    }

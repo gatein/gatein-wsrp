@@ -42,6 +42,7 @@ import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceParams;
+import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
@@ -52,7 +53,7 @@ import org.oasis.wsrp.v2.UserContext;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext>
+class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, ResourceResponse>
 {
    private final GetResource getResource;
 
@@ -146,7 +147,7 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext>
    }
 
    @Override
-   protected Object createResponse(ResourceContext resourceContext)
+   protected ResourceResponse createResponse(ResourceContext resourceContext)
    {
       return WSRPTypeFactory.createResourceResponse(resourceContext);
    }

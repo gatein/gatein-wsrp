@@ -63,7 +63,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor
+class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<HandleEventsResponse>
 {
    private HandleEvents handleEvents;
 
@@ -159,7 +159,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor
    }
 
    @Override
-   public Object processResponse(PortletInvocationResponse response)
+   public HandleEventsResponse processResponse(PortletInvocationResponse response)
    {
       if (response instanceof UpdateNavigationalStateResponse)
       {

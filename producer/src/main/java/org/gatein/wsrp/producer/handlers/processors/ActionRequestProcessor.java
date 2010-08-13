@@ -35,6 +35,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
+import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -56,7 +57,7 @@ import org.oasis.wsrp.v2.UpdateResponse;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
+class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<BlockingInteractionResponse>
 {
    private final PerformBlockingInteraction performBlockingInteraction;
 
@@ -125,7 +126,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor
       return invocation;
    }
 
-   public Object processResponse(PortletInvocationResponse response)
+   public BlockingInteractionResponse processResponse(PortletInvocationResponse response)
    {
       if (response instanceof UpdateNavigationalStateResponse)
       {

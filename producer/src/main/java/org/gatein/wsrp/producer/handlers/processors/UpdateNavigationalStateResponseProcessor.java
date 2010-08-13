@@ -38,7 +38,7 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-abstract class UpdateNavigationalStateResponseProcessor extends RequestProcessor
+abstract class UpdateNavigationalStateResponseProcessor<Response> extends RequestProcessor<Response>
 {
    public UpdateNavigationalStateResponseProcessor(WSRPProducerImpl producer)
    {

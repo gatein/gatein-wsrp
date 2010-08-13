@@ -75,7 +75,7 @@ import java.util.Set;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-public abstract class RequestProcessor
+public abstract class RequestProcessor<Response>
 {
    private static final String WINDOW_STATE = "window state";
    private static final String PORTLET_MODE = "portlet mode";
@@ -190,7 +190,7 @@ public abstract class RequestProcessor
 
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
-   public abstract Object processResponse(PortletInvocationResponse response);
+   public abstract Response processResponse(PortletInvocationResponse response);
 
 
    /**

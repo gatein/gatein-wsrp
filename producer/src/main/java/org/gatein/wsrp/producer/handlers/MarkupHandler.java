@@ -100,7 +100,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
 
-      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, getMarkup);
+      RequestProcessor<MarkupResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, getMarkup);
 
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       PortletInvocationResponse response;
@@ -117,7 +117,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       checkForError(response);
 
-      return (MarkupResponse)requestProcessor.processResponse(response);
+      return requestProcessor.processResponse(response);
    }
 
    public ResourceResponse getResource(GetResource getResource)
@@ -127,7 +127,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getResource, GET_RESOURCE);
 
-      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, getResource);
+      RequestProcessor<ResourceResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, getResource);
 
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       PortletInvocationResponse response;
@@ -144,7 +144,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       checkForError(response);
 
-      return (ResourceResponse)requestProcessor.processResponse(response);
+      return requestProcessor.processResponse(response);
    }
 
    public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction)
@@ -156,7 +156,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", PBI);
 
-      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, performBlockingInteraction);
+      RequestProcessor<BlockingInteractionResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, performBlockingInteraction);
 
       PortletInvocationResponse response;
       String handle = requestProcessor.getPortletContext().getPortletHandle();
@@ -177,7 +177,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       checkForError(response);
 
-      return (BlockingInteractionResponse)requestProcessor.processResponse(response);
+      return requestProcessor.processResponse(response);
    }
 
    public List<Extension> releaseSessions(ReleaseSessions releaseSessions)
@@ -210,7 +210,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode,
       UnsupportedWindowState
    {
-      RequestProcessor requestProcessor = ProcessorFactory.getProcessorFor(producer, handleEvents);
+      RequestProcessor<HandleEventsResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, handleEvents);
 
       PortletInvocationResponse response;
       String handle = requestProcessor.getPortletContext().getPortletHandle();
@@ -232,7 +232,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       checkForError(response);
 
-      return (HandleEventsResponse)requestProcessor.processResponse(response);
+      return requestProcessor.processResponse(response);
    }
 
    private void checkForError(PortletInvocationResponse response)

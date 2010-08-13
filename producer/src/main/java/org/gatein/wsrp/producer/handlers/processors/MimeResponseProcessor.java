@@ -38,7 +38,7 @@ import org.oasis.wsrp.v2.MimeResponse;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse> extends RequestProcessor
+abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Response>
 {
    protected String namespace;
    private static final String EMPTY = "";
@@ -63,7 +63,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse> ext
       return result;
    }
 
-   public Object processResponse(PortletInvocationResponse response)
+   public Response processResponse(PortletInvocationResponse response)
    {
       ContentResponse content = (ContentResponse)response;
       String itemString = null;
@@ -116,7 +116,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse> ext
       return createResponse(mimeResponse);
    }
 
-   protected abstract Object createResponse(LocalMimeResponse mimeResponse);
+   protected abstract Response createResponse(LocalMimeResponse mimeResponse);
 
    protected abstract Class<LocalMimeResponse> getReifiedClass();
 
