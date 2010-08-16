@@ -44,7 +44,6 @@ public class StatePortlet extends GenericPortlet
 
    public void processAction(ActionRequest request, ActionResponse response) throws PortletException, PortletSecurityException, IOException
    {
-      System.out.println("PROCESSACTION");
       String value = request.getParameter("value");
       if (value == null)
       {
@@ -58,34 +57,10 @@ public class StatePortlet extends GenericPortlet
    
    protected void doView(RenderRequest req, RenderResponse resp) throws PortletException, PortletSecurityException, IOException
    {
-      System.out.println("DOVIEW");
       resp.setContentType("text/html");
       PortletPreferences pp = req.getPreferences();
       String value = pp.getValue("name", "default");
       resp.getWriter().write(value);
    }
-   
-   
-//   protected void doView(RenderRequest req, RenderResponse resp) throws PortletException, PortletSecurityException, IOException
-//   {
-//      resp.setContentType("text/html");
-//      PrintWriter writer = resp.getWriter();
-//      
-//      PortletPreferences pp = req.getPreferences();
-//      int count = 0;
-//      
-//      if (!pp.getValue(COUNT, "0").equals("0"))
-//      {
-//         count = Integer.parseInt(pp.getValue(COUNT, "0")) + 1;
-//      }
-//      
-//      pp.setValue(COUNT, "" + count);
-//      pp.store();
-//      
-//      writer.write("<p>count = " + count + "</p>");
-//
-//      //
-//      writer.close();
-//   }
 }
 

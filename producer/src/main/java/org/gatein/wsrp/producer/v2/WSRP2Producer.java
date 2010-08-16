@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer.v2;
 
+import org.gatein.exports.ExportManager;
 import org.gatein.wsrp.producer.MarkupInterface;
 import org.gatein.wsrp.producer.PortletManagementInterface;
 import org.gatein.wsrp.producer.RegistrationInterface;
@@ -36,4 +37,17 @@ import org.gatein.wsrp.producer.WSRPProducer;
 public interface WSRP2Producer extends WSRPProducer, MarkupInterface, PortletManagementInterface,
    RegistrationInterface, ServiceDescriptionInterface
 {
+   /**
+    * Retrieves the ExportManager used by this WSRPProducer.
+    * 
+    * @return The ExportManager used by this WSRPProducer to manage exports
+    */
+   ExportManager getExportManager();
+   
+   /**
+    * Sets the ExportManager used by this WSRPProducer
+    * 
+    * @param The ExportManager to be used by this WSRPProducer
+    */
+   void setExportManager(ExportManager exportManager);
 }

@@ -550,6 +550,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                ExportPortletData exportPortletData = producer.getExportManager().createExportPortletData(exportContext, portletHandle, portletState);
 
                //Create the exportedPortlet
+               byte[] exportPortletBytes = producer.getExportManager().encodeExportPortletData(exportContext, exportPortletData);
                ExportedPortlet exportedPortlet = WSRPTypeFactory.createExportedPortlet(portletHandle, exportPortletData.encodeAsBytes());
                exportedPortlets.add(exportedPortlet);
             }
@@ -593,12 +594,13 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          //TODO: handle resourceLists better (should be using for things like errors)
          ResourceList resourceList = null;
 
-         return WSRPTypeFactory.createExportPortletsResponse(exportContext.encodeAsBytes(), exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), exportContext.getLifeTime(), resourceList);
+         byte[] exportContextBytes = producer.getExportManager().encodeExportContextData(exportContext);
+         
+         return WSRPTypeFactory.createExportPortletsResponse(exportContextBytes, exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), exportContext.getLifeTime(), resourceList);
       }
-      catch (Exception e)//TODO ADD PROPER EXCEPTION HANDLING
+      catch (Exception e)
       {
-         e.printStackTrace();
-         throw new OperationFailed("TODO: add proper error handling", new OperationFailedFault());
+         throw new OperationFailed("Operation Failed while trying to ExportPortlets.", new OperationFailedFault());
       }
       finally
       {
@@ -721,10 +723,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
    {
       try
       {
-         if (releaseExport != null)
+         if (releaseExport != null && releaseExport.getExportContext() != null)
          {
-            ExportContext exportContext = producer.getExportManager().createExportContext(releaseExport.getExportContext());
-            producer.getExportManager().releaseExport(exportContext);
+            producer.getExportManager().releaseExport(releaseExport.getExportContext());
          }
       }
       catch (Exception e)
@@ -739,8 +740,14 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       return new ReturnAny().getExtensions();
    }
 
-   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration
+   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration, OperationNotSupported
    {
+      //this method is only valid if the producer can handle exporting by reference.
+      if (producer.getExportManager().getPersistenceManager() == null)
+      {
+         WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "This producer does not support export by reference.", null);
+      }
+      
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(setExportLifetime, "setExportLifetimePortlets");
 
       byte[] exportContextBytes = setExportLifetime.getExportContext();

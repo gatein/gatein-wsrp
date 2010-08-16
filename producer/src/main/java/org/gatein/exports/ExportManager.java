@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.gatein.exports.data.ExportContext;
+import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -57,6 +58,6 @@ public interface ExportManager
 
    Lifetime setExportLifetime(ExportContext exportContext, Lifetime lifetime) throws OperationFailed, OperationNotSupported;
 
-   void releaseExport(ExportContext exportContext);
+   void releaseExport(byte[] bytes) throws IOException;
 }
 

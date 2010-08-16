@@ -147,7 +147,6 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
             // so we need to wait for the proper case to init the registration context... Hackish! :(
             if (index == 0)
             {
-               System.out.println("REGISTRATIONCONTEXT : " + releaseSessions.getRegistrationContext());
                releaseSessions.setRegistrationContext(registerConsumer());
             }
          }

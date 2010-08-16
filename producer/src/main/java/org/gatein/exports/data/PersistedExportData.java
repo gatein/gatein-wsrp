@@ -36,10 +36,11 @@ public class PersistedExportData extends ExportData
 {
    protected final String type;
    protected final String refID;
-   protected static final double VERSION = 1.0;
    
    protected static final String REFIDKEY = "rID";
    protected static final String TYPEKEY = "type";
+   
+   protected double version = 1.0;
    
    public PersistedExportData(String type, String refID)
    {
@@ -54,14 +55,24 @@ public class PersistedExportData extends ExportData
 
    public double getVersion()
    {
-      return VERSION;
+      return version;
+   }
+   
+   public String getRefId()
+   {
+      return refID;
+   }
+   
+   public void setVersion(double version)
+   {
+      this.version = version;
    }
 
    protected byte[] internalEncodeAsBytes() throws UnsupportedEncodingException
    {
       ParametersStateString parameterStateString = ParametersStateString.create();
 
-      parameterStateString.setValue(REFIDKEY, REFIDKEY);
+      parameterStateString.setValue(REFIDKEY, refID);
       parameterStateString.setValue(TYPEKEY, type);
       
       String stateString = parameterStateString.getStringValue();

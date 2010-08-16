@@ -31,6 +31,7 @@ import org.gatein.exports.ExportPersistenceManager;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
+import org.gatein.exports.data.PersistedExportData;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -78,6 +79,11 @@ public class ExportManagerImpl implements ExportManager
       return supportExportByValue;
    }
    
+   public void setPreferExportByValue(boolean preferExportByValue)
+   {
+      this.preferExportByValue = preferExportByValue;
+   }
+   
    public ExportContext createExportContext(byte[] bytes) throws OperationFailed
    {
       try
@@ -88,6 +94,10 @@ public class ExportManagerImpl implements ExportManager
       {
          byte[] internalBytes = ExportData.getInternalBytes(bytes);
          return ExportContext.create(internalBytes);
+      }
+      else if (exportPersistenceManager != null && exportPersistenceManager.supports(type, version))
+      {
+         return exportPersistenceManager.getExportContext(type, version, ExportData.getInternalBytes(bytes));
       }
       else
       {
@@ -144,7 +154,7 @@ public class ExportManagerImpl implements ExportManager
       }
       else
       {
-         throw new NotYetImplemented();
+         return exportPersistenceManager.encodeExportPortletData(exportContextData, exportPortletData);
       }
    }
 
@@ -156,30 +166,35 @@ public class ExportManagerImpl implements ExportManager
       }
       else
       {
-         throw new NotYetImplemented();
+         return exportPersistenceManager.encodeExportContextData(exportContextData);
       }
    }
 
    public Lifetime setExportLifetime(ExportContext exportContext, Lifetime lifetime) throws OperationFailed, OperationNotSupported
    {
-      if (exportContext.isExportByValue())
-      {
-         WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot set the lifetime for an export that was exported by value.", null);
-      }
       if (getPersistenceManager() == null)
       {
          WSRPExceptionFactory.throwWSException(OperationNotSupported.class, "The producer only supports export by value. Cannot call setExportLifetime on this producer", null);
       }
-      
+      else if (exportContext.isExportByValue())
+      {
+         WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot set the lifetime for an export that was exported by value.", null);
+      }
+
       return getPersistenceManager().updateExportLifetime(exportContext, lifetime);
    }
 
-   public void releaseExport(ExportContext exportContext)
+   public void releaseExport(byte[] bytes) throws IOException
    {
       //TODO: since we can't return any errors, we should at least log messages if this method is called and it can't be completed for some reason.
-      if (exportContext != null && !exportContext.isExportByValue() && exportPersistenceManager!= null)
+      if (bytes != null && bytes.length > 0 && exportPersistenceManager!= null)
       {
-         exportPersistenceManager.releaseExport(exportContext);
+         String type = ExportData.getType(bytes);
+         double version = ExportData.getVersion(bytes);
+         if (exportPersistenceManager.supports(type, version))
+         {
+            exportPersistenceManager.releaseExport(ExportData.getInternalBytes(bytes));
+         }
       }
    }
    

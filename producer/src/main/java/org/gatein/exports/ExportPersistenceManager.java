@@ -22,6 +22,9 @@
  ******************************************************************************/
 package org.gatein.exports;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
 import org.oasis.wsrp.v2.Lifetime;
@@ -31,8 +34,7 @@ import org.oasis.wsrp.v2.Lifetime;
  * @version $Revision$
  */
 public interface ExportPersistenceManager
-{
-
+{  
    String storeExportContextData(ExportContext exportContextData);
 
    String storeExportPortletData(ExportPortletData exportPortletData);
@@ -43,6 +45,32 @@ public interface ExportPersistenceManager
 
    Lifetime updateExportLifetime(ExportContext exportContext, Lifetime lifetime);
 
-   void releaseExport(ExportContext exportContext);
+   void releaseExport(byte[] bytes);
+
+   /**
+    * Returns true if the PersistenceManager knows how to decode a byte array with
+    * the specified type and version.
+    * 
+    * @param type The type of export
+    * @param version The version of the export
+    * @return True if the persistence manager can support the specified type and version.
+    */
+   boolean supports(String type, double version);
+
+   /**
+    * Based on the specified type and version, the bytes will be 
+    * decoded into an ExportContext.
+    * 
+    * @param type The type
+    * @param version The version
+    * @param bytes The bytes to decode
+    * @return
+    * @throws UnsupportedEncodingException 
+    */
+   ExportContext getExportContext(String type, double version, byte[] bytes) throws UnsupportedEncodingException;
+
+   byte[] encodeExportPortletData(ExportContext exportContext, ExportPortletData exportPortlet);
+
+   byte[] encodeExportContextData(ExportContext exportContext) throws IOException;
 }
 
