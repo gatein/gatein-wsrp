@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ContentInfo;
 import org.gatein.common.util.ParameterValidation;
@@ -38,6 +38,7 @@ import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;

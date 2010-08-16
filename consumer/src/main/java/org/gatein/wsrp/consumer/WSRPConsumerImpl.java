@@ -46,6 +46,8 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
@@ -392,19 +394,19 @@ public class WSRPConsumerImpl implements WSRPConsumer
    }
 
    public PortletContext exportPortlet(PortletStateType stateType, PortletContext originalPortletContext)
-         throws PortletInvokerException
+      throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
-   
+
    public PortletContext importPortlet(PortletStateType stateType, PortletContext originalPortletContext)
-         throws PortletInvokerException
+      throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
 
    // Accessors ********************************************************************************************************
-   
+
    public String getProducerId()
    {
       return producerInfo.getId();
@@ -427,12 +429,12 @@ public class WSRPConsumerImpl implements WSRPConsumer
     * @return
     * @since 2.6
     */
-   static PortletContext getPortletContext(PortletInvocation invocation)
+   public static PortletContext getPortletContext(PortletInvocation invocation)
    {
       return invocation.getTarget();
    }
 
-   WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException
+   public WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException
    {
       return (WSRPPortletInfo)getWSRPPortlet(getPortletContext(invocation)).getInfo();
    }
@@ -460,7 +462,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    // Registration *****************************************************************************************************
 
-   void handleInvalidRegistrationFault() throws PortletInvokerException
+   public void handleInvalidRegistrationFault() throws PortletInvokerException
    {
       // reset registration data and try again
       producerInfo.resetRegistration();
@@ -625,7 +627,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    // fix-me!
 
-   org.oasis.wsrp.v2.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public org.oasis.wsrp.v2.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // first decide if we need to pass the user context...
       WSRPPortletInfo info = getPortletInfo(invocation);
@@ -651,7 +653,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return null;
    }
 
-   void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // todo: could store templates in producer session info to avoid to re-generate them all the time?
       WSRPPortletInfo info = getPortletInfo(invocation);
@@ -666,13 +668,13 @@ public class WSRPConsumerImpl implements WSRPConsumer
       }
    }
 
-   static HttpServletRequest getHttpRequest(PortletInvocation invocation)
+   public static HttpServletRequest getHttpRequest(PortletInvocation invocation)
    {
       AbstractPortletInvocationContext invocationContext = (AbstractPortletInvocationContext)invocation.getContext();
       return invocationContext.getClientRequest();
    }
 
-   static HttpSession getHttpSession(PortletInvocation invocation)
+   public static HttpSession getHttpSession(PortletInvocation invocation)
    {
       return getHttpRequest(invocation).getSession();
    }

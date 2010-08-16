@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -28,8 +28,8 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.api.SessionEventListener;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.gatein.wsrp.consumer.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.RefreshResult;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 import javax.servlet.http.HttpSession;
 
@@ -53,7 +53,7 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
     *
     * @param invocation a portlet invocation from which the session information should be extracted.
     * @return the session information for the producer associated with this consumer.
-    * @see ProducerSessionInformation
+    * @see org.gatein.wsrp.consumer.handlers.ProducerSessionInformation
     */
    ProducerSessionInformation getProducerSessionInformationFrom(PortletInvocation invocation);
 
@@ -62,7 +62,7 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
     *
     * @param session the session from the information should be extracted.
     * @return the session information for the producer associated with this consumer.
-    * @see ProducerSessionInformation
+    * @see org.gatein.wsrp.consumer.handlers.ProducerSessionInformation
     */
    ProducerSessionInformation getProducerSessionInformationFrom(HttpSession session);
 

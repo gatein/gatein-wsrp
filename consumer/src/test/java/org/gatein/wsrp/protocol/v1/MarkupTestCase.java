@@ -40,7 +40,7 @@ import org.gatein.pc.portlet.impl.spi.AbstractSecurityContext;
 import org.gatein.pc.portlet.impl.spi.AbstractUserContext;
 import org.gatein.pc.portlet.impl.spi.AbstractWindowContext;
 import org.gatein.wsrp.WSRPResourceURL;
-import org.gatein.wsrp.consumer.ProducerSessionInformation;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.behaviors.BasicMarkupBehavior;
@@ -67,7 +67,6 @@ import org.oasis.wsrp.v1.V1ResourceList;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -182,7 +181,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
 
       ExtendedAssert.assertFalse(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
-      
+
       ExtendedAssert.assertNotNull(sessionInfo.getUserCookie());
 
       ExtendedAssert.assertEquals(1, behavior.getInitCookieCallCount());
@@ -219,7 +218,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
 
       String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
       String expectedResult = "<img src='Resource id=" + resourceID + " ns=null ws=null m=null'/>";
-      
+
       //NOTE: the value we get back is from the TestPortletInvocationContext, not what we would normally receive
       checkRenderResult(response, expectedResult);
    }

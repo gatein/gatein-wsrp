@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.consumer.ProducerSessionInformationTestCase">Chris

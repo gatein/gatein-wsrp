@@ -24,7 +24,7 @@
 package org.gatein.wsrp.handler;
 
 import org.apache.commons.httpclient.Cookie;
-import org.gatein.wsrp.consumer.ProducerSessionInformation;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MimeHeaders;

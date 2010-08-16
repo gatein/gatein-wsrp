@@ -30,14 +30,13 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.gatein.wsrp.consumer.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.RefreshResult;
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -171,13 +170,13 @@ public class MockWSRPConsumer implements WSRPConsumer
    }
 
    public PortletContext exportPortlet(PortletStateType stateType, PortletContext originalPortletContext)
-         throws PortletInvokerException
+      throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
-   
+
    public PortletContext importPortlet(PortletStateType stateType, PortletContext originalPortletContext)
-   throws PortletInvokerException
+      throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }

@@ -42,7 +42,6 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
-import org.gatein.wsrp.consumer.InvocationHandler;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;

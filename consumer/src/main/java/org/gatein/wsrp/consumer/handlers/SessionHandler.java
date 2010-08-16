@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.InvokerUnavailableException;
@@ -30,6 +30,7 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.api.SessionEventListener;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.servlet.UserAccess;
@@ -230,7 +231,7 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
-   ProducerSessionInformation getProducerSessionInformation(PortletInvocation invocation)
+   public ProducerSessionInformation getProducerSessionInformation(PortletInvocation invocation)
    {
       return getProducerSessionInformation(invocation, true);
    }
@@ -241,7 +242,7 @@ public class SessionHandler implements SessionEventListener
       return getProducerSessionInformation(session, create);
    }
 
-   ProducerSessionInformation getProducerSessionInformation(HttpSession session)
+   public ProducerSessionInformation getProducerSessionInformation(HttpSession session)
    {
       return getProducerSessionInformation(session, false);
    }
@@ -314,7 +315,7 @@ public class SessionHandler implements SessionEventListener
    }
 
    /** @since 2.6 */
-   void releaseSessions() throws PortletInvokerException
+   public void releaseSessions() throws PortletInvokerException
    {
       List<String> idsToRelease = new ArrayList<String>();
 

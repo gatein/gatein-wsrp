@@ -32,7 +32,6 @@ import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.consumer.InvocationHandler;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;

@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.util.ParameterValidation;

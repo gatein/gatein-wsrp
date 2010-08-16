@@ -38,7 +38,6 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
-import org.gatein.wsrp.consumer.InvocationHandler;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.CacheControl;

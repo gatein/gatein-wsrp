@@ -30,7 +30,6 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.consumer.InvocationHandler;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Event;
