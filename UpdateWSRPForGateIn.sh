@@ -35,7 +35,7 @@ echo Using GateIn home at: $GATEIN_EAR_HOME
 
 if [ -z "$JBOSS_TEST_HOME" -o ! -d "$JBOSS_TEST_HOME" ]
 then
-   echo \=\=\> Please set JBOSS_TEST_HOME to point an installation directory of JBoss AS 5.1.x to be used for tests
+   echo \=\=\> Please set JBOSS_TEST_HOME to point the root directory of a clean install of JBoss AS 5.1.x to be used for tests
    exit
 fi
 echo Using JBoss AS home at: $JBOSS_TEST_HOME
