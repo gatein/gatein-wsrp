@@ -21,29 +21,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.protocol.v2;
 
 import junit.framework.TestCase;
+import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
+import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.protocol.v1.BehaviorBackedServiceFactory;
-import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
-import org.gatein.wsrp.test.protocol.v1.MarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.PortletManagementBehavior;
-import org.gatein.wsrp.test.protocol.v1.RegistrationBehavior;
-import org.gatein.wsrp.test.protocol.v1.ServiceDescriptionBehavior;
-import org.gatein.wsrp.test.protocol.v1.TestProducerBehavior;
-import org.gatein.wsrp.test.protocol.v1.TestWSRPProducer;
-import org.gatein.wsrp.test.protocol.v1.TestWSRPProducerImpl;
-import org.gatein.wsrp.test.protocol.v1.behaviors.BasicMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.BasicPortletManagementBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.BasicServiceDescriptionBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.EmptyMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.InitCookieNotRequiredMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.NullMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.PerGroupInitCookieMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.PerUserInitCookieMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.ResourceMarkupBehavior;
-import org.gatein.wsrp.test.protocol.v1.behaviors.SessionMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
+import org.gatein.wsrp.test.protocol.v2.RegistrationBehavior;
+import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
+import org.gatein.wsrp.test.protocol.v2.TestProducerBehavior;
+import org.gatein.wsrp.test.protocol.v2.TestWSRPProducer;
+import org.gatein.wsrp.test.protocol.v2.TestWSRPProducerImpl;
+import org.gatein.wsrp.test.protocol.v2.behaviors.BasicMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.BasicPortletManagementBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.BasicServiceDescriptionBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.EmptyMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.InitCookieNotRequiredMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.NullMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.PerGroupInitCookieMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.PerUserInitCookieMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.ResourceMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.SessionMarkupBehavior;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +56,9 @@ import java.util.Set;
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
  * @version $Revision: 11344 $
  */
-public abstract class WSRPConsumerBaseTest extends TestCase
+public abstract class WSRP2ConsumerBaseTest extends TestCase
 {
-   private static Logger log = LoggerFactory.getLogger(WSRPConsumerBaseTest.class);
+   private static Logger log = LoggerFactory.getLogger(WSRP2ConsumerBaseTest.class);
 
    /** . */
    private static final String TEST_PRODUCER_ID = "test_producer";
@@ -68,10 +70,6 @@ public abstract class WSRPConsumerBaseTest extends TestCase
    protected WSRPConsumerImpl consumer = new WSRPConsumerImpl();
 
    private boolean strict = true;
-   private String sdClassName;
-   private String mClassName;
-   private String pmClassName;
-   private String rClassName;
    protected static String requestedMarkupBehavior;
 
 
@@ -86,10 +84,9 @@ public abstract class WSRPConsumerBaseTest extends TestCase
 
       // reset the behaviors
       BehaviorRegistry registry = producer.getBehaviorRegistry();
-      setSDClassName(sdClassName);
-      setMClassName(mClassName);
-      setPMClassName(pmClassName);
-      setRClassName(rClassName);
+      setServiceDescriptionBehavior(null);
+      setPortletManagementBehavior(null);
+      setRegistrationBehavior(null);
       registerAdditionalMarkupBehaviors(registry);
 
       // use a fresh ConsumerRegistry
@@ -114,7 +111,7 @@ public abstract class WSRPConsumerBaseTest extends TestCase
    {
       if (behavior == null)
       {
-         log.info("Given service description behavior was null, using the default one instead!");
+         log.debug("Given service description behavior was null, using the default one instead!");
          behavior = new BasicServiceDescriptionBehavior();
       }
 
@@ -127,7 +124,7 @@ public abstract class WSRPConsumerBaseTest extends TestCase
 
       if (behavior == null)
       {
-         log.info("Given portlet management behavior was null, using the default one instead!");
+         log.debug("Given portlet management behavior was null, using the default one instead!");
          behavior = new BasicPortletManagementBehavior(registry);
       }
 
@@ -137,33 +134,6 @@ public abstract class WSRPConsumerBaseTest extends TestCase
    public void testProducerId()
    {
       ExtendedAssert.assertEquals(TEST_PRODUCER_ID, consumer.getProducerId());
-   }
-
-   public void setSDClassName(String behaviorClassName)
-   {
-      sdClassName = behaviorClassName;
-      setServiceDescriptionBehavior(createBehavior(behaviorClassName, ServiceDescriptionBehavior.class));
-   }
-
-   public void setMClassName(String behaviorClassName)
-   {
-      mClassName = behaviorClassName;
-      if (behaviorClassName != null)
-      {
-         producer.getBehaviorRegistry().registerMarkupBehavior(createBehavior(behaviorClassName, MarkupBehavior.class));
-      }
-   }
-
-   public void setPMClassName(String behaviorClassName)
-   {
-      pmClassName = behaviorClassName;
-      setPortletManagementBehavior(createBehavior(behaviorClassName, PortletManagementBehavior.class));
-   }
-
-   public void setRClassName(String behaviorClassName)
-   {
-      rClassName = behaviorClassName;
-      setRegistrationBehavior(createBehavior(behaviorClassName, RegistrationBehavior.class));
    }
 
    public void setStrict(boolean strict)

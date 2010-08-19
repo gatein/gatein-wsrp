@@ -143,13 +143,20 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
          WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandles, "portlet handles", "DestroyPortlets");
       }
 
+      List<FailedPortlets> failedPortletsList = failedPortlets.value;
+      if (failedPortletsList == null)
+      {
+         failedPortletsList = new ArrayList<FailedPortlets>();
+         failedPortlets.value = failedPortletsList;
+      }
+
       for (String handle : portletHandles)
       {
          if (!CLONED_HANDLE.equals(handle))
          {
             ArrayList<String> failed = new ArrayList<String>();
             failed.add(handle);
-            failedPortlets.value.add(WSRPTypeFactory.createFailedPortlets(failed, ErrorCodes.Codes.OPERATIONFAILED, "Handle '" + handle + "' doesn't exist"));
+            failedPortletsList.add(WSRPTypeFactory.createFailedPortlets(failed, ErrorCodes.Codes.OPERATIONFAILED, "Handle '" + handle + "' doesn't exist"));
          }
       }
    }

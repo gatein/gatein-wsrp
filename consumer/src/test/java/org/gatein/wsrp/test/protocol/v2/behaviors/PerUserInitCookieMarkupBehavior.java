@@ -23,7 +23,24 @@
 
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
+import org.gatein.wsrp.handler.RequestHeaderClientHandler;
+import org.gatein.wsrp.test.handler.MockSOAPMessage;
+import org.gatein.wsrp.test.handler.MockSOAPMessageContext;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
+import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.UserContext;
+
+import javax.jws.WebParam;
+import javax.xml.soap.MimeHeaders;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -41,5 +58,22 @@ public class PerUserInitCookieMarkupBehavior extends InitCookieMarkupBehavior
    protected void initPortletHandle()
    {
       portletHandle = PER_USER_INIT_COOKIE_HANDLE;
+   }
+
+   @Override
+   public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+   {
+      //Set the Cookie through the RequestHeaderClientHandler manually here since we use a test BehaviourBackedServiceFactory instead
+      //of the real SOAPServiceFactory.
+      MockSOAPMessage message = new MockSOAPMessage();
+      SOAPMessageContext msgContext = MockSOAPMessageContext.createMessageContext(message, getClass().getClassLoader());
+      MimeHeaders headers = new MimeHeaders();
+      headers.setHeader("Set-Cookie", "name=value");
+      message.setMimeHeaders(headers);
+
+      RequestHeaderClientHandler rhch = new RequestHeaderClientHandler();
+      rhch.handleResponse(msgContext);
+
+      return super.initCookie(registrationContext, userContext);
    }
 }

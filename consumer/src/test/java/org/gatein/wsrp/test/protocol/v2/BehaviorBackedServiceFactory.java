@@ -26,6 +26,7 @@ package org.gatein.wsrp.test.protocol.v2;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
+import org.gatein.wsrp.protocol.v2.WSRP2ConsumerBaseTest;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.services.PortletManagementService;
 import org.gatein.wsrp.services.RegistrationService;
@@ -63,10 +64,6 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 {
    private BehaviorRegistry registry;
    private final static String MARKUP = "markup";
-   private final static String SD_URL = "sd";
-   private final static String M_URL = "m";
-   private final static String PM_URL = "pm";
-   private final static String R_URL = "r";
    private boolean initialized = false;
    private String wsdl = DEFAULT_WSDL_URL;
    public static final String DEFAULT_WSDL_URL = "http://example.com/producer?wsdl";
@@ -75,7 +72,12 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public BehaviorBackedServiceFactory()
    {
-      registry = new BehaviorRegistry();
+      this(new BehaviorRegistry());
+   }
+
+   public BehaviorBackedServiceFactory(BehaviorRegistry registry)
+   {
+      this.registry = registry;
       registry.registerMarkupBehavior(new SimpleMarkupBehavior());
    }
 
@@ -92,7 +94,12 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       }
       if (WSRPV2MarkupPortType.class.isAssignableFrom(serviceClass))
       {
-         return (T)registry.getMarkupBehaviorFor(MARKUP);
+         String requestedMarkupBehavior = WSRP2ConsumerBaseTest.getRequestedMarkupBehavior();
+         if (requestedMarkupBehavior == null)
+         {
+            requestedMarkupBehavior = MARKUP;
+         }
+         return (T)registry.getMarkupBehaviorFor(requestedMarkupBehavior);
       }
       if (WSRPV2PortletManagementPortType.class.isAssignableFrom(serviceClass))
       {

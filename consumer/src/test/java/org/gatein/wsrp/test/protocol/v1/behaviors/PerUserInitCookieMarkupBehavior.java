@@ -23,11 +23,6 @@
 
 package org.gatein.wsrp.test.protocol.v1.behaviors;
 
-import java.util.List;
-
-import javax.xml.soap.MimeHeaders;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
-
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.test.handler.MockSOAPMessage;
 import org.gatein.wsrp.test.handler.MockSOAPMessageContext;
@@ -37,6 +32,10 @@ import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1RegistrationContext;
+
+import javax.xml.soap.MimeHeaders;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -55,10 +54,10 @@ public class PerUserInitCookieMarkupBehavior extends InitCookieMarkupBehavior
    {
       portletHandle = PER_USER_INIT_COOKIE_HANDLE;
    }
-   
+
    @Override
    public List<V1Extension> initCookie(V1RegistrationContext registrationContext) throws V1InvalidRegistration,
-         V1AccessDenied, V1OperationFailed
+      V1AccessDenied, V1OperationFailed
    {
       //Set the Cookie through the RequestHeaderClientHandler manually here since we use a test BehaviourBackedServiceFactory instead
       //of the real SOAPServiceFactory.
@@ -67,12 +66,10 @@ public class PerUserInitCookieMarkupBehavior extends InitCookieMarkupBehavior
       MimeHeaders headers = new MimeHeaders();
       headers.setHeader("Set-Cookie", "name=value");
       message.setMimeHeaders(headers);
-      
+
       RequestHeaderClientHandler rhch = new RequestHeaderClientHandler();
       rhch.handleResponse(msgContext);
-      
+
       return super.initCookie(registrationContext);
    }
-   
-   
 }

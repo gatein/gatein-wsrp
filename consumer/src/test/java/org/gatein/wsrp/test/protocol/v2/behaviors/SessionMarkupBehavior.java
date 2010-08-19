@@ -50,6 +50,7 @@ import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
@@ -86,7 +87,15 @@ public class SessionMarkupBehavior extends MarkupBehavior
    public String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup)
    {
       StringBuffer markupString = new StringBuffer("portlet2:");
-      sessionId = getMarkup.getRuntimeContext().getSessionParams().getSessionID();
+      SessionParams sessionParams = getMarkup.getRuntimeContext().getSessionParams();
+      if (sessionParams != null)
+      {
+         sessionId = sessionParams.getSessionID();
+      }
+      else
+      {
+         sessionId = null;
+      }
 
       // if we have a session, increments count to simulate session usage
       if (SESSION_ID.equals(sessionId))

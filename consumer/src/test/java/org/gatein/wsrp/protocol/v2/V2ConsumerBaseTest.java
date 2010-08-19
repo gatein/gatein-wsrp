@@ -20,20 +20,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.gatein.wsrp.protocol.v1;
+package org.gatein.wsrp.protocol.v2;
 
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.protocol.v1.TestProducerBehavior;
+import org.gatein.wsrp.test.protocol.v2.TestProducerBehavior;
 
 /**
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
  * @version $Revision: 11320 $
  */
-public class V1ConsumerBaseTest extends WSRP1ConsumerBaseTest
+public class V2ConsumerBaseTest extends WSRP2ConsumerBaseTest
 {
-   public V1ConsumerBaseTest() throws Exception
+   public V2ConsumerBaseTest() throws Exception
    {
    }
 
