@@ -49,7 +49,6 @@ import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
-import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.io.BufferedInputStream;
@@ -73,7 +72,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       super(consumer);
    }
 
-   @Override
+   /*@Override
    protected void updateUserContext(PerformBlockingInteraction performBlockingInteraction, UserContext userContext)
    {
       performBlockingInteraction.setUserContext(userContext);
@@ -83,7 +82,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
    protected void updateRegistrationContext(PerformBlockingInteraction performBlockingInteraction) throws PortletInvokerException
    {
       performBlockingInteraction.setRegistrationContext(consumer.getRegistrationContext());
-   }
+   }*/
 
    @Override
    protected RuntimeContext getRuntimeContextFrom(PerformBlockingInteraction performBlockingInteraction)
@@ -258,8 +257,8 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       }
 
       // Create the blocking action request
-      return WSRPTypeFactory.createPerformBlockingInteraction(portletContext, requestPrecursor.getRuntimeContext(),
-         requestPrecursor.getMarkupParams(), interactionParams);
+      return WSRPTypeFactory.createPerformBlockingInteraction(requestPrecursor.getRegistrationContext(), portletContext,
+         requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams(), interactionParams);
    }
 
    protected PortletInvocationResponse processResponse(BlockingInteractionResponse response, ActionInvocation invocation, RequestPrecursor<ActionInvocation> requestPrecursor) throws PortletInvokerException

@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
@@ -37,7 +36,6 @@ import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
-import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -86,10 +84,11 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
       {
          log.debug("Consumer about to attempt rendering portlet '" + portletContext.getPortletHandle() + "'");
       }
-      return WSRPTypeFactory.createMarkupRequest(portletContext, requestPrecursor.getRuntimeContext(), requestPrecursor.getMarkupParams());
+      return WSRPTypeFactory.createGetMarkup(requestPrecursor.getRegistrationContext(), portletContext,
+         requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams());
    }
 
-   protected void updateUserContext(GetMarkup request, UserContext userContext)
+   /*protected void updateUserContext(GetMarkup request, UserContext userContext)
    {
       request.setUserContext(userContext);
    }
@@ -97,7 +96,7 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
    protected void updateRegistrationContext(GetMarkup request) throws PortletInvokerException
    {
       request.setRegistrationContext(consumer.getRegistrationContext());
-   }
+   }*/
 
    protected RuntimeContext getRuntimeContextFrom(GetMarkup request)
    {

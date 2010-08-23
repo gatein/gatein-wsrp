@@ -107,9 +107,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    {
       forceSessionAccess();
 
-      HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(portletContext, runtimeContext, markupParams, eventParams);
-      handleEvents.setRegistrationContext(registrationContext);
-      handleEvents.setUserContext(userContext);
+      HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(registrationContext, portletContext, runtimeContext, userContext, markupParams, eventParams);
 
       HandleEventsResponse response = producer.handleEvents(handleEvents);
 

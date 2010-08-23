@@ -42,7 +42,6 @@ import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UpdateResponse;
-import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
@@ -61,7 +60,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       super(consumer);
    }
 
-   @Override
+   /*@Override
    protected void updateUserContext(HandleEvents request, UserContext userContext)
    {
       request.setUserContext(userContext);
@@ -71,7 +70,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
    protected void updateRegistrationContext(HandleEvents request) throws PortletInvokerException
    {
       request.setRegistrationContext(consumer.getRegistrationContext());
-   }
+   }*/
 
    @Override
    protected RuntimeContext getRuntimeContextFrom(HandleEvents request)
@@ -129,8 +128,8 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       Event event = WSRPTypeFactory.createEvent(name, payload);
       EventParams eventParams = WSRPTypeFactory.createEventParams(Collections.singletonList(event), WSRPUtils.getStateChangeFromAccessMode(accessMode));
 
-      return WSRPTypeFactory.createHandleEvents(portletContext, requestPrecursor.getRuntimeContext(),
-         requestPrecursor.getMarkupParams(), eventParams);
+      return WSRPTypeFactory.createHandleEvents(requestPrecursor.getRegistrationContext(), portletContext,
+         requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams(), eventParams);
    }
 
    @Override

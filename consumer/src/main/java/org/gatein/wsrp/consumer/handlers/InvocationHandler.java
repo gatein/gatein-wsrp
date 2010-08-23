@@ -46,6 +46,7 @@ import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UserContext;
 import org.slf4j.Logger;
@@ -136,7 +137,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          SessionHandler sessionHandler = consumer.getSessionHandler();
 
          // prepare everything for the request
-         updateRegistrationContext(request);
+//         updateRegistrationContext(request);
          RuntimeContext runtimeContext = getRuntimeContextFrom(request);
 
          if (runtimeContext != null)
@@ -147,7 +148,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             InstanceContext instanceContext = invocation.getInstanceContext();
             runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
 
-            updateUserContext(request, consumer.getUserContextFrom(invocation, runtimeContext));
+//            updateUserContext(request, consumer.getUserContextFrom(invocation, runtimeContext));
             consumer.setTemplatesIfNeeded(invocation, runtimeContext);
          }
 
@@ -280,9 +281,9 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
    }
 
-   protected abstract void updateUserContext(Request request, UserContext userContext);
+//   protected abstract void updateUserContext(Request request, UserContext userContext);
 
-   protected abstract void updateRegistrationContext(Request request) throws PortletInvokerException;
+//   protected abstract void updateRegistrationContext(Request request) throws PortletInvokerException;
 
    protected abstract RuntimeContext getRuntimeContextFrom(Request request);
 
@@ -306,6 +307,8 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       private PortletContext portletContext;
       private RuntimeContext runtimeContext;
       private MarkupParams markupParams;
+      private RegistrationContext registrationContext;
+      private UserContext userContext;
       private static final String PORTLET_HANDLE = "portlet handle";
       private static final String SECURITY_CONTEXT = "security context";
       private static final String USER_CONTEXT = "user context";
@@ -323,11 +326,18 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             log.debug("About to invoke on portlet: " + getPortletHandle());
          }
 
+         // registration context
+         registrationContext = wsrpConsumer.getRegistrationContext();
+
+
          // create runtime context
          SecurityContext securityContext = invocation.getSecurityContext();
          ParameterValidation.throwIllegalArgExceptionIfNull(securityContext, SECURITY_CONTEXT);
          String authType = WSRPUtils.convertRequestAuthTypeToWSRPAuthType(securityContext.getAuthType());
-         setRuntimeContext(WSRPTypeFactory.createRuntimeContext(authType));
+         runtimeContext = WSRPTypeFactory.createRuntimeContext(authType);
+
+         // user context
+         userContext = wsrpConsumer.getUserContextFrom(invocation, runtimeContext);
 
          // set the session id if needed
          wsrpConsumer.getSessionHandler().setSessionIdIfNeeded(invocation, getRuntimeContext(), getPortletHandle());
@@ -364,9 +374,9 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             windowState = WSRPConstants.NORMAL_WINDOW_STATE;
          }
 
-         setMarkupParams(WSRPTypeFactory.createMarkupParams(securityContext.isSecure(),
+         this.markupParams = WSRPTypeFactory.createMarkupParams(securityContext.isSecure(),
             WSRPUtils.convertLocalesToRFC3066LanguageTags(userContext.getLocales()),
-            Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState));
+            Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState);
          String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
          getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
 
@@ -393,24 +403,24 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          return portletContext;
       }
 
+      public RegistrationContext getRegistrationContext()
+      {
+         return registrationContext;
+      }
+
+      public UserContext getUserContext()
+      {
+         return userContext;
+      }
+
       public RuntimeContext getRuntimeContext()
       {
          return runtimeContext;
       }
 
-      private void setRuntimeContext(RuntimeContext runtimeContext)
-      {
-         this.runtimeContext = runtimeContext;
-      }
-
       public MarkupParams getMarkupParams()
       {
          return markupParams;
-      }
-
-      private void setMarkupParams(MarkupParams markupParams)
-      {
-         this.markupParams = markupParams;
       }
    }
 }

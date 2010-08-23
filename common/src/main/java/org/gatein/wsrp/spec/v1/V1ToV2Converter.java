@@ -886,12 +886,10 @@ public class V1ToV2Converter
          PortletContext portletContext = toV2PortletContext(getMarkup.getPortletContext());
          RuntimeContext runtimeContext = toV2RuntimeContext(getMarkup.getRuntimeContext());
          MarkupParams markupParams = toV2MarkupParams(getMarkup.getMarkupParams());
-         GetMarkup result = WSRPTypeFactory.createMarkupRequest(portletContext, runtimeContext, markupParams);
+         RegistrationContext registrationContext = toV2RegistrationContext(getMarkup.getRegistrationContext());
+         UserContext userContext = toV2UserContext(getMarkup.getUserContext());
 
-         result.setRegistrationContext(toV2RegistrationContext(getMarkup.getRegistrationContext()));
-         result.setUserContext(toV2UserContext(getMarkup.getUserContext()));
-
-         return result;
+         return WSRPTypeFactory.createGetMarkup(registrationContext, portletContext, runtimeContext, userContext, markupParams);
       }
       else
       {
@@ -941,12 +939,8 @@ public class V1ToV2Converter
          PortletContext portletContext = toV2PortletContext(performBlockingInteraction.getPortletContext());
          RuntimeContext runtimeContext = toV2RuntimeContext(performBlockingInteraction.getRuntimeContext());
 
-         PerformBlockingInteraction result = WSRPTypeFactory.createPerformBlockingInteraction(portletContext, runtimeContext, markupParams, interactionParams);
-
-         result.setRegistrationContext(toV2RegistrationContext(performBlockingInteraction.getRegistrationContext()));
-         result.setUserContext(toV2UserContext(performBlockingInteraction.getUserContext()));
-
-         return result;
+         return WSRPTypeFactory.createPerformBlockingInteraction(toV2RegistrationContext(performBlockingInteraction.getRegistrationContext()),
+            portletContext, runtimeContext, toV2UserContext(performBlockingInteraction.getUserContext()), markupParams, interactionParams);
       }
       else
       {

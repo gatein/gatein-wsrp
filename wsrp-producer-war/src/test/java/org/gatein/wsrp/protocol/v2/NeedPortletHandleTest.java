@@ -202,7 +202,7 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
     */
    protected GetMarkup createMarkupRequest(String handle) throws RemoteException, InvalidRegistration, OperationFailed
    {
-      GetMarkup getMarkup = WSRPTypeFactory.createDefaultMarkupRequest(handle);
+      GetMarkup getMarkup = WSRPTypeFactory.createDefaultGetMarkup(handle);
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
 
       return getMarkup;

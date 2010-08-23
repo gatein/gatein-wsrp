@@ -118,16 +118,13 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       forceSessionAccess();
 
       PerformBlockingInteraction performBlockingInteraction = WSRPTypeFactory.createPerformBlockingInteraction(
-         V1ToV2Converter.toV2PortletContext(portletContext),
+         V1ToV2Converter.toV2RegistrationContext(registrationContext), V1ToV2Converter.toV2PortletContext(portletContext),
          V1ToV2Converter.toV2RuntimeContext(runtimeContext),
-         V1ToV2Converter.toV2MarkupParams(markupParams),
+         V1ToV2Converter.toV2UserContext(userContext), V1ToV2Converter.toV2MarkupParams(markupParams),
          V1ToV2Converter.toV2InteractionParams(interactionParams)
       );
 
-      performBlockingInteraction.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      performBlockingInteraction.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
-
-      BlockingInteractionResponse interactionResponse = null;
+      BlockingInteractionResponse interactionResponse;
       try
       {
          interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
@@ -267,13 +264,13 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
    {
       forceSessionAccess();
 
-      GetMarkup getMarkup = WSRPTypeFactory.createMarkupRequest(
+      GetMarkup getMarkup = WSRPTypeFactory.createGetMarkup(
+         V1ToV2Converter.toV2RegistrationContext(registrationContext),
          V1ToV2Converter.toV2PortletContext(portletContext),
          V1ToV2Converter.toV2RuntimeContext(runtimeContext),
+         V1ToV2Converter.toV2UserContext(userContext),
          V1ToV2Converter.toV2MarkupParams(markupParams)
       );
-      getMarkup.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
-      getMarkup.setUserContext(V1ToV2Converter.toV2UserContext(userContext));
 
       MarkupResponse response;
       try

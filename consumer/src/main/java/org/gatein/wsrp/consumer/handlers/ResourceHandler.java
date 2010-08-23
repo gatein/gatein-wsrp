@@ -24,7 +24,6 @@
 package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.spi.InstanceContext;
@@ -43,7 +42,6 @@ import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
-import org.oasis.wsrp.v2.UserContext;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -73,7 +71,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
       return resourceResponse.getResourceContext();
    }
 
-   @Override
+   /*@Override
    protected void updateUserContext(GetResource request, UserContext userContext)
    {
       request.setUserContext(userContext);
@@ -83,7 +81,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
    protected void updateRegistrationContext(GetResource request) throws PortletInvokerException
    {
       request.setRegistrationContext(consumer.getRegistrationContext());
-   }
+   }*/
 
    @Override
    protected RuntimeContext getRuntimeContextFrom(GetResource request)
@@ -138,7 +136,8 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
          }
       }
 
-      return WSRPTypeFactory.createResourceRequest(portletContext, requestPrecursor.getRuntimeContext(), resourceParams);
+      return WSRPTypeFactory.createGetResource(requestPrecursor.getRegistrationContext(), portletContext,
+         requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), resourceParams);
    }
 
    @Override

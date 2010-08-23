@@ -160,48 +160,63 @@ public class WSRPTypeFactory
     * @param handle
     * @return
     */
-   public static GetMarkup createDefaultMarkupRequest(String handle)
+   public static GetMarkup createDefaultGetMarkup(String handle)
    {
-      return createMarkupRequest(createPortletContext(handle), createDefaultRuntimeContext(), createDefaultMarkupParams());
+      return createGetMarkup(null, createPortletContext(handle), createDefaultRuntimeContext(), null, createDefaultMarkupParams());
    }
 
    /**
-    * registrationContext(RegistrationContext)?, portletContext(PortletContext), runtimeContext(RuntimeContext),
-    * userContext(UserContext)?, markupParams(MarkupParams)
+    * {@link RegistrationContext} (nillable), {@link PortletContext}, {@link RuntimeContext}, {@link UserContext}
+    * (nillable), {@link MarkupParams}
     *
+    * @param registrationContext can be null
     * @param portletContext
     * @param runtimeContext
+    * @param userContext         can be null
     * @param markupParams
     * @return
-    * @throws IllegalArgumentException if one of the required parameters is <code>null</code>
+    * @throws IllegalArgumentException if one of the required, non-nillable parameters is <code>null</code>
     */
-   public static GetMarkup createMarkupRequest(PortletContext portletContext, RuntimeContext runtimeContext, MarkupParams markupParams)
+   public static GetMarkup createGetMarkup(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, MarkupParams markupParams)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletContext.getPortletHandle(), "portlet handle", "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(markupParams, "MarkupParams");
 
       GetMarkup getMarkup = new GetMarkup();
+      getMarkup.setRegistrationContext(registrationContext);
       getMarkup.setPortletContext(portletContext);
       getMarkup.setRuntimeContext(runtimeContext);
+      getMarkup.setUserContext(userContext);
       getMarkup.setMarkupParams(markupParams);
       return getMarkup;
    }
 
-   public static GetResource createDefaultResourceRequest(String handle, String resourceID)
+   /**
+    * {@link RegistrationContext} (nillable), {@link PortletContext}, {@link RuntimeContext}, {@link UserContext}
+    * (nillable), {@link ResourceParams}
+    *
+    * @param registrationContext can be null
+    * @param portletContext
+    * @param runtimeContext
+    * @param userContext         can be null
+    * @param resourceParams
+    * @return
+    * @throws IllegalArgumentException if one of the required, non-nillable parameters is <code>null</code>
+    */
+   public static GetResource createGetResource(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext, UserContext userContext, ResourceParams resourceParams)
    {
-      return createResourceRequest(createPortletContext(handle), createDefaultRuntimeContext(), createDefaultResourceParams(resourceID));
-   }
-
-   public static GetResource createResourceRequest(PortletContext portletContext, RuntimeContext runtimeContext, ResourceParams resourceParams)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletContext.getPortletHandle(), "portlet handle", "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
       ParameterValidation.throwIllegalArgExceptionIfNull(resourceParams, "ResourceParams");
 
       GetResource getResource = new GetResource();
+      getResource.setRegistrationContext(registrationContext);
       getResource.setPortletContext(portletContext);
       getResource.setRuntimeContext(runtimeContext);
+      getResource.setUserContext(userContext);
       getResource.setResourceParams(resourceParams);
       return getResource;
    }
@@ -215,23 +230,26 @@ public class WSRPTypeFactory
     */
    public static PerformBlockingInteraction createDefaultPerformBlockingInteraction(String portletHandle)
    {
-      return createPerformBlockingInteraction(createPortletContext(portletHandle), createDefaultRuntimeContext(), createDefaultMarkupParams(),
+      return createPerformBlockingInteraction(null, createPortletContext(portletHandle), createDefaultRuntimeContext(), null, createDefaultMarkupParams(),
          createDefaultInteractionParams());
    }
 
    /**
-    * {@link RegistrationContext}?, {@link PortletContext}, {@link RuntimeContext}, {@link UserContext}?, {@link
-    * MarkupParams}, {@link InteractionParams}
+    * {@link RegistrationContext} (nillable), {@link PortletContext}, {@link RuntimeContext}, {@link UserContext}
+    * (nillable), {@link MarkupParams}, {@link InteractionParams}
     *
+    * @param registrationContext can be null
     * @param portletContext
     * @param runtimeContext
+    * @param userContext         can be null
     * @param markupParams
     * @param interactionParams
     * @return
+    * @throws IllegalArgumentException if one of the required, non-nillable parameters is <code>null</code>
     */
    public static PerformBlockingInteraction createPerformBlockingInteraction(
-      PortletContext portletContext, RuntimeContext runtimeContext,
-      MarkupParams markupParams,
+      RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext,
+      UserContext userContext, MarkupParams markupParams,
       InteractionParams interactionParams)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
@@ -241,11 +259,44 @@ public class WSRPTypeFactory
       ParameterValidation.throwIllegalArgExceptionIfNull(interactionParams, "InteractionParams");
 
       PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
+      performBlockingInteraction.setRegistrationContext(registrationContext);
       performBlockingInteraction.setPortletContext(portletContext);
       performBlockingInteraction.setRuntimeContext(runtimeContext);
+      performBlockingInteraction.setUserContext(userContext);
       performBlockingInteraction.setMarkupParams(markupParams);
       performBlockingInteraction.setInteractionParams(interactionParams);
       return performBlockingInteraction;
+   }
+
+   /**
+    * {@link RegistrationContext} (nillable), {@link PortletContext}, {@link RuntimeContext}, {@link UserContext}
+    * (nillable), {@link MarkupParams}, {@link EventParams}
+    *
+    * @param registrationContext can be null
+    * @param portletContext
+    * @param runtimeContext
+    * @param userContext         can be null
+    * @param markupParams
+    * @param eventParams
+    * @return
+    */
+   public static HandleEvents createHandleEvents(RegistrationContext registrationContext, PortletContext portletContext, RuntimeContext runtimeContext,
+                                                 UserContext userContext, MarkupParams markupParams, EventParams eventParams)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletContext.getPortletHandle(), "portlet handle", "PortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
+      ParameterValidation.throwIllegalArgExceptionIfNull(markupParams, "MarkupParams");
+      ParameterValidation.throwIllegalArgExceptionIfNull(eventParams, "EventParams");
+
+      HandleEvents handleEvents = new HandleEvents();
+      handleEvents.setRegistrationContext(registrationContext);
+      handleEvents.setPortletContext(portletContext);
+      handleEvents.setRuntimeContext(runtimeContext);
+      handleEvents.setUserContext(userContext);
+      handleEvents.setMarkupParams(markupParams);
+      handleEvents.setEventParams(eventParams);
+      return handleEvents;
    }
 
    /**
@@ -1298,23 +1349,6 @@ public class WSRPTypeFactory
    public static HandleEventsResponse createHandleEventsReponse()
    {
       return new HandleEventsResponse();
-   }
-
-   public static HandleEvents createHandleEvents(PortletContext portletContext, RuntimeContext runtimeContext,
-                                                 MarkupParams markupParams, EventParams eventParams)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletContext.getPortletHandle(), "portlet handle", "PortletContext");
-      ParameterValidation.throwIllegalArgExceptionIfNull(runtimeContext, "RuntimeContext");
-      ParameterValidation.throwIllegalArgExceptionIfNull(markupParams, "MarkupParams");
-      ParameterValidation.throwIllegalArgExceptionIfNull(eventParams, "EventParams");
-
-      HandleEvents handleEvents = new HandleEvents();
-      handleEvents.setPortletContext(portletContext);
-      handleEvents.setEventParams(eventParams);
-      handleEvents.setMarkupParams(markupParams);
-      handleEvents.setRuntimeContext(runtimeContext);
-      return handleEvents;
    }
 
    public static EventParams createEventParams(List<Event> events, StateChange portletStateChange)
