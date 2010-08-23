@@ -103,6 +103,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
 
       // check if the portlet was cloned
       PortletContext portletContext = updateResponse.getPortletContext();
+      SessionHandler sessionHandler = consumer.getSessionHandler();
       if (portletContext != null)
       {
          PortletContext originalContext = requestPrecursor.getPortletContext();
@@ -135,7 +136,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
          }
 
          // update the session information associated with the portlet handle
-         consumer.getSessionHandler().updateSessionInfoFor(originalContext.getPortletHandle(), handle, invocation);
+         sessionHandler.updateSessionInfoFor(originalContext.getPortletHandle(), handle, invocation);
       }
       else
       {
@@ -143,8 +144,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       }
 
       // update the session info, using either the original or cloned portlet context, as appropriate
-      consumer.getSessionHandler().updateSessionIfNeeded(updateResponse.getSessionContext(), invocation,
-         portletContext.getPortletHandle());
+      sessionHandler.updateSessionIfNeeded(updateResponse.getSessionContext(), invocation, portletContext.getPortletHandle());
       return result;
    }
 }
