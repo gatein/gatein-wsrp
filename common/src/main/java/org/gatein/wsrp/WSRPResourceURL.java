@@ -24,7 +24,6 @@
 package org.gatein.wsrp;
 
 import org.gatein.common.net.URLTools;
-import org.gatein.common.net.media.MediaType;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
@@ -56,22 +55,6 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    private URL resourceURL;
    private boolean preferOperation = false;
 
-   private static final Map<String, MediaType> SUPPORTED_RESOURCE_TYPES = new HashMap<String, MediaType>(11);
-
-   static
-   {
-      SUPPORTED_RESOURCE_TYPES.put("html", MediaType.TEXT_HTML);
-      SUPPORTED_RESOURCE_TYPES.put("htm", MediaType.TEXT_HTML);
-      SUPPORTED_RESOURCE_TYPES.put("css", MediaType.TEXT_CSS);
-      SUPPORTED_RESOURCE_TYPES.put("js", MediaType.TEXT_JAVASCRIPT);
-      SUPPORTED_RESOURCE_TYPES.put("png", MediaType.create("image/png"));
-      MediaType jpeg = MediaType.create("image/jpeg");
-      SUPPORTED_RESOURCE_TYPES.put("jpg", jpeg);
-      SUPPORTED_RESOURCE_TYPES.put("jpeg", jpeg);
-      SUPPORTED_RESOURCE_TYPES.put("gif", MediaType.create("image/gif"));
-      SUPPORTED_RESOURCE_TYPES.put("pdf", MediaType.create("application/pdf"));
-      SUPPORTED_RESOURCE_TYPES.put("txt", MediaType.create("text/plain"));
-   }
 
    public WSRPResourceURL()
    {
@@ -141,14 +124,6 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
          {
             url = URLTools.decodeXWWWFormURL(url);
             this.resourceURL = new URL(url);
-            String extension = URLTools.getFileExtensionOrNullFrom(resourceURL);
-            MediaType mediaType = SUPPORTED_RESOURCE_TYPES.get(extension);
-            if (mediaType == null)
-            {
-               log.debug("Couldn't determine (based on extension) MIME type of file: " + resourceURL.getPath()
-                  + "\nRetrieving the associated resource will probably fail.");
-            }
-
             params.remove(WSRPRewritingConstants.RESOURCE_URL);
 
          }

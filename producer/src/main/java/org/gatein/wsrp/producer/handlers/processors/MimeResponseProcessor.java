@@ -69,10 +69,12 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
       String itemString = null;
       byte[] itemBinary = null;
       String contentType = content.getContentType();
+      Boolean requiresRewriting = Boolean.FALSE;
       switch (content.getType())
       {
          case ContentResponse.TYPE_CHARS:
             itemString = processFragmentString(content.getChars());
+            requiresRewriting = Boolean.TRUE; // assume that if we got chars, we'll need to rewrite content
             break;
          case ContentResponse.TYPE_BYTES:
             itemBinary = content.getBytes(); // fix-me: might need to convert to Base64?
@@ -87,8 +89,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
 
       mimeResponse.setLocale(markupRequest.getLocale());
 
-      //TODO: figure out requiresRewriting and useCachedItem
-      Boolean requiresRewriting = true;
+      //TODO: figure out useCachedItem
       Boolean useCachedItem = false;
       mimeResponse.setRequiresRewriting(requiresRewriting);
       mimeResponse.setUseCachedItem(useCachedItem);

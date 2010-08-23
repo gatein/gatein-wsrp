@@ -1,35 +1,36 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2010, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
@@ -100,7 +101,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
          //hack to get around having to have a httpservletrequest when accessing the producer services
          //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
          ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
-               .createMockResponse());
+            .createMockResponse());
       }
    }
 
@@ -663,7 +664,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
          String localhostMarkup = markupStart + "localhost" + markupEnd;
          String homeIPMarkup = markupStart + "127.0.0.1" + markupEnd;
          boolean result = localhostMarkup.equals(markupString) || homeIPMarkup.equals(markupString);
-         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'." , result);
+         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'.", result);
       }
       finally
       {
@@ -841,7 +842,14 @@ public class MarkupTestCase extends NeedPortletHandleTest
       ExtendedAssert.assertNotNull(markupContext);
       ExtendedAssert.assertEquals("text/html", markupContext.getMimeType());
       ExtendedAssert.assertEquals("title", markupContext.getPreferredTitle());
-      ExtendedAssert.assertTrue(markupContext.isRequiresUrlRewriting());
+      if (!ParameterValidation.isNullOrEmpty(markupString))
+      {
+         ExtendedAssert.assertTrue(markupContext.isRequiresUrlRewriting());
+      }
+      else
+      {
+         ExtendedAssert.assertFalse(markupContext.isRequiresUrlRewriting());
+      }
       ExtendedAssert.assertEquals(markupString, markupContext.getMarkupString());
 
       // Session context

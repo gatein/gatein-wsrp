@@ -1,33 +1,28 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2010, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.gatein.wsrp.protocol.v2;
 
-import java.rmi.RemoteException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import org.gatein.pc.api.ParametersStateString;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.StateString;
 import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPConstants;
@@ -67,18 +62,22 @@ import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
 
+import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-@RunWith(Arquillian.class) 
+@RunWith(Arquillian.class)
 public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandleTest
 {
    private static final String DEFAULT_VIEW_MARKUP = "<p>symbol unset stock value: value unset</p>";
    private static final String DEFAULT_MARKUP_PORTLET_WAR = "test-markup-portlet.war";
 
    public MarkupTestCase()
-   throws Exception
+      throws Exception
    {
       super("MarkupTestCase", DEFAULT_MARKUP_PORTLET_WAR);
    }
@@ -102,7 +101,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          //hack to get around having to have a httpservletrequest when accessing the producer services
          //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
          ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
-               .createMockResponse());
+            .createMockResponse());
       }
    }
 
@@ -171,8 +170,8 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       MarkupResponse response = producer.getMarkup(getMarkup);
 
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
-            "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
-      "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
+         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
+         "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
    }
 
    @Test
@@ -528,7 +527,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
          MarkupResponse response = producer.getMarkup(getMarkup);
          checkMarkupResponse(response, "wsrp_rewrite?wsrp-urlType=blockingAction&wsrp-interactionState=JBPNS_/wsrp_rewrite\n" +
-         "wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite");
+            "wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite");
       }
       finally
       {
@@ -672,7 +671,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          String localhostMarkup = markupStart + "localhost" + markupEnd;
          String homeIPMarkup = markupStart + "127.0.0.1" + markupEnd;
          boolean result = localhostMarkup.equals(markupString) || homeIPMarkup.equals(markupString);
-         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'." , result);
+         ExtendedAssert.assertTrue("Expectd '" + localhostMarkup + "' or '" + homeIPMarkup + "' but received '" + markupString + "'.", result);
       }
       finally
       {
@@ -850,7 +849,14 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       ExtendedAssert.assertNotNull(markupContext);
       ExtendedAssert.assertEquals("text/html", markupContext.getMimeType());
       ExtendedAssert.assertEquals("title", markupContext.getPreferredTitle());
-      ExtendedAssert.assertTrue(markupContext.isRequiresRewriting());
+      if (!ParameterValidation.isNullOrEmpty(markupString))
+      {
+         ExtendedAssert.assertTrue(markupContext.isRequiresRewriting());
+      }
+      else
+      {
+         ExtendedAssert.assertFalse(markupContext.isRequiresRewriting());
+      }
       ExtendedAssert.assertEquals(markupString, markupContext.getItemString());
 
       // Session context
