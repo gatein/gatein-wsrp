@@ -139,13 +139,19 @@ public class WSRPTypeFactory
 
    /** ====== WSRP request objects ====== **/
    /**
-    * registrationContext(RegistrationContext)?, desiredLocales(xsd:string)*
+    * registrationContext(RegistrationContext, nillable), desiredLocales(xsd:string)*, portletHandles(xsd:string)*,
+    * userContext(UserContext, nillable)
     *
+    * @param registrationContext can be null
+    * @param userContext         can be null
     * @return
     */
-   public static GetServiceDescription createGetServiceDescription()
+   public static GetServiceDescription createGetServiceDescription(RegistrationContext registrationContext, UserContext userContext)
    {
-      return new GetServiceDescription();
+      GetServiceDescription getServiceDescription = new GetServiceDescription();
+      getServiceDescription.setRegistrationContext(registrationContext);
+      getServiceDescription.setUserContext(userContext);
+      return getServiceDescription;
    }
 
    /**

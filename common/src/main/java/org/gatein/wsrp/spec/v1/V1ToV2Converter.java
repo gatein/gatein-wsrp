@@ -864,8 +864,7 @@ public class V1ToV2Converter
    {
       if (getServiceDescription != null)
       {
-         GetServiceDescription result = WSRPTypeFactory.createGetServiceDescription();
-         result.setRegistrationContext(toV2RegistrationContext(getServiceDescription.getRegistrationContext()));
+         GetServiceDescription result = WSRPTypeFactory.createGetServiceDescription(toV2RegistrationContext(getServiceDescription.getRegistrationContext()), null);
          List<String> locales = getServiceDescription.getDesiredLocales();
          if (ParameterValidation.existsAndIsNotEmpty(locales))
          {

@@ -23,8 +23,6 @@
 
 package org.gatein.wsrp.protocol.v2;
 
-import javax.xml.namespace.QName;
-
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
@@ -39,6 +37,8 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.oasis.wsrp.v2.GetServiceDescription;
 
+import javax.xml.namespace.QName;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
@@ -46,7 +46,7 @@ import org.oasis.wsrp.v2.GetServiceDescription;
 public class V2ProducerBaseTest extends WSRPProducerBaseTest
 {
    protected WSRP2Producer producer = ProducerHolder.getProducer(true);
-   
+
    private static final String CONSUMER = "test-consumer";
 
    public V2ProducerBaseTest() throws Exception
@@ -67,12 +67,12 @@ public class V2ProducerBaseTest extends WSRPProducerBaseTest
 
    protected GetServiceDescription getNoRegistrationServiceDescriptionRequest()
    {
-      GetServiceDescription gs = WSRPTypeFactory.createGetServiceDescription();
+      GetServiceDescription gs = WSRPTypeFactory.createGetServiceDescription(null, null);
       gs.getDesiredLocales().add("en-US");
       gs.getDesiredLocales().add("en");
       return gs;
    }
-   
+
    protected RegistrationPropertyDescription configureRegistrationSettings(boolean requiresRegistration, boolean provideUnregisteredFullDescription)
    {
       // define expected registration infos

@@ -82,8 +82,8 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(mode = WebParam.Mode.OUT, name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") Holder<List<V1Extension>> extensions
    ) throws V1InvalidRegistration, V1OperationFailed
    {
-      GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription();
-      getServiceDescription.setRegistrationContext(V1ToV2Converter.toV2RegistrationContext(registrationContext));
+      GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription(
+         V1ToV2Converter.toV2RegistrationContext(registrationContext), null);
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
 
       ServiceDescription description;

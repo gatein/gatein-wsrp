@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
@@ -87,9 +88,9 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
-      GetServiceDescription getServiceDescription = new GetServiceDescription();
-      getServiceDescription.setRegistrationContext(registrationContext);
+      GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription(registrationContext, userContext);
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
+      getServiceDescription.getPortletHandles().addAll(portletHandles);
 
       ServiceDescription description = producer.getServiceDescription(getServiceDescription);
 
