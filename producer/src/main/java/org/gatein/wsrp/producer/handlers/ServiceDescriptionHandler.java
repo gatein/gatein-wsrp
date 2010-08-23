@@ -131,7 +131,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          serviceDescription.updatePortletDescriptions(portlets, gs.getDesiredLocales(), registration);
       }
 
-      return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions);
+      return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions, gs.getPortletHandles());
    }
 
    public PortletDescription getPortletDescription(PortletContext portletContext, List<String> desiredLocales, Registration registration) throws InvalidHandle, OperationFailed
@@ -472,16 +472,58 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
-      private ServiceDescription getServiceDescription(boolean needsRegistrationProperties, boolean needsPortletDescriptions)
+      private ServiceDescription getServiceDescription(boolean needsRegistrationProperties, boolean needsPortletDescriptions, List<String> portletHandles)
       {
+         ServiceDescription serviceDescription;
          if (needsRegistrationProperties)
          {
-            return needsPortletDescriptions ? registrationPortletsServiceDescription : registrationNoPortletsServiceDescription;
+            serviceDescription = needsPortletDescriptions ? registrationPortletsServiceDescription : registrationNoPortletsServiceDescription;
          }
          else
          {
-            return needsPortletDescriptions ? noRegistrationPortletsServiceDescription : noRegistrationNoPortletsServiceDescription;
+            serviceDescription = needsPortletDescriptions ? noRegistrationPortletsServiceDescription : noRegistrationNoPortletsServiceDescription;
          }
+
+         // if we have a list of portlet handles, filter the list of offered portlets
+         if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
+         {
+            List<PortletDescription> offeredPortlets = serviceDescription.getOfferedPortlets();
+            List<PortletDescription> filteredPortlets = new ArrayList<PortletDescription>(offeredPortlets.size());
+            for (String handle : portletHandles)
+            {
+               for (PortletDescription description : offeredPortlets)
+               {
+                  if (description.getPortletHandle().equals(handle))
+                  {
+                     filteredPortlets.add(description);
+                     break; // no need to continue looping over portlets for this particular handle
+                  }
+               }
+            }
+
+            // shallow-clone the existing service description since we're not modifying it apart from the offered portlets list
+            ServiceDescription filtered = WSRPTypeFactory.createServiceDescription(serviceDescription.isRequiresRegistration());
+            filtered.setExportDescription(serviceDescription.getExportDescription());
+            filtered.setMayReturnRegistrationState(serviceDescription.isMayReturnRegistrationState());
+            filtered.setRegistrationPropertyDescription(serviceDescription.getRegistrationPropertyDescription());
+            filtered.setRequiresInitCookie(serviceDescription.getRequiresInitCookie());
+            filtered.setResourceList(serviceDescription.getResourceList());
+            filtered.setSchemaType(serviceDescription.getSchemaType());
+            filtered.getCustomModeDescriptions().addAll(serviceDescription.getCustomModeDescriptions());
+            filtered.getCustomWindowStateDescriptions().addAll(serviceDescription.getCustomWindowStateDescriptions());
+            filtered.getEventDescriptions().addAll(serviceDescription.getEventDescriptions());
+            filtered.getExtensionDescriptions().addAll(serviceDescription.getExtensionDescriptions());
+            filtered.getExtensions().addAll(serviceDescription.getExtensions());
+            filtered.getLocales().addAll(serviceDescription.getLocales());
+            filtered.getSupportedOptions().addAll(serviceDescription.getSupportedOptions());
+
+            // add filtered portlets
+            filtered.getOfferedPortlets().addAll(filteredPortlets);
+
+            return filtered;
+         }
+
+         return serviceDescription;
       }
 
       public void addEventInfo(EventInfo info, List<String> desiredLocales)

@@ -55,8 +55,8 @@
       <profile>
          <id>cargo-debug</id>
          <properties>
-            <!-- add the jdwp setup for the testus -->
-            <cargo.jvmargs.debug>-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n
+            <!-- add the jdwp setup for the tests -->
+            <cargo.jvmargs.debug>-Xdebug -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y
             </cargo.jvmargs.debug>
             <cargo.jvmargs>${cargo.jvmargs.default} ${cargo.jvmargs.debug}</cargo.jvmargs>
          </properties>

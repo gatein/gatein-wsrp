@@ -23,7 +23,9 @@
 
 package org.gatein.wsrp.protocol.v2;
 
+import com.google.common.base.Function;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.protocol.v1.NeedPortletHandleTest;
 import org.gatein.wsrp.servlet.ServletAccess;
@@ -40,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.EventDescription;
+import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -49,6 +52,7 @@ import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,6 +95,104 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
       if (System.getProperty("test.deployables.dir") != null)
       {
          super.tearDown();
+      }
+   }
+
+   @Test
+   public void testServiceDescriptionFilteringEmptyHandleList() throws OperationFailed, ResourceSuspended, ModifyRegistrationRequired, InvalidRegistration
+   {
+      GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
+
+      ServiceDescription original = producer.getServiceDescription(gsd);
+
+      gsd.getPortletHandles().clear();
+
+      assertEquals(original, producer.getServiceDescription(gsd));
+   }
+
+   public void testServiceDescriptionFilterInexistentFilter() throws Exception
+   {
+      GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
+      gsd.getPortletHandles().add("Inexistent blah");
+
+      try
+      {
+         deploy("test-basic-portlet.war");
+         deploy("test-markup-portlet.war");
+         deploy("test-session-portlet.war");
+
+         ServiceDescription sd = producer.getServiceDescription(gsd);
+         assertEquals(3, sd.getOfferedPortlets().size());
+      }
+      finally
+      {
+         undeploy("test-basic-portlet.war");
+         undeploy("test-markup-portlet.war");
+         undeploy("test-session-portlet.war");
+      }
+   }
+
+   @Test
+   public void testServiceDescriptionFiltering() throws Exception
+   {
+      try
+      {
+         GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
+
+         deploy("test-basic-portlet.war");
+         deploy("test-markup-portlet.war");
+         deploy("test-session-portlet.war");
+         ServiceDescription sd = producer.getServiceDescription(gsd);
+         assertEquals(3, sd.getOfferedPortlets().size());
+
+
+         // extract handle for portlet deployed in test-basic-portlet.war and the rest of the handles
+         List<String> handles = WSRPUtils.transform(sd.getOfferedPortlets(), new Function<PortletDescription, String>()
+         {
+            public String apply(PortletDescription from)
+            {
+               return from.getPortletHandle();
+            }
+         });
+         String filter = null;
+         List<String> filteredHandles = new ArrayList<String>(2);
+         for (String handle : handles)
+         {
+            if (handle.contains("test-basic-portlet"))
+            {
+               filter = handle;
+            }
+            else
+            {
+               filteredHandles.add(handle);
+            }
+         }
+
+         gsd.getPortletHandles().add(filter);
+         sd = producer.getServiceDescription(gsd);
+         // should now have only 1 portlet: BasicPortlet
+         assertEquals(1, sd.getOfferedPortlets().size());
+         assertEquals(filter, sd.getOfferedPortlets().get(0).getPortletHandle());
+
+         undeploy("test-basic-portlet.war");
+         sd = producer.getServiceDescription(gsd);
+         // should now have 0 offered portlets
+         assertTrue(sd.getOfferedPortlets().isEmpty());
+
+         // remove portlet handles, we should now have 2 offered portlets
+         gsd.getPortletHandles().clear();
+         sd = producer.getServiceDescription(gsd);
+         List<PortletDescription> offeredPortlets = sd.getOfferedPortlets();
+         assertEquals(2, offeredPortlets.size());
+         // check that we do have the expected portlets
+         assertTrue((offeredPortlets.get(0).getPortletHandle().contains(filteredHandles.get(0)) && offeredPortlets.get(1).getPortletHandle().equals(filteredHandles.get(1)))
+            || (offeredPortlets.get(1).getPortletHandle().equals(filteredHandles.get(0)) && offeredPortlets.get(0).getPortletHandle().equals(filteredHandles.get(1))));
+      }
+      finally
+      {
+         undeploy("test-basic-portlet.war");
+         undeploy("test-markup-portlet.war");
+         undeploy("test-session-portlet.war");
       }
    }
 
