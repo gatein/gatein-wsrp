@@ -23,12 +23,14 @@
 
 package org.gatein.wsrp.producer.handlers;
 
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.pc.api.InvalidPortletIdException;
@@ -103,6 +105,7 @@ import org.oasis.wsrp.v2.SetPortletsLifetime;
 import org.oasis.wsrp.v2.SetPortletsLifetimeResponse;
 import org.oasis.wsrp.v2.UserContext;
 
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -329,11 +332,36 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       List<Property> properties = propertyList.getProperties();
       List<ResetProperty> resetProperties = propertyList.getResetProperties();
       int changesCount = 0;
-      if (properties != null)
+      if (ParameterValidation.existsAndIsNotEmpty(properties))
       {
          changesCount += properties.size();
+
+         // check that we don't set and reset the same property
+         if (ParameterValidation.existsAndIsNotEmpty(resetProperties))
+         {
+            List<QName> names = new ArrayList<QName>(WSRPUtils.transform(properties, new Function<Property, QName>()
+            {
+               public QName apply(Property from)
+               {
+                  return from.getName();
+               }
+            }));
+            names.retainAll(WSRPUtils.transform(resetProperties, new Function<ResetProperty, QName>()
+            {
+               public QName apply(ResetProperty from)
+               {
+                  return from.getName();
+               }
+            }));
+
+            if (!names.isEmpty())
+            {
+               WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class,
+                  "Attempted to set and reset at the same time the following properties: " + names, null);
+            }
+         }
       }
-      if (resetProperties != null)
+      if (ParameterValidation.existsAndIsNotEmpty(resetProperties))
       {
          changesCount += resetProperties.size();
       }
@@ -595,7 +623,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          ResourceList resourceList = null;
 
          byte[] exportContextBytes = producer.getExportManager().encodeExportContextData(exportContext);
-         
+
          return WSRPTypeFactory.createExportPortletsResponse(exportContextBytes, exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), exportContext.getLifeTime(), resourceList);
       }
       catch (Exception e)
@@ -747,7 +775,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       {
          WSRP2ExceptionFactory.throwWSException(OperationNotSupported.class, "This producer does not support export by reference.", null);
       }
-      
+
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(setExportLifetime, "setExportLifetimePortlets");
 
       byte[] exportContextBytes = setExportLifetime.getExportContext();

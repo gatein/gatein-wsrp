@@ -27,7 +27,10 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
+import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.state.DestroyCloneFailure;
+import org.gatein.pc.api.state.PropertyChange;
+import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v1.behaviors.BasicMarkupBehavior;
@@ -48,10 +51,10 @@ public class PortletManagementTestCase extends V1ConsumerBaseTest
    {
    }
 
-   /*public void testClone() throws Exception
+   public void testClone() throws Exception
    {
       PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
-      PortletContext clone = consumer.createClone(original);
+      PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
       ExtendedAssert.assertNotNull(clone);
       ExtendedAssert.assertFalse(original.equals(clone));
       ExtendedAssert.assertEquals(BasicPortletManagementBehavior.CLONED_HANDLE, clone.getId());
@@ -74,14 +77,14 @@ public class PortletManagementTestCase extends V1ConsumerBaseTest
       PropertyMap props = consumer.getProperties(original);
       checkProperties(props, BasicPortletManagementBehavior.PROPERTY_VALUE);
 
-      PortletContext clone = consumer.createClone(original);
+      PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
       props = consumer.getProperties(clone);
       checkProperties(props, BasicPortletManagementBehavior.PROPERTY_VALUE);
 
       consumer.setProperties(clone, new PropertyChange[]
          {
             PropertyChange.newUpdate(BasicPortletManagementBehavior.PROPERTY_NAME,
-               new StringValue(BasicPortletManagementBehavior.PROPERTY_NEW_VALUE))
+               BasicPortletManagementBehavior.PROPERTY_NEW_VALUE)
          });
       checkProperties(consumer.getProperties(clone), BasicPortletManagementBehavior.PROPERTY_NEW_VALUE);
 
@@ -92,13 +95,34 @@ public class PortletManagementTestCase extends V1ConsumerBaseTest
       checkProperties(consumer.getProperties(clone), BasicPortletManagementBehavior.PROPERTY_VALUE);
    }
 
+   public void testSetResetSameProperty() throws PortletInvokerException
+   {
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
+
+      try
+      {
+         consumer.setProperties(clone, new PropertyChange[]
+            {
+               PropertyChange.newUpdate(BasicPortletManagementBehavior.PROPERTY_NAME,
+                  BasicPortletManagementBehavior.PROPERTY_NEW_VALUE),
+               PropertyChange.newReset(BasicPortletManagementBehavior.PROPERTY_NAME)
+            });
+         fail("Shouldn't be possible to set and reset the same property in the same call");
+      }
+      catch (Exception e)
+      {
+         assertTrue(e.getCause().getLocalizedMessage().contains(BasicPortletManagementBehavior.CANNOT_BOTH_SET_AND_RESET_A_PROPERTY_AT_THE_SAME_TIME));
+      }
+   }
+
    private void checkProperties(PropertyMap props, String expectedValue)
    {
       ExtendedAssert.assertNotNull(props);
       ExtendedAssert.assertEquals(1, props.size());
       ExtendedAssert.assertEquals(expectedValue,
-         props.getProperty(BasicPortletManagementBehavior.PROPERTY_NAME).asString());
-   }*/
+         props.getProperty(BasicPortletManagementBehavior.PROPERTY_NAME).get(0));
+   }
 
    public void testDestroyClones() throws Exception
    {
@@ -144,7 +168,7 @@ public class PortletManagementTestCase extends V1ConsumerBaseTest
       }
    }
 
-   /*public void testInvalidSetProperties() throws Exception
+   public void testInvalidSetProperties() throws Exception
    {
       PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
       try
@@ -156,5 +180,5 @@ public class PortletManagementTestCase extends V1ConsumerBaseTest
       {
          //expected
       }
-   }*/
+   }
 }

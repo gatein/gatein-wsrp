@@ -24,6 +24,7 @@
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
 import org.gatein.common.NotYetImplemented;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
@@ -63,6 +64,7 @@ import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.UserContext;
 
 import javax.jws.WebParam;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +81,9 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
    public static final String PROPERTY_VALUE = "value1";
    public static final String PROPERTY_NEW_VALUE = "value2";
    public static final String CLONED_HANDLE = BasicMarkupBehavior.PORTLET_HANDLE + CLONE_SUFFIX;
+   public static final String CANNOT_BOTH_SET_AND_RESET_A_PROPERTY_AT_THE_SAME_TIME = "Cannot both set and reset a property at the same time!";
    private BehaviorRegistry registry;
+   private String propValue = PROPERTY_VALUE;
 
    public BasicPortletManagementBehavior(BehaviorRegistry registry)
    {
@@ -213,6 +217,64 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Cannot modify portlet '" + handle + "'", null);
       }
 
+      List<Property> properties = propertyList.getProperties();
+      List<ResetProperty> resetProperties = propertyList.getResetProperties();
+
+      // check that we don't try to set and reset the same property
+      if (ParameterValidation.existsAndIsNotEmpty(properties) && ParameterValidation.existsAndIsNotEmpty(resetProperties))
+      {
+         if (properties.size() != 1 && resetProperties.size() != 1)
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Invalid number of properties!", null);
+         }
+
+         if (properties.get(0).getName().equals(resetProperties.get(0).getName()))
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, CANNOT_BOTH_SET_AND_RESET_A_PROPERTY_AT_THE_SAME_TIME, null);
+         }
+      }
+
+      // if we have the expected property name, update the value
+      if (ParameterValidation.existsAndIsNotEmpty(properties))
+      {
+         if (properties.size() != 1)
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Invalid number of properties!", null);
+         }
+
+         Property property = properties.get(0);
+         QName name = property.getName();
+         if (name.getLocalPart().equals(PROPERTY_NAME))
+         {
+            propValue = property.getStringValue();
+         }
+         else
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Unknown property '" + name + "'", null);
+         }
+      }
+
+      // if we have the proper reset property, reset it
+      if (ParameterValidation.existsAndIsNotEmpty(resetProperties))
+      {
+         if (resetProperties.size() != 1)
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Invalid number of reset properties!", null);
+         }
+
+         ResetProperty resetProperty = resetProperties.get(0);
+         QName name = resetProperty.getName();
+         if (name.getLocalPart().equals(PROPERTY_NAME))
+         {
+            propValue = PROPERTY_VALUE;
+         }
+         else
+         {
+            WSRP2ExceptionFactory.throwWSException(InconsistentParameters.class, "Unknown property '" + name + "'", null);
+         }
+      }
+
+
       portletHandle.value = handle;
    }
 
@@ -229,13 +291,13 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
       }
       else if (CLONED_HANDLE.equals(handle))
       {
-         if (callCount != 2)
+         if (propValue != null)
          {
-            propertyList.add(WSRPTypeFactory.createProperty(PROPERTY_NAME, "en", PROPERTY_VALUE));
+            propertyList.add(WSRPTypeFactory.createProperty(PROPERTY_NAME, "en", propValue));
          }
-         else
+         if (callCount > 4)
          {
-            propertyList.add(WSRPTypeFactory.createProperty(PROPERTY_NAME, "en", PROPERTY_NEW_VALUE));
+            throw new IllegalStateException("Shouldn't have been called more than four times!");
          }
       }
       else

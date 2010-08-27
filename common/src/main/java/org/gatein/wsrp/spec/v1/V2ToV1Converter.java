@@ -809,6 +809,12 @@ public class V2ToV1Converter
             result.getProperties().addAll(properties);
          }
 
+         List<V1ResetProperty> resetProperties = WSRPUtils.transform(propertyList.getResetProperties(), RESETPROPERTY);
+         if (resetProperties != null)
+         {
+            result.getResetProperties().addAll(resetProperties);
+         }
+
          List<V1Extension> extensions = WSRPUtils.transform(propertyList.getExtensions(), EXTENSION);
          if (extensions != null)
          {

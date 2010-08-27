@@ -90,27 +90,27 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       jar.addClass(WSRPProducerBaseTest.class);
       return jar;
    }
-   
+
    @Before
    public void setUp() throws Exception
    {
       if (System.getProperty("test.deployables.dir") != null)
       {
-       super.setUp();
-       //hack to get around having to have a httpservletrequest when accessing the producer services
-       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+         super.setUp();
+         //hack to get around having to have a httpservletrequest when accessing the producer services
+         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
       }
    }
-   
-   
+
+
    @After
    public void tearDown() throws Exception
    {
-       if (System.getProperty("test.deployables.dir") != null)
-       {
-          super.tearDown();
-       }
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.tearDown();
+      }
    }
 
    @Test
@@ -180,7 +180,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       response = producer.destroyPortlets(destroyPortlets);
       ExtendedAssert.assertNotNull(response);
       failures = response.getDestroyFailed();
-      
+
       ExtendedAssert.assertTrue("Got back failures when none expected :" + failures, (failures == null || failures.isEmpty()));
    }
 
@@ -344,6 +344,28 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          ExtendedAssert.fail("Setting properties on Producer-Offered Portlet should fail...");
       }
       catch (V1InconsistentParameters expected)
+      {
+         // expected
+      }
+   }
+
+   @Test
+   public void testSetResetSamePortletProperty() throws Exception
+   {
+      String handle = getDefaultHandle();
+
+      V1PortletContext portletContext = clonePortlet(handle);
+      V1PropertyList propertyList = WSRP1TypeFactory.createPropertyList();
+      propertyList.getProperties().add(WSRP1TypeFactory.createProperty("prefName1", "en", "newPrefValue1"));
+      propertyList.getResetProperties().add(WSRP1TypeFactory.createResetProperty("prefName1"));
+      V1SetPortletProperties setPortletProperties = WSRP1TypeFactory.createSetPortletProperties(null, portletContext, propertyList);
+
+      try
+      {
+         producer.setPortletProperties(setPortletProperties);
+         fail("Shouldn't be possible to set and reset a property in the same call");
+      }
+      catch (V1InconsistentParameters v1InconsistentParameters)
       {
          // expected
       }

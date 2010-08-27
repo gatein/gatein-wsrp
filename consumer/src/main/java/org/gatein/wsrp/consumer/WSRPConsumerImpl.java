@@ -25,6 +25,7 @@ package org.gatein.wsrp.consumer;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.InvalidPortletIdException;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
@@ -57,7 +58,10 @@ import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.servlet.UserAccess;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
+import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -318,11 +322,44 @@ public class WSRPConsumerImpl implements WSRPConsumer
             return new SimplePropertyMap();
          }
       }
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw new UnsupportedOperationException(operationNotSupported);
+      }
+      catch (InvalidHandle invalidHandle)
+      {
+         throw new InvalidPortletIdException(invalidHandle, portletContext.getId());
+      }
+      catch (InconsistentParameters inconsistentParameters)
+      {
+         throw new IllegalArgumentException(inconsistentParameters);
+      }
+      /*
+      // GTNWSRP-62
+      catch (InvalidRegistration invalidRegistration)
+      {
+      }
+      catch (MissingParameters missingParameters)
+      {
+      }
+      catch (ResourceSuspended resourceSuspended)
+      {
+      }
+      catch (OperationFailed operationFailed)
+      {
+      }
+      catch (AccessDenied accessDenied)
+      {
+      }
+      catch (InvalidUserCategory invalidUserCategory)
+      {
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+      }*/
       catch (Exception e)
       {
-         // something went wrong but support for getPortletProperties is optional so return an empty PropertyMap
-         log.debug("Couldn't get properties for portlet '" + portletContext.getId() + "'", e);
-         return new SimplePropertyMap();
+         throw new PortletInvokerException(e);
       }
    }
 
