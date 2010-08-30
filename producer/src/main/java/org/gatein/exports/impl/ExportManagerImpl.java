@@ -1,41 +1,39 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2010, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.gatein.exports.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.gatein.common.NotYetImplemented;
 import org.gatein.exports.ExportManager;
 import org.gatein.exports.ExportPersistenceManager;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
-import org.gatein.exports.data.PersistedExportData;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -46,63 +44,63 @@ public class ExportManagerImpl implements ExportManager
 {
 
    protected ExportPersistenceManager exportPersistenceManager;
-   
+
    //set to true if we prefer to export by value instead of by reference
    protected boolean preferExportByValue = false;
-   
+
    protected boolean supportExportByValue = true;
-   
+
    public ExportPersistenceManager getPersistenceManager()
    {
       return exportPersistenceManager;
    }
 
-   public void setPersistanceManager(ExportPersistenceManager exportPersistenceManager)
+   public void setPersistenceManager(ExportPersistenceManager exportPersistenceManager)
    {
       this.exportPersistenceManager = exportPersistenceManager;
    }
-   
+
    public ExportContext createExportContext(boolean exportByValueRequired, Lifetime lifetime)
-         throws UnsupportedEncodingException
+      throws UnsupportedEncodingException
    {
       boolean useExportByValue = false;
-      if (exportByValueRequired || (exportPersistenceManager == null &&  preferExportByValue))
+      if (exportByValueRequired || (exportPersistenceManager == null && preferExportByValue))
       {
          useExportByValue = true;
       }
-            
+
       return new ExportContext(useExportByValue, lifetime);
    }
-   
-   public boolean supportExportByValue()
+
+   public boolean supportsExportByValue()
    {
       return supportExportByValue;
    }
-   
+
    public void setPreferExportByValue(boolean preferExportByValue)
    {
       this.preferExportByValue = preferExportByValue;
    }
-   
+
    public ExportContext createExportContext(byte[] bytes) throws OperationFailed
    {
       try
       {
-      String type = ExportData.getType(bytes);
-      double version = ExportData.getVersion(bytes);
-      if (ExportContext.TYPE.equals(type) && ExportContext.VERSION==version)
-      {
-         byte[] internalBytes = ExportData.getInternalBytes(bytes);
-         return ExportContext.create(internalBytes);
-      }
-      else if (exportPersistenceManager != null && exportPersistenceManager.supports(type, version))
-      {
-         return exportPersistenceManager.getExportContext(type, version, ExportData.getInternalBytes(bytes));
-      }
-      else
-      {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not compatible.", null);
-      }
+         String type = ExportData.getType(bytes);
+         double version = ExportData.getVersion(bytes);
+         if (ExportContext.TYPE.equals(type) && ExportContext.VERSION == version)
+         {
+            byte[] internalBytes = ExportData.getInternalBytes(bytes);
+            return ExportContext.create(internalBytes);
+         }
+         else if (exportPersistenceManager != null && exportPersistenceManager.supports(type, version))
+         {
+            return exportPersistenceManager.getExportContext(type, version, ExportData.getInternalBytes(bytes));
+         }
+         else
+         {
+            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not compatible.", null);
+         }
       }
       catch (UnsupportedEncodingException e)
       {
@@ -115,7 +113,7 @@ public class ExportManagerImpl implements ExportManager
    }
 
    public ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle,
-         byte[] portletState) throws UnsupportedEncodingException
+                                                    byte[] portletState) throws UnsupportedEncodingException
    {
       return new ExportPortletData(portletHandle, portletState);
    }
@@ -126,7 +124,7 @@ public class ExportManagerImpl implements ExportManager
       {
          String type = ExportData.getType(bytes);
          double version = ExportData.getVersion(bytes);
-         if (ExportPortletData.TYPE.equals(type) && ExportPortletData.VERSION==version)
+         if (ExportPortletData.TYPE.equals(type) && ExportPortletData.VERSION == version)
          {
             byte[] internalBytes = ExportData.getInternalBytes(bytes);
             return ExportPortletData.create(internalBytes);
@@ -187,7 +185,7 @@ public class ExportManagerImpl implements ExportManager
    public void releaseExport(byte[] bytes) throws IOException
    {
       //TODO: since we can't return any errors, we should at least log messages if this method is called and it can't be completed for some reason.
-      if (bytes != null && bytes.length > 0 && exportPersistenceManager!= null)
+      if (bytes != null && bytes.length > 0 && exportPersistenceManager != null)
       {
          String type = ExportData.getType(bytes);
          double version = ExportData.getVersion(bytes);
@@ -197,7 +195,7 @@ public class ExportManagerImpl implements ExportManager
          }
       }
    }
-   
-   
+
+
 }
 

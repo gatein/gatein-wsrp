@@ -39,15 +39,15 @@ public interface WSRP2Producer extends WSRPProducer, MarkupInterface, PortletMan
 {
    /**
     * Retrieves the ExportManager used by this WSRPProducer.
-    * 
+    *
     * @return The ExportManager used by this WSRPProducer to manage exports
     */
    ExportManager getExportManager();
-   
+
    /**
     * Sets the ExportManager used by this WSRPProducer
-    * 
-    * @param The ExportManager to be used by this WSRPProducer
+    *
+    * @param exportManager the ExportManager to be used by this WSRPProducer
     */
    void setExportManager(ExportManager exportManager);
 }

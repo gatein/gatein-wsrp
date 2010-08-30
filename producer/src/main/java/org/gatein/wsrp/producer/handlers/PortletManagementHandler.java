@@ -526,7 +526,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
 
       //check that the export manager can handle export by value
-      if (exportByValueRequired && !producer.getExportManager().supportExportByValue())
+      if (exportByValueRequired && !producer.getExportManager().supportsExportByValue())
       {
          //TODO: instead of passing a string here, we should pass a resource so that its localized
          WSRP2ExceptionFactory.throwWSException(ExportByValueNotSupported.class, "The consumer is requesting portlets to be exported by value, but this consumer only supports export by reference.", null);
