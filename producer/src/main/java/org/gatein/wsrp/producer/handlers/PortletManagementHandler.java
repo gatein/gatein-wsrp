@@ -504,7 +504,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(exportPortlets, "ExportPortlets", "ExportPortlets");
 
       List<PortletContext> portletContexts = exportPortlets.getPortletContext();
-      if (portletContexts == null || portletContexts.isEmpty())
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in ExportPortlets.", null);
       }
@@ -533,8 +533,8 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       }
 
 
-      List<ExportedPortlet> exportedPortlets = new ArrayList<ExportedPortlet>();
-      Map<String, FailedPortlets> failedPortletsMap = new HashMap<String, FailedPortlets>();
+      List<ExportedPortlet> exportedPortlets = new ArrayList<ExportedPortlet>(portletContexts.size());
+      Map<String, FailedPortlets> failedPortletsMap = new HashMap<String, FailedPortlets>(portletContexts.size());
 
       try
       {
@@ -551,27 +551,21 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
                String portletHandle = portletContext.getPortletHandle();
                byte[] portletState = portletContext.getPortletState();
+               WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(portletHandle, "Portlet handle");
 
-               if (portletHandle != null)
+               org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
+
+               producer.getPortletInvoker().getPortlet(portalPC);
+
+               org.gatein.pc.api.PortletContext exportedPortalPC = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
+
+               PortletContext exportedPortalContext = WSRPUtils.convertToWSRPPortletContext(exportedPortalPC);
+               portletHandle = exportedPortalContext.getPortletHandle();
+               portletState = exportedPortalContext.getPortletState();
+
+               if (exportedPortalPC == null)
                {
-                  org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
-
-                  producer.getPortletInvoker().getPortlet(portalPC);
-
-                  org.gatein.pc.api.PortletContext exportedPortalPC = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
-
-                  PortletContext exportedPortalContext = WSRPUtils.convertToWSRPPortletContext(exportedPortalPC);
-                  portletHandle = exportedPortalContext.getPortletHandle();
-                  portletState = exportedPortalContext.getPortletState();
-
-                  if (exportedPortalPC == null)
-                  {
-                     WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);
-                  }
-               }
-               else
-               {
-                  WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "A portlet handle cannot be null.", null);
+                  WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);
                }
 
                //get the exportPortletData

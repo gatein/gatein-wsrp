@@ -36,7 +36,6 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.support.TestMockExportPersistenceManager;
-import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.api.Deployment;
@@ -144,28 +143,15 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    }
 
    @Test
-   public void testExportNonExistantHandle() throws Exception
+   public void testExportNonExistentHandle() throws Exception
    {
-      String nonExistantHandle = "123FakeHandle";
-      List<PortletContext> portletContexts = createPortletContextList(nonExistantHandle);
+      String nonExistentHandle = "123FakeHandle";
+      List<PortletContext> portletContexts = createPortletContextList(nonExistentHandle);
 
       ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
       ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
-      checkInvalidHandle(response, nonExistantHandle);
-   }
-
-   @Test
-   public void testExportNullHandle() throws Exception
-   {
-      String nullHandle = null;
-      List<PortletContext> portletContexts = createPortletContextList(nullHandle);
-
-      ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
-
-      ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
-
-      checkInvalidHandle(response, nullHandle);
+      checkInvalidHandle(response, nonExistentHandle);
    }
 
    @Test
@@ -181,7 +167,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
-         ExtendedAssert.fail("ExportPortlets should fail if registration is required and none is provided");
+         fail("ExportPortlets should fail if registration is required and none is provided");
       }
       catch (InvalidRegistration e)
       {
@@ -206,7 +192,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
-         ExtendedAssert.fail("ExportPortlets should fail if registration is required and an invalid registration handle is provided");
+         fail("ExportPortlets should fail if registration is required and an invalid registration handle is provided");
       }
       catch (InvalidRegistration e)
       {
@@ -241,7 +227,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
-         ExtendedAssert.fail("Should have thrown a MissingParameters fault if no portlets passed for export.");
+         fail("Should have thrown a MissingParameters fault if no portlets passed for export.");
       }
       catch (MissingParameters e)
       {
@@ -255,7 +241,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ExportPortletsResponse response = producer.exportPortlets(null);
-         ExtendedAssert.fail("Should have failed if sending a null exportPortlet object");
+         fail("Should have failed if sending a null exportPortlet object");
       }
       catch (MissingParameters e)
       {
@@ -266,10 +252,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Test
    public void testExports() throws Exception
    {
-      String nullHandle = null;
-      String nonExistantHandle = "123FakeHandle";
+      String nonExistentHandle = "123FakeHandle";
       String handle = getDefaultHandle();
-      List<PortletContext> portletContexts = createPortletContextList(nullHandle, nonExistantHandle, handle);
+      List<PortletContext> portletContexts = createPortletContextList(nonExistentHandle, handle);
 
       ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
 
@@ -290,9 +275,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       FailedPortlets failedPortlets = response.getFailedPortlets().get(0);
       assertEquals("InvalidHandle", failedPortlets.getErrorCode().getLocalPart());
-      assertEquals(2, failedPortlets.getPortletHandles().size());
-      assertTrue(failedPortlets.getPortletHandles().contains(nullHandle));
-      assertTrue(failedPortlets.getPortletHandles().contains(nonExistantHandle));
+      assertEquals(1, failedPortlets.getPortletHandles().size());
+      assertTrue(failedPortlets.getPortletHandles().contains(nonExistentHandle));
    }
 
    protected void checkInvalidHandle(ExportPortletsResponse response, String handle) throws Exception
@@ -386,7 +370,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ImportPortletsResponse response = producer.importPortlets(importPortlets);
-         ExtendedAssert.fail("ImportPortlets should fail if registration is required and non is provided");
+         fail("ImportPortlets should fail if registration is required and non is provided");
       }
       catch (InvalidRegistration e)
       {
@@ -457,7 +441,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          ImportPortletsResponse response = producer.importPortlets(importPortlets);
-         ExtendedAssert.fail("Should have failed when registration is required and an invalid registration handle is used.");
+         fail("Should have failed when registration is required and an invalid registration handle is used.");
       }
       catch (InvalidRegistration e)
       {
@@ -480,7 +464,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          producer.importPortlets(importPortlets);
-         ExtendedAssert.fail("Should have thrown an OperationFailedFault");
+         fail("Should have thrown an OperationFailedFault");
       }
       catch (OperationFailed e)
       {
@@ -503,7 +487,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          producer.importPortlets(importPortlets);
-         ExtendedAssert.fail("Should have thrown an OperationFailedFault");
+         fail("Should have thrown an OperationFailedFault");
       }
       catch (OperationFailed e)
       {
@@ -639,7 +623,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
       MarkupResponse markupResponse = producer.getMarkup(markup);
       assertNotNull(markupResponse.getMarkupContext());
-      assertEquals("<p>symbol unset stock value: value unset</p>", new String(markupResponse.getMarkupContext().getItemString()));
+      assertEquals("<p>symbol unset stock value: value unset</p>", markupResponse.getMarkupContext().getItemString());
    }
 
    @Test
@@ -658,7 +642,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
          PortletContext portletContext = performBlockingInteractionOnSessionPortlet(originalHandle, "new value", StateChange.CLONE_BEFORE_WRITE);
          //check that we have a new portlet context
-         ExtendedAssert.assertFalse(originalHandle.equals(portletContext.getPortletHandle()));
+         assertFalse(originalHandle.equals(portletContext.getPortletHandle()));
 
          checkStatePortlet(portletContext.getPortletHandle(), "new value");
 
@@ -666,12 +650,12 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
-         ExtendedAssert.assertFalse(response.getExportedPortlet().isEmpty());
+         assertFalse(response.getExportedPortlet().isEmpty());
 
          List<PortletContext> portletContextsFromExport = getPortletContext(response);
 
-         ExtendedAssert.assertNotNull(portletContextsFromExport.isEmpty());
-         ExtendedAssert.assertEquals(1, portletContexts.size());
+         assertNotNull(portletContextsFromExport.isEmpty());
+         assertEquals(1, portletContexts.size());
 
          PortletContext portletContextFromExport = portletContextsFromExport.get(0);
          //we should be getting the handle of the stateless portlet
@@ -777,12 +761,12 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
          ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
-         ExtendedAssert.assertFalse(response.getExportedPortlet().isEmpty());
+         assertFalse(response.getExportedPortlet().isEmpty());
 
          List<PortletContext> portletContextsFromExport = getPortletContext(response);
 
-         ExtendedAssert.assertNotNull(portletContextsFromExport.isEmpty());
-         ExtendedAssert.assertEquals(1, portletContexts.size());
+         assertNotNull(portletContextsFromExport.isEmpty());
+         assertEquals(1, portletContexts.size());
 
          PortletContext portletContextFromExport = portletContextsFromExport.get(0);
          assertEquals(originalHandle, portletContextFromExport.getPortletHandle());
@@ -849,7 +833,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       //Test that doing a release export actually removed the stored RefId
       TestMockExportPersistenceManager persistenceManager = (TestMockExportPersistenceManager)producer.getExportManager().getPersistenceManager();
-      ExtendedAssert.assertEquals(0, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(0, persistenceManager.getExportContexts().keySet().size());
    }
 
    @Test
@@ -865,9 +849,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       ImportPortlets importPortlets = createSimpleImportPortlets(response.getExportContext(), importPortletsList);
       ImportPortletsResponse importResponse = producer.importPortlets(importPortlets);
 
-      ExtendedAssert.assertEquals(1, importResponse.getImportedPortlets().size());
-      ExtendedAssert.assertEquals(importID, importResponse.getImportedPortlets().get(0).getImportID());
-      ExtendedAssert.assertNotNull(importResponse.getImportedPortlets().get(0).getNewPortletContext().getPortletHandle());
+      assertEquals(1, importResponse.getImportedPortlets().size());
+      assertEquals(importID, importResponse.getImportedPortlets().get(0).getImportID());
+      assertNotNull(importResponse.getImportedPortlets().get(0).getNewPortletContext().getPortletHandle());
    }
 
    protected ExportPortletsResponse exportPortletToPM() throws Exception
@@ -883,12 +867,12 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       exportPortlets.setExportByValueRequired(false);
 
       //Test that we don't have anything in the PM before doing an export
-      ExtendedAssert.assertEquals(0, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(0, persistenceManager.getExportContexts().keySet().size());
 
       ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
       //Test that we have an entry in the PM after doing an export
-      ExtendedAssert.assertEquals(1, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(1, persistenceManager.getExportContexts().keySet().size());
 
       return response;
    }
@@ -899,7 +883,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          producer.setExportLifetime(null);
-         ExtendedAssert.fail();
+         fail();
       }
       catch (OperationNotSupported e)
       {
@@ -914,7 +898,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       {
          SetExportLifetime setExportLifetime = WSRPTypeFactory.createSetExportLifetime(null, new byte[]{-10, 24, 24, 54, 'a', 'f', 'g'}, null, null);
          producer.setExportLifetime(setExportLifetime);
-         ExtendedAssert.fail();
+         fail();
       }
       catch (OperationNotSupported e)
       {
@@ -937,7 +921,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
          SetExportLifetime setExportLifetime = WSRPTypeFactory.createSetExportLifetime(null, exportData.encodeAsBytes(), null, null);
          producer.setExportLifetime(setExportLifetime);
-         ExtendedAssert.fail();
+         fail();
       }
       catch (OperationNotSupported e)
       {
@@ -969,7 +953,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    {
       GetMarkup getMarkupOriginalStateless = createMarkupRequest(handle);
       MarkupResponse responseOriginalStateless = producer.getMarkup(getMarkupOriginalStateless);
-      ExtendedAssert.assertEquals(expectedValue, responseOriginalStateless.getMarkupContext().getItemString());
+      assertEquals(expectedValue, responseOriginalStateless.getMarkupContext().getItemString());
    }
 
    protected PortletContext performBlockingInteractionOnSessionPortlet(String handle, String value, StateChange stateChange) throws Exception
