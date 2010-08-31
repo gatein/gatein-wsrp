@@ -1,0 +1,25 @@
+<assembly>
+  <id>portletmodes-portlet</id>
+  <formats>
+    <format>war</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <fileSets>
+    <!-- Test Classes -->
+    <fileSet>
+      <directory>target/test-classes</directory>
+      <outputDirectory>WEB-INF/classes</outputDirectory>
+      <includes>
+        <include>org/gatein/wsrp/portlet/PortletModesPortlet.class</include>
+      </includes>
+    </fileSet>
+    <!-- Fileset for the sar strucuture -->
+    <fileSet>
+      <directory>src/test/test-portlets/test-portletmodes-portlet-war</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
+
+</assembly>
+
