@@ -110,7 +110,6 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Collection;
@@ -1373,17 +1372,7 @@ public class WSRPTypeFactory
       if (payload != null)
       {
          Class<? extends Object> type = payload.getClass();
-         XmlRootElement annotation = type.getAnnotation(XmlRootElement.class);
-         QName typeName;
-         if (annotation != null)
-         {
-            typeName = new QName(annotation.namespace(), annotation.name());
-         }
-         else
-         {
-            // use the java type
-            typeName = new QName(type.getName());
-         }
+         QName typeName = new QName(type.getName());
          event.setType(typeName);
          event.setPayload(PayloadUtils.getPayloadAsEventPayload(typeName, payload));
       }
