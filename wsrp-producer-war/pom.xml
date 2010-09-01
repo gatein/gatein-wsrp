@@ -478,6 +478,10 @@
                         <file>${JBOSS_TEST_HOME}/server/default/conf/jboss-log4j.xml</file>
                         <tofile>/conf/jboss-log4j.xml</tofile>
                      </configfile>
+                     <configfile>
+                        <file>${basedir}/src/test/config/web.xml</file>
+                        <tofile>/deployers/jbossweb.deployer/web.xml</tofile>
+                     </configfile>
                   </configfiles>
                </configuration>
             </configuration>
