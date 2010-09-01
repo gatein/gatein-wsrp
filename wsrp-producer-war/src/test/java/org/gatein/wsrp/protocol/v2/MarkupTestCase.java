@@ -731,8 +731,8 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          undeploy(archive);
       }
    }
-   
-   @Test
+
+   /*@Test
    public void testGetMarkupWithEventsAndObjects() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
@@ -742,34 +742,35 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       NamedString namedString = createNamedString("username", "pjha");
       try
       {
-    	  List<String> handles = getHandlesForCurrentlyDeployedArchive();
-    	  String generatorHandle = null;
-    	  String consumerHandle = null;
-    	  for (String portletHandle : handles) 
-    	  {
-    		  if (portletHandle.contains("Generator"))
-    		  {
-    			  generatorHandle = portletHandle;
-    		  } else if (portletHandle.contains("Consumer"))
-    		  {
-    			  consumerHandle = portletHandle;
-    		  }
-    	  }
-    	  PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
-          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
-          formParameters.add(namedString);
-          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
-          GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
-          markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
-          MarkupResponse response = producer.getMarkup(markupRequestConsumer);
-          checkMarkupResponse(response, "Prabhat");
+         List<String> handles = getHandlesForCurrentlyDeployedArchive();
+         String generatorHandle = null;
+         String consumerHandle = null;
+         for (String portletHandle : handles)
+         {
+            if (portletHandle.contains("Generator"))
+            {
+               generatorHandle = portletHandle;
+            }
+            else if (portletHandle.contains("Consumer"))
+            {
+               consumerHandle = portletHandle;
+            }
+         }
+         PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
+         List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
+         formParameters.add(namedString);
+         BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
+         GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
+         markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
+         MarkupResponse response = producer.getMarkup(markupRequestConsumer);
+         checkMarkupResponse(response, "Prabhat");
       }
       finally
       {
          undeploy(archive);
       }
-   }
-   
+   }*/
+
    @Test
    public void testGetMarkupWithSimpleEvent() throws Exception
    {
@@ -780,27 +781,28 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       NamedString namedString = createNamedString("parameter", "param-value");
       try
       {
-    	  List<String> handles = getHandlesForCurrentlyDeployedArchive();
-    	  String generatorHandle = null;
-    	  String consumerHandle = null;
-    	  for (String portletHandle : handles) 
-    	  {
-    		  if (portletHandle.contains("Generator"))
-    		  {
-    			  generatorHandle = portletHandle;
-    		  } else if (portletHandle.contains("Consumer"))
-    		  {
-    			  consumerHandle = portletHandle;
-    		  }
-    	  }
-    	  PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
-          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
-          formParameters.add(namedString);
-          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
-          GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
-          markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
-          MarkupResponse response = producer.getMarkup(markupRequestConsumer);
-          checkMarkupResponse(response, "param-value");
+         List<String> handles = getHandlesForCurrentlyDeployedArchive();
+         String generatorHandle = null;
+         String consumerHandle = null;
+         for (String portletHandle : handles)
+         {
+            if (portletHandle.contains("Generator"))
+            {
+               generatorHandle = portletHandle;
+            }
+            else if (portletHandle.contains("Consumer"))
+            {
+               consumerHandle = portletHandle;
+            }
+         }
+         PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
+         List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
+         formParameters.add(namedString);
+         BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
+         GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
+         markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
+         MarkupResponse response = producer.getMarkup(markupRequestConsumer);
+         checkMarkupResponse(response, "param-value");
       }
       finally
       {
