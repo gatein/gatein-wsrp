@@ -38,7 +38,8 @@ then
    echo \=\=\> Please set JBOSS_TEST_HOME to point the root directory of a clean install of JBoss AS 5.1.x to be used for tests
    exit
 fi
-echo Using JBoss AS home at: $JBOSS_TEST_HOME
+echo --------------------------------------------------------------------------
+echo \| Using JBoss AS home at: $JBOSS_TEST_HOME
 
 # Retrieve the current WSRP version as specified in the POM file
 export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n -e 's/.*<version>\(.*\)<\/.*/\1/p'`
@@ -46,9 +47,9 @@ export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n
 # extract the current version of WSRP module from existing files
 DEPLOYED_WSRP=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n '1 s/.*\/.*-\([0-9]\.[0-9].[0-9].*\).jar/\1/p'`
 
-echo Deployed WSRP version: \'$DEPLOYED_WSRP\'
-echo Current WSRP version in project POM: \'$CURRENT_WSRP\'
-echo
+echo \| Deployed WSRP version: \'$DEPLOYED_WSRP\'
+echo \| Current WSRP version in project POM: \'$CURRENT_WSRP\'
+echo \|
 
 # If we have no argument, build and test.
 # If we have one argument (irrelevant value), build but skip tests
@@ -59,7 +60,10 @@ then
 else
    if [ $# -eq 1 ]
    then
-      echo Skipping tests!
+      echo \| ===============
+      echo \| Skipping tests!
+      echo \| ===============
+      echo --------------------------------------------------------------------------
       mvn clean install '-Dmaven.test.skip=true'
    fi
 fi
