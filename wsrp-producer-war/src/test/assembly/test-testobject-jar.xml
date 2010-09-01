@@ -1,0 +1,20 @@
+<assembly>
+  <id>events-testobject</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <fileSets>
+    <!-- Test Object Class -->
+    <fileSet>
+      <directory>target/test-classes</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>org/gatein/wsrp/portlet/utils/TestObject.class</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+</assembly>
+

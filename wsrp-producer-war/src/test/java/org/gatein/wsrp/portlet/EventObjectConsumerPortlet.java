@@ -37,32 +37,33 @@ import javax.portlet.RenderResponse;
 import org.gatein.wsrp.portlet.utils.TestObject;
 
 /**
- * EventObjectConsumer Portlet Class
+ * @author <a href="mailto:mvanco@redhat.com">Michal Vanco</a>
+ * @version $Revision$
  */
-public class EventObjectConsumerPortlet extends GenericPortlet 
+public class EventObjectConsumerPortlet extends GenericPortlet
 {
 
-	@Override
-	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException 
-	{
-		response.setContentType("text/html");
-		TestObject object = (TestObject) request.getPortletSession().getAttribute("object");
-		request.setAttribute("object", object);
-		PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_consumer.jsp");
-		dispatcher.include(request, response);
-	}
+   @Override
+   public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException
+   {
+      response.setContentType("text/html");
+      TestObject object = (TestObject) request.getPortletSession().getAttribute("object");
+      request.setAttribute("object", object);
+      PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_consumer.jsp");
+      dispatcher.include(request, response);
+   }
 
-	@Override
-	public void processEvent(EventRequest request, EventResponse response) throws PortletException, IOException 
-	{
-		TestObject object = (TestObject) request.getEvent().getValue();
-		request.getPortletSession().setAttribute("object", object);
-	}
+   @Override
+   public void processEvent(EventRequest request, EventResponse response) throws PortletException, IOException
+   {
+      TestObject object = (TestObject) request.getEvent().getValue();
+      request.getPortletSession().setAttribute("object", object);
+   }
 
-	@Override
-	public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException 
-	{
-		request.getPortletSession().removeAttribute("object");
-	}
+   @Override
+   public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException
+   {
+      request.getPortletSession().removeAttribute("object");
+   }
 
 }

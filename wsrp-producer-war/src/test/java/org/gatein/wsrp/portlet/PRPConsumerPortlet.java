@@ -24,8 +24,6 @@ package org.gatein.wsrp.portlet;
 
 import java.io.IOException;
 
-import javax.portlet.EventRequest;
-import javax.portlet.EventResponse;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -36,24 +34,16 @@ import javax.portlet.RenderResponse;
  * @author <a href="mailto:mvanco@redhat.com">Michal Vanco</a>
  * @version $Revision$
  */
-public class EventConsumerPortlet extends GenericPortlet
+public class PRPConsumerPortlet extends GenericPortlet
 {
 
    @Override
    public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException
    {
       response.setContentType("text/html");
-      String param = request.getParameter("parameter-event");
+      String param = request.getParameter("parameter");
       request.setAttribute("parameter", param);
       PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_consumer.jsp");
       dispatcher.include(request, response);
    }
-
-   @Override
-   public void processEvent(EventRequest request, EventResponse response) throws PortletException, IOException
-   {
-      String param = (String) request.getEvent().getValue();
-      response.setRenderParameter("parameter-event", param);
-   }
-
 }

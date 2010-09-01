@@ -26,31 +26,49 @@
 	xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd'
 	version='2.0'>
 	<portlet>
-		<description>Portlet Modes</description>
-		<portlet-name>Portlet Modes</portlet-name>
-		<display-name>Portlet Modes</display-name>
-		<portlet-class>org.gatein.wsrp.portlet.PortletModesPortlet</portlet-class>
+		<description>PRP Generator</description>
+		<portlet-name>PRP Generator</portlet-name>
+		<display-name>PRP Generator</display-name>
+		<portlet-class>org.gatein.wsrp.portlet.PRPGeneratorPortlet</portlet-class>
 		<expiration-cache>0</expiration-cache>
 		
 		<supports>
 			<mime-type>text/html</mime-type>
 			<portlet-mode>VIEW</portlet-mode>
-			<portlet-mode>EDIT</portlet-mode>
-			<portlet-mode>HELP</portlet-mode>
-			<portlet-mode>TEST_MODE</portlet-mode>
 		</supports>
 		
 		<portlet-info>
-			<title>Portlet Modes sample</title>
-			<short-title>Portlet Modes sample</short-title>
+			<title>PRP Generator sample</title>
+			<short-title>PRP Generator sample</short-title>
 		</portlet-info>
+		
+		<supported-public-render-parameter>parameter</supported-public-render-parameter>
 	</portlet>
 
-	<custom-portlet-mode>
-		<description>Test mode</description>
-		<portlet-mode>TEST_MODE</portlet-mode>
-		<portal-managed>false</portal-managed>
-	</custom-portlet-mode>
+	<portlet>
+		<description>PRP Consumer</description>
+		<portlet-name>PRP Consumer</portlet-name>
+		<display-name>PRP Consumer</display-name>
+		<portlet-class>org.gatein.wsrp.portlet.PRPConsumerPortlet</portlet-class>
+		<expiration-cache>0</expiration-cache>
+		
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>VIEW</portlet-mode>
+		</supports>
+		
+		<portlet-info>
+			<title>PRP Consumer sample</title>
+			<short-title>PRP Consumer sample</short-title>
+		</portlet-info>
+		
+		<supported-public-render-parameter>parameter</supported-public-render-parameter>
+	</portlet>
+
+	<public-render-parameter>
+		<identifier>parameter</identifier>
+		<qname xmlns:gtn="urn:jboss:gatein:samples:parameter">gtn:parameter</qname>
+	</public-render-parameter>
 
 	<!-- Make these portlets remotable -->
 	<container-runtime-option>

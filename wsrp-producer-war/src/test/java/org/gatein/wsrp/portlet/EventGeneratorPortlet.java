@@ -34,23 +34,24 @@ import javax.portlet.RenderResponse;
 import javax.xml.namespace.QName;
 
 /**
- * EventGenerator Portlet Class
+ * @author <a href="mailto:mvanco@redhat.com">Michal Vanco</a>
+ * @version $Revision$
  */
-public class EventGeneratorPortlet extends GenericPortlet 
+public class EventGeneratorPortlet extends GenericPortlet
 {
 
-	@Override
-	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException 
-	{
-		response.setContentType("text/html");
-		PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_generator.jsp");
-		dispatcher.include(request, response);
-	}
+   @Override
+   public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException
+   {
+      response.setContentType("text/html");
+      PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_generator.jsp");
+      dispatcher.include(request, response);
+   }
 
-	@Override
-	public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException 
-	{
-		String param = request.getParameter("parameter");
-		response.setEvent(new QName("urn:jboss:gatein:samples:event", "eventsample"), param);
-	}
+   @Override
+   public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException
+   {
+      String param = request.getParameter("parameter");
+      response.setEvent(new QName("urn:jboss:gatein:samples:event", "eventsample"), param);
+   }
 }

@@ -38,49 +38,51 @@ import javax.xml.namespace.QName;
 import org.gatein.wsrp.portlet.utils.TestObject;
 
 /**
- * EventObjectGenerator Portlet Class
+ * @author <a href="mailto:mvanco@redhat.com">Michal Vanco</a>
+ * @version $Revision$
  */
-public class EventObjectGeneratorPortlet extends GenericPortlet 
+public class EventObjectGeneratorPortlet extends GenericPortlet
 {
-	
-	private List<TestObject> objects;
-	
-	@Override
-	public void init() throws PortletException 
-	{
-		super.init();
-		objects = new ArrayList<TestObject>();
-		objects.add(new TestObject("Prabhat", "Jha", "pjha", 654321, "pjha@redhat.com"));
-		objects.add(new TestObject("Michal", "Vanco", "mvanco", 123456, "mvanco@redhat.com"));
-		objects.add(new TestObject("Marek", "Posolda", "mposolda", 112233, "mposolda@redhat.com"));
-		objects.add(new TestObject("Viliam", "Rockai", "vrockai", 223311, "vrockai@redhat.com"));
-	}
-	
-	public TestObject getTestObjectByUserName(String username) 
-	{
-		for (TestObject object : objects) 
-		{
-			if (object.getUsername().equals(username)) 
-			{
-				return object;
-			}
-		}
-		return null;
-	}
 
-	@Override
-	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException 
-	{
-		response.setContentType("text/html");
-		request.setAttribute("objects", objects);
-		PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_generator.jsp");
-		dispatcher.include(request, response);
-	}
+   private List<TestObject> objects;
 
-	@Override
-	public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException 
-	{
-		String username = request.getParameter("username");
-		response.setEvent(new QName("urn:jboss:gatein:samples:event:object", "eventObject"), getTestObjectByUserName(username));
-	}
+   @Override
+   public void init() throws PortletException
+   {
+      super.init();
+      objects = new ArrayList<TestObject>();
+      objects.add(new TestObject("Prabhat", "Jha", "pjha", 654321, "pjha@redhat.com"));
+      objects.add(new TestObject("Michal", "Vanco", "mvanco", 123456, "mvanco@redhat.com"));
+      objects.add(new TestObject("Marek", "Posolda", "mposolda", 112233, "mposolda@redhat.com"));
+      objects.add(new TestObject("Viliam", "Rockai", "vrockai", 223311, "vrockai@redhat.com"));
+   }
+
+   public TestObject getTestObjectByUserName(String username)
+   {
+      for (TestObject object : objects)
+      {
+         if (object.getUsername().equals(username))
+         {
+            return object;
+         }
+      }
+      return null;
+   }
+
+   @Override
+   public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException
+   {
+      response.setContentType("text/html");
+      request.setAttribute("objects", objects);
+      PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/view_generator.jsp");
+      dispatcher.include(request, response);
+   }
+
+   @Override
+   public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException
+   {
+      String username = request.getParameter("username");
+      response.setEvent(new QName("urn:jboss:gatein:samples:event:object", "eventObject"),
+            getTestObjectByUserName(username));
+   }
 }

@@ -179,6 +179,8 @@
                         <descriptor>src/test/assembly/test-eventswithobject-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-events-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-portletmodes-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-prp-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-testobject-jar.xml</descriptor>
                      </descriptors>
                   </configuration>
                   <executions>
