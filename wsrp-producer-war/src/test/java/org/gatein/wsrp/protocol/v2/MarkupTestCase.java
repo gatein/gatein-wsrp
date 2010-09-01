@@ -29,6 +29,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -44,7 +45,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
+import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.HandleEvents;
+import org.oasis.wsrp.v2.HandleEventsFailed;
+import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -62,6 +67,7 @@ import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
 
+import javax.xml.namespace.QName;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Locale;
@@ -799,10 +805,30 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
+
+         // check events
+         List<Event> events = actionResponse.getUpdateResponse().getEvents();
+         assertNotNull(events);
+         assertEquals(1, events.size());
+         Event event = events.get(0);
+         assertEquals(new QName("urn:jboss:gatein:samples:event", "eventsample"), event.getName());
+         assertEquals(new QName("java.lang.String"), event.getType());
+         assertEquals("param-value", PayloadUtils.getPayloadAsSerializable(event.getType(), event.getPayload()));
+
+         // send event
+         HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,
+            WSRPTypeFactory.createPortletContext(consumerHandle), WSRPTypeFactory.createDefaultRuntimeContext(), null,
+            WSRPTypeFactory.createDefaultMarkupParams(), WSRPTypeFactory.createEventParams(events, StateChange.READ_ONLY));
+         HandleEventsResponse handleEventsResponse = producer.handleEvents(handleEvents);
+
+         // no failed events
+         List<HandleEventsFailed> failedEvents = handleEventsResponse.getFailedEvents();
+         assertEquals(0, failedEvents.size());
+
          GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
-         markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
+         markupRequestConsumer.getMarkupParams().setNavigationalContext(handleEventsResponse.getUpdateResponse().getNavigationalContext());
          MarkupResponse response = producer.getMarkup(markupRequestConsumer);
-         checkMarkupResponse(response, "param-value");
+         checkMarkupResponse(response, "param-value", false, true);
       }
       finally
       {
@@ -920,27 +946,42 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
    private MarkupContext checkMarkupResponse(MarkupResponse response, String markupString)
    {
-      ExtendedAssert.assertNotNull(response);
+      return checkMarkupResponse(response, markupString, true, false);
+   }
+
+   private MarkupContext checkMarkupResponse(MarkupResponse response, String markupString, boolean checkTitle, boolean partialMarkupMatch)
+   {
+      assertNotNull(response);
 
       // Markup context
       MarkupContext markupContext = response.getMarkupContext();
-      ExtendedAssert.assertNotNull(markupContext);
-      ExtendedAssert.assertEquals("text/html", markupContext.getMimeType());
-      ExtendedAssert.assertEquals("title", markupContext.getPreferredTitle());
+      assertNotNull(markupContext);
+      assertEquals("text/html", markupContext.getMimeType());
+      if (checkTitle)
+      {
+         assertEquals("title", markupContext.getPreferredTitle());
+      }
       if (!ParameterValidation.isNullOrEmpty(markupString))
       {
-         ExtendedAssert.assertTrue(markupContext.isRequiresRewriting());
+         assertTrue(markupContext.isRequiresRewriting());
       }
       else
       {
-         ExtendedAssert.assertFalse(markupContext.isRequiresRewriting());
+         assertFalse(markupContext.isRequiresRewriting());
       }
-      ExtendedAssert.assertEquals(markupString, markupContext.getItemString());
+      if (!partialMarkupMatch)
+      {
+         assertEquals(markupString, markupContext.getItemString());
+      }
+      else
+      {
+         assertTrue(markupContext.getItemString().contains(markupString));
+      }
 
       // Session context
       SessionContext sessionContext = response.getSessionContext();
       // The session information is should never be sent to the consumer, Cookies are used instead.
-      ExtendedAssert.assertNull(sessionContext);
+      assertNull(sessionContext);
 
       return markupContext;
    }
