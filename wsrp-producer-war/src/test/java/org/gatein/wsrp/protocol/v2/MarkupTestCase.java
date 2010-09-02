@@ -766,10 +766,30 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
+
+         // check events
+         List<Event> events = actionResponse.getUpdateResponse().getEvents();
+         assertNotNull(events);
+         assertEquals(1, events.size());
+         Event event = events.get(0);
+         assertEquals(new QName("urn:jboss:gatein:samples:event:object", "eventObject"), event.getName());
+         assertEquals(new QName("org.gatein.wsrp.portlet.utils.TestObject"), event.getType());
+         assertEquals("Prabhat", ((TestObject) PayloadUtils.getPayloadAsSerializable(event.getType(), event.getPayload())).getFirstName());
+
+         // send event
+         HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,
+            WSRPTypeFactory.createPortletContext(consumerHandle), WSRPTypeFactory.createDefaultRuntimeContext(), null,
+            WSRPTypeFactory.createDefaultMarkupParams(), WSRPTypeFactory.createEventParams(events, StateChange.READ_ONLY));
+         HandleEventsResponse handleEventsResponse = producer.handleEvents(handleEvents);
+
+         // no failed events
+         List<HandleEventsFailed> failedEvents = handleEventsResponse.getFailedEvents();
+         assertEquals(0, failedEvents.size());
+
          GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
-         markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
+         markupRequestConsumer.getMarkupParams().setNavigationalContext(handleEventsResponse.getUpdateResponse().getNavigationalContext());
          MarkupResponse response = producer.getMarkup(markupRequestConsumer);
-         checkMarkupResponse(response, "Prabhat");
+         checkMarkupResponse(response, "Prabhat", false, true);
       }
       finally
       {
@@ -829,6 +849,95 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          markupRequestConsumer.getMarkupParams().setNavigationalContext(handleEventsResponse.getUpdateResponse().getNavigationalContext());
          MarkupResponse response = producer.getMarkup(markupRequestConsumer);
          checkMarkupResponse(response, "param-value", false, true);
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+   }
+
+   @Test
+   public void testGetMarkupWithPublicRenderParameter() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-prp-portlet.war";
+      deploy(archive);
+
+      NamedString namedString = createNamedString("parameter", "param-value-prp");
+      try
+      {
+         List<String> handles = getHandlesForCurrentlyDeployedArchive();
+         String generatorHandle = null;
+         String consumerHandle = null;
+         for (String portletHandle : handles)
+         {
+            if (portletHandle.contains("Generator"))
+            {
+               generatorHandle = portletHandle;
+            }
+            else if (portletHandle.contains("Consumer"))
+            {
+               consumerHandle = portletHandle;
+            }
+         }
+         PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
+         List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
+         formParameters.add(namedString);
+         BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
+
+         GetMarkup markupRequestConsumer = createMarkupRequest(consumerHandle);
+         markupRequestConsumer.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
+         MarkupResponse response = producer.getMarkup(markupRequestConsumer);
+         checkMarkupResponse(response, "param-value-prp", false, true);
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+   }
+
+   @Test
+   public void testGetMarkupWithDefaultPortletModes() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-portletmodes-portlet.war";
+      deploy(archive);
+
+      try
+      {
+         GetMarkup getMarkup = createMarkupRequest();
+         
+         getMarkup.getMarkupParams().setMode(WSRPConstants.EDIT_MODE);
+         MarkupResponse responseEdit = producer.getMarkup(getMarkup);
+         checkMarkupResponse(responseEdit, "This is EDIT MODE.", false, true);
+         
+         getMarkup.getMarkupParams().setMode(WSRPConstants.VIEW_MODE);
+         MarkupResponse responseView = producer.getMarkup(getMarkup);
+         checkMarkupResponse(responseView, "This is VIEW MODE.", false, true);
+         
+         getMarkup.getMarkupParams().setMode(WSRPConstants.HELP_MODE);
+         MarkupResponse responseHelp = producer.getMarkup(getMarkup);
+         checkMarkupResponse(responseHelp, "This is HELP MODE.", false, true);
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+   }
+   
+   @Test
+   public void testGetMarkupWithCustomPortletMode() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-portletmodes-portlet.war";
+      deploy(archive);
+
+      try
+      {
+         GetMarkup getMarkup = createMarkupRequest();
+         getMarkup.getMarkupParams().setMode("test_mode");
+         MarkupResponse response = producer.getMarkup(getMarkup);
+         checkMarkupResponse(response, "This is TEST MODE.", false, true);
       }
       finally
       {
