@@ -28,6 +28,7 @@ import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.api.SessionEventListener;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
@@ -204,10 +205,13 @@ public class SessionHandler implements SessionEventListener
          SessionParams sessionParams = runtimeContext.getSessionParams();
          if (sessionParams == null)
          {
-            sessionParams = new SessionParams();
+            sessionParams = WSRPTypeFactory.createSessionParams(sessionId);
             runtimeContext.setSessionParams(sessionParams);
          }
-         sessionParams.setSessionID(sessionId);
+         else
+         {
+            sessionParams.setSessionID(sessionId);
+         }
       }
    }
 

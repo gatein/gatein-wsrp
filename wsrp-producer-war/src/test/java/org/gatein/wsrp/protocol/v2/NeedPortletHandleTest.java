@@ -26,11 +26,17 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
+import org.oasis.wsrp.v2.StateChange;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -202,12 +208,45 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
     */
    protected GetMarkup createMarkupRequest(String handle) throws RemoteException, InvalidRegistration, OperationFailed
    {
-      GetMarkup getMarkup = WSRPTypeFactory.createDefaultGetMarkup(handle);
+      GetMarkup getMarkup = createDefaultGetMarkup(handle);
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
 
       return getMarkup;
    }
+   
+   protected GetMarkup createDefaultGetMarkup(String handle)
+   {
+      PortletContext portletContext = WSRPTypeFactory.createPortletContext(handle);
+      RuntimeContext runtimeContext = createDefaultRuntimeContext(handle);
+      MarkupParams runtimeParams = createDefaultMarkupParams();
+      return WSRPTypeFactory.createGetMarkup(null, portletContext, runtimeContext, null, createDefaultMarkupParams());
+   }
+   
+   protected PerformBlockingInteraction createDefaultPerformBlockingInteraction(String handle)
+   {
+      PortletContext portletContext = WSRPTypeFactory.createPortletContext(handle);
+      return WSRPTypeFactory.createPerformBlockingInteraction(null, portletContext, createDefaultRuntimeContext(handle), null, createDefaultMarkupParams(),
+            createDefaultInteractionParams());
+   }
+   
+   protected InteractionParams createDefaultInteractionParams()
+   {
+      return WSRPTypeFactory.createInteractionParams(StateChange.READ_ONLY);
+   }
+   
+   protected RuntimeContext createDefaultRuntimeContext(String handle)
+   {
+      String portletInstanceKey = "foo";
+      String namespacePrefix = handle;
+      return WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, portletInstanceKey, namespacePrefix);
+   }
 
+   protected MarkupParams createDefaultMarkupParams()
+   {
+      return WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
+            WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE);
+   }
+   
    protected String getPortletHandleFrom(String partialHandle)
    {
       List<String> handles = getHandlesForCurrentlyDeployedArchive();

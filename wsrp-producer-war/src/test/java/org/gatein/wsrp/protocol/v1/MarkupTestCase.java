@@ -208,7 +208,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
 
          // let's see now if we can increment the counter
          V1PerformBlockingInteraction performBlockingInteraction =
-            WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+            createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          V1InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
          interactionParams.setInteractionState(incrementAction.getInteractionState().getStringValue());
          producer.performBlockingInteraction(performBlockingInteraction);
@@ -279,7 +279,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
    public void testPerformBlockingInteractionRedirect() throws Exception
    {
       V1PerformBlockingInteraction performBlockingInteraction =
-         WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getDefaultHandle());
+         createDefaultPerformBlockingInteraction(getDefaultHandle());
       V1InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
 
       // crappy way but this is a test! ;)
@@ -318,7 +318,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
    public void testPBIWithSessionID() throws Exception
    {
       String portletHandle = getDefaultHandle();
-      V1PerformBlockingInteraction performBlockingInteraction = WSRP1TypeFactory.createDefaultPerformBlockingInteraction(portletHandle);
+      V1PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(portletHandle);
 
       V1RuntimeContext runtimeContext = performBlockingInteraction.getRuntimeContext();
       //the sessionID should never be set by the consumer. Sessions are handled by cookies instead 
@@ -560,7 +560,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       try
       {
          V1PerformBlockingInteraction action =
-            WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+            createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          List<V1NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          V1BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
@@ -579,12 +579,20 @@ public class MarkupTestCase extends NeedPortletHandleTest
          checkMarkupResponse(response, "multi: value1, value2");
 
          formParameters.clear();
-         formParameters.add(new V1NamedString());
+         //TODO: use the WSRP1TypeFactory to create the named string         
+         formParameters.add(createNamedString("foo", null));
          actionResponse = producer.performBlockingInteraction(action);
          markupRequest = createMarkupRequestForCurrentlyDeployedPortlet();
          markupRequest.getMarkupParams().setNavigationalState(actionResponse.getUpdateResponse().getNavigationalState());
          response = producer.getMarkup(markupRequest);
          checkMarkupResponse(response, "multi: ");
+      }
+      catch (Exception e)
+      {
+         //Print error to the server logs since arquillian can't handle non serialzable errors
+         System.out.println("Failure in TestGetMarkupMultiValuedFromParams");
+         e.printStackTrace();
+         throw new Exception(e);
       }
       finally
       {
@@ -608,7 +616,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
          ExtendedAssert.assertEquals("initial", markupString);
 
          // modify the preference value
-         V1PerformBlockingInteraction pbi = WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+         V1PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          pbi.getInteractionParams().setPortletStateChange(V1StateChange.CLONE_BEFORE_WRITE); // request cloning if needed
          String value = "new value";
          pbi.getInteractionParams().getFormParameters().add(createNamedString("value", value));
@@ -710,7 +718,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       try
       {
          // set appVar to value in the application scope by the first portlet
-         V1PerformBlockingInteraction pbi = WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getPortletHandleFrom("Set"));
+         V1PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getPortletHandleFrom("Set"));
          pbi.getInteractionParams().getFormParameters().add(createNamedString("appVar", "value"));
          producer.performBlockingInteraction(pbi);
 
@@ -751,7 +759,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
    {
       configureRegistrationSettings(true, false);
 
-      V1PerformBlockingInteraction pbi = WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+      V1PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
       try
       {
          producer.performBlockingInteraction(pbi);
@@ -791,7 +799,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
    private String checkPBIAndGetNavigationalState(String symbol) throws Exception
    {
       V1PerformBlockingInteraction performBlockingInteraction =
-         WSRP1TypeFactory.createDefaultPerformBlockingInteraction(getDefaultHandle());
+         createDefaultPerformBlockingInteraction(getDefaultHandle());
       V1InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
       interactionParams.getFormParameters().add(createNamedString("symbol", symbol));
 

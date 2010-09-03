@@ -142,6 +142,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
@@ -271,13 +273,9 @@ public class V1ToV2Converter
    {
       if (v1RuntimeContext != null)
       {
-         RuntimeContext runtimeContext = WSRPTypeFactory.createRuntimeContext(v1RuntimeContext.getUserAuthentication());
-         runtimeContext.setNamespacePrefix(v1RuntimeContext.getNamespacePrefix());
-         runtimeContext.setPortletInstanceKey(v1RuntimeContext.getPortletInstanceKey());
+         RuntimeContext runtimeContext = WSRPTypeFactory.createRuntimeContext(v1RuntimeContext.getUserAuthentication(), v1RuntimeContext.getPortletInstanceKey(), v1RuntimeContext.getNamespacePrefix());
 
-         //TODO: handle the SessionParams better
-         SessionParams sessionParams = new SessionParams();
-         sessionParams.setSessionID(v1RuntimeContext.getSessionID());
+         SessionParams sessionParams = WSRPTypeFactory.createSessionParams(v1RuntimeContext.getSessionID());
 
          runtimeContext.setSessionParams(sessionParams);
          runtimeContext.setTemplates(toV2Templates(v1RuntimeContext.getTemplates()));
@@ -300,15 +298,15 @@ public class V1ToV2Converter
    {
       if (v1Templates != null)
       {
-         //TODO: should we be using the WSRP1TypeFactory,createTemplates(PortletInvocationContext) instead?
-         Templates templates = new Templates();
-         templates.setBlockingActionTemplate(v1Templates.getBlockingActionTemplate());
-         templates.setDefaultTemplate(v1Templates.getDefaultTemplate());
-         templates.setRenderTemplate(v1Templates.getRenderTemplate());
-         templates.setResourceTemplate(v1Templates.getResourceTemplate());
-         templates.setSecureBlockingActionTemplate(v1Templates.getSecureBlockingActionTemplate());
-         templates.setSecureRenderTemplate(v1Templates.getSecureRenderTemplate());
-         templates.setSecureResourceTemplate(v1Templates.getSecureResourceTemplate());
+         String defaultTemplate = v1Templates.getDefaultTemplate();
+         String blockingActionTemplate = v1Templates.getBlockingActionTemplate();
+         String renderTemplate = v1Templates.getRenderTemplate();
+         String resourceTemplate = v1Templates.getResourceTemplate();
+         String secureDefaultTemplate = v1Templates.getSecureDefaultTemplate();
+         String secureBlockingActionTemplate = v1Templates.getSecureBlockingActionTemplate();
+         String secureRenderTemplate = v1Templates.getSecureRenderTemplate();
+         String secureResourceTemplate = v1Templates.getSecureResourceTemplate();
+         Templates templates = WSRPTypeFactory.createTemplates(defaultTemplate, blockingActionTemplate, renderTemplate, resourceTemplate, secureDefaultTemplate, secureBlockingActionTemplate, secureRenderTemplate, secureResourceTemplate);
 
          List<V1Extension> extensions = v1Templates.getExtensions();
          if (extensions != null)
@@ -354,13 +352,13 @@ public class V1ToV2Converter
    {
       if (v1UserProfile != null)
       {
-         UserProfile userProfile = new UserProfile();
-         userProfile.setBdate(v1UserProfile.getBdate());
-         userProfile.setBusinessInfo(toV2Context(v1UserProfile.getBusinessInfo()));
-         userProfile.setEmployerInfo(toV2EmployerInfo(v1UserProfile.getEmployerInfo()));
-         userProfile.setGender(v1UserProfile.getGender());
-         userProfile.setHomeInfo(toV2Context(v1UserProfile.getHomeInfo()));
-         userProfile.setName(toV2PersonName(v1UserProfile.getName()));
+         PersonName name = toV2PersonName(v1UserProfile.getName());
+         XMLGregorianCalendar bdate = v1UserProfile.getBdate();
+         String gender = v1UserProfile.getGender();
+         EmployerInfo employerInfo = toV2EmployerInfo(v1UserProfile.getEmployerInfo());
+         Contact homeInfo = toV2Context(v1UserProfile.getHomeInfo());
+         Contact businessInfo = toV2Context(v1UserProfile.getBusinessInfo());
+         UserProfile userProfile = WSRPTypeFactory.createUserProfile(name, bdate, gender, employerInfo, homeInfo, businessInfo);
 
          return userProfile;
       }
@@ -374,10 +372,10 @@ public class V1ToV2Converter
    {
       if (v1EmployerInfo != null)
       {
-         EmployerInfo employerInfo = new EmployerInfo();
-         employerInfo.setDepartment(v1EmployerInfo.getDepartment());
-         employerInfo.setEmployer(v1EmployerInfo.getEmployer());
-         employerInfo.setJobtitle(v1EmployerInfo.getJobtitle());
+         String employer = v1EmployerInfo.getEmployer();
+         String department = v1EmployerInfo.getEmployer();
+         String jobTitle = v1EmployerInfo.getJobtitle();
+         EmployerInfo employerInfo = WSRPTypeFactory.createEmployerInfo(employer, department, jobTitle);
 
          List<V1Extension> extensions = v1EmployerInfo.getExtensions();
          if (extensions != null)
@@ -397,14 +395,8 @@ public class V1ToV2Converter
    {
       if (v1PersonName != null)
       {
-         PersonName personName = new PersonName();
-         personName.setFamily(v1PersonName.getFamily());
-         personName.setGiven(v1PersonName.getGiven());
-         personName.setMiddle(v1PersonName.getMiddle());
-         personName.setNickname(v1PersonName.getNickname());
-         personName.setPrefix(v1PersonName.getPrefix());
-         personName.setSuffix(v1PersonName.getSuffix());
-
+         PersonName personName = WSRPTypeFactory.createPersonName(v1PersonName.getPrefix(), v1PersonName.getGiven(), v1PersonName.getFamily(), v1PersonName.getMiddle(), v1PersonName.getSuffix(), v1PersonName.getNickname());
+         
          List<V1Extension> extensions = v1PersonName.getExtensions();
          if (extensions != null)
          {
@@ -423,10 +415,10 @@ public class V1ToV2Converter
    {
       if (v1Contact != null)
       {
-         Contact contact = new Contact();
-         contact.setOnline(toV2Online(v1Contact.getOnline()));
-         contact.setPostal(toV2Postal(v1Contact.getPostal()));
-         contact.setTelecom(toV2Telecom(v1Contact.getTelecom()));
+         Postal postal = toV2Postal(v1Contact.getPostal());
+         Telecom teleCom = toV2Telecom(v1Contact.getTelecom());
+         Online online = toV2Online(v1Contact.getOnline());
+         Contact contact = WSRPTypeFactory.createContact(postal, teleCom, online);
 
          List<V1Extension> extensions = v1Contact.getExtensions();
          if (extensions != null)
@@ -446,9 +438,7 @@ public class V1ToV2Converter
    {
       if (v1Online != null)
       {
-         Online online = new Online();
-         online.setEmail(v1Online.getEmail());
-         online.setUri(v1Online.getUri());
+         Online online = WSRPTypeFactory.createOnline(v1Online.getEmail(), v1Online.getUri());
 
          List<V1Extension> extensions = v1Online.getExtensions();
          if (extensions != null)
@@ -468,14 +458,7 @@ public class V1ToV2Converter
    {
       if (v1Postal != null)
       {
-         Postal postal = new Postal();
-         postal.setCity(v1Postal.getCity());
-         postal.setCountry(v1Postal.getCountry());
-         postal.setName(v1Postal.getName());
-         postal.setOrganization(v1Postal.getOrganization());
-         postal.setPostalcode(v1Postal.getPostalcode());
-         postal.setStateprov(v1Postal.getStateprov());
-         postal.setStreet(v1Postal.getStreet());
+         Postal postal = WSRPTypeFactory.createPostal(v1Postal.getName(), v1Postal.getStreet(), v1Postal.getCity(), v1Postal.getStateprov(), v1Postal.getPostalcode(), v1Postal.getCountry(), v1Postal.getOrganization());
 
          List<V1Extension> extensions = v1Postal.getExtensions();
          if (extensions != null)
@@ -495,11 +478,11 @@ public class V1ToV2Converter
    {
       if (v1Telecom != null)
       {
-         Telecom telecom = new Telecom();
-         telecom.setFax(toV2TelephoneNum(v1Telecom.getFax()));
-         telecom.setMobile(toV2TelephoneNum(v1Telecom.getMobile()));
-         telecom.setPager(toV2TelephoneNum(v1Telecom.getPager()));
-         telecom.setTelephone(toV2TelephoneNum(v1Telecom.getTelephone()));
+         TelephoneNum telephone = toV2TelephoneNum(v1Telecom.getTelephone());
+         TelephoneNum fax = toV2TelephoneNum(v1Telecom.getFax());
+         TelephoneNum mobile = toV2TelephoneNum(v1Telecom.getMobile());
+         TelephoneNum pager = toV2TelephoneNum(v1Telecom.getPager());
+         Telecom telecom = WSRPTypeFactory.createTelecom(telephone, fax, mobile, pager);
 
          List<V1Extension> extensions = v1Telecom.getExtensions();
          if (extensions != null)
@@ -519,12 +502,12 @@ public class V1ToV2Converter
    {
       if (v1TelephoneNum != null)
       {
-         TelephoneNum telephoneNum = new TelephoneNum();
-         telephoneNum.setComment(v1TelephoneNum.getComment());
-         telephoneNum.setExt(v1TelephoneNum.getExt());
-         telephoneNum.setIntcode(v1TelephoneNum.getIntcode());
-         telephoneNum.setLoccode(v1TelephoneNum.getLoccode());
-         telephoneNum.setNumber(v1TelephoneNum.getNumber());
+         String intCode = v1TelephoneNum.getIntcode();
+         String loccode = v1TelephoneNum.getLoccode();
+         String number = v1TelephoneNum.getNumber();
+         String ext = v1TelephoneNum.getExt();
+         String comment = v1TelephoneNum.getComment();
+         TelephoneNum telephoneNum = WSRPTypeFactory.createTelephoneNum(intCode, loccode, number, ext, comment);
 
          List<V1Extension> extensions = v1TelephoneNum.getExtensions();
          if (extensions != null)
@@ -651,17 +634,13 @@ public class V1ToV2Converter
    {
       if (v1ResourceList != null)
       {
-         ResourceList result = new ResourceList();
+         List<Resource> resources = WSRPUtils.transform(v1ResourceList.getResources(), RESOURCE);
+         ResourceList result = WSRPTypeFactory.createResourceList(resources);
 
          List<Extension> extensions = WSRPUtils.transform(v1ResourceList.getExtensions(), EXTENSION);
          if (extensions != null)
          {
             result.getExtensions().addAll(extensions);
-         }
-         List<Resource> resources = WSRPUtils.transform(v1ResourceList.getResources(), RESOURCE);
-         if (resources != null)
-         {
-            result.getResources().addAll(resources);
          }
 
          return result;
@@ -732,8 +711,7 @@ public class V1ToV2Converter
    {
       if (registrationData != null)
       {
-         RegistrationData result = WSRPTypeFactory.createRegistrationData(registrationData.getConsumerName(), registrationData.isMethodGetSupported());
-         result.setConsumerAgent(registrationData.getConsumerAgent());
+         RegistrationData result = WSRPTypeFactory.createRegistrationData(registrationData.getConsumerName(), registrationData.getConsumerAgent(), registrationData.isMethodGetSupported());
 
          List<Property> properties = WSRPUtils.transform(registrationData.getRegistrationProperties(), PROPERTY);
          if (properties != null)
@@ -1076,8 +1054,7 @@ public class V1ToV2Converter
       {
          if (from != null)
          {
-            Extension extension = new Extension();
-            extension.setAny(from.getAny());
+            Extension extension = WSRPTypeFactory.createExtension(from.getAny());
             return extension;
          }
          else
@@ -1145,9 +1122,8 @@ public class V1ToV2Converter
       {
          if (from != null)
          {
-            ItemDescription result = new ItemDescription();
-            result.setItemName(from.getItemName());
-            result.setDescription(LOCALIZEDSTRING.apply(from.getDescription()));
+            LocalizedString description = LOCALIZEDSTRING.apply(from.getDescription());
+            ItemDescription result = WSRPTypeFactory.createItemDescription(description, null, from.getItemName());
             List<Extension> extensions = WSRPUtils.transform(from.getExtensions(), EXTENSION);
             if (extensions != null)
             {
@@ -1244,14 +1220,7 @@ public class V1ToV2Converter
       {
          if (from != null)
          {
-            Resource result = new Resource();
-            result.setResourceName(from.getResourceName());
-            List<ResourceValue> values = WSRPUtils.transform(from.getValues(), RESOURCEVALUE);
-            if (values != null)
-            {
-               result.getValues().addAll(values);
-            }
-
+            Resource result = WSRPTypeFactory.createResource(from.getResourceName(), WSRPUtils.transform(from.getValues(), RESOURCEVALUE));
             return result;
          }
          else
@@ -1268,9 +1237,8 @@ public class V1ToV2Converter
       {
          if (from != null)
          {
-            ResourceValue result = new ResourceValue();
-            result.setLang(from.getLang());
-            result.setValue(from.getValue());
+            ResourceValue result = WSRPTypeFactory.createResourceValue(from.getLang(), from.getValue());
+            
             List<Extension> extensions = WSRPUtils.transform(from.getExtensions(), EXTENSION);
             if (extensions != null)
             {

@@ -44,8 +44,10 @@ import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
+import org.oasis.wsrp.v2.EmployerInfo;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.EventParams;
@@ -53,6 +55,7 @@ import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.ExportPortlets;
 import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportedPortlet;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
@@ -69,6 +72,7 @@ import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.ImportedPortlet;
 import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
+import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.LocalizedString;
 import org.oasis.wsrp.v2.MarkupContext;
@@ -76,17 +80,22 @@ import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.MissingParametersFault;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NamedStringArray;
 import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.Online;
+import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.ParameterDescription;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.PersonName;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
+import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
@@ -95,21 +104,29 @@ import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.Resource;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.ResourceResponse;
+import org.oasis.wsrp.v2.ResourceValue;
+import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.SessionContext;
+import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.Telecom;
+import org.oasis.wsrp.v2.TelephoneNum;
 import org.oasis.wsrp.v2.Templates;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
 import org.oasis.wsrp.v2.UserContext;
+import org.oasis.wsrp.v2.UserProfile;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Collection;
@@ -119,7 +136,6 @@ import java.util.Map;
 import static org.gatein.wsrp.WSRPRewritingConstants.*;
 
 /**
- * TODO: NEEDS TO BE UPDATED TO CONFORM TO WSRP 2 XSD, see GTNWSRP-42
  * <p/>
  * Creates minimally valid instances of WSRP types, populated with default values where possible, as per
  * wsrp_v2_types.xsd.
@@ -151,17 +167,6 @@ public class WSRPTypeFactory
       getServiceDescription.setRegistrationContext(registrationContext);
       getServiceDescription.setUserContext(userContext);
       return getServiceDescription;
-   }
-
-   /**
-    * Same as createMarkupRequest(handle, createDefaultRuntimeContext(), createDefaultMarkupParams())
-    *
-    * @param handle
-    * @return
-    */
-   public static GetMarkup createDefaultGetMarkup(String handle)
-   {
-      return createGetMarkup(null, createPortletContext(handle), createDefaultRuntimeContext(), null, createDefaultMarkupParams());
    }
 
    /**
@@ -218,19 +223,6 @@ public class WSRPTypeFactory
       getResource.setUserContext(userContext);
       getResource.setResourceParams(resourceParams);
       return getResource;
-   }
-
-   /**
-    * Same as createPerformBlockingInteraction(portletHandle, {@link #createDefaultRuntimeContext}(), {@link
-    * #createDefaultMarkupParams}(), {@link #createDefaultInteractionParams}());
-    *
-    * @param portletHandle
-    * @return
-    */
-   public static PerformBlockingInteraction createDefaultPerformBlockingInteraction(String portletHandle)
-   {
-      return createPerformBlockingInteraction(null, createPortletContext(portletHandle), createDefaultRuntimeContext(), null, createDefaultMarkupParams(),
-         createDefaultInteractionParams());
    }
 
    /**
@@ -309,8 +301,10 @@ public class WSRPTypeFactory
     */
    public static GetPortletDescription createGetPortletDescription(RegistrationContext registrationContext, String portletHandle)
    {
+      PortletContext portletContext = createPortletContext(portletHandle);
+      ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "portlet context");
       GetPortletDescription description = new GetPortletDescription();
-      description.setPortletContext(createPortletContext(portletHandle));
+      description.setPortletContext(portletContext);
       description.setRegistrationContext(registrationContext);
       return description;
    }
@@ -418,18 +412,6 @@ public class WSRPTypeFactory
       }
    }
 
-   /**
-    * Same as createMarkupParams(false, {@link WSRPConstants#getDefaultLocales()}, {@link
-    * WSRPConstants#getDefaultMimeTypes()}, {@link WSRPConstants#VIEW_MODE}, {@link WSRPConstants#NORMAL_WINDOW_STATE})
-    *
-    * @return
-    */
-   public static MarkupParams createDefaultMarkupParams()
-   {
-      return createMarkupParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
-         WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE);
-   }
-
    public static MarkupParams createMarkupParams(boolean secureClientCommunication, List<String> locales,
                                                  List<String> mimeTypes, String mode, String windowState)
    {
@@ -437,6 +419,11 @@ public class WSRPTypeFactory
       if (locales.isEmpty())
       {
          throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of locales!");
+      }
+      
+      if (mimeTypes.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of mimeTypes!");
       }
 
       ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "MIME types");
@@ -471,6 +458,13 @@ public class WSRPTypeFactory
       {
          throw new IllegalArgumentException("Cannot create a ResourceParams with an empty list of locales!");
       }
+      
+      ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "locales");
+      if (mimeTypes.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of mimeTypes!");
+      }
+      
       ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "MIME types");
       ParameterValidation.throwIllegalArgExceptionIfNull(stateChange, "State Change");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mode, "mode", "ResourceParams");
@@ -497,23 +491,16 @@ public class WSRPTypeFactory
       return resourceParams;
    }
 
-   /**
-    * Same as createRuntimeContext({@link WSRPConstants#NONE_USER_AUTHENTICATION})
-    *
-    * @return
-    */
-   public static RuntimeContext createDefaultRuntimeContext()
+   public static RuntimeContext createRuntimeContext(String userAuthentication, String portletInstanceKey, String namespacePrefix)
    {
-      return createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION);
-   }
-
-   public static RuntimeContext createRuntimeContext(String userAuthentication)
-   {
-      //TODO: portletInstanceKey and NameSpacepPrefix are also required;
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userAuthentication, "user authentication", "RuntimeContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletInstanceKey, "Portlet Instance Key", "RuntimeContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(namespacePrefix, "Namespace Prefix", "RuntimeContext");
 
       RuntimeContext runtimeContext = new RuntimeContext();
       runtimeContext.setUserAuthentication(userAuthentication);
+      runtimeContext.setPortletInstanceKey(portletInstanceKey);
+      runtimeContext.setNamespacePrefix(namespacePrefix);
       return runtimeContext;
    }
 
@@ -532,16 +519,6 @@ public class WSRPTypeFactory
       PortletContext pc = createPortletContext(portletHandle);
       pc.setPortletState(portletState);
       return pc;
-   }
-
-   /**
-    * Same as createInteractionParams(StateChange.readOnly)
-    *
-    * @return
-    */
-   public static InteractionParams createDefaultInteractionParams()
-   {
-      return createInteractionParams(StateChange.READ_ONLY);
    }
 
    public static InteractionParams createInteractionParams(StateChange portletStateChange)
@@ -593,6 +570,7 @@ public class WSRPTypeFactory
     */
    public static MarkupContext createMarkupContext(String mediaType, String markupString)
    {
+      //TODO: this should be allowed to be null
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "Media type", "MarkupContext");
       if (markupString == null)
       {
@@ -614,6 +592,7 @@ public class WSRPTypeFactory
     */
    public static MarkupContext createMarkupContext(String mediaType, byte[] markupBinary)
    {
+      //TODO: this should be allowed to be null
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "MarkupContext");
       if (markupBinary == null || markupBinary.length == 0)
       {
@@ -640,6 +619,7 @@ public class WSRPTypeFactory
 
    public static <T extends MimeResponse> T createMimeResponse(String mimeType, String itemString, byte[] itemBinary, Class<T> clazz)
    {
+      //TODO: this should be allowed to be null
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME type", "MimeResponse");
       if ((itemString == null) && (itemBinary == null || itemBinary.length == 0))
       {
@@ -710,12 +690,13 @@ public class WSRPTypeFactory
     *                           method="get".
     * @return
     */
-   public static RegistrationData createRegistrationData(String consumerName, boolean methodGetSupported)
+   public static RegistrationData createRegistrationData(String consumerName, String consumerAgent, boolean methodGetSupported)
    {
-      //TODO: consumer agent requirement
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "consumer name", "RegistrationData");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerAgent, "consumer agent", "RegistrationData");
       RegistrationData regData = createDefaultRegistrationData();
       regData.setConsumerName(consumerName);
+      regData.setConsumerAgent(consumerAgent);
       regData.setMethodGetSupported(methodGetSupported);
       return regData;
    }
@@ -745,10 +726,8 @@ public class WSRPTypeFactory
 
    public static Property createProperty(QName name, String lang, String stringValue)
    {
-      //TODO: stringValue is not required
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "language", "Property");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(stringValue, "String value", "Property");
 
       Property property = new Property();
       property.setName(name);
@@ -876,6 +855,21 @@ public class WSRPTypeFactory
       templates.setResourceTemplate(createTemplate(context, RESOURCE_URL, false));
       templates.setSecureResourceTemplate(createTemplate(context, RESOURCE_URL, true));
 
+      return templates;
+   }
+   
+   public static Templates createTemplates(String defaultTemplate, String blockingActionTemplate, String renderTemplate, String resourceTemplate, String secureDefaultTemplate, String secureBlockingActionTemplate, String secureRenderTemplate, String secureResourceTemplate)
+   {
+      Templates templates = new Templates();
+      templates.setDefaultTemplate(defaultTemplate);
+      templates.setBlockingActionTemplate(blockingActionTemplate);
+      templates.setRenderTemplate(renderTemplate);
+      templates.setResourceTemplate(resourceTemplate);
+      templates.setSecureDefaultTemplate(secureDefaultTemplate);
+      templates.setSecureBlockingActionTemplate(secureBlockingActionTemplate);
+      templates.setSecureRenderTemplate(secureRenderTemplate);
+      templates.setSecureResourceTemplate(secureResourceTemplate);
+      
       return templates;
    }
 
@@ -1232,8 +1226,20 @@ public class WSRPTypeFactory
 
    public static MarkupType createMarkupType(String mimeType, List<String> modeNames, List<String> windowStateNames, List<String> localeNames)
    {
-      //TODO: modes and windowstates might need a check for null 
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME Type", "MarkupContext");
+      
+      ParameterValidation.throwIllegalArgExceptionIfNull(modeNames, "modeNames");
+      if (modeNames.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a MarkupType with an empty list of modes!");
+      }
+      
+      ParameterValidation.throwIllegalArgExceptionIfNull(windowStateNames, "windowStatesNames");
+      if (windowStateNames.isEmpty())
+      {
+         throw new IllegalArgumentException("Cannot create a MarkupType with an empty list of windowStates!");
+      }
+      
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
 
@@ -1262,7 +1268,6 @@ public class WSRPTypeFactory
     */
    public static FailedPortlets createFailedPortlets(Collection<String> portletHandles, ErrorCodes.Codes errorCode, String reason)
    {
-      //TODO: reason should be a LocalizedString
       ParameterValidation.throwIllegalArgExceptionIfNull(errorCode, "ErrorCode");
       if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
       {
@@ -1328,6 +1333,19 @@ public class WSRPTypeFactory
 
       return null;
    }
+   
+   public static NavigationalContext createNavigationalContext(String opaqueValue, List<NamedString> publicValues)
+   {
+      NavigationalContext navigationalContext = new NavigationalContext();
+      navigationalContext.setOpaqueValue(opaqueValue);
+      
+      if (publicValues != null && !publicValues.isEmpty())
+      {
+         navigationalContext.getPublicValues().addAll(publicValues);
+      }
+      
+      return navigationalContext;
+   }
 
    public static ParameterDescription createParameterDescription(String identifier)
    {
@@ -1388,6 +1406,7 @@ public class WSRPTypeFactory
 
    public static NamedString createNamedString(String name, String value)
    {
+      ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
       NamedString namedString = new NamedString();
       namedString.setName(name);
       namedString.setValue(value);
@@ -1437,6 +1456,7 @@ public class WSRPTypeFactory
    public static ExportedPortlet createExportedPortlet(String portletHandle, byte[] exportData)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletHandle, "PortletHandle");
+      ParameterValidation.throwIllegalArgExceptionIfNull(exportData, "ExportData");
 
       ExportedPortlet exportedPortlet = new ExportedPortlet();
       exportedPortlet.setPortletHandle(portletHandle);
@@ -1486,7 +1506,6 @@ public class WSRPTypeFactory
 
    public static ImportPortletsFailed createImportPortletsFailed(List<String> importIds, ErrorCodes.Codes errorCode, String reason)
    {
-      //TODO: reason should be a LocalizedString
       ParameterValidation.throwIllegalArgExceptionIfNull(errorCode, "ErrorCode");
       if (ParameterValidation.existsAndIsNotEmpty(importIds))
       {
@@ -1501,7 +1520,7 @@ public class WSRPTypeFactory
          return failedPortlets;
       }
 
-      throw new IllegalArgumentException("Must provide non-null, non-empty portlet handle list.");
+      throw new IllegalArgumentException("Must provide non-null, non-empty portlet id list.");
    }
 
    public static ImportedPortlet createImportedPortlet(String portletID, PortletContext portletContext)
@@ -1518,6 +1537,7 @@ public class WSRPTypeFactory
 
    public static ReleaseExport createReleaseExport(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext)
    {
+      //Can the exportContext be empty?
       if (exportContext == null || exportContext.length == 0)
       {
          throw new IllegalArgumentException("Must provide a non null or empty exportContext to ReleaseExport.");
@@ -1533,6 +1553,7 @@ public class WSRPTypeFactory
 
    public static SetExportLifetime createSetExportLifetime(RegistrationContext registrationContext, byte[] exportContext, UserContext userContext, Lifetime lifetime)
    {
+      //Can the exportContext be empty?
       if (exportContext == null || exportContext.length == 0)
       {
          throw new IllegalArgumentException("Must provide a non null or empty exportContext to SetExportLifetime.");
@@ -1545,5 +1566,181 @@ public class WSRPTypeFactory
       setExportLifetime.setLifetime(lifetime);
 
       return setExportLifetime;
+   }
+   
+   public static Contact createContact(Postal postal, Telecom telecom, Online online)
+   {
+      Contact contact = new Contact();
+      contact.setPostal(postal);
+      contact.setTelecom(telecom);
+      contact.setOnline(online);
+      
+      return contact;
+   }
+   
+   public static Postal createPostal(String name, String street, String city, String stateprov, String postalCode, String country, String organization)
+   {
+      Postal postal = new Postal();
+      postal.setName(name);
+      postal.setStreet(street);
+      postal.setCity(city);
+      postal.setStateprov(stateprov);
+      postal.setPostalcode(postalCode);
+      postal.setCountry(country);
+      postal.setOrganization(organization);
+      
+      return postal;
+   }
+   
+   public static Telecom createTelecom(TelephoneNum telephone, TelephoneNum fax, TelephoneNum mobile, TelephoneNum pager)
+   {
+      Telecom telecom = new Telecom();
+      telecom.setTelephone(telephone);
+      telecom.setFax(fax);
+      telecom.setMobile(mobile);
+      telecom.setPager(pager);
+      
+      return telecom;
+   }
+   
+   public static TelephoneNum createTelephoneNum(String intCode, String loccode, String number, String ext, String comment)
+   {
+      TelephoneNum telephoneNum = new TelephoneNum();
+      telephoneNum.setIntcode(intCode);
+      telephoneNum.setLoccode(loccode);
+      telephoneNum.setNumber(number);
+      telephoneNum.setExt(ext);
+      telephoneNum.setComment(comment);
+      
+      return telephoneNum;
+   }
+   
+   public static Online createOnline(String email, String uri)
+   {
+      Online online = new Online();
+      online.setEmail(email);
+      online.setUri(uri);
+      return online;
+   }
+   
+   public static EmployerInfo createEmployerInfo(String employer, String department, String jobTitle)
+   {
+      EmployerInfo employerInfo = new EmployerInfo();
+      employerInfo.setEmployer(employer);
+      employerInfo.setDepartment(department);
+      employerInfo.setJobtitle(jobTitle);
+      
+      return employerInfo;
+   }
+   
+   public static PersonName createPersonName(String prefix, String given, String family, String middle, String suffix, String nickname)
+   {
+      PersonName personName = new PersonName();
+      personName.setPrefix(prefix);
+      personName.setGiven(given);
+      personName.setFamily(family);
+      personName.setMiddle(middle);
+      personName.setSuffix(suffix);
+      personName.setNickname(nickname);
+      
+      return personName;
+   }
+   
+   public static Extension createExtension(Object any)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(any, "Any");
+      Extension extension = new Extension();
+      extension.setAny(any);
+      
+      return extension;
+   }
+   
+   public static MissingParametersFault createMissingParametersFault()
+   {
+      MissingParametersFault missingParametersFault = new MissingParametersFault();
+      return missingParametersFault;
+   }
+   
+   public static OperationFailedFault createOperationFailedFault()
+   {
+      OperationFailedFault operationFailedFault = new OperationFailedFault();
+      return operationFailedFault;
+   }
+   
+   public static ItemDescription createItemDescription(LocalizedString description, LocalizedString displayName, String itemName)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(itemName, "ItemName");
+      
+      ItemDescription itemDescription = new ItemDescription();
+      itemDescription.setDescription(description);
+      itemDescription.setDisplayName(displayName);
+      itemDescription.setItemName(itemName);
+      
+      return itemDescription;
+   }
+   
+   public static Resource createResource(String resourceName, List<ResourceValue> resourceValue)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(resourceName, "ResourceName");
+      Resource resource = new Resource();
+      resource.setResourceName(resourceName);
+      
+      if (resourceValue != null && !resourceValue.isEmpty())
+      {
+         resource.getValues().addAll(resourceValue);
+      }
+      
+      return resource;
+   }
+   
+   public static ResourceList createResourceList(List<Resource> resources)
+   {  
+      if (ParameterValidation.existsAndIsNotEmpty(resources))
+      {
+         ResourceList resourceList = new ResourceList();
+         resourceList.getResources().addAll(resources);
+
+         return resourceList;
+      }
+      else
+      {
+         throw new IllegalArgumentException("Must provide non-null, non-empty resource list.");
+      }
+   }
+   
+   public static ResourceValue createResourceValue(String lang, String value)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(lang, "Lang");
+      ResourceValue resourceValue = new ResourceValue();
+      resourceValue.setLang(value);
+      resourceValue.setValue(value);
+      
+      return resourceValue;
+   }
+   
+   public static ReturnAny createReturnAny()
+   {
+      return new ReturnAny();
+   }
+   
+   public static SessionParams createSessionParams(String sessionID)
+   {
+      SessionParams sessionParams = new SessionParams();
+      sessionParams.setSessionID(sessionID);
+      
+      return sessionParams;
+   }
+   
+   public static UserProfile createUserProfile(PersonName name, XMLGregorianCalendar bdate, String gender, EmployerInfo employerInfo, Contact homeInfo, Contact businessInfo)
+   {
+      UserProfile userProfile = new UserProfile();
+      userProfile.setName(name);
+      userProfile.setBdate(bdate);
+      userProfile.setGender(gender);
+      userProfile.setEmployerInfo(employerInfo);
+      userProfile.setHomeInfo(homeInfo);
+      userProfile.setBusinessInfo(businessInfo);
+      
+      return userProfile;
    }
 }

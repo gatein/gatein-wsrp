@@ -622,7 +622,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       }
       catch (Exception e)
       {
-         throw new OperationFailed("Operation Failed while trying to ExportPortlets.", new OperationFailedFault());
+         throw new OperationFailed("Operation Failed while trying to ExportPortlets.", WSRPTypeFactory.createOperationFailedFault());
       }
       finally
       {
@@ -759,7 +759,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       }
 
       //this method shouldn't return anything
-      return new ReturnAny().getExtensions();
+      return WSRPTypeFactory.createReturnAny().getExtensions();
    }
 
    public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration, OperationNotSupported

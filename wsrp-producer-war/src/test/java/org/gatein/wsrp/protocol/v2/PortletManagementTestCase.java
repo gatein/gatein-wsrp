@@ -203,21 +203,31 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Test
    public void testExportRegistrationRequired() throws Exception
    {
-      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      try
+      {
+         producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
 
-      RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", true);
-      RegistrationContext registrationContext = producer.register(registrationData);
+         RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", "CONSUMERAGENT.0.0", true);
+         RegistrationContext registrationContext = producer.register(registrationData);
 
-      List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
+         List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
 
-      boolean exportByValueRequired = true;
-      Lifetime lifetime = null;
-      UserContext userContext = null;
-      ExportPortlets exportPortlets = WSRPTypeFactory.createExportPortlets(registrationContext, portletContexts, userContext, lifetime, exportByValueRequired);
+         boolean exportByValueRequired = true;
+         Lifetime lifetime = null;
+         UserContext userContext = null;
+         ExportPortlets exportPortlets = WSRPTypeFactory.createExportPortlets(registrationContext, portletContexts, userContext, lifetime, exportByValueRequired);
 
-      ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
+         ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
-      checkValidHandle(response, getDefaultHandle());
+         checkValidHandle(response, getDefaultHandle());
+      }
+      catch (Exception e)
+      {
+         //arquillian can't handle non serializable exceptions, print error message to the server logs
+         System.out.println("An exception occured calling " + this.getClass() + " testExportRegistrationRequired");
+         e.printStackTrace();
+         throw new Exception (e);
+      }
    }
 
    @Test
@@ -381,40 +391,50 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Test
    public void testImportRegistrationRequired() throws Exception
    {
-      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
-      RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", true);
-      RegistrationContext registrationContext = producer.register(registrationData);
+      try
+      {
+         producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+         RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", "CONSUMERAGENT.0.0", true);
+         RegistrationContext registrationContext = producer.register(registrationData);
 
-      String importID = "foo";
+         String importID = "foo";
 
-      Lifetime lifetime = null;
-      UserContext userContext = null;
+         Lifetime lifetime = null;
+         UserContext userContext = null;
 
-      List<String> portletList = new ArrayList<String>();
-      portletList.add(getDefaultHandle());
-      ExportContext exportContextData = new ExportContext();
-      byte[] importContext = exportContextData.encodeAsBytes();
+         List<String> portletList = new ArrayList<String>();
+         portletList.add(getDefaultHandle());
+         ExportContext exportContextData = new ExportContext();
+         byte[] importContext = exportContextData.encodeAsBytes();
 
-      ImportPortlet importPortlet = createSimpleImportPortlet(importID, getDefaultHandle());
-      List<ImportPortlet> importPortletsList = createImportPortletList(importPortlet);
+         ImportPortlet importPortlet = createSimpleImportPortlet(importID, getDefaultHandle());
+         List<ImportPortlet> importPortletsList = createImportPortletList(importPortlet);
 
-      ImportPortlets importPortlets = WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortletsList, userContext, lifetime);
-      ImportPortletsResponse response = producer.importPortlets(importPortlets);
+         ImportPortlets importPortlets = WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortletsList, userContext, lifetime);
+         ImportPortletsResponse response = producer.importPortlets(importPortlets);
 
-      assertEquals(1, response.getImportedPortlets().size());
-      ImportedPortlet portlet = response.getImportedPortlets().get(0);
+         assertEquals(1, response.getImportedPortlets().size());
+         ImportedPortlet portlet = response.getImportedPortlets().get(0);
 
-      assertEquals(importID, portlet.getImportID());
+         assertEquals(importID, portlet.getImportID());
 
-      PortletContext portletContext = portlet.getNewPortletContext();
+         PortletContext portletContext = portlet.getNewPortletContext();
 
-      //check that the new portlet handle is valid and we can access the portlet
-      GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
-      markup.setRegistrationContext(registrationContext);
+         //check that the new portlet handle is valid and we can access the portlet
+         GetMarkup markup = createMarkupRequest(portletContext.getPortletHandle());
+         markup.setRegistrationContext(registrationContext);
 
-      MarkupResponse markupResponse = producer.getMarkup(markup);
-      assertNotNull(markupResponse.getMarkupContext());
-      assertEquals("<p>symbol unset stock value: value unset</p>", new String(markupResponse.getMarkupContext().getItemString()));
+         MarkupResponse markupResponse = producer.getMarkup(markup);
+         assertNotNull(markupResponse.getMarkupContext());
+         assertEquals("<p>symbol unset stock value: value unset</p>", new String(markupResponse.getMarkupContext().getItemString()));
+      }
+      catch (Exception e)
+      {
+         //arquillian can't handle non serializable exceptions, print error message to the server logs
+         System.out.println("An exception occured calling " + this.getClass() + " testImportRegistrationRequired");
+         e.printStackTrace();
+         throw new Exception (e);
+      }
    }
 
    @Test
@@ -959,7 +979,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    protected PortletContext performBlockingInteractionOnSessionPortlet(String handle, String value, StateChange stateChange) throws Exception
    {
       //perform a blocking interaction to set a state on the portlet;
-      PerformBlockingInteraction pbi = WSRPTypeFactory.createDefaultPerformBlockingInteraction(handle);
+      PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(handle);
       pbi.getInteractionParams().setPortletStateChange(stateChange);
       NamedString namedString = WSRPTypeFactory.createNamedString("value", value);
       pbi.getInteractionParams().getFormParameters().add(namedString);

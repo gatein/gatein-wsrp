@@ -125,9 +125,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    {
       forceSessionAccess();
 
-      ReleaseSessions releaseSessions = new ReleaseSessions();
-      releaseSessions.setRegistrationContext(registrationContext);
-      releaseSessions.getSessionIDs().addAll(sessionIDs);
+      ReleaseSessions releaseSessions = WSRPTypeFactory.createReleaseSessions(registrationContext, sessionIDs);
 
       return producer.releaseSessions(releaseSessions);
    }
@@ -139,8 +137,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    {
       forceSessionAccess();
 
-      InitCookie initCookie = new InitCookie();
-      initCookie.setRegistrationContext(registrationContext);
+      InitCookie initCookie = WSRPTypeFactory.createInitCookie(registrationContext);
 
       return producer.initCookie(initCookie);
    }
@@ -149,12 +146,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    {
       forceSessionAccess();
 
-      GetMarkup getMarkup = new GetMarkup();
-      getMarkup.setRegistrationContext(registrationContext);
-      getMarkup.setPortletContext(portletContext);
-      getMarkup.setRuntimeContext(runtimeContext);
-      getMarkup.setUserContext(userContext);
-      getMarkup.setMarkupParams(markupParams);
+      GetMarkup getMarkup = WSRPTypeFactory.createGetMarkup(registrationContext, portletContext, runtimeContext, userContext, markupParams);
 
       MarkupResponse response = producer.getMarkup(getMarkup);
 
@@ -177,12 +169,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
       ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
       forceSessionAccess();
-      GetResource getResource = new GetResource();
-      getResource.setPortletContext(portletContext.value);
-      getResource.setRegistrationContext(registrationContext);
-      getResource.setResourceParams(resourceParams);
-      getResource.setRuntimeContext(runtimeContext);
-      getResource.setUserContext(userContext);
+      GetResource getResource = WSRPTypeFactory.createGetResource(registrationContext, portletContext.value, runtimeContext, userContext, resourceParams);
 
       ResourceResponse response = producer.getResource(getResource);
 
@@ -196,13 +183,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPort
    {
       forceSessionAccess();
 
-      PerformBlockingInteraction performBlockingInteraction = new PerformBlockingInteraction();
-      performBlockingInteraction.setPortletContext(portletContext);
-      performBlockingInteraction.setRuntimeContext(runtimeContext);
-      performBlockingInteraction.setMarkupParams(markupParams);
-      performBlockingInteraction.setInteractionParams(interactionParams);
-      performBlockingInteraction.setRegistrationContext(registrationContext);
-      performBlockingInteraction.setUserContext(userContext);
+      PerformBlockingInteraction performBlockingInteraction = WSRPTypeFactory.createPerformBlockingInteraction(registrationContext, portletContext, runtimeContext, userContext, markupParams, interactionParams);
 
       BlockingInteractionResponse interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
 

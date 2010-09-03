@@ -120,17 +120,6 @@ public class WSRP1TypeFactory
    }
 
    /**
-    * Same as createMarkupRequest(handle, createDefaultRuntimeContext(), createDefaultMarkupParams())
-    *
-    * @param handle
-    * @return
-    */
-   public static V1GetMarkup createDefaultMarkupRequest(String handle)
-   {
-      return createMarkupRequest(createPortletContext(handle), createDefaultRuntimeContext(), createDefaultMarkupParams());
-   }
-
-   /**
     * registrationContext(RegistrationContext)?, portletContext(PortletContext), runtimeContext(RuntimeContext),
     * userContext(UserContext)?, markupParams(MarkupParams)
     *
@@ -151,19 +140,6 @@ public class WSRP1TypeFactory
       getMarkup.setRuntimeContext(runtimeContext);
       getMarkup.setMarkupParams(markupParams);
       return getMarkup;
-   }
-
-   /**
-    * Same as createPerformBlockingInteraction(portletHandle, {@link #createDefaultRuntimeContext}(), {@link
-    * #createDefaultMarkupParams}(), {@link #createDefaultInteractionParams}());
-    *
-    * @param portletHandle
-    * @return
-    */
-   public static V1PerformBlockingInteraction createDefaultPerformBlockingInteraction(String portletHandle)
-   {
-      return createPerformBlockingInteraction(createPortletContext(portletHandle), createDefaultRuntimeContext(), createDefaultMarkupParams(),
-         createDefaultInteractionParams());
    }
 
    /**
@@ -403,27 +379,19 @@ public class WSRP1TypeFactory
    }
 
    /**
-    * Same as createRuntimeContext({@link WSRPConstants#NONE_USER_AUTHENTICATION})
-    *
-    * @return
-    */
-   public static V1RuntimeContext createDefaultRuntimeContext()
-   {
-      return createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION);
-   }
-
-   /**
     * userAuthentication(xsd:string), portletInstanceKey(xsd:string)?, namespacePrefix(xsd:string)?,
     * templates(Templates)?, sessionID(xsd:string)?, extensions(Extension)*
     *
     * @return
     */
-   public static V1RuntimeContext createRuntimeContext(String userAuthentication)
+   public static V1RuntimeContext createRuntimeContext(String userAuthentication, String portletInstanceKey, String namespacePrefix)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userAuthentication, "user authentication", "RuntimeContext");
 
       V1RuntimeContext runtimeContext = new V1RuntimeContext();
       runtimeContext.setUserAuthentication(userAuthentication);
+      runtimeContext.setPortletInstanceKey(portletInstanceKey);
+      runtimeContext.setNamespacePrefix(namespacePrefix);
       return runtimeContext;
    }
 

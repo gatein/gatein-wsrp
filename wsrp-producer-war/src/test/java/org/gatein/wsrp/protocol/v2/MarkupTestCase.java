@@ -152,8 +152,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    {
       // The consumer should never have access to or be able to set a sessionID. Sessions are handled by the Producer using cookies.
       GetMarkup getMarkup = createMarkupRequest();
-      SessionParams sessionParams = new SessionParams();
-      sessionParams.setSessionID("Hello World");
+      SessionParams sessionParams = WSRPTypeFactory.createSessionParams("Hello World");
       getMarkup.getRuntimeContext().setSessionParams(sessionParams);
 
       try
@@ -204,8 +203,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          WSRPRenderURL julienRender = (WSRPRenderURL)julienURL;
 
          // We're now trying to get a hello for Julien ;)
-         NavigationalContext navigationalContext = new NavigationalContext();
-         navigationalContext.setOpaqueValue(julienRender.getNavigationalState().getStringValue());
+         NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContext(julienRender.getNavigationalState().getStringValue(), null);
          gm.getMarkupParams().setNavigationalContext(navigationalContext);
          res = producer.getMarkup(gm);
          markupString = res.getMarkupContext().getItemString();
@@ -217,8 +215,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          WSRPActionURL incrementAction = (WSRPActionURL)incrementURL;
 
          // let's see now if we can increment the counter
-         PerformBlockingInteraction performBlockingInteraction =
-            WSRPTypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+         PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
          interactionParams.setInteractionState(incrementAction.getInteractionState().getStringValue());
          producer.performBlockingInteraction(performBlockingInteraction);
@@ -288,14 +285,11 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    @Test
    public void testPerformBlockingInteractionRedirect() throws Exception
    {
-      PerformBlockingInteraction performBlockingInteraction =
-         WSRPTypeFactory.createDefaultPerformBlockingInteraction(getDefaultHandle());
+      PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(getDefaultHandle());
       InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
 
       // crappy way but this is a test! ;)
-      NamedString namedString = new NamedString();
-      namedString.setName("symbol");
-      namedString.setValue("HELP");
+      NamedString namedString = WSRPTypeFactory.createNamedString("symbol", "HELP");
       interactionParams.getFormParameters().add(namedString);
 
       BlockingInteractionResponse response = producer.performBlockingInteraction(performBlockingInteraction);
@@ -329,12 +323,11 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    public void testPBIWithSessionID() throws Exception
    {
       String portletHandle = getDefaultHandle();
-      PerformBlockingInteraction performBlockingInteraction = WSRPTypeFactory.createDefaultPerformBlockingInteraction(portletHandle);
+      PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(portletHandle);
 
       RuntimeContext runtimeContext = performBlockingInteraction.getRuntimeContext();
       //the sessionID should never be set by the consumer. Sessions are handled by cookies instead
-      SessionParams sessionParams = new SessionParams();
-      sessionParams.setSessionID("Hello World");
+      SessionParams sessionParams = WSRPTypeFactory.createSessionParams("Hello World");
       runtimeContext.setSessionParams(sessionParams);
 
       try
@@ -572,8 +565,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       NamedString namedString = createNamedString("multi", "value1");
       try
       {
-         PerformBlockingInteraction action =
-            WSRPTypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+         PerformBlockingInteraction action = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
@@ -592,7 +584,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          checkMarkupResponse(response, "multi: value1, value2");
 
          formParameters.clear();
-         formParameters.add(new NamedString());
+         formParameters.add(WSRPTypeFactory.createNamedString("test", null));
          actionResponse = producer.performBlockingInteraction(action);
          markupRequest = createMarkupRequestForCurrentlyDeployedPortlet();
          markupRequest.getMarkupParams().setNavigationalContext(actionResponse.getUpdateResponse().getNavigationalContext());
@@ -621,7 +613,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          ExtendedAssert.assertEquals("initial", markupString);
 
          // modify the preference value
-         PerformBlockingInteraction pbi = WSRPTypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+         PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          pbi.getInteractionParams().setPortletStateChange(StateChange.CLONE_BEFORE_WRITE); // request cloning if needed
          String value = "new value";
          pbi.getInteractionParams().getFormParameters().add(createNamedString("value", value));
@@ -651,9 +643,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
    private NamedString createNamedString(String name, String value)
    {
-      NamedString namedString = new NamedString();
-      namedString.setName(name);
-      namedString.setValue(value);
+      NamedString namedString = WSRPTypeFactory.createNamedString(name, value);
       return namedString;
    }
 
@@ -723,7 +713,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       try
       {
          // set appVar to value in the application scope by the first portlet
-         PerformBlockingInteraction pbi = WSRPTypeFactory.createDefaultPerformBlockingInteraction(getPortletHandleFrom("Set"));
+         PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getPortletHandleFrom("Set"));
          pbi.getInteractionParams().getFormParameters().add(createNamedString("appVar", "value"));
          producer.performBlockingInteraction(pbi);
 
@@ -821,7 +811,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
                consumerHandle = portletHandle;
             }
          }
-         PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
+         PerformBlockingInteraction action = createDefaultPerformBlockingInteraction(generatorHandle);
          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
@@ -837,8 +827,8 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
          // send event
          HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,
-            WSRPTypeFactory.createPortletContext(consumerHandle), WSRPTypeFactory.createDefaultRuntimeContext(), null,
-            WSRPTypeFactory.createDefaultMarkupParams(), WSRPTypeFactory.createEventParams(events, StateChange.READ_ONLY));
+            WSRPTypeFactory.createPortletContext(consumerHandle), createDefaultRuntimeContext(consumerHandle), null,
+            createDefaultMarkupParams(), WSRPTypeFactory.createEventParams(events, StateChange.READ_ONLY));
          HandleEventsResponse handleEventsResponse = producer.handleEvents(handleEvents);
 
          // no failed events
@@ -880,7 +870,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
                consumerHandle = portletHandle;
             }
          }
-         PerformBlockingInteraction action = WSRPTypeFactory.createDefaultPerformBlockingInteraction(generatorHandle);
+         PerformBlockingInteraction action = createDefaultPerformBlockingInteraction(generatorHandle);
          List<NamedString> formParameters = action.getInteractionParams().getFormParameters();
          formParameters.add(namedString);
          BlockingInteractionResponse actionResponse = producer.performBlockingInteraction(action);
@@ -971,7 +961,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    {
       configureRegistrationSettings(true, false);
 
-      PerformBlockingInteraction pbi = WSRPTypeFactory.createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+      PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
       try
       {
          producer.performBlockingInteraction(pbi);
@@ -1010,8 +1000,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
    private String checkPBIAndGetNavigationalState(String symbol) throws Exception
    {
-      PerformBlockingInteraction performBlockingInteraction =
-         WSRPTypeFactory.createDefaultPerformBlockingInteraction(getDefaultHandle());
+      PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(getDefaultHandle());
       InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
       interactionParams.getFormParameters().add(createNamedString("symbol", symbol));
 

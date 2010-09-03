@@ -243,7 +243,7 @@ public class V2ToV1Converter
    {
       if (runtimeContext != null)
       {
-         V1RuntimeContext v1RuntimeContext = WSRP1TypeFactory.createRuntimeContext(runtimeContext.getUserAuthentication());
+         V1RuntimeContext v1RuntimeContext = WSRP1TypeFactory.createRuntimeContext(runtimeContext.getUserAuthentication(), runtimeContext.getPortletInstanceKey(), runtimeContext.getNamespacePrefix());
          v1RuntimeContext.setNamespacePrefix(runtimeContext.getNamespacePrefix());
          v1RuntimeContext.setPortletInstanceKey(runtimeContext.getPortletInstanceKey());
          SessionParams sessionParams = runtimeContext.getSessionParams();

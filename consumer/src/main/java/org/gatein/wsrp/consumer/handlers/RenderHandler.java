@@ -116,8 +116,8 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
       consumer.getMarkupService().getMarkup(request.getRegistrationContext(), request.getPortletContext(),
          request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
          markupContextHolder, sessionContextHolder, new Holder<List<Extension>>());
-      MarkupResponse markupResponse = new MarkupResponse();
-      markupResponse.setMarkupContext(markupContextHolder.value);
+      
+      MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
       return markupResponse;
    }

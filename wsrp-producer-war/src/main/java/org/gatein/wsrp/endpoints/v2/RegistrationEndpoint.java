@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
@@ -99,9 +100,7 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2Regi
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      ModifyRegistration modifyRegistration = new ModifyRegistration();
-      modifyRegistration.setRegistrationContext(registrationContext);
-      modifyRegistration.setRegistrationData(registrationData);
+      ModifyRegistration modifyRegistration = WSRPTypeFactory.createModifyRegistration(registrationContext, registrationData);
 
       RegistrationState result = producer.modifyRegistration(modifyRegistration);
 

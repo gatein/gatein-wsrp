@@ -86,8 +86,8 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
    {
       try
       {
-         RegistrationData registrationData = WSRPTypeFactory.createRegistrationData(consumerName, methodGetSupported);
-         registrationData.setConsumerAgent(consumerAgent);
+         RegistrationData registrationData = WSRPTypeFactory.createRegistrationData(consumerName, consumerAgent, methodGetSupported);
+
          if (ParameterValidation.existsAndIsNotEmpty(consumerModes))
          {
             registrationData.getConsumerModes().addAll(consumerModes);

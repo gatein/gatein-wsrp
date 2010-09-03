@@ -23,6 +23,9 @@
 
 package org.gatein.wsrp.test.protocol.v2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.gatein.common.net.media.MediaType;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -61,14 +64,21 @@ public abstract class TestProducerBehavior
    }
 
    public PortletDescription createPortletDescription(String portletHandle, String suffix)
-   {
-      PortletDescription portletDesc = new PortletDescription();
-      portletDesc.setPortletHandle(portletHandle);
-      MarkupType markupType = new MarkupType();
-      markupType.setMimeType(MediaType.TEXT_HTML.getValue());
-      markupType.getModes().add(WSRPConstants.VIEW_MODE);
-      markupType.getWindowStates().add(WSRPConstants.NORMAL_WINDOW_STATE);
-      markupType.getLocales().addAll(WSRPConstants.getDefaultLocales());
+   {  
+      String mimeType = MediaType.TEXT_HTML.getValue();
+      List<String> modes = new ArrayList<String>();
+      modes.add(WSRPConstants.VIEW_MODE);
+      
+      List<String> windowStates = new ArrayList<String>();
+      windowStates.add(WSRPConstants.NORMAL_WINDOW_STATE);
+      
+      MarkupType markupType = WSRPTypeFactory.createMarkupType(mimeType,modes, windowStates, WSRPConstants.getDefaultLocales());
+
+      List<MarkupType> markupTypes = new ArrayList<MarkupType>();
+      markupTypes.add(markupType);
+      
+      PortletDescription portletDesc = WSRPTypeFactory.createPortletDescription(portletHandle, markupTypes);
+      
       portletDesc.getMarkupTypes().add(markupType);
 
       String suffixString = suffix == null ? "" : suffix;

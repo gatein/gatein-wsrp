@@ -334,7 +334,16 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          SecurityContext securityContext = invocation.getSecurityContext();
          ParameterValidation.throwIllegalArgExceptionIfNull(securityContext, SECURITY_CONTEXT);
          String authType = WSRPUtils.convertRequestAuthTypeToWSRPAuthType(securityContext.getAuthType());
-         runtimeContext = WSRPTypeFactory.createRuntimeContext(authType);
+         
+         String portletInstanceKey = invocation.getInstanceContext().getId();
+         String namespacePrefix = getNamespaceFrom(invocation.getWindowContext());
+         
+         if (namespacePrefix == null)
+         {
+            namespacePrefix = getPortletHandle();
+         }
+         
+         runtimeContext = WSRPTypeFactory.createRuntimeContext(authType, portletInstanceKey, namespacePrefix);
 
          // user context
          userContext = wsrpConsumer.getUserContextFrom(invocation, runtimeContext);

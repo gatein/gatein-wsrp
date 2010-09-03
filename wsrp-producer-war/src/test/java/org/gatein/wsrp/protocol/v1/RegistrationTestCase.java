@@ -188,7 +188,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       producer.deregister(rc);
 
       // try to get markup, portlet handle doesn't matter since it should fail before trying to retrieve the portlet
-      V1GetMarkup getMarkup = WSRP1TypeFactory.createDefaultMarkupRequest("foo");
+      V1GetMarkup getMarkup = createDefaultMarkupRequest("foo");
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
 
       try
@@ -236,7 +236,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().addRegistrationProperty(regProp);
 
       // try to get markup, portlet handle doesn't matter since it should fail before trying to retrieve the portlet
-      V1GetMarkup getMarkup = WSRP1TypeFactory.createDefaultMarkupRequest("foo");
+      V1GetMarkup getMarkup = createDefaultMarkupRequest("foo");
       getMarkup.getMarkupParams().getMarkupCharacterSets().add(WSRPConstants.DEFAULT_CHARACTER_SET);
       getMarkup.setRegistrationContext(rc);
 

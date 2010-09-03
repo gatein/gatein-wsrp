@@ -24,6 +24,8 @@
 package org.gatein.wsrp.spec.v1;
 
 import junit.framework.TestCase;
+
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -38,7 +40,7 @@ public class V2ToV1ConverterTestCase extends TestCase
    public void testException() throws Exception
    {
       Throwable throwable = new Throwable();
-      OperationFailed operationFailed = new OperationFailed("foo", new OperationFailedFault(), throwable);
+      OperationFailed operationFailed = new OperationFailed("foo", WSRPTypeFactory.createOperationFailedFault(), throwable);
       V1OperationFailed v1OperationFailed = V2ToV1Converter.toV1Exception(V1OperationFailed.class, operationFailed);
       assertNotNull(v1OperationFailed);
       assertEquals("foo", v1OperationFailed.getMessage());
@@ -48,7 +50,7 @@ public class V2ToV1ConverterTestCase extends TestCase
    public void testExceptionMismatch()
    {
       Throwable throwable = new Throwable();
-      OperationFailed operationFailed = new OperationFailed("foo", new OperationFailedFault(), throwable);
+      OperationFailed operationFailed = new OperationFailed("foo", WSRPTypeFactory.createOperationFailedFault(), throwable);
 
       try
       {
@@ -64,7 +66,7 @@ public class V2ToV1ConverterTestCase extends TestCase
    public void testExceptionWrongRequestedException()
    {
       Throwable throwable = new Throwable();
-      OperationFailed operationFailed = new OperationFailed("foo", new OperationFailedFault(), throwable);
+      OperationFailed operationFailed = new OperationFailed("foo", WSRPTypeFactory.createOperationFailedFault(), throwable);
 
       try
       {

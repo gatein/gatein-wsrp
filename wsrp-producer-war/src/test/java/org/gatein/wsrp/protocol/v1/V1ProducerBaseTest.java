@@ -36,15 +36,19 @@ import org.gatein.wsrp.producer.v1.WSRP1Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
 import org.oasis.wsrp.v1.V1MarkupType;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
+import org.oasis.wsrp.v1.V1PerformBlockingInteraction;
+import org.oasis.wsrp.v1.V1PortletContext;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1PropertyDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1RegistrationData;
+import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import javax.xml.namespace.QName;
@@ -264,5 +268,24 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       Throwable cause = e.getCause();
 //      ExtendedAssert.assertTrue(cause instanceof SOAPFaultException);
 //      ExtendedAssert.assertEquals(errorCode, ((SOAPFaultException)cause).getFault().getLocalPart());
+   }
+   
+   
+   protected V1GetMarkup createDefaultMarkupRequest(String handle)
+   {
+      V1PortletContext portletContext = WSRP1TypeFactory.createPortletContext(handle);
+      return WSRP1TypeFactory.createMarkupRequest(portletContext, createDefaultRuntimeContext(), WSRP1TypeFactory.createDefaultMarkupParams());
+   }
+   
+   protected V1PerformBlockingInteraction createDefaultPerformBlockingInteraction(String handle)
+   {
+      V1PortletContext portletContext = WSRP1TypeFactory.createPortletContext(handle);
+      return WSRP1TypeFactory.createPerformBlockingInteraction(portletContext, createDefaultRuntimeContext(), WSRP1TypeFactory.createDefaultMarkupParams(),
+            WSRP1TypeFactory.createDefaultInteractionParams());
+   }
+   
+   protected V1RuntimeContext createDefaultRuntimeContext()
+   {
+      return WSRP1TypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "bar");
    }
 }

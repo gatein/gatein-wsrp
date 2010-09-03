@@ -169,12 +169,7 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
                          @WebParam(name = "sessionContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<SessionContext> sessionContext,
                          @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      GetMarkup gm = new GetMarkup();
-      gm.setMarkupParams(markupParams);
-      gm.setPortletContext(portletContext);
-      gm.setRegistrationContext(registrationContext);
-      gm.setRuntimeContext(runtimeContext);
-      gm.setUserContext(userContext);
+      GetMarkup gm = WSRPTypeFactory.createGetMarkup(registrationContext, portletContext, runtimeContext, userContext, markupParams);
 
       NavigationalContext navigationalContext = markupParams.getNavigationalContext();
       String markupString = getMarkupString(WSRPUtils.getJSR168PortletModeFromWSRPName(markupParams.getMode()),

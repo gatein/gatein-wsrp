@@ -106,11 +106,7 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      GetPortletPropertyDescription getPortletPropertyDescription = new GetPortletPropertyDescription();
-      getPortletPropertyDescription.setRegistrationContext(registrationContext);
-      getPortletPropertyDescription.setPortletContext(portletContext);
-      getPortletPropertyDescription.setUserContext(userContext);
-      getPortletPropertyDescription.getDesiredLocales().addAll(desiredLocales);
+      GetPortletPropertyDescription getPortletPropertyDescription = WSRPTypeFactory.createGetPortletPropertyDescription(registrationContext, portletContext, userContext, desiredLocales);
 
       PortletPropertyDescriptionResponse descriptionResponse = producer.getPortletPropertyDescription(getPortletPropertyDescription);
 
@@ -130,10 +126,7 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      GetPortletDescription getPortletDescription = new GetPortletDescription();
-      getPortletDescription.setRegistrationContext(registrationContext);
-      getPortletDescription.setPortletContext(portletContext);
-      getPortletDescription.setUserContext(userContext);
+      GetPortletDescription getPortletDescription = WSRPTypeFactory.createGetPortletDescription(registrationContext, portletContext, userContext);
       getPortletDescription.getDesiredLocales().addAll(desiredLocales);
 
       PortletDescriptionResponse description = producer.getPortletDescription(getPortletDescription);
@@ -155,10 +148,7 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      ClonePortlet clonePortlet = new ClonePortlet();
-      clonePortlet.setRegistrationContext(registrationContext);
-      clonePortlet.setPortletContext(portletContext);
-      clonePortlet.setUserContext(userContext);
+      ClonePortlet clonePortlet = WSRPTypeFactory.createClonePortlet(registrationContext, portletContext, userContext);
 
       PortletContext response = producer.clonePortlet(clonePortlet);
 
@@ -175,9 +165,7 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws InconsistentParameters, InvalidRegistration, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      DestroyPortlets destroyPortlets = new DestroyPortlets();
-      destroyPortlets.setRegistrationContext(registrationContext);
-      destroyPortlets.getPortletHandles().addAll(portletHandles);
+      DestroyPortlets destroyPortlets = WSRPTypeFactory.createDestroyPortlets(registrationContext, portletHandles);
 
       DestroyPortletsResponse destroyPortletsResponse = producer.destroyPortlets(destroyPortlets);
 
@@ -307,11 +295,8 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      SetPortletProperties setPortletProperties = new SetPortletProperties();
-      setPortletProperties.setRegistrationContext(registrationContext);
-      setPortletProperties.setPortletContext(portletContext);
+      SetPortletProperties setPortletProperties = WSRPTypeFactory.createSetPortletProperties(registrationContext, portletContext, propertyList);
       setPortletProperties.setUserContext(userContext);
-      setPortletProperties.setPropertyList(propertyList);
 
       PortletContext response = producer.setPortletProperties(setPortletProperties);
 
@@ -322,11 +307,7 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
 
    public void getPortletProperties(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "names", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<String> names, @WebParam(name = "properties", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Property>> properties, @WebParam(name = "resetProperties", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<ResetProperty>> resetProperties, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      GetPortletProperties getPortletProperties = new GetPortletProperties();
-      getPortletProperties.setRegistrationContext(registrationContext);
-      getPortletProperties.setPortletContext(portletContext);
-      getPortletProperties.setUserContext(userContext);
-      getPortletProperties.getNames().addAll(names);
+      GetPortletProperties getPortletProperties = WSRPTypeFactory.createGetPortletProperties(registrationContext, portletContext, userContext, names);
 
       PropertyList result = producer.getPortletProperties(getPortletProperties);
 

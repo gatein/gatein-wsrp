@@ -24,6 +24,7 @@
 package org.gatein.wsrp.spec.v2;
 
 import org.gatein.wsrp.WSRPExceptionFactory;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
 import org.oasis.wsrp.v2.ExportNoLongerValid;
@@ -103,7 +104,7 @@ public class WSRP2ExceptionFactory extends WSRPExceptionFactory
    {
       if (valueToCheck == null)
       {
-         throw new MissingParameters("Missing required " + valueName + (context != null ? " in " + context : ""), new MissingParametersFault());
+         throw new MissingParameters("Missing required " + valueName + (context != null ? " in " + context : ""), WSRPTypeFactory.createMissingParametersFault());
       }
    }
 
@@ -111,7 +112,7 @@ public class WSRP2ExceptionFactory extends WSRPExceptionFactory
    {
       if (valueToCheck == null)
       {
-         throw new OperationFailed("Missing required " + valueName, new OperationFailedFault());
+         throw new OperationFailed("Missing required " + valueName, WSRPTypeFactory.createOperationFailedFault());
       }
    }
 

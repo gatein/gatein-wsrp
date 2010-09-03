@@ -105,72 +105,68 @@ public class UserContextConverter
          }
       }
 
-      EmployerInfo employerInfo = new EmployerInfo();
-      employerInfo.setEmployer(userInfos.get(INFO_USER_EMPLOYER));
-      employerInfo.setDepartment(userInfos.get(INFO_USER_DEPARTMENT));
-      employerInfo.setJobtitle(userInfos.get(INFO_USER_JOB_TITLE));
+      String employer = userInfos.get(INFO_USER_EMPLOYER);
+      String department = userInfos.get(INFO_USER_DEPARTMENT);
+      String jobTitle = userInfos.get(INFO_USER_JOB_TITLE);
+      EmployerInfo employerInfo = WSRPTypeFactory.createEmployerInfo(employer, department, jobTitle);
 
-      UserProfile userProfile = new UserProfile();
-      userProfile.setName(name);
-      userProfile.setBdate(bdate);
-      userProfile.setGender(userInfos.get(INFO_USER_GENDER));
-      userProfile.setEmployerInfo(employerInfo);
-      userProfile.setHomeInfo(createContactFrom(userInfos, false));
-      userProfile.setBusinessInfo(createContactFrom(userInfos, true));
+      Contact homeInfo = createContactFrom(userInfos, false);
+      Contact businessInfo = createContactFrom(userInfos, true);
+      UserProfile userProfile = WSRPTypeFactory.createUserProfile(name, bdate, userInfos.get(INFO_USER_GENDER), employerInfo, homeInfo, businessInfo);
+
       return userProfile;
    }
 
    private static PersonName createNameFrom(Map<String, String> userInfos)
    {
-      PersonName name = new PersonName();
-      name.setPrefix(userInfos.get(INFO_USER_NAME_PREFIX));
-      name.setFamily(userInfos.get(INFO_USER_NAME_FAMILY));
-      name.setGiven(userInfos.get(INFO_USER_NAME_GIVEN));
-      name.setMiddle(userInfos.get(INFO_USER_NAME_MIDDLE));
-      name.setSuffix(userInfos.get(INFO_USER_NAME_SUFFIX));
-      name.setNickname(userInfos.get(INFO_USER_NAME_NICKNAME));
+      String prefix = userInfos.get(INFO_USER_NAME_PREFIX);
+      String given = userInfos.get(INFO_USER_NAME_GIVEN);
+      String family = userInfos.get(INFO_USER_NAME_FAMILY);
+      String middle = userInfos.get(INFO_USER_NAME_MIDDLE);
+      String suffix = userInfos.get(INFO_USER_NAME_SUFFIX);
+      String nickName = userInfos.get(INFO_USER_NAME_NICKNAME);
+      
+      PersonName name = WSRPTypeFactory.createPersonName(prefix, given, family, middle, suffix, nickName);
+
       return name;
    }
 
    private static Contact createContactFrom(Map<String, String> infos, boolean isBusiness)
    {
-      Online online = new Online();
-      online.setEmail(infos.get(getOnlineUserInfoKey(OnlineInfo.EMAIL, isBusiness)));
-      online.setUri(infos.get(getOnlineUserInfoKey(OnlineInfo.URI, isBusiness)));
+      String email = infos.get(getOnlineUserInfoKey(OnlineInfo.EMAIL, isBusiness));
+      String uri = infos.get(getOnlineUserInfoKey(OnlineInfo.URI, isBusiness));
+      Online online = WSRPTypeFactory.createOnline(email, uri);
 
-      Postal postal = new Postal();
-      postal.setName(infos.get(getPostalUserInfoKey(PostalInfo.NAME, isBusiness)));
-      postal.setStreet(infos.get(getPostalUserInfoKey(PostalInfo.STREET, isBusiness)));
-      postal.setCity(infos.get(getPostalUserInfoKey(PostalInfo.CITY, isBusiness)));
-      postal.setStateprov(infos.get(getPostalUserInfoKey(PostalInfo.STATEPROV, isBusiness)));
-      postal.setPostalcode(infos.get(getPostalUserInfoKey(PostalInfo.POSTALCODE, isBusiness)));
-      postal.setCountry(infos.get(getPostalUserInfoKey(PostalInfo.COUNTRY, isBusiness)));
-      postal.setOrganization(infos.get(getPostalUserInfoKey(PostalInfo.ORGANIZATION, isBusiness)));
+      String name = infos.get(getPostalUserInfoKey(PostalInfo.NAME, isBusiness));
+      String street = infos.get(getPostalUserInfoKey(PostalInfo.STREET, isBusiness));
+      String city = infos.get(getPostalUserInfoKey(PostalInfo.CITY, isBusiness));
+      String stateprov = infos.get(getPostalUserInfoKey(PostalInfo.STATEPROV, isBusiness));
+      String postalCode = infos.get(getPostalUserInfoKey(PostalInfo.POSTALCODE, isBusiness));
+      String country = infos.get(getPostalUserInfoKey(PostalInfo.COUNTRY, isBusiness));
+      String organization = infos.get(getPostalUserInfoKey(PostalInfo.ORGANIZATION, isBusiness));
+      Postal postal = WSRPTypeFactory.createPostal(name, street, city, stateprov, postalCode, country, organization);
 
-      Telecom telecom = new Telecom();
-      telecom.setTelephone(createTelephoneNumFrom(infos, TelecomType.TELEPHONE, isBusiness));
-      telecom.setFax(createTelephoneNumFrom(infos, TelecomType.FAX, isBusiness));
-      telecom.setMobile(createTelephoneNumFrom(infos, TelecomType.MOBILE, isBusiness));
-      telecom.setPager(createTelephoneNumFrom(infos, TelecomType.PAGER, isBusiness));
-
-      Contact contact = new Contact();
-      contact.setPostal(postal);
-      contact.setTelecom(telecom);
-      contact.setOnline(online);
+      TelephoneNum telephone = createTelephoneNumFrom(infos, TelecomType.TELEPHONE, isBusiness);
+      TelephoneNum fax = createTelephoneNumFrom(infos, TelecomType.FAX, isBusiness);
+      TelephoneNum mobile = createTelephoneNumFrom(infos, TelecomType.MOBILE, isBusiness);
+      TelephoneNum pager = createTelephoneNumFrom(infos, TelecomType.PAGER, isBusiness);
+      Telecom telecom = WSRPTypeFactory.createTelecom(telephone, fax, mobile, pager);
+      
+      Contact contact = WSRPTypeFactory.createContact(postal, telecom, online);
 
       return contact;
    }
 
    private static TelephoneNum createTelephoneNumFrom(Map<String, String> infos, TelecomType type, boolean isBusiness)
    {
-      TelephoneNum num = new TelephoneNum();
-      num.setIntcode(infos.get(getTelecomInfoKey(type, TelecomInfo.INTCODE, isBusiness)));
-      num.setLoccode(infos.get(getTelecomInfoKey(type, TelecomInfo.LOCCODE, isBusiness)));
-      num.setNumber(infos.get(getTelecomInfoKey(type, TelecomInfo.NUMBER, isBusiness)));
-      num.setExt(infos.get(getTelecomInfoKey(type, TelecomInfo.EXT, isBusiness)));
-      num.setComment(infos.get(getTelecomInfoKey(type, TelecomInfo.COMMENT, isBusiness)));
+      String intCode = infos.get(getTelecomInfoKey(type, TelecomInfo.INTCODE, isBusiness));
+      String loccode = infos.get(getTelecomInfoKey(type, TelecomInfo.LOCCODE, isBusiness));
+      String number = infos.get(getTelecomInfoKey(type, TelecomInfo.NUMBER, isBusiness));
+      String ext = infos.get(getTelecomInfoKey(type, TelecomInfo.EXT, isBusiness));
+      String comment = infos.get(getTelecomInfoKey(type, TelecomInfo.COMMENT, isBusiness));
+      TelephoneNum telephoneNum = WSRPTypeFactory.createTelephoneNum(intCode, loccode, number, ext, comment);
 
-      return num;
+      return telephoneNum;
    }
 
    /**
