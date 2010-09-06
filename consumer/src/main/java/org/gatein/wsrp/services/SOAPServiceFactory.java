@@ -394,12 +394,20 @@ public class SOAPServiceFactory implements ManageableServiceFactory
                String bindingNSURI = null;
                for (Port port : ports.values())
                {
-                  String newBindingNS = port.getBinding().getQName().getNamespaceURI();
-                  if (bindingNSURI != null && !bindingNSURI.equals(newBindingNS))
+                  QName bindingName = port.getBinding().getQName();
+                  String newBindingNS = bindingName.getNamespaceURI();
+                  if (WSRP_V1_BINDING.equals(newBindingNS) || WSRP_V2_BINDING.equals(newBindingNS))
                   {
-                     throw new WSDLException(WSDLException.OTHER_ERROR, "Inconsistend NS in port bindings. Aborting.");
+                     if (bindingNSURI != null && !bindingNSURI.equals(newBindingNS))
+                     {
+                        throw new WSDLException(WSDLException.OTHER_ERROR, "Inconsistent NS in port bindings. Aborting.");
+                     }
+                     bindingNSURI = newBindingNS;
                   }
-                  bindingNSURI = newBindingNS;
+                  else
+                  {
+                     log.debug("Unknown binding namespace: " + newBindingNS + ". Ignoring binding: " + bindingName);
+                  }
                }
                if (WSRP_V1_BINDING.equals(bindingNSURI))
                {
