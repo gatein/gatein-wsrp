@@ -85,7 +85,6 @@ import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationFailedFault;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -98,7 +97,6 @@ import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.SetPortletsLifetime;
@@ -622,7 +620,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       }
       catch (Exception e)
       {
-         throw new OperationFailed("Operation Failed while trying to ExportPortlets.", WSRPTypeFactory.createOperationFailedFault());
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Operation Failed while trying to ExportPortlets.", e);
       }
       finally
       {
