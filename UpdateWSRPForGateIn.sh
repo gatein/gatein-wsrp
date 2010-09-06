@@ -53,20 +53,35 @@ echo \|
 
 # If we have no argument, build and test.
 # If we have one argument (irrelevant value), build but skip tests
-# If we have more than one argument (irrelevant values), only deploy the files without build
+# If we have two arguments (irrelevant values), only build and deploy the admin GUI in the AS deploy directory (dev mode)
+# If we have more than two arguments (irrelevant values), only deploy the files without build
 if [ $# -eq 0 ]
 then
    mvn clean install
 else
+   echo \| ===============
+   echo \| Skipping tests!
+   echo \| ===============
    if [ $# -eq 1 ]
    then
-      echo \| ===============
-      echo \| Skipping tests!
-      echo \| ===============
-      echo --------------------------------------------------------------------------
       mvn clean install '-Dmaven.test.skip=true'
+   else
+      if [ $# -eq 2 ]
+      then
+         echo \| === Only building and deploying Admin GUI!
+         echo \| === GUI will be deployed directly to $GATEIN_EAR_HOME/.. and you will need to remove GUI war
+         echo \| === from $GATEIN_EAR_HOME and edit $GATEIN_EAR_HOME/META-INF/application.xml to remove the GUI module
+         cd admin-gui
+         mvn clean install -Dmaven.test.skip=true
+         war=wsrp-admin-gui
+         echo Copying $war-$CURRENT_WSRP.war to $GATEIN_EAR_HOME/../$war.war
+         cp $HOME/.m2/repository/org/gatein/wsrp/$war/$CURRENT_WSRP/$war-$CURRENT_WSRP.war $GATEIN_EAR_HOME/../$war.war
+         cd -
+         exit
+       fi
    fi
 fi
+echo --------------------------------------------------------------------------
 
 # get the list of jar files we need to replace in lib
 current=`ls $GATEIN_EAR_HOME/lib/wsrp* | sed -n 's/.*\/\(.*\)-'$DEPLOYED_WSRP'.jar/\1/p'`
