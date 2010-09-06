@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer.v1;
 
+import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.producer.ProducerHolder;
@@ -167,6 +168,16 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    public void usingStrictModeChangedTo(boolean strictMode)
    {
       producer.usingStrictModeChangedTo(strictMode);
+   }
+
+   public ExportManager getExportManager()
+   {
+      return producer.getExportManager();
+   }
+
+   public void setExportManager(ExportManager exportManager)
+   {
+      producer.setExportManager(exportManager);
    }
 
    public V1ServiceDescription getServiceDescription(V1GetServiceDescription gs) throws V1InvalidRegistration, V1OperationFailed
