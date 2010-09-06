@@ -31,6 +31,7 @@ import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
+import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.behaviors.BasicMarkupBehavior;
@@ -38,6 +39,7 @@ import org.gatein.wsrp.test.protocol.v2.behaviors.BasicPortletManagementBehavior
 import org.gatein.wsrp.test.protocol.v2.behaviors.DestroyClonesPortletManagementBehavior;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -179,5 +181,57 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
       {
          //expected
       }
+   }
+
+   public void testNullExportPortlets() throws PortletInvokerException
+   {
+      try
+      {
+         consumer.exportPortlets(null);
+         fail("Cannot export without a list of portlet handles!");
+      }
+      catch (IllegalArgumentException e)
+      {
+         // expected
+      }
+   }
+
+   public void testEmptyExportPortlets() throws PortletInvokerException
+   {
+      try
+      {
+         consumer.exportPortlets(Collections.<String>emptyList());
+         fail("Cannot export without a list of portlet handles!");
+      }
+      catch (IllegalArgumentException e)
+      {
+         // expected
+      }
+   }
+
+   public void testExportPortlets() throws PortletInvokerException
+   {
+      long now = System.currentTimeMillis();
+      ArrayList<String> portletContexts = new ArrayList<String>();
+      portletContexts.add(BasicMarkupBehavior.PORTLET_HANDLE);
+      ExportInfo ei = consumer.exportPortlets(portletContexts);
+      assertNotNull(ei);
+
+      long tenSeconds = 10 * 1000;
+      assertTrue((ei.getExportTime() - now) < tenSeconds);
+
+      assertEquals(0, ei.getExpirationTime());
+
+      List<String> exportedPortlets = ei.getExportedPortletHandles();
+      assertNotNull(exportedPortlets);
+      assertEquals(1, exportedPortlets.size());
+      assertTrue(exportedPortlets.contains(BasicMarkupBehavior.PORTLET_HANDLE));
+      assertNotNull(ei.getPortletStateFor(BasicMarkupBehavior.PORTLET_HANDLE));
+
+      assertTrue(ei.getErrorCodesToFailedPortletHandlesMapping().isEmpty());
+
+      List<ExportInfo> availableExportInfos = consumer.getMigrationService().getAvailableExportInfos();
+      assertEquals(1, availableExportInfos.size());
+      assertEquals(ei, availableExportInfos.get(0));
    }
 }

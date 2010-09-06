@@ -49,6 +49,8 @@ import org.gatein.wsrp.api.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
+import org.gatein.wsrp.consumer.migration.ExportInfo;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
@@ -56,6 +58,7 @@ import org.gatein.wsrp.services.PortletManagementService;
 import org.gatein.wsrp.services.RegistrationService;
 import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.servlet.UserAccess;
+import org.oasis.wsrp.v2.ExportedPortlet;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.InconsistentParameters;
@@ -67,6 +70,7 @@ import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ResetProperty;
+import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.slf4j.Logger;
@@ -74,6 +78,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,6 +90,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
@@ -121,6 +130,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
    /** The set of supported user scopes */
    private Set supportedUserScopes = WSRP_DEFAULT_USER_SCOPE; // todo: make it possible to support different user scopes
    private transient boolean started;
+   private MigrationService migrationService;
 
    public WSRPConsumerImpl()
    {
@@ -134,6 +144,8 @@ public class WSRPConsumerImpl implements WSRPConsumer
       producerInfo = info;
       sessionHandler = new SessionHandler(this);
       dispatcher = new InvocationDispatcher(this);
+
+      migrationService = new MigrationService(); // todo: inject this
    }
 
    public ProducerInfo getProducerInfo()
@@ -743,5 +755,123 @@ public class WSRPConsumerImpl implements WSRPConsumer
    public int hashCode()
    {
       return producerInfo.hashCode();
+   }
+
+   public ExportInfo exportPortlets(List<String> portletHandles) throws PortletInvokerException
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
+      {
+
+         List<org.oasis.wsrp.v2.PortletContext> portletContexts = new ArrayList<org.oasis.wsrp.v2.PortletContext>(portletHandles.size());
+         for (String handle : portletHandles)
+         {
+            portletContexts.add(WSRPTypeFactory.createPortletContext(handle));
+         }
+
+         try
+         {
+            Holder<byte[]> exportContextHolder = new Holder<byte[]>();
+            Holder<List<ExportedPortlet>> exportedPortletsHolder = new Holder<List<ExportedPortlet>>();
+            Holder<List<FailedPortlets>> failedPortletsHolder = new Holder<List<FailedPortlets>>();
+            Holder<Lifetime> lifetimeHolder = new Holder<Lifetime>();
+            getPortletManagementService().exportPortlets(getRegistrationContext(), portletContexts, UserAccess.getUserContext(),
+               lifetimeHolder, true, exportContextHolder, exportedPortletsHolder, failedPortletsHolder,
+               new Holder<ResourceList>(), new Holder<List<Extension>>());
+
+            SortedMap<String, byte[]> handleToState = null;
+            List<ExportedPortlet> exportedPortlets = exportedPortletsHolder.value;
+            if (ParameterValidation.existsAndIsNotEmpty(exportedPortlets))
+            {
+               handleToState = new TreeMap<String, byte[]>();
+               for (ExportedPortlet exportedPortlet : exportedPortlets)
+               {
+                  handleToState.put(exportedPortlet.getPortletHandle(), exportedPortlet.getExportData());
+               }
+            }
+
+            SortedMap<QName, List<String>> errorCodeToHandle = null;
+            List<FailedPortlets> failedPortlets = failedPortletsHolder.value;
+            if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
+            {
+               errorCodeToHandle = new TreeMap<QName, List<String>>();
+               for (FailedPortlets failedPortletsForReason : failedPortlets)
+               {
+                  errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getPortletHandles());
+               }
+            }
+
+            // todo: deal with expiration time
+            Lifetime lifetime = lifetimeHolder.value;
+            if (lifetime != null)
+            {
+               XMLGregorianCalendar currentTime = lifetime.getCurrentTime();
+               Duration refreshDuration = lifetime.getRefreshDuration();
+               XMLGregorianCalendar terminationTime = lifetime.getTerminationTime();
+            }
+
+            ExportInfo exportInfo = new ExportInfo(System.currentTimeMillis(), handleToState, errorCodeToHandle);
+            migrationService.add(exportInfo);
+            return exportInfo;
+         }
+         catch (OperationNotSupported operationNotSupported)
+         {
+            throw new UnsupportedOperationException(operationNotSupported);
+         }
+         catch (InconsistentParameters inconsistentParameters)
+         {
+            throw new IllegalArgumentException(inconsistentParameters);
+         }
+         /*
+         // GTNWSRP-62
+         catch (AccessDenied accessDenied)
+         {
+            accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (ExportByValueNotSupported exportByValueNotSupported)
+         {
+            exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (InvalidHandle invalidHandle)
+         {
+            invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (InvalidRegistration invalidRegistration)
+         {
+            invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (InvalidUserCategory invalidUserCategory)
+         {
+            invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (MissingParameters missingParameters)
+         {
+            missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (ModifyRegistrationRequired modifyRegistrationRequired)
+         {
+            modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (OperationFailed operationFailed)
+         {
+            operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
+         catch (ResourceSuspended resourceSuspended)
+         {
+            resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }*/
+         catch (Exception e)
+         {
+            throw new PortletInvokerException(e);
+         }
+      }
+      else
+      {
+         throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
+      }
+   }
+
+   public MigrationService getMigrationService()
+   {
+      return migrationService;
    }
 }

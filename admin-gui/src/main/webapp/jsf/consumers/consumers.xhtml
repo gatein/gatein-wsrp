@@ -24,9 +24,7 @@
 <ui:decorate template="consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:c="http://java.sun.com/jstl/core"
-             xmlns:webui="http://jboss.org/gatein">
+             xmlns:h="http://java.sun.com/jsf/html">
    <ui:param name="showAddConsumer" value="true"/>
 
    <ui:define name="content">
@@ -90,6 +88,16 @@
                               actionListener="#{consumersMgr.selectConsumer}">
                   <f:param name="id" value="#{cons.producerId}"/>
                   #{i18n.consumers_table_action_delete}
+               </h:commandLink>
+               |
+               <h:commandLink action="#{consumersMgr.importPortlets}" styleClass="actionImport" id="import">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  #{i18n.consumers_table_action_import}
+               </h:commandLink>
+               |
+               <h:commandLink action="#{consumersMgr.exportPortlets}" styleClass="actionExport" id="export">
+                  <f:param name="id" value="#{cons.producerId}"/>
+                  #{i18n.consumers_table_action_export}
                </h:commandLink>
             </h:column>
          </h:dataTable>

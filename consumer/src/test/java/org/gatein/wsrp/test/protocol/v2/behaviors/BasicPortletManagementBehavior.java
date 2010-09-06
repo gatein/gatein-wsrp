@@ -186,7 +186,26 @@ public class BasicPortletManagementBehavior extends PortletManagementBehavior
    @Override
    public void exportPortlets(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<PortletContext> portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "lifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.INOUT) Holder<Lifetime> lifetime, @WebParam(name = "exportByValueRequired", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") Boolean exportByValueRequired, @WebParam(name = "exportContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<byte[]> exportContext, @WebParam(name = "exportedPortlet", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<ExportedPortlet>> exportedPortlet, @WebParam(name = "failedPortlets", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<FailedPortlets>> failedPortlets, @WebParam(name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<ResourceList> resourceList, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      List<String> failedPortletHandles = new ArrayList<String>();
+      for (PortletContext context : portletContext)
+      {
+         String portletHandle = context.getPortletHandle();
+         if (BasicMarkupBehavior.PORTLET_HANDLE.equals(portletHandle))
+         {
+            exportedPortlet.value = new ArrayList<ExportedPortlet>();
+            exportedPortlet.value.add(WSRPTypeFactory.createExportedPortlet(BasicMarkupBehavior.PORTLET_HANDLE, new byte[]{1, 2, 3, 4}));
+         }
+         else
+         {
+            failedPortletHandles.add(portletHandle);
+         }
+      }
+
+      if (!failedPortletHandles.isEmpty())
+      {
+         failedPortlets.value = new ArrayList<FailedPortlets>();
+         failedPortlets.value.add(WSRPTypeFactory.createFailedPortlets(failedPortletHandles, ErrorCodes.Codes.INVALIDHANDLE, "Unknown handles"));
+      }
    }
 
    @Override

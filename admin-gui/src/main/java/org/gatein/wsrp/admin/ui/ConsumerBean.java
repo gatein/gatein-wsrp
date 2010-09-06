@@ -23,15 +23,23 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
+import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,7 +66,12 @@ public class ConsumerBean extends ManagedBean
    private static final String CANNOT_ERASE_REG = "bean_consumer_cannot_erase_reg";
    private static final String MALFORMED_URL = "bean_consumer_malformed_url";
    private static final String UPDATE_SUCCESS = "bean_consumer_update_success";
+   private static final String CANNOT_EXPORT = "bean_consumer_cannot_export";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
+
+   private DataModel portletHandles;
+   private DataModel existingExports;
+   private ExportInfo currentExport;
 
    public void setRegistry(ConsumerRegistry registry)
    {
@@ -478,5 +491,104 @@ public class ConsumerBean extends ManagedBean
    public ConsumerRegistry getRegistry()
    {
       return registry;
+   }
+
+   public DataModel getPortlets()
+   {
+      try
+      {
+         if (portletHandles == null)
+         {
+            Collection<Portlet> portlets = consumer.getProducerInfo().getPortletMap().values();
+            List<SelectablePortletHandle> selectableHandles = Collections.emptyList();
+            if (ParameterValidation.existsAndIsNotEmpty(portlets))
+            {
+               selectableHandles = new ArrayList<SelectablePortletHandle>(portlets.size());
+               for (Portlet portlet : portlets)
+               {
+                  selectableHandles.add(new SelectablePortletHandle(portlet.getContext().getId()));
+               }
+            }
+            portletHandles = new ListDataModel(selectableHandles);
+         }
+
+         return portletHandles;
+      }
+      catch (PortletInvokerException e)
+      {
+         beanContext.createErrorMessageFrom(e);
+         return null;
+      }
+   }
+
+   public String export()
+   {
+      if (consumer != null)
+      {
+         List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)portletHandles.getWrappedData();
+         List<String> selectedHandles = new ArrayList<String>(handles.size());
+         for (SelectablePortletHandle selectablePortletHandle : handles)
+         {
+            if (selectablePortletHandle.isSelected())
+            {
+               selectedHandles.add(selectablePortletHandle.getHandle());
+            }
+         }
+
+         try
+         {
+            currentExport = consumer.exportPortlets(selectedHandles);
+         }
+         catch (Exception e)
+         {
+            beanContext.createErrorMessageFrom(e);
+            return null;
+         }
+         return ConsumerManagerBean.EXPORT_DETAIL;
+      }
+
+      beanContext.createErrorMessage(CANNOT_EXPORT);
+      return null;
+   }
+
+   public ExportInfo getCurrentExport()
+   {
+      return currentExport;
+   }
+
+   public DataModel getExistingExports()
+   {
+      if (existingExports == null)
+      {
+         existingExports = new ListDataModel(consumer.getMigrationService().getAvailableExportInfos());
+      }
+
+      return existingExports;
+   }
+
+   public static class SelectablePortletHandle
+   {
+      private String handle;
+      private boolean selected;
+
+      public SelectablePortletHandle(String handle)
+      {
+         this.handle = handle;
+      }
+
+      public String getHandle()
+      {
+         return handle;
+      }
+
+      public boolean isSelected()
+      {
+         return selected;
+      }
+
+      public void setSelected(boolean selected)
+      {
+         this.selected = selected;
+      }
    }
 }

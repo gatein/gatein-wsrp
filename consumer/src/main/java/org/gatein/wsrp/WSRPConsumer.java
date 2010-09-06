@@ -30,8 +30,11 @@ import org.gatein.wsrp.api.SessionEventListener;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+import org.gatein.wsrp.consumer.migration.ExportInfo;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
@@ -123,4 +126,8 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
    void start() throws Exception;
 
    void stop() throws Exception;
+
+   ExportInfo exportPortlets(List<String> portletHandles) throws PortletInvokerException;
+
+   MigrationService getMigrationService();
 }

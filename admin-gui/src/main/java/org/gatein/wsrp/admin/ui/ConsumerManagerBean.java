@@ -52,6 +52,8 @@ public class ConsumerManagerBean extends ManagedBean
    private static final String REFRESH_FAILURE = "bean_consumermanager_refresh_failure";
    private static final String REFRESH_EXCEPTION = "bean_consumermanager_refresh_exception";
    static final String CONFIGURE_CONSUMER = "configureConsumer";
+   static final String EXPORT = "export";
+   static final String EXPORT_DETAIL = "exportDetail";
 
    static final String CONSUMERS = "consumers";
    static final String EXPECTED_REG_INFO_KEY = "expectedRegistrationInfo";
@@ -177,7 +179,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            getRegistry().createConsumer(selectedId, null, null);
+            WSRPConsumer consumer = getRegistry().createConsumer(selectedId, null, null);
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
@@ -234,6 +236,36 @@ public class ConsumerManagerBean extends ManagedBean
          internalRefresh(getSelectedConsumer());
 
          return configureConsumer();
+      }
+      else
+      {
+         noSelectedConsumerError();
+         return null;
+      }
+   }
+
+   public String importPortlets()
+   {
+      if (refreshConsumerId() != null)
+      {
+         WSRPConsumer consumer = getSelectedConsumer();
+
+
+         return configureConsumer();
+      }
+      else
+      {
+         noSelectedConsumerError();
+         return null;
+      }
+   }
+
+   public String exportPortlets()
+   {
+      if (refreshConsumerId() != null)
+      {
+         setConsumerIdInSession(false);
+         return EXPORT;
       }
       else
       {
