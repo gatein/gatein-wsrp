@@ -52,6 +52,12 @@ public class SOAPServiceFactoryTestCase extends TestCase
       factory = new SOAPServiceFactory();
    }
 
+   public void testV2ServiceWithExtraPorts() throws Exception
+   {
+      factory.setWsdlDefinitionURL("http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL");
+      checkPorts(WSRP2_PORT_TYPES);
+   }
+
    public void testSimpleV2Service() throws Exception
    {
       factory.setWsdlDefinitionURL("http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=Two");
