@@ -68,9 +68,15 @@ else
    else
       if [ $# -eq 2 ]
       then
-         echo \| === Only building and deploying Admin GUI!
-         echo \| === GUI will be deployed directly to $GATEIN_EAR_HOME/.. and you will need to remove GUI war
-         echo \| === from $GATEIN_EAR_HOME and edit $GATEIN_EAR_HOME/META-INF/application.xml to remove the GUI module
+         echo \| == Only building and deploying Admin GUI!
+         echo \| == GUI will be deployed directly to:
+         echo \| == $GATEIN_EAR_HOME/..
+         echo \| == and you will need to remove GUI war from:
+         echo \| == $GATEIN_EAR_HOME
+         echo \| == and edit:
+         echo \| == $GATEIN_EAR_HOME/META-INF/application.xml
+         echo \| == to remove the GUI module
+         echo --------------------------------------------------------------------------
          cd admin-gui
          mvn clean install -Dmaven.test.skip=true
          war=wsrp-admin-gui
