@@ -71,7 +71,7 @@
          </activation>
          <properties>
             <jboss.systemPath>${jboss.zip.url}</jboss.systemPath>
-            <JBOSS_TEST_HOME>${project.build.directory}/cargo/servers/jboss-5.1.0.GA</JBOSS_TEST_HOME>
+            <JBOSS_5_1_0_HOME>${project.build.directory}/cargo/servers/jboss-5.1.0.GA</JBOSS_5_1_0_HOME>
          </properties>
          <dependencies>
             <dependency>
@@ -446,7 +446,7 @@
             <configuration>
                <container>
                   <containerId>jboss51x</containerId>
-                  <home>${JBOSS_TEST_HOME}</home>
+                  <home>${JBOSS_5_1_0_HOME}</home>
                   <log>${basedir}/target/jboss51x/container.log</log>
                   <systemProperties>
                      <!-- Since the tests run on the server, we need to pass system properties to the
@@ -475,7 +475,7 @@
                   <configfiles>
                      <!-- hack to get normal logging instead of incredibly versbose -->
                      <configfile>
-                        <file>${JBOSS_TEST_HOME}/server/default/conf/jboss-log4j.xml</file>
+                        <file>${JBOSS_5_1_0_HOME}/server/default/conf/jboss-log4j.xml</file>
                         <tofile>/conf/jboss-log4j.xml</tofile>
                      </configfile>
                      <configfile>

@@ -33,13 +33,13 @@ then
 fi
 echo Using GateIn home at: $GATEIN_EAR_HOME
 
-if [ -z "$JBOSS_TEST_HOME" -o ! -d "$JBOSS_TEST_HOME" ]
+if [ -z "$JBOSS_5_1_0_HOME" -o ! -d "$JBOSS_5_1_0_HOME" ]
 then
-   echo \=\=\> Please set JBOSS_TEST_HOME to point the root directory of a clean install of JBoss AS 5.1.x to be used for tests
+   echo \=\=\> Please set JBOSS_5_1_0_HOME to point the root directory of a clean install of JBoss AS 5.1.x to be used for tests
    exit
 fi
 echo --------------------------------------------------------------------------
-echo \| Using JBoss AS home at: $JBOSS_TEST_HOME
+echo \| Using JBoss AS home at: $JBOSS_5_1_0_HOME
 
 # Retrieve the current WSRP version as specified in the POM file
 export CURRENT_WSRP=`grep -m 1 ".*<version>\(.*\)<\/version>.*" pom.xml | sed -n -e 's/.*<version>\(.*\)<\/.*/\1/p'`
