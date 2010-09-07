@@ -34,17 +34,16 @@
                       rowClasses="EvenRow,OddRow"
                       styleClass="UIGrid" width="100%">
             <h:column>
-               <f:facet name="header">#{i18n.portlets_ta
-                     bl
-                     e_column_include}</f:facet>
+               <f:facet name="header">#{i18n.portlets_table_column_include}</f:facet>
 
                <h:selectBooleanCheckbox value="#{portlet.selected}"/>
             </h:column>
 
             <h:column>
-               <f:facet name="header">#{i18n.portlets_table_column_portlet_name}</f:facet>
-               #{p
-                  ortlet.handle}
+               <f:facet name="header">#{i18n.portlets_table
+                     _c
+                     olumn_portlet_name}</f:facet>
+               #{portlet.handle}
             </h:column>
          </h:dataTable>
          <table class="ActionContainer">
