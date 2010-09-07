@@ -167,5 +167,9 @@
          <from-outcome>exportDetail</from-outcome>
          <to-view-id>/jsf/consumers/exports/exportDetail.xhtml</to-view-id>
       </navigation-case>
+      <navigation-case>
+         <from-outcome>confirmDeleteExport</from-outcome>
+         <to-view-id>/jsf/consumers/exports/confirmDeleteExport.xhtml</to-view-id>
+      </navigation-case>
    </navigation-rule>
 </faces-config>

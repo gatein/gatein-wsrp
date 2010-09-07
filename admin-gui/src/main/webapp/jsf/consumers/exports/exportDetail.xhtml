@@ -40,7 +40,7 @@
          <tr>
             <th>#{i18n.export_detail_portlets}</th>
             <td>
-               <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortletHandles}" var="handle"
+               <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="handle"
                             rowClasses="EvenRow,OddRow"
                             styleClass="UIGrid" width="100%">
                   <h:column>
@@ -54,19 +54,19 @@
             <th>#{i18n.export_detail_failed}</th>
             <td>
                <h:dataTable id="failed-portlets"
-                            value="#{consumer.currentExport.errorCodesToFailedPortletHandlesMapping.entries}"
-                            rendered="#{! empty consumer.currentExport.errorCodesToFailedPortletHandlesMapping.entries}"
-                            var="entry" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
+                            value="#{consumer.currentExport.failedPortlets}"
+                            rendered="#{consumer.currentExport.hasFailedPortlets}"
+                            var="failedPortlet" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
                   <h:column>
                      <f:facet name="header">#{i18n.export_detail_failed_portlet_error}</f:facet>
-                     #{entry.key}
+                     #{failedPortlet.errorCode}
                   </h:column>
                   <h:column>
                      <f:facet name="header">#{i18n.export_detail_failed_portlet_portlets}</f:facet>
-                     #{entry.value}
+                     #{failedPortlet.failedPortlets}
                   </h:column>
                </h:dataTable>
-               <h:outputText rendered="#{empty consumer.currentExport.errorCodesToFailedPortletHandlesMapping.entries}"
+               <h:outputText rendered="#{!consumer.currentExport.hasFailedPortlets}"
                              value="#{i18n.export_detail_failed_portlet_none}"/>
             </td>
          </tr>

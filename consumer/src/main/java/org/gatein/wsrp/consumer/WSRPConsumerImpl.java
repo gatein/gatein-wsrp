@@ -509,6 +509,19 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return supportedUserScopes.contains(userScope);
    }
 
+   public boolean isSupportsExport()
+   {
+      try
+      {
+         return getMarkupService().getVersion() > 1;
+      }
+      catch (PortletInvokerException e)
+      {
+         log.debug("Couldn't determine if Consumer supports export operation", e);
+         return false;
+      }
+   }
+
    // Registration *****************************************************************************************************
 
    public void handleInvalidRegistrationFault() throws PortletInvokerException

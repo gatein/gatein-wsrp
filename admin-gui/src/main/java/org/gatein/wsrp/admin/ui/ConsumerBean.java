@@ -34,15 +34,23 @@ import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
+import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
+import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -71,7 +79,7 @@ public class ConsumerBean extends ManagedBean
 
    private DataModel portletHandles;
    private DataModel existingExports;
-   private ExportInfo currentExport;
+   private ExportInfoDisplay currentExport;
 
    public void setRegistry(ConsumerRegistry registry)
    {
@@ -521,7 +529,7 @@ public class ConsumerBean extends ManagedBean
       }
    }
 
-   public String export()
+   public String exportPortlets()
    {
       if (consumer != null)
       {
@@ -537,7 +545,7 @@ public class ConsumerBean extends ManagedBean
 
          try
          {
-            currentExport = consumer.exportPortlets(selectedHandles);
+            currentExport = new ExportInfoDisplay(consumer.exportPortlets(selectedHandles), beanContext.getLocale());
          }
          catch (Exception e)
          {
@@ -551,7 +559,7 @@ public class ConsumerBean extends ManagedBean
       return null;
    }
 
-   public ExportInfo getCurrentExport()
+   public ExportInfoDisplay getCurrentExport()
    {
       return currentExport;
    }
@@ -560,10 +568,51 @@ public class ConsumerBean extends ManagedBean
    {
       if (existingExports == null)
       {
-         existingExports = new ListDataModel(consumer.getMigrationService().getAvailableExportInfos());
+         Locale locale = beanContext.getLocale();
+         List<ExportInfo> availableExportInfos = consumer.getMigrationService().getAvailableExportInfos();
+         List<ExportInfoDisplay> exportDisplays = new ArrayList<ExportInfoDisplay>(availableExportInfos.size());
+         for (ExportInfo exportInfo : availableExportInfos)
+         {
+            exportDisplays.add(new ExportInfoDisplay(exportInfo, locale));
+         }
+         existingExports = new ListDataModel(exportDisplays);
       }
 
       return existingExports;
+   }
+
+   public String viewExport()
+   {
+      selectExport();
+
+      return ConsumerManagerBean.EXPORT_DETAIL;
+   }
+
+   public String importPortlets()
+   {
+      return ConsumerManagerBean.EXPORTS;
+   }
+
+   public String deleteExport()
+   {
+      ExportInfo export = currentExport.getExport();
+      if(consumer.getMigrationService().remove(export) == export)
+      {
+         existingExports = null; // force rebuild of export list
+         currentExport = null;
+      }
+
+      return ConsumerManagerBean.EXPORTS;
+   }
+
+   public void selectExport(ActionEvent actionEvent)
+   {
+      selectExport();
+   }
+
+   public void selectExport()
+   {
+      currentExport = (ExportInfoDisplay) existingExports.getRowData();
    }
 
    public static class SelectablePortletHandle
@@ -589,6 +638,84 @@ public class ConsumerBean extends ManagedBean
       public void setSelected(boolean selected)
       {
          this.selected = selected;
+      }
+   }
+
+   public static class ExportInfoDisplay
+   {
+      private ExportInfo export;
+      private Locale locale;
+      private List<FailedPortletsDisplay> failedPortlets;
+
+      public ExportInfoDisplay(ExportInfo export, Locale locale)
+      {
+         this.export = export;
+         this.locale = locale;
+         SortedMap<QName,List<String>> errorCodesToFailedPortletHandlesMapping = export.getErrorCodesToFailedPortletHandlesMapping();
+         if(ParameterValidation.existsAndIsNotEmpty(errorCodesToFailedPortletHandlesMapping))
+         {
+            failedPortlets = new ArrayList<FailedPortletsDisplay>(errorCodesToFailedPortletHandlesMapping.size());
+            for (Map.Entry<QName, List<String>> entry : errorCodesToFailedPortletHandlesMapping.entrySet())
+            {
+               failedPortlets.add(new FailedPortletsDisplay(entry.getKey(), entry.getValue()));
+            }
+         }
+         else
+         {
+            failedPortlets = Collections.emptyList();
+         }
+      }
+
+      public String getExportTime()
+      {
+         return export.getHumanReadableExportTime(locale);
+      }
+
+      public String getExpirationTime()
+      {
+         return export.getHumanReadableExpirationTime(locale);
+      }
+
+      public boolean isHasFailedPortlets()
+      {
+         return !failedPortlets.isEmpty();
+      }
+
+      public List<String> getExportedPortlets()
+      {
+         return export.getExportedPortletHandles();
+      }
+
+      public List<FailedPortletsDisplay> getFailedPortlets()
+      {
+         return failedPortlets;
+      }
+
+      public ExportInfo getExport()
+      {
+         return export;
+      }
+   }
+
+   public static class FailedPortletsDisplay
+   {
+      private QName errorCode;
+      private List<String> faiedPortlets;
+
+      public FailedPortletsDisplay(QName errorCode, List<String> failedPortlets)
+      {
+         this.errorCode = errorCode;
+         this.faiedPortlets = failedPortlets;
+      }
+
+      public QName getErrorCode()
+      {
+         return errorCode;
+      }
+
+      public List<String> getFailedPortlets()
+      {
+         return faiedPortlets;
       }
    }
 }

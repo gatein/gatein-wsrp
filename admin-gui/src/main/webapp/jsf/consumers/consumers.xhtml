@@ -89,16 +89,19 @@
                   <f:param name="id" value="#{cons.producerId}"/>
                   #{i18n.consumers_table_action_delete}
                </h:commandLink>
-               |
-               <h:commandLink action="#{consumersMgr.importPortlets}" styleClass="actionImport" id="import">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  #{i18n.consumers_table_action_import}
-               </h:commandLink>
-               |
-               <h:commandLink action="#{consumersMgr.exportPortlets}" styleClass="actionExport" id="export">
-                  <f:param name="id" value="#{cons.producerId}"/>
-                  #{i18n.consumers_table_action_export}
-               </h:commandLink>
+               <h:panelGroup rendered="#{cons.active and cons.supportsExport}">
+                  <h:panelGroup rendered="#{! cons.migrationService.availableExportInfosEmpty}">|
+                     <h:commandLink action="#{consumersMgr.importPortlets}" styleClass="actionImport" id="import">
+                        <f:param name="id" value="#{cons.producerId}"/>
+                        #{i18n.consumers_table_action_import}
+                     </h:commandLink>
+                  </h:panelGroup>
+                  |
+                  <h:commandLink action="#{consumersMgr.exportPortlets}" styleClass="actionExport" id="export">
+                     <f:param name="id" value="#{cons.producerId}"/>
+                     #{i18n.consumers_table_action_export}
+                  </h:commandLink>
+               </h:panelGroup>
             </h:column>
          </h:dataTable>
       </h:form>

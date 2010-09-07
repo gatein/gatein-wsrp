@@ -26,9 +26,12 @@ package org.gatein.wsrp.consumer.migration;
 import org.gatein.common.util.ParameterValidation;
 
 import javax.xml.namespace.QName;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -72,9 +75,28 @@ public class ExportInfo
       return exportTime;
    }
 
+   public String getHumanReadableExportTime(Locale locale)
+   {
+      return getHumanReadableTime(locale, exportTime);
+   }
+
    public long getExpirationTime()
    {
       return expirationTime;
+   }
+
+   public String getHumanReadableExpirationTime(Locale locale)
+   {
+      return getHumanReadableTime(locale, expirationTime);
+   }
+
+   private String getHumanReadableTime(Locale locale, final long time)
+   {
+      if(locale == null)
+      {
+         locale = Locale.getDefault();
+      }
+      return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale).format(new Date(time));
    }
 
    public List<String> getExportedPortletHandles()

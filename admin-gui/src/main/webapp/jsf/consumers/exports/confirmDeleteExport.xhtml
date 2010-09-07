@@ -1,0 +1,96 @@
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<ui:decorate template="../consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:f="http://java.sun.com/jsf/core"
+             xmlns:webui="http://jboss.org/gatein">
+
+   <ui:param name="title" value=""/>
+   <ui:define name="content">
+
+      <div class="portlet-msg">
+         <div class="portlet-msg-icon">
+            <h:graphicImage url="/img/msgIcon_Warning.gif" alt="/!\"/>
+         </div>
+         <div class="portlet-msg-body">
+            <h3>
+               <h:outputFormat value="#{i18n.confirm_delete_export_title}">
+                  <f:param value="#{consumer.currentExport.exportTime}"/>
+               </h:outputFormat>
+            </h3>
+
+            <p class="portlet-msg-alert">
+               <h:outputFormat value="#{i18n.confirm_delete_export_message}">
+                  <f:param value="#{consumer.currentExport.exportTime}"/>
+               </h:outputFormat>
+            </p>
+
+            <p class="portlet-class">#{i18n.confirm_detete_export_proceed}</p>
+
+            <h:form id="confirm-delete-form">
+               <table class="ActionContainer">
+                  <tr>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="destroy-link" action="#{consumer.deleteExport}"
+                                                value="#{i18n.confirm_delete_export_submit}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                     <td>
+                        <div class="ButtonLeft">
+                           <div class="ButtonRight">
+                              <div class="ButtonMiddle">
+                                 <h:commandLink id="cancel-link" action="exports"
+                                                value="#{i18n.confirm_delete_export_cancel}"/>
+                              </div>
+                           </div>
+                        </div>
+                     </td>
+                  </tr>
+               </table>
+
+
+               <ui:remove><webui:commandButton id="destroy-link"
+                                               action="destroyConsumer"
+                                               backingBean="#{consumersMgr}"
+                                               value="#{i18n.confirm_delete_consumer_submit}">
+                  <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
+               </webui:commandButton>
+
+                  <webui:commandButton id="cancel-link"
+                                       action="listConsumers"
+                                       backingBean="#{consumersMgr}"
+                                       value="#{i18n.confirm_delete_consumer_cancel}"/></ui:remove>
+            </h:form>
+         </div>
+      </div>
+
+   </ui:define>
+
+</ui:decorate>

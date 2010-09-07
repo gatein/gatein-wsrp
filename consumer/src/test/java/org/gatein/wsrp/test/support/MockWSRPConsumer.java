@@ -30,6 +30,7 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.wsrp.WSRPConsumer;
@@ -111,7 +112,7 @@ public class MockWSRPConsumer implements WSRPConsumer
       return null;
    }
 
-   public Set getPortlets() throws PortletInvokerException
+   public Set<Portlet> getPortlets() throws PortletInvokerException
    {
       return null;
    }
@@ -131,7 +132,7 @@ public class MockWSRPConsumer implements WSRPConsumer
       return null;
    }
 
-   public List destroyClones(List portletContexts) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException
+   public List<DestroyCloneFailure> destroyClones(List<PortletContext> portletContexts) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException
    {
       return null;
    }
@@ -171,6 +172,11 @@ public class MockWSRPConsumer implements WSRPConsumer
    public MigrationService getMigrationService()
    {
       throw new NotYetImplemented();
+   }
+
+   public boolean isSupportsExport()
+   {
+      return false;
    }
 
    public void destroy()

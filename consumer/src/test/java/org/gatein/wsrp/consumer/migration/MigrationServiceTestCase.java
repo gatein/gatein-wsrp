@@ -23,54 +23,40 @@
 
 package org.gatein.wsrp.consumer.migration;
 
-import org.gatein.common.util.ParameterValidation;
+import junit.framework.TestCase;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class MigrationService
+public class MigrationServiceTestCase extends TestCase
 {
-   private SortedMap<Long, ExportInfo> exportInfos;
+   private MigrationService service;
 
-   public List<ExportInfo> getAvailableExportInfos()
+   @Override
+   protected void setUp() throws Exception
    {
-      return new ArrayList<ExportInfo>(getExportInfos().values());
+      service = new MigrationService();
    }
 
-   public ExportInfo getExportInfo(long exportTime)
+   public void testIsAvailableExportInfosEmpty()
    {
-      return exportInfos.get(exportTime);
+      assertTrue(service.isAvailableExportInfosEmpty());
    }
 
-   public void add(ExportInfo info)
+   public void testAddExport()
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(info, "ExportInfo");
+      ExportInfo info = new ExportInfo(System.currentTimeMillis(), new TreeMap<String, byte[]>(), null);
+      service.add(info);
 
-      getExportInfos().put(info.getExportTime(), info);
-   }
-
-   public ExportInfo remove(ExportInfo info)
-   {
-      return info == null ? null : getExportInfos().remove(info.getExportTime());
-   }
-
-   private SortedMap<Long, ExportInfo> getExportInfos()
-   {
-      if (exportInfos == null)
-      {
-         exportInfos = new TreeMap<Long, ExportInfo>();
-      }
-      return exportInfos;
-   }
-
-   public boolean isAvailableExportInfosEmpty()
-   {
-      return exportInfos == null || exportInfos.isEmpty();
+      List<ExportInfo> exports = service.getAvailableExportInfos();
+      assertNotNull(exports);
+      assertEquals(1, exports.size());
+      assertEquals(info, exports.get(0));
+      assertEquals(info, service.getExportInfo(info.getExportTime()));
+      assertFalse(service.isAvailableExportInfosEmpty());
    }
 }
