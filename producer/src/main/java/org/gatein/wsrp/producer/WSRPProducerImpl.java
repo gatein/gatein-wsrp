@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer;
 
 import org.gatein.exports.ExportManager;
+import org.gatein.exports.impl.ExportManagerImpl;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
@@ -361,6 +362,10 @@ public class WSRPProducerImpl implements WSRP2Producer
 
    public ExportManager getExportManager()
    {
+      if (exportManager == null)
+      {
+         exportManager = new ExportManagerImpl();
+      }
       return exportManager;
    }
 
