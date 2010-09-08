@@ -40,12 +40,12 @@
          <tr>
             <th>#{i18n.export_detail_portlets}</th>
             <td>
-               <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="handle"
+               <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
                             rowClasses="EvenRow,OddRow"
                             styleClass="UIGrid" width="100%">
                   <h:column>
                      <f:facet name="header">#{i18n.export_detail_exported_portlet_name}</f:facet>
-                     #{handle}
+                     #{portlet.handle}
                   </h:column>
                </h:dataTable>
             </td>

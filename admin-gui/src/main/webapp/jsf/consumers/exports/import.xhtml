@@ -28,38 +28,32 @@
 
    <ui:define name="content">
 
-      <h:form id="exports-form">
-         <h:dataTable id="exportsList" value="#{consumer.existingExports}" var="export" rowClasses="EvenRow,OddRow"
-                      styleClass="UIGrid" width="100%">
+      <h:form id="import-form">
+         <h:dataTable id="portletsList" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
+                      rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
             <h:column>
-               <f:facet name="header">#{i18n.export_detail_export_time}</f:facet>
-               #{export.exportTime}
+               <f:facet name="header">#{i18n.import_use}</f:facet>
+               <h:selectBooleanCheckbox id="selected"  value="#{portlet.selected}"
+                                        valueChangeListener="#{portlet.select}"
+                                        immediate="true" onclick="this.form.submit()"/>
             </h:column>
 
             <h:column>
-               <f:facet name="header">#{i18n.export_detail_expiration_time}</f:facet>
-               #{export.expirationTime}
+               <f:facet name="header">#{i18n.import_available_portlets}</f:facet>
+               #{portlet.handle}
             </h:column>
 
             <h:column>
-               <f:facet name="header">#{i18n.export_detail_has_failed}</f:facet>
-               <h:selectBooleanCheckbox id="hasFailed"  value="#{export.hasFailedPortlets}" disabled="true"/>
-            </h:column>
-
-            <h:column>
-               <f:facet name="header">#{i18n.exports_actions}</f:facet>
-
-               <h:commandLink action="#{consumer.viewExport}" styleClass="actionConfigure" id="view">
-                  #{i18n.exports_actions_view}
-               </h:commandLink>
-               |
-               <h:commandLink action="confirmDeleteExport" actionListener="#{consumer.selectExport}" styleClass="actionDelete" id="delete">
-                  #{i18n.exports_actions_delete}
-               </h:commandLink>
-               |
-               <h:commandLink action="import" actionListener="#{consumer.selectExport}" styleClass="actionUse" id="use">
-                  #{i18n.exports_actions_use}
-               </h:commandLink>
+               <f:facet name="header">#{i18n.import_assign}</f:facet>
+               <h:selectOneListbox id="currentPage" value="#{portlet.page}"
+                                   valueChangeListener="#{portlet.selectCurrentPage}"
+                                   immediate="true"
+                                   onclick="this.form.submit()">
+                  <f:selectItems value="#{portlet.pages}"/>
+               </h:selectOneListbox>
+               <h:selectOneListbox id="currentWindow" value="#{portlet.window}" rendered="#{! empty portlet.page}">
+                  <f:selectItems value="#{portlet.windows}"/>
+               </h:selectOneListbox>
             </h:column>
          </h:dataTable>
          <table class="ActionContainer">
@@ -68,7 +62,7 @@
                   <div class="ButtonLeft">
                      <div class="ButtonRight">
                         <div class="ButtonMiddle">
-                           <h:commandButton id="consumers" action="consumers" value="#{i18n.export_detail_consumers}"/>
+                           <h:commandButton id="import" action="#{consumer.importPortlets}" value="#{i18n.import_import}"/>
                         </div>
                      </div>
                   </div>

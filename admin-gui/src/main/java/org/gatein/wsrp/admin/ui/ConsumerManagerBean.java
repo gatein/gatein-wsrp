@@ -53,8 +53,9 @@ public class ConsumerManagerBean extends ManagedBean
    private static final String REFRESH_EXCEPTION = "bean_consumermanager_refresh_exception";
    static final String CONFIGURE_CONSUMER = "configureConsumer";
    static final String EXPORT = "export";
-   public static final String EXPORTS = "exports";
+   static final String EXPORTS = "exports";
    static final String EXPORT_DETAIL = "exportDetail";
+   static final String IMPORT = "import";
 
    static final String CONSUMERS = "consumers";
    static final String EXPECTED_REG_INFO_KEY = "expectedRegistrationInfo";

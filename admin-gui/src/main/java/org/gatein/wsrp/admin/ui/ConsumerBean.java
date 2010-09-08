@@ -27,29 +27,31 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.api.PortalStructureProvider;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
 import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 
 /**
@@ -75,6 +77,7 @@ public class ConsumerBean extends ManagedBean
    private static final String MALFORMED_URL = "bean_consumer_malformed_url";
    private static final String UPDATE_SUCCESS = "bean_consumer_update_success";
    private static final String CANNOT_EXPORT = "bean_consumer_cannot_export";
+   private static final String IMPORT_SUCCESS = "bean_consumer_import_success";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
 
    private DataModel portletHandles;
@@ -514,7 +517,7 @@ public class ConsumerBean extends ManagedBean
                selectableHandles = new ArrayList<SelectablePortletHandle>(portlets.size());
                for (Portlet portlet : portlets)
                {
-                  selectableHandles.add(new SelectablePortletHandle(portlet.getContext().getId()));
+                  selectableHandles.add(new SelectablePortletHandle(portlet.getContext().getId(), consumer.getMigrationService().getStructureProvider()));
                }
             }
             portletHandles = new ListDataModel(selectableHandles);
@@ -545,7 +548,7 @@ public class ConsumerBean extends ManagedBean
 
          try
          {
-            currentExport = new ExportInfoDisplay(consumer.exportPortlets(selectedHandles), beanContext.getLocale());
+            currentExport = new ExportInfoDisplay(consumer.exportPortlets(selectedHandles), beanContext.getLocale(), consumer.getMigrationService().getStructureProvider());
          }
          catch (Exception e)
          {
@@ -569,11 +572,12 @@ public class ConsumerBean extends ManagedBean
       if (existingExports == null)
       {
          Locale locale = beanContext.getLocale();
-         List<ExportInfo> availableExportInfos = consumer.getMigrationService().getAvailableExportInfos();
+         MigrationService migrationService = consumer.getMigrationService();
+         List<ExportInfo> availableExportInfos = migrationService.getAvailableExportInfos();
          List<ExportInfoDisplay> exportDisplays = new ArrayList<ExportInfoDisplay>(availableExportInfos.size());
          for (ExportInfo exportInfo : availableExportInfos)
          {
-            exportDisplays.add(new ExportInfoDisplay(exportInfo, locale));
+            exportDisplays.add(new ExportInfoDisplay(exportInfo, locale, migrationService.getStructureProvider()));
          }
          existingExports = new ListDataModel(exportDisplays);
       }
@@ -590,13 +594,27 @@ public class ConsumerBean extends ManagedBean
 
    public String importPortlets()
    {
-      return ConsumerManagerBean.EXPORTS;
+      List<SelectablePortletHandle> exportedPortlets = currentExport.getExportedPortlets();
+      PortalStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
+      int importCount = 0;
+      for (SelectablePortletHandle exportedPortlet : exportedPortlets)
+      {
+         if(exportedPortlet.isSelected())
+         {
+            structureProvider.assignPortletToWindow(exportedPortlet.getHandle(), exportedPortlet.getWindow(), exportedPortlet.getPage());
+            importCount++;
+         }
+      }
+
+      beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
+
+      return ConsumerManagerBean.CONSUMERS;
    }
 
    public String deleteExport()
    {
       ExportInfo export = currentExport.getExport();
-      if(consumer.getMigrationService().remove(export) == export)
+      if (consumer.getMigrationService().remove(export) == export)
       {
          existingExports = null; // force rebuild of export list
          currentExport = null;
@@ -612,17 +630,21 @@ public class ConsumerBean extends ManagedBean
 
    public void selectExport()
    {
-      currentExport = (ExportInfoDisplay) existingExports.getRowData();
+      currentExport = (ExportInfoDisplay)existingExports.getRowData();
    }
 
    public static class SelectablePortletHandle
    {
       private String handle;
       private boolean selected;
+      private String page;
+      private String window;
+      private PortalStructureProvider provider;
 
-      public SelectablePortletHandle(String handle)
+      public SelectablePortletHandle(String handle, PortalStructureProvider provider)
       {
          this.handle = handle;
+         this.provider = provider;
       }
 
       public String getHandle()
@@ -639,6 +661,60 @@ public class ConsumerBean extends ManagedBean
       {
          this.selected = selected;
       }
+
+      public void setPage(String page)
+      {
+         this.page = page;
+      }
+
+      public String getPage()
+      {
+         return page;
+      }
+
+      public void setWindow(String window)
+      {
+         this.window = window;
+      }
+
+      public String getWindow()
+      {
+         return window;
+      }
+
+      public void selectCurrentPage(ValueChangeEvent event)
+      {
+         page = (String)event.getNewValue();
+
+         // bypass the rest of the life cycle and re-display page
+         FacesContext.getCurrentInstance().renderResponse();
+      }
+
+      public List<SelectItem> getPages()
+      {
+         List<String> pageIdentifiers = provider.getPageIdentifiers();
+         return getSelectItemsFrom(pageIdentifiers);
+      }
+
+      private List<SelectItem> getSelectItemsFrom(List<String> identifiers)
+      {
+         List<SelectItem> result = new ArrayList<SelectItem>(identifiers.size());
+         for (String pageIdentifier : identifiers)
+         {
+            result.add(new SelectItem(pageIdentifier));
+         }
+         return result;
+      }
+
+      public List<SelectItem> getWindows()
+      {
+         return getSelectItemsFrom(provider.getWindowIndentifiersFor(page));
+      }
+
+      public void select(ValueChangeEvent event)
+      {
+         selected = (Boolean) event.getNewValue();
+      }
    }
 
    public static class ExportInfoDisplay
@@ -646,13 +722,29 @@ public class ConsumerBean extends ManagedBean
       private ExportInfo export;
       private Locale locale;
       private List<FailedPortletsDisplay> failedPortlets;
+      private List<SelectablePortletHandle> exportedPortlets;
 
-      public ExportInfoDisplay(ExportInfo export, Locale locale)
+      public ExportInfoDisplay(ExportInfo export, Locale locale, PortalStructureProvider provider)
       {
          this.export = export;
          this.locale = locale;
-         SortedMap<QName,List<String>> errorCodesToFailedPortletHandlesMapping = export.getErrorCodesToFailedPortletHandlesMapping();
-         if(ParameterValidation.existsAndIsNotEmpty(errorCodesToFailedPortletHandlesMapping))
+
+         List<String> exportedPortletHandles = export.getExportedPortletHandles();
+         if (ParameterValidation.existsAndIsNotEmpty(exportedPortletHandles))
+         {
+            exportedPortlets = new ArrayList<SelectablePortletHandle>(exportedPortletHandles.size());
+            for (String handle : exportedPortletHandles)
+            {
+               exportedPortlets.add(new SelectablePortletHandle(handle, provider));
+            }
+         }
+         else
+         {
+            exportedPortlets = Collections.emptyList();
+         }
+
+         SortedMap<QName, List<String>> errorCodesToFailedPortletHandlesMapping = export.getErrorCodesToFailedPortletHandlesMapping();
+         if (ParameterValidation.existsAndIsNotEmpty(errorCodesToFailedPortletHandlesMapping))
          {
             failedPortlets = new ArrayList<FailedPortletsDisplay>(errorCodesToFailedPortletHandlesMapping.size());
             for (Map.Entry<QName, List<String>> entry : errorCodesToFailedPortletHandlesMapping.entrySet())
@@ -681,9 +773,9 @@ public class ConsumerBean extends ManagedBean
          return !failedPortlets.isEmpty();
       }
 
-      public List<String> getExportedPortlets()
+      public List<SelectablePortletHandle> getExportedPortlets()
       {
-         return export.getExportedPortletHandles();
+         return exportedPortlets;
       }
 
       public List<FailedPortletsDisplay> getFailedPortlets()
