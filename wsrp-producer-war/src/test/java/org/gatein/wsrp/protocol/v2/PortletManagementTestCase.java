@@ -133,13 +133,22 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Test
    public void testExport() throws Exception
    {
-      String handle = getDefaultHandle();
-      List<PortletContext> portletContexts = createPortletContextList(handle);
+      try
+      {
+         String handle = getDefaultHandle();
+         List<PortletContext> portletContexts = createPortletContextList(handle);
 
-      ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
-      ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
+         ExportPortlets exportPortlets = createSimpleExportPortlets(portletContexts);
+         ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
-      checkValidHandle(response, handle);
+         checkValidHandle(response, handle);
+      }
+      catch (Exception e)
+      {
+         System.out.println("An exception occurred when running testExport");
+         e.printStackTrace();
+         throw new Exception(e);
+      }
    }
 
    @Test
@@ -853,7 +862,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       //Test that doing a release export actually removed the stored RefId
       TestMockExportPersistenceManager persistenceManager = (TestMockExportPersistenceManager)producer.getExportManager().getPersistenceManager();
-      assertEquals(0, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(0, persistenceManager.getExportContextKeys().size());
+      assertEquals(0, persistenceManager.getExportPortletsKeys().size());
    }
 
    @Test
@@ -887,12 +897,14 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       exportPortlets.setExportByValueRequired(false);
 
       //Test that we don't have anything in the PM before doing an export
-      assertEquals(0, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(0, persistenceManager.getExportContextKeys().size());
+      assertEquals(0, persistenceManager.getExportPortletsKeys().size());
 
       ExportPortletsResponse response = producer.exportPortlets(exportPortlets);
 
       //Test that we have an entry in the PM after doing an export
-      assertEquals(1, persistenceManager.getExportContexts().keySet().size());
+      assertEquals(1, persistenceManager.getExportContextKeys().size());
+      assertEquals(1, persistenceManager.getExportPortletsKeys().size());
 
       return response;
    }
@@ -960,7 +972,19 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       for (ExportedPortlet exportPortlet : exportedPortlets)
       {
-         ExportPortletData exportPortletData = exportManager.createExportPortletData(exportContext, exportPortletsResponse.getLifetime(), exportPortlet.getExportData());
+         ExportPortletData exportPortletData;
+         Lifetime lifetime = exportPortletsResponse.getLifetime();
+         if (lifetime != null)
+         {
+            long currentTime = lifetime.getCurrentTime().toGregorianCalendar().getTime().getTime();
+            long terminationTime = lifetime.getTerminationTime().toGregorianCalendar().getTime().getTime();
+            long refreshDuration = lifetime.getRefreshDuration().getTimeInMillis(lifetime.getCurrentTime().toGregorianCalendar());
+            exportPortletData = exportManager.createExportPortletData(exportContext, currentTime, terminationTime, refreshDuration, exportPortlet.getExportData());
+         }
+         else
+         {
+            exportPortletData = exportManager.createExportPortletData(exportContext, -1, -1, -1, exportPortlet.getExportData());
+         }
          String portletHandle = exportPortletData.getPortletHandle();
          byte[] portletState = exportPortletData.getPortletState();
          portletContexts.add(WSRPTypeFactory.createPortletContext(portletHandle, portletState));

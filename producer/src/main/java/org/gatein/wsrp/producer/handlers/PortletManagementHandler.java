@@ -103,9 +103,15 @@ import org.oasis.wsrp.v2.SetPortletsLifetime;
 import org.oasis.wsrp.v2.SetPortletsLifetimeResponse;
 import org.oasis.wsrp.v2.UserContext;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -538,9 +544,19 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       {
          RegistrationLocal.setRegistration(registration);
 
-         //TODO: try catch here?
-         ExportContext exportContext = producer.getExportManager().createExportContext(exportByValueRequired, exportPortlets.getLifetime());
-
+         ExportContext exportContext;
+         if (exportPortlets.getLifetime() != null)
+         {
+            long currentTime = toLongDate(exportPortlets.getLifetime().getCurrentTime());
+            long terminationTime = toLongDate(exportPortlets.getLifetime().getTerminationTime());
+            long refreshDuration = exportPortlets.getLifetime().getRefreshDuration().getTimeInMillis(exportPortlets.getLifetime().getCurrentTime().toGregorianCalendar());
+            exportContext = producer.getExportManager().createExportContext(exportByValueRequired, currentTime, terminationTime, refreshDuration);
+         }
+         else
+         {
+            exportContext = producer.getExportManager().createExportContext(exportByValueRequired, -1, -1, -1);
+         }
+         
          for (PortletContext portletContext : exportPortlets.getPortletContext())
          {
             try
@@ -616,7 +632,17 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
          byte[] exportContextBytes = producer.getExportManager().encodeExportContextData(exportContext);
 
-         return WSRPTypeFactory.createExportPortletsResponse(exportContextBytes, exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), exportContext.getLifeTime(), resourceList);
+         Lifetime lifetime = null;
+         
+         if (exportContext.getCurrentTime() > 0)
+         {
+            lifetime = new Lifetime();
+            lifetime.setCurrentTime(toXMLGregorianCalendar(exportContext.getCurrentTime()));
+            lifetime.setTerminationTime(toXMLGregorianCalendar(exportContext.getTermintationTime()));
+            lifetime.setRefreshDuration(toDuration(exportContext.getRefreshDuration()));
+         }
+         
+         return WSRPTypeFactory.createExportPortletsResponse(exportContextBytes, exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), lifetime, resourceList);
       }
       catch (Exception e)
       {
@@ -668,8 +694,19 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
             {
                byte[] portletData = importPortlet.getExportData();
 
-               ExportPortletData exportPortletData = producer.getExportManager().createExportPortletData(exportContext, lifeTime, portletData);
-
+               ExportPortletData exportPortletData;
+               if (lifeTime != null)
+               {
+                  long currentTime = toLongDate(lifeTime.getCurrentTime());
+                  long terminationTime = toLongDate(lifeTime.getTerminationTime());
+                  long refreshDuration = lifeTime.getRefreshDuration().getTimeInMillis(lifeTime.getCurrentTime().toGregorianCalendar());
+                  exportPortletData = producer.getExportManager().createExportPortletData(exportContext, currentTime, terminationTime, refreshDuration, portletData);
+               }
+               else
+               {
+                  exportPortletData = producer.getExportManager().createExportPortletData(exportContext, -1, -1, -1, portletData);
+               }
+               
                String portletHandle = exportPortletData.getPortletHandle();
                byte[] portletState = exportPortletData.getPortletState();
 
@@ -786,11 +823,20 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       try
       {
          RegistrationLocal.setRegistration(registration);
-
-         ExportContext exportContext = producer.getExportManager().createExportContext(exportContextBytes);
-
-         return producer.getExportManager().setExportLifetime(exportContext, setExportLifetime.getLifetime());
-
+         
+         ExportContext exportContext;
+         if (setExportLifetime != null)
+         {
+            long currentTime = toLongDate(setExportLifetime.getLifetime().getCurrentTime());
+            long terminationTime = toLongDate(setExportLifetime.getLifetime().getTerminationTime());
+            long refreshDuration = setExportLifetime.getLifetime().getRefreshDuration().getTimeInMillis(setExportLifetime.getLifetime().getCurrentTime().toGregorianCalendar());
+            exportContext = producer.getExportManager().setExportLifetime(exportContextBytes, currentTime, terminationTime, refreshDuration);
+         }
+         else
+         {
+            exportContext = producer.getExportManager().setExportLifetime(exportContextBytes, -1, -1, -1);
+         }
+         return getLifetime(exportContext);
       }
       catch (Exception e)
       {
@@ -827,6 +873,48 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       finally
       {
          RegistrationLocal.setRegistration(null);
+      }
+   }
+
+   //TODO: move these classes to the common module and write up proper lifetime utilities 
+   private XMLGregorianCalendar toXMLGregorianCalendar(long time) throws DatatypeConfigurationException
+   {
+      Date date = new Date(time);
+      GregorianCalendar gregorianCalendar = new GregorianCalendar();
+      gregorianCalendar.setTime(date);
+      return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+   }
+
+   private long toLongDate(XMLGregorianCalendar calendar)
+   {
+      return calendar.toGregorianCalendar().getTime().getTime();
+   }
+
+   private Duration toDuration(long duration) throws DatatypeConfigurationException
+   {
+      return DatatypeFactory.newInstance().newDuration(duration);
+   }
+
+   private Lifetime getLifetime(ExportContext exportContext) throws DatatypeConfigurationException
+   {
+      if (exportContext.getCurrentTime() >= 0)
+      {
+         Lifetime lifetime = new Lifetime();
+
+         XMLGregorianCalendar currentTime = toXMLGregorianCalendar(exportContext.getCurrentTime());
+         XMLGregorianCalendar terminationTime = toXMLGregorianCalendar(exportContext.getTermintationTime());
+
+         Duration duration = toDuration(exportContext.getRefreshDuration());
+
+         lifetime.setCurrentTime(currentTime);
+         lifetime.setTerminationTime(terminationTime);
+         lifetime.setRefreshDuration(duration);
+
+         return lifetime;
+      }
+      else
+      {
+         return null;
       }
    }
 }

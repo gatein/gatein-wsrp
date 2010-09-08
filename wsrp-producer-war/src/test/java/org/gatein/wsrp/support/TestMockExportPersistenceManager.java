@@ -32,7 +32,9 @@ import org.oasis.wsrp.v2.Lifetime;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,52 +46,114 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
 
    public static final String PEC_TYPE = "P_EC";
    public static final double PEC_VERSION = 1.0;
-
+   
+   public static final String PED_TYPE = "P_ED";
+   public static final double PED_VERSION = 1.0;
+   
    Map<String, ExportContext> exportContexts = new HashMap<String, ExportContext>();
+   Map<String, ExportPortletData> exportPortletDatas = new HashMap<String, ExportPortletData>();
+
+   public ExportContext getExportContext(String refId)
+   {
+      return exportContexts.get(refId);
+   }
+
+   public ExportPortletData getExportPortletData(String exportContextId, String portletDataID)
+   {
+      ExportContext exportContext = exportContexts.get(exportContextId);
+      if (exportContext.getPortlets().contains(portletDataID))
+      {
+         return exportPortletDatas.get(portletDataID);
+      }
+      else
+      {
+         return null;
+      }
+   }
 
    //For testing purposes only
-   public Map<String, ExportContext> getExportContexts()
+   public Set<String> getExportContextKeys()
    {
-      return exportContexts;
+      return exportContexts.keySet();
+   }
+   
+   //For testing purposes only
+   public Set<String> getExportPortletsKeys()
+   {
+      return exportPortletDatas.keySet();
+   }
+   
+   public String getExportReferenceId(String type, double version, byte[] bytes) throws UnsupportedEncodingException
+   {
+    if (supports(type, version))
+    {
+       PersistedExportData persistedExportData = PersistedExportData.create(bytes);
+       return persistedExportData.getRefId();
+    }
+    else
+    {
+       return null;
+    }
    }
 
-   public ExportContext getExportContext(String type, double version, byte[] bytes) throws UnsupportedEncodingException
+   public boolean removeExportContext(String refId)
    {
-      if (supports(type, version))
+      if (exportContexts.containsKey(refId))
       {
-         PersistedExportData persistedExportData = PersistedExportData.create(bytes);
-         String refId = persistedExportData.getRefId();
-         return exportContexts.get(refId);
+         List<String> portlets = exportContexts.get(refId).getPortlets();
+         for (String portlet: portlets)
+         {
+            exportPortletDatas.remove(portlet);
+         }
+         exportContexts.remove(refId);
+         return true;
       }
       else
       {
-         return null;
+         return false;
       }
    }
 
-   public void releaseExport(byte[] bytes)
+   public boolean removeExportPortletData(String exportContextId, String exportDataId)
    {
-      try
+      if (exportContexts.containsKey(exportDataId))
       {
-         PersistedExportData persistedExportData = PersistedExportData.create(bytes);
-         String refId = persistedExportData.getRefId();
-         if (exportContexts.containsKey(refId))
+         List<String> portlets = exportContexts.get(exportDataId).getPortlets();
+         if (portlets.contains(exportDataId))
          {
-            exportContexts.remove(refId);
+            portlets.remove(exportContextId);
+            exportPortletDatas.remove(exportDataId);
+            return true;
          }
       }
-      catch (Exception e)
+      return false;
+   }
+
+   public boolean supports(String type, double version)
+   {
+      return (type.equals(PEC_TYPE) && (version == PEC_VERSION)) || ((type.equals(PED_TYPE) && (version == PED_VERSION)));
+   }
+
+   public ExportContext updateExportContext(String refId, ExportContext updatedExportContext)
+   {
+      if (updatedExportContext != null && refId != null && exportContexts.containsKey(refId))
       {
-         System.out.println("ERROR When trying to release exports");
-         e.printStackTrace();
+         exportContexts.put(refId, updatedExportContext);
+         return updatedExportContext;
+      }
+      else
+      {
+         //throw some error here
+         return null;
       }
    }
 
-   public ExportContext retrieveExportContextData(String refid)
+   public ExportPortletData updateExportPortletData(String refId, ExportPortletData updatedPortletData)
    {
-      if (exportContexts.containsKey(refid))
+      if (updatedPortletData != null && refId != null && exportContexts.containsKey(refId))
       {
-         return exportContexts.get(refid);
+         exportPortletDatas.put(refId, updatedPortletData);
+         return updatedPortletData;
       }
       else
       {
@@ -97,17 +161,24 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public ExportPortletData retrieveExportPortletData(String refid)
+   public byte[] encodeExportContext(String refId) throws IOException
    {
-      throw new NotYetImplemented();
+      PersistedExportData persistedExportData = new PersistedExportData(PEC_TYPE, refId);
+      return persistedExportData.encodeAsBytes();
    }
 
-   public String storeExportContextData(ExportContext exportContextData)
+   public byte[] encodeExportPortletData(String exportDataRefId) throws IOException
    {
-      if (exportContextData != null)
+      PersistedExportData persistedExportData = new PersistedExportData(PED_TYPE, exportDataRefId);
+      return persistedExportData.encodeAsBytes();
+   }
+
+   public String storeExportContext(ExportContext exportContext)
+   {
+      if (exportContext != null)
       {
          String refId = UUID.randomUUID().toString();
-         exportContexts.put(refId, exportContextData);
+         exportContexts.put(refId, exportContext);
          return refId;
       }
       else
@@ -116,32 +187,21 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public String storeExportPortletData(ExportPortletData exportPortletData)
+   public String storeExportPortletData(ExportContext exportContext, ExportPortletData exportPortletData)
    {
-      throw new NotYetImplemented();
-   }
-
-   public boolean supports(String type, double version)
-   {
-      return type.equals(PEC_TYPE) && (version == PEC_VERSION);
-   }
-
-   public Lifetime updateExportLifetime(ExportContext exportContext, Lifetime lifetime)
-   {
-      throw new NotYetImplemented();
-   }
-
-   public byte[] encodeExportContextData(ExportContext exportContext) throws IOException
-   {
-      String refId = storeExportContextData(exportContext);
-      PersistedExportData persistedExportData = new PersistedExportData(PEC_TYPE, refId);
-      return persistedExportData.encodeAsBytes();
-   }
-
-   public byte[] encodeExportPortletData(ExportContext exportContext, ExportPortletData exportPortlet)
-   {
-      // FIXME encodeExportPortletData
-      return null;
+      if (exportPortletData != null && exportContext != null)
+      {
+         String refId = UUID.randomUUID().toString();
+         exportContext.addPortlet(refId);
+         
+         exportPortletDatas.put(refId, exportPortletData);
+         
+         return refId;
+      }
+      else
+      {
+         return null;
+      }
    }
 }
 

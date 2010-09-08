@@ -22,8 +22,6 @@
  */
 package org.gatein.exports.data;
 
-import org.oasis.wsrp.v2.Lifetime;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +36,11 @@ public class ExportContext extends ExportData
    protected static final String ENCODING = "UTF-8";
    public static final String TYPE = "WSRP_EC";
    public static final double VERSION = 1.0;
-
-
-   protected Lifetime lifeTime;
+   
+   protected long currentTime;
+   protected long terminationTime;
+   protected long refreshDuration;
+   
    protected final boolean exportByValue;
 
    protected List<String> portlets;
@@ -48,37 +48,67 @@ public class ExportContext extends ExportData
    //for now, we don't store anything in the exported by value ExportContext
    public ExportContext()
    {
-      this.lifeTime = null;
       this.exportByValue = true;
    }
 
-   public ExportContext(boolean exportByValue, Lifetime lifetime)
+   public ExportContext(boolean exportByValue, long currentTime, long terminationTime, long refreshDuration)
    {
       //ignore the lifetime if we are exporting by value 
       if (exportByValue)
       {
-         this.lifeTime = null;
+         this.currentTime = currentTime;
+         this.terminationTime = terminationTime;
+         this.refreshDuration = refreshDuration;
       }
       else
       {
-         this.lifeTime = lifetime;
+         //this.lifeTime = lifetime;
       }
       this.exportByValue = exportByValue;
+   }
+   
+   public ExportContext(String refId, long currentTime, long terminationTime, long refreshDuration)
+   {
+      this.currentTime = currentTime;
+      this.terminationTime = terminationTime;
+      this.refreshDuration = refreshDuration;
+
+      this.exportByValue = false;
    }
 
    public boolean isExportByValue()
    {
       return this.exportByValue;
    }
-
-   public Lifetime getLifeTime()
+   
+   public long getCurrentTime ()
    {
-      return lifeTime;
+      return currentTime;
    }
-
-   public void setLifeTime(Lifetime lifetime)
+   
+   public void setCurrentTime(long currentTime)
    {
-      this.lifeTime = lifetime;
+      this.currentTime = currentTime;
+   }
+   
+   public long getTermintationTime()
+   {
+      return terminationTime;
+   }
+   
+   public void setTerminationTime(long terminationTime)
+   {
+      this.terminationTime = terminationTime;
+   }
+   
+   public long getRefreshDuration()
+   {
+      return refreshDuration;
+   }
+   
+   public void setRefreshDuration(long refreshDuration)
+   {
+      this.refreshDuration = refreshDuration;
    }
 
    public void addPortlet(String portletName)
@@ -88,6 +118,11 @@ public class ExportContext extends ExportData
          this.portlets = new ArrayList<String>();
       }
       this.portlets.add(portletName);
+   }
+   
+   public List<String> getPortlets()
+   {
+      return portlets;
    }
 
    public static ExportContext create(byte[] bytes)

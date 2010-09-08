@@ -34,19 +34,7 @@ import org.oasis.wsrp.v2.Lifetime;
  * @version $Revision$
  */
 public interface ExportPersistenceManager
-{  
-   String storeExportContextData(ExportContext exportContextData);
-
-   String storeExportPortletData(ExportPortletData exportPortletData);
-
-   ExportContext retrieveExportContextData(String refid);
-   
-   ExportPortletData retrieveExportPortletData(String refid);
-
-   Lifetime updateExportLifetime(ExportContext exportContext, Lifetime lifetime);
-
-   void releaseExport(byte[] bytes);
-
+{     
    /**
     * Returns true if the PersistenceManager knows how to decode a byte array with
     * the specified type and version.
@@ -56,21 +44,28 @@ public interface ExportPersistenceManager
     * @return True if the persistence manager can support the specified type and version.
     */
    boolean supports(String type, double version);
+   
+   String getExportReferenceId (String type, double version, byte[] bytes) throws UnsupportedEncodingException;
+   
+   String storeExportContext(ExportContext exportContext);
+   
+   ExportContext getExportContext(String refId);
+   
+   //why are we returning an ExportContext here?
+   ExportContext updateExportContext(String refId, ExportContext updatedExportContext);
+   
+   boolean removeExportContext(String refId);
+   
+   byte[] encodeExportContext(String refId) throws IOException;
+   
+   String storeExportPortletData (ExportContext exportContext, ExportPortletData exportPortletData);
+   
+   ExportPortletData getExportPortletData (String exportContextId, String portletDataId);
 
-   /**
-    * Based on the specified type and version, the bytes will be 
-    * decoded into an ExportContext.
-    * 
-    * @param type The type
-    * @param version The version
-    * @param bytes The bytes to decode
-    * @return
-    * @throws UnsupportedEncodingException 
-    */
-   ExportContext getExportContext(String type, double version, byte[] bytes) throws UnsupportedEncodingException;
-
-   byte[] encodeExportPortletData(ExportContext exportContext, ExportPortletData exportPortlet);
-
-   byte[] encodeExportContextData(ExportContext exportContext) throws IOException;
+   ExportPortletData updateExportPortletData(String refId, ExportPortletData updatedPortletData);
+   
+   boolean removeExportPortletData(String exportContextId, String portletDataId);
+   
+   byte[] encodeExportPortletData(String exportDataRefId) throws IOException;
 }
 

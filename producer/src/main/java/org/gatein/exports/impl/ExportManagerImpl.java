@@ -28,7 +28,6 @@ import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.wsrp.WSRPExceptionFactory;
-import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 
@@ -60,7 +59,7 @@ public class ExportManagerImpl implements ExportManager
       this.exportPersistenceManager = exportPersistenceManager;
    }
 
-   public ExportContext createExportContext(boolean exportByValueRequired, Lifetime lifetime)
+   public ExportContext createExportContext(boolean exportByValueRequired, long currentTime, long terminationTime, long refreshDuration)
       throws UnsupportedEncodingException
    {
       boolean useExportByValue = false;
@@ -68,8 +67,8 @@ public class ExportManagerImpl implements ExportManager
       {
          useExportByValue = true;
       }
-
-      return new ExportContext(useExportByValue, lifetime);
+      
+      return new ExportContext(useExportByValue, currentTime, terminationTime, refreshDuration);
    }
 
    public boolean supportsExportByValue()
@@ -95,7 +94,8 @@ public class ExportManagerImpl implements ExportManager
          }
          else if (exportPersistenceManager != null && exportPersistenceManager.supports(type, version))
          {
-            return exportPersistenceManager.getExportContext(type, version, ExportData.getInternalBytes(bytes));
+            String refId = exportPersistenceManager.getExportReferenceId(type, version, ExportData.getInternalBytes(bytes));
+            return exportPersistenceManager.getExportContext(refId);
          }
          else
          {
@@ -118,7 +118,7 @@ public class ExportManagerImpl implements ExportManager
       return new ExportPortletData(portletHandle, portletState);
    }
 
-   public ExportPortletData createExportPortletData(ExportContext exportContextData, Lifetime lifetime, byte[] bytes) throws OperationFailed
+   public ExportPortletData createExportPortletData(ExportContext exportContextData, long currentTime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailed
    {
       try
       {
@@ -152,34 +152,62 @@ public class ExportManagerImpl implements ExportManager
       }
       else
       {
-         return exportPersistenceManager.encodeExportPortletData(exportContextData, exportPortletData);
+         String refId = exportPersistenceManager.storeExportPortletData(exportContextData, exportPortletData);
+         return exportPersistenceManager.encodeExportPortletData(refId);
       }
    }
 
-   public byte[] encodeExportContextData(ExportContext exportContextData) throws IOException
+   public byte[] encodeExportContextData(ExportContext exportContext) throws IOException
    {
-      if (exportContextData.isExportByValue())
+      if (exportContext.isExportByValue())
       {
-         return exportContextData.encodeAsBytes();
+         return exportContext.encodeAsBytes();
       }
       else
       {
-         return exportPersistenceManager.encodeExportContextData(exportContextData);
+         String refId = exportPersistenceManager.storeExportContext(exportContext);
+         return exportPersistenceManager.encodeExportContext(refId);
       }
    }
 
-   public Lifetime setExportLifetime(ExportContext exportContext, Lifetime lifetime) throws OperationFailed, OperationNotSupported
-   {
+   public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationFailed, OperationNotSupported
+   {  
       if (getPersistenceManager() == null)
       {
          WSRPExceptionFactory.throwWSException(OperationNotSupported.class, "The producer only supports export by value. Cannot call setExportLifetime on this producer", null);
       }
-      else if (exportContext.isExportByValue())
+      
+      try
       {
-         WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot set the lifetime for an export that was exported by value.", null);
-      }
+         String type = ExportData.getType(exportContextBytes);
+         double version = ExportData.getVersion(exportContextBytes);
 
-      return getPersistenceManager().updateExportLifetime(exportContext, lifetime);
+         if (getPersistenceManager().supports(type, version))
+         {
+            String refId = getPersistenceManager().getExportReferenceId(type, version, ExportData.getInternalBytes(exportContextBytes));
+            ExportContext exportContext = getPersistenceManager().getExportContext(refId);
+
+            if (exportContext.isExportByValue())
+            {
+               WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot set the lifetime for an export that was exported by value.", null);
+            }
+
+            exportContext.setCurrentTime(currentTime);
+            exportContext.setTerminationTime(terminationTime);
+            exportContext.setRefreshDuration(refreshDuration);
+
+            ExportContext updatedExportContext = getPersistenceManager().updateExportContext(refId, exportContext);
+            return updatedExportContext;
+         }
+         else
+         {
+            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not recognized.", null);
+         }
+      }
+      catch (IOException e)
+      {
+         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+      }
    }
 
    public void releaseExport(byte[] bytes) throws IOException
@@ -191,7 +219,8 @@ public class ExportManagerImpl implements ExportManager
          double version = ExportData.getVersion(bytes);
          if (exportPersistenceManager.supports(type, version))
          {
-            exportPersistenceManager.releaseExport(ExportData.getInternalBytes(bytes));
+            String refId = exportPersistenceManager.getExportReferenceId(type, version, ExportData.getInternalBytes(bytes));
+            exportPersistenceManager.removeExportContext(refId);
          }
       }
    }

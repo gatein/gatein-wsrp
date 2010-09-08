@@ -24,7 +24,6 @@ package org.gatein.exports;
 
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
-import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 
@@ -43,19 +42,19 @@ public interface ExportManager
 
    boolean supportsExportByValue();
 
-   ExportContext createExportContext(boolean exportByValueRequired, Lifetime lifetime) throws UnsupportedEncodingException;
+   ExportContext createExportContext(boolean exportByValueRequired, long currentTime, long terminationTime, long refreshDuration) throws UnsupportedEncodingException;
 
    ExportContext createExportContext(byte[] bytes) throws OperationFailed;
 
    ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle, byte[] portletState) throws UnsupportedEncodingException;
 
-   ExportPortletData createExportPortletData(ExportContext exportContext, Lifetime lifetime, byte[] bytes) throws OperationFailed;
+   ExportPortletData createExportPortletData(ExportContext exportContext, long currentime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailed;
 
    byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws UnsupportedEncodingException, IOException;
 
    byte[] encodeExportContextData(ExportContext exportContextData) throws UnsupportedEncodingException, IOException;
 
-   Lifetime setExportLifetime(ExportContext exportContext, Lifetime lifetime) throws OperationFailed, OperationNotSupported;
+   ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationFailed, OperationNotSupported;
 
    void releaseExport(byte[] bytes) throws IOException;
 }
