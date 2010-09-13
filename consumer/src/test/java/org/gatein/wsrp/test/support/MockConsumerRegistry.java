@@ -30,6 +30,7 @@ import org.gatein.wsrp.api.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
 import java.util.ArrayList;
@@ -149,5 +150,15 @@ public class MockConsumerRegistry implements ConsumerRegistry
    public ProducerInfo getProducerInfoByKey(String key)
    {
       throw new UnsupportedOperationException();
+   }
+
+   public MigrationService getMigrationService()
+   {
+      return null;  //To change body of implemented methods use File | Settings | File Templates.
+   }
+
+   public void setMigrationService(MigrationService migrationService)
+   {
+      //To change body of implemented methods use File | Settings | File Templates.
    }
 }
