@@ -258,6 +258,36 @@
                <div class="ButtonLeft">
                   <div class="ButtonRight">
                      <div class="ButtonMiddle">
+                        <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}"
+                                       actionListener="#{consumersMgr.selectConsumer}"
+                                       rendered="#{consumer.supportsExport}"
+                                       value="#{i18n.edit_consumer_export}"
+                                       title="#{i18n.edit_consumer_export_title}">
+                           <f:param name="id" value="#{consumer.id}"/>
+                        </h:commandLink>
+                     </div>
+                  </div>
+               </div>
+            </td>
+            <td>
+               <div class="ButtonLeft">
+                  <div class="ButtonRight">
+                     <div class="ButtonMiddle">
+                        <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}"
+                                       actionListener="#{consumersMgr.selectConsumer}"
+                                       rendered="#{consumer.supportsExport and ! consumer.availableExportInfosEmpty}"
+                                       value="#{i18n.edit_consumer_import}"
+                                       title="#{i18n.edit_consumer_import_title}">
+                           <f:param name="id" value="#{consumer.id}"/>
+                        </h:commandLink>
+                     </div>
+                  </div>
+               </div>
+            </td>
+            <td>
+               <div class="ButtonLeft">
+                  <div class="ButtonRight">
+                     <div class="ButtonMiddle">
                         <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
                                          value="#{i18n.edit_consumer_refresh}"
                                          title="#{i18n.edit_consumer_refresh_title}"/>
