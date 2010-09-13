@@ -911,7 +911,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
                resourceListHolder, new Holder<List<Extension>>());
 
             List<ImportedPortlet> importedPortlets = importedPortletsHolder.value;
-            SortedMap<String, PortletContext> importIdToPortletContext = null;
+            SortedMap<String, PortletContext> importIdToPortletContext = new TreeMap<String, PortletContext>();
             if (ParameterValidation.existsAndIsNotEmpty(importedPortlets))
             {
                for (ImportedPortlet importedPortlet : importedPortlets)

@@ -39,6 +39,7 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
+import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 
 import javax.servlet.http.HttpSession;
@@ -177,6 +178,11 @@ public class MockWSRPConsumer implements WSRPConsumer
    public boolean isSupportsExport()
    {
       return false;
+   }
+
+   public ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
    }
 
    public void destroy()

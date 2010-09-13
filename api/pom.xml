@@ -35,6 +35,11 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.gatein.pc</groupId>
+         <artifactId>pc-api</artifactId>
+         <version>2.2.0-Beta01-SNAPSHOT</version>
+      </dependency>
+      <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
       </dependency>

@@ -24,10 +24,10 @@
 package org.gatein.wsrp.consumer.migration;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.wsrp.api.PortalStructureProvider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,7 @@ public class MigrationService
    private PortalStructureProvider structureProvider = new PortalStructureProvider()
    {
       private Map<String, List<String>> pagesToWindows = new HashMap<String, List<String>>(7);
+
       {
          List<String> windows = new ArrayList<String>(3);
          windows.add("p1w1");
@@ -65,14 +66,14 @@ public class MigrationService
          return new ArrayList<String>(pagesToWindows.keySet());
       }
 
-      public List<String> getWindowIndentifiersFor(String pageId)
+      public List<String> getWindowIdentifiersFor(String pageId)
       {
          return pagesToWindows.get(pageId);
       }
 
-      public void assignPortletToWindow(String portletId, String windowId, String pageId)
+      public void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId)
       {
-         System.out.println("Assigned portlet " + portletId + " to window " + windowId + " on page " + pageId);
+         System.out.println("Assigned portlet " + portletContext + " to window " + windowId + " on page " + pageId);
       }
    };
 

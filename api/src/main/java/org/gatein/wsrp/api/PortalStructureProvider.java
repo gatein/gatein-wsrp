@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.api;
 
+import org.gatein.pc.api.PortletContext;
+
 import java.util.List;
 
 /**
@@ -33,7 +35,7 @@ public interface PortalStructureProvider
 {
    List<String> getPageIdentifiers();
 
-   List<String> getWindowIndentifiersFor(String pageId);
+   List<String> getWindowIdentifiersFor(String pageId);
 
-   void assignPortletToWindow(String portletId, String windowId, String pageId);
+   void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId);
 }
