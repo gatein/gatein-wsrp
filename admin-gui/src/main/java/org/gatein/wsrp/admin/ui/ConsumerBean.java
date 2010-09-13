@@ -23,16 +23,20 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import com.google.common.base.Function;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.PortalStructureProvider;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
+import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
@@ -61,6 +65,7 @@ import java.util.SortedMap;
  */
 public class ConsumerBean extends ManagedBean
 {
+   public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
    private WSRPConsumer consumer;
    private ConsumerRegistry registry;
    private ConsumerManagerBean manager;
@@ -78,6 +83,7 @@ public class ConsumerBean extends ManagedBean
    private static final String UPDATE_SUCCESS = "bean_consumer_update_success";
    private static final String CANNOT_EXPORT = "bean_consumer_cannot_export";
    private static final String IMPORT_SUCCESS = "bean_consumer_import_success";
+   private static final String FAILED_PORTLETS = "bean_consumer_import_failed_portlets";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
 
    private DataModel portletHandles;
@@ -595,20 +601,42 @@ public class ConsumerBean extends ManagedBean
    public String importPortlets()
    {
       List<SelectablePortletHandle> exportedPortlets = currentExport.getExportedPortlets();
-      PortalStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
-      int importCount = 0;
-      for (SelectablePortletHandle exportedPortlet : exportedPortlets)
+
+      try
       {
-         if(exportedPortlet.isSelected())
+         List<SelectablePortletHandle> portletsToImport = new ArrayList<SelectablePortletHandle>(exportedPortlets.size());
+         for (SelectablePortletHandle exportedPortlet : exportedPortlets)
          {
-            structureProvider.assignPortletToWindow(exportedPortlet.getHandle(), exportedPortlet.getWindow(), exportedPortlet.getPage());
-            importCount++;
+            if (exportedPortlet.isSelected())
+            {
+               portletsToImport.add(exportedPortlet);
+            }
          }
+         ImportInfo info = consumer.importPortlets(currentExport.getExport(), WSRPUtils.transform(portletsToImport, SELECTABLE_TO_HANDLE));
+
+         PortalStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
+         int importCount = 0;
+         for (SelectablePortletHandle importedPortlet : portletsToImport)
+         {
+            PortletContext portletContext = info.getPortletContextFor(importedPortlet.getHandle());
+            if (portletContext != null)
+            {
+               structureProvider.assignPortletToWindow(portletContext, importedPortlet.getWindow(), importedPortlet.getPage());
+               importCount++;
+            }
+         }
+
+         beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
+         beanContext.createErrorMessage(FAILED_PORTLETS, info.getErrorCodesToFailedPortletHandlesMapping());
+
+         return ConsumerManagerBean.CONSUMERS;
+      }
+      catch (PortletInvokerException e)
+      {
+         beanContext.createErrorMessageFrom(e);
+         return null;
       }
 
-      beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
-
-      return ConsumerManagerBean.CONSUMERS;
    }
 
    public String deleteExport()
@@ -631,6 +659,16 @@ public class ConsumerBean extends ManagedBean
    public void selectExport()
    {
       currentExport = (ExportInfoDisplay)existingExports.getRowData();
+   }
+
+   public boolean isSupportsExport()
+   {
+      return consumer.isSupportsExport();
+   }
+
+   public boolean isAvailableExportInfosEmpty()
+   {
+      return consumer.getMigrationService().isAvailableExportInfosEmpty();
    }
 
    public static class SelectablePortletHandle
@@ -708,12 +746,12 @@ public class ConsumerBean extends ManagedBean
 
       public List<SelectItem> getWindows()
       {
-         return getSelectItemsFrom(provider.getWindowIndentifiersFor(page));
+         return getSelectItemsFrom(provider.getWindowIdentifiersFor(page));
       }
 
       public void select(ValueChangeEvent event)
       {
-         selected = (Boolean) event.getNewValue();
+         selected = (Boolean)event.getNewValue();
       }
    }
 
@@ -808,6 +846,14 @@ public class ConsumerBean extends ManagedBean
       public List<String> getFailedPortlets()
       {
          return faiedPortlets;
+      }
+   }
+
+   private static class SelectablePortletToHandleFunction implements Function<SelectablePortletHandle, String>
+   {
+      public String apply(SelectablePortletHandle from)
+      {
+         return from.getHandle();
       }
    }
 }
