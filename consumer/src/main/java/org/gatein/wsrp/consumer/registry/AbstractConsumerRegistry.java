@@ -33,6 +33,7 @@ import org.gatein.wsrp.api.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    private Map<String, String> keysToIds;
 
    private SessionEventBroadcaster sessionEventBroadcaster;
+   private MigrationService migrationService;
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
@@ -79,6 +81,16 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    public void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster)
    {
       this.sessionEventBroadcaster = sessionEventBroadcaster;
+   }
+
+   public MigrationService getMigrationService()
+   {
+      return migrationService;
+   }
+
+   public void setMigrationService(MigrationService migrationService)
+   {
+      this.migrationService = migrationService;
    }
 
    public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL)
@@ -171,7 +183,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    private WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
-      WSRPConsumer consumer = new WSRPConsumerImpl(producerInfo);
+      WSRPConsumer consumer = new WSRPConsumerImpl(producerInfo, migrationService);
       add(consumer);
 
       return consumer;

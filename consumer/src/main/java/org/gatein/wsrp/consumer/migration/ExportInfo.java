@@ -26,10 +26,7 @@ package org.gatein.wsrp.consumer.migration;
 import org.gatein.common.util.ParameterValidation;
 
 import javax.xml.namespace.QName;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedMap;
@@ -39,18 +36,17 @@ import java.util.TreeMap;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class ExportInfo
+public class ExportInfo extends BaseMigrationInfo
 {
-   private final long exportTime;
+   private final byte[] exportContext;
    private long expirationTime;
    private final SortedMap<String, byte[]> handleToExportedState;
-   private final SortedMap<QName, List<String>> errorCodeToHandles;
    private final static SortedMap<String, byte[]> EMPTY_EXPORTED = new TreeMap<String, byte[]>();
-   private final static SortedMap<QName, List<String>> EMPTY_FAILED = new TreeMap<QName, List<String>>();
 
-   public ExportInfo(long exportTime, SortedMap<String, byte[]> handleToState, SortedMap<QName, List<String>> errorCodeToHandles)
+   public ExportInfo(long exportTime, SortedMap<QName, List<String>> errorCodeToHandles, SortedMap<String, byte[]> handleToState, byte[] exportContext)
    {
-      this.exportTime = exportTime;
+      super(exportTime, errorCodeToHandles);
+
       if (ParameterValidation.existsAndIsNotEmpty(handleToState))
       {
          this.handleToExportedState = handleToState;
@@ -60,24 +56,7 @@ public class ExportInfo
          handleToExportedState = EMPTY_EXPORTED;
       }
 
-      if (ParameterValidation.existsAndIsNotEmpty(errorCodeToHandles))
-      {
-         this.errorCodeToHandles = errorCodeToHandles;
-      }
-      else
-      {
-         this.errorCodeToHandles = EMPTY_FAILED;
-      }
-   }
-
-   public long getExportTime()
-   {
-      return exportTime;
-   }
-
-   public String getHumanReadableExportTime(Locale locale)
-   {
-      return getHumanReadableTime(locale, exportTime);
+      this.exportContext = exportContext;
    }
 
    public long getExpirationTime()
@@ -90,15 +69,6 @@ public class ExportInfo
       return getHumanReadableTime(locale, expirationTime);
    }
 
-   private String getHumanReadableTime(Locale locale, final long time)
-   {
-      if(locale == null)
-      {
-         locale = Locale.getDefault();
-      }
-      return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale).format(new Date(time));
-   }
-
    public List<String> getExportedPortletHandles()
    {
       return new ArrayList<String>(handleToExportedState.keySet());
@@ -107,11 +77,6 @@ public class ExportInfo
    public byte[] getPortletStateFor(String portletHandle)
    {
       return handleToExportedState.get(portletHandle);
-   }
-
-   public SortedMap<QName, List<String>> getErrorCodesToFailedPortletHandlesMapping()
-   {
-      return Collections.unmodifiableSortedMap(errorCodeToHandles);
    }
 
    @Override
@@ -140,5 +105,10 @@ public class ExportInfo
    public int hashCode()
    {
       return (int)(exportTime ^ (exportTime >>> 32));
+   }
+
+   public byte[] getExportContext()
+   {
+      return exportContext;
    }
 }

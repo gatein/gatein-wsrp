@@ -49,7 +49,7 @@ public class MigrationServiceTestCase extends TestCase
 
    public void testAddExport()
    {
-      ExportInfo info = new ExportInfo(System.currentTimeMillis(), new TreeMap<String, byte[]>(), null);
+      ExportInfo info = new ExportInfo(System.currentTimeMillis(), null, new TreeMap<String, byte[]>(), null);
       service.add(info);
 
       List<ExportInfo> exports = service.getAvailableExportInfos();

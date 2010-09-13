@@ -28,6 +28,7 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.migration.MigrationService;
 
 import java.util.List;
 
@@ -76,4 +77,8 @@ public interface ConsumerRegistry
    void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
 
    ProducerInfo getProducerInfoByKey(String key);
+
+   MigrationService getMigrationService();
+
+   void setMigrationService(MigrationService migrationService);
 }
