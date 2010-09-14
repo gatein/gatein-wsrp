@@ -526,6 +526,7 @@ public class ConsumerBean extends ManagedBean
                   selectableHandles.add(new SelectablePortletHandle(portlet.getContext().getId(), consumer.getMigrationService().getStructureProvider()));
                }
             }
+            Collections.sort(selectableHandles);
             portletHandles = new ListDataModel(selectableHandles);
          }
 
@@ -627,7 +628,11 @@ public class ConsumerBean extends ManagedBean
          }
 
          beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
-         beanContext.createErrorMessage(FAILED_PORTLETS, info.getErrorCodesToFailedPortletHandlesMapping());
+         SortedMap<QName, List<String>> errorCodesToFailedPortletHandlesMapping = info.getErrorCodesToFailedPortletHandlesMapping();
+         if (!errorCodesToFailedPortletHandlesMapping.isEmpty())
+         {
+            beanContext.createErrorMessage(FAILED_PORTLETS, errorCodesToFailedPortletHandlesMapping);
+         }
 
          return ConsumerManagerBean.CONSUMERS;
       }
@@ -671,7 +676,7 @@ public class ConsumerBean extends ManagedBean
       return consumer.getMigrationService().isAvailableExportInfosEmpty();
    }
 
-   public static class SelectablePortletHandle
+   public static class SelectablePortletHandle implements Comparable<SelectablePortletHandle>
    {
       private String handle;
       private boolean selected;
@@ -752,6 +757,11 @@ public class ConsumerBean extends ManagedBean
       public void select(ValueChangeEvent event)
       {
          selected = (Boolean)event.getNewValue();
+      }
+
+      public int compareTo(SelectablePortletHandle o)
+      {
+         return handle.compareTo(o.handle);
       }
    }
 

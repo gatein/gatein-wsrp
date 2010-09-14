@@ -38,6 +38,7 @@ import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
+import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
 import org.gatein.pc.portlet.impl.spi.AbstractPortletInvocationContext;
 import org.gatein.pc.portlet.state.SimplePropertyMap;
 import org.gatein.wsrp.UserContextConverter;
@@ -917,8 +918,9 @@ public class WSRPConsumerImpl implements WSRPConsumer
                for (ImportedPortlet importedPortlet : importedPortlets)
                {
                   org.oasis.wsrp.v2.PortletContext portletContext = importedPortlet.getNewPortletContext();
-                  importIdToPortletContext.put(importedPortlet.getImportID(),
-                     PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState()));
+                  PortletContext apiPC = PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState());
+                  // we need to reference the resulting PortletContext so that it can then be used properly
+                  importIdToPortletContext.put(importedPortlet.getImportID(), FederatingPortletInvokerService.reference(apiPC, getProducerId()));
                }
             }
 
