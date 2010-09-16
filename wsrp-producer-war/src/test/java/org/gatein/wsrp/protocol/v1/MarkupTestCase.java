@@ -168,7 +168,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       V1MarkupResponse response = producer.getMarkup(getMarkup);
 
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
-         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
+         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewriteportfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
    }
 

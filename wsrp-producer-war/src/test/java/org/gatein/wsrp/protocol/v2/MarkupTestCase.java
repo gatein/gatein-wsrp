@@ -175,7 +175,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       MarkupResponse response = producer.getMarkup(getMarkup);
 
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
-         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
+         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewriteportfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
    }
 
@@ -896,15 +896,15 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       try
       {
          GetMarkup getMarkup = createMarkupRequest();
-         
+
          getMarkup.getMarkupParams().setMode(WSRPConstants.EDIT_MODE);
          MarkupResponse responseEdit = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseEdit, "This is EDIT MODE.", false, true);
-         
+
          getMarkup.getMarkupParams().setMode(WSRPConstants.VIEW_MODE);
          MarkupResponse responseView = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseView, "This is VIEW MODE.", false, true);
-         
+
          getMarkup.getMarkupParams().setMode(WSRPConstants.HELP_MODE);
          MarkupResponse responseHelp = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseHelp, "This is HELP MODE.", false, true);
@@ -914,7 +914,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          undeploy(archive);
       }
    }
-   
+
    @Test
    public void testGetMarkupWithCustomPortletMode() throws Exception
    {
