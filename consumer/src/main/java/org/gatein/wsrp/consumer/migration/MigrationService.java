@@ -23,103 +23,27 @@
 
 package org.gatein.wsrp.consumer.migration;
 
-import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.PortletContext;
 import org.gatein.wsrp.api.PortalStructureProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class MigrationService
+public interface MigrationService
 {
-   private SortedMap<Long, ExportInfo> exportInfos;
-   // todo: fix me
-   private PortalStructureProvider structureProvider = new PortalStructureProvider()
-   {
-      private Map<String, List<String>> pagesToWindows = new HashMap<String, List<String>>(7);
+   PortalStructureProvider getStructureProvider();
 
-      {
-         List<String> windows = new ArrayList<String>(3);
-         windows.add("p1w1");
-         windows.add("p1w2");
-         windows.add("p1w3");
+   void setStructureProvider(PortalStructureProvider structureProvider);
 
-         pagesToWindows.put("p1", windows);
+   List<ExportInfo> getAvailableExportInfos();
 
-         windows = new ArrayList<String>(2);
-         windows.add("p2w1");
-         windows.add("p2w2");
+   ExportInfo getExportInfo(long exportTime);
 
-         pagesToWindows.put("p2", windows);
-      }
+   void add(ExportInfo info);
 
-      public List<String> getPageIdentifiers()
-      {
-         return new ArrayList<String>(pagesToWindows.keySet());
-      }
+   ExportInfo remove(ExportInfo info);
 
-      public List<String> getWindowIdentifiersFor(String pageId)
-      {
-         return pagesToWindows.get(pageId);
-      }
-
-      public void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId)
-      {
-         System.out.println("Assigned portlet " + portletContext + " to window " + windowId + " on page " + pageId);
-      }
-   };
-
-   public PortalStructureProvider getStructureProvider()
-   {
-      return structureProvider;
-   }
-
-   public void setStructureProvider(PortalStructureProvider structureProvider)
-   {
-      this.structureProvider = structureProvider;
-   }
-
-   public List<ExportInfo> getAvailableExportInfos()
-   {
-      return new ArrayList<ExportInfo>(getExportInfos().values());
-   }
-
-   public ExportInfo getExportInfo(long exportTime)
-   {
-      return exportInfos.get(exportTime);
-   }
-
-   public void add(ExportInfo info)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(info, "ExportInfo");
-
-      getExportInfos().put(info.getExportTime(), info);
-   }
-
-   public ExportInfo remove(ExportInfo info)
-   {
-      return info == null ? null : getExportInfos().remove(info.getExportTime());
-   }
-
-   private SortedMap<Long, ExportInfo> getExportInfos()
-   {
-      if (exportInfos == null)
-      {
-         exportInfos = new TreeMap<Long, ExportInfo>();
-      }
-      return exportInfos;
-   }
-
-   public boolean isAvailableExportInfosEmpty()
-   {
-      return exportInfos == null || exportInfos.isEmpty();
-   }
+   boolean isAvailableExportInfosEmpty();
 }

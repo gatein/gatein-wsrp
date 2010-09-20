@@ -52,6 +52,7 @@ import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.migration.ImportInfo;
+import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
@@ -140,7 +141,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    public WSRPConsumerImpl()
    {
-      this(new ProducerInfo(), new MigrationService());
+      this(new ProducerInfo(), new InMemoryMigrationService());
    }
 
    public WSRPConsumerImpl(ProducerInfo info, MigrationService migrationService)
@@ -880,7 +881,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
          }*/
          catch (Exception e)
          {
-            throw new PortletInvokerException(e);
+            throw new PortletInvokerException(e.getLocalizedMessage(), e);
          }
       }
       else
@@ -985,7 +986,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
          }*/
          catch (Exception e)
          {
-            throw new PortletInvokerException(e);
+            throw new PortletInvokerException(e.getLocalizedMessage(), e);
          }
       }
       else

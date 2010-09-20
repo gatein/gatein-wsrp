@@ -39,7 +39,7 @@ public class MigrationServiceTestCase extends TestCase
    @Override
    protected void setUp() throws Exception
    {
-      service = new MigrationService();
+      service = new InMemoryMigrationService();
    }
 
    public void testIsAvailableExportInfosEmpty()
