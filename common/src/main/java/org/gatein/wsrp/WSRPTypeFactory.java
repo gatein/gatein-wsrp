@@ -130,6 +130,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -420,7 +421,7 @@ public class WSRPTypeFactory
       {
          throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of locales!");
       }
-      
+
       if (mimeTypes.isEmpty())
       {
          throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of mimeTypes!");
@@ -458,13 +459,13 @@ public class WSRPTypeFactory
       {
          throw new IllegalArgumentException("Cannot create a ResourceParams with an empty list of locales!");
       }
-      
+
       ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "locales");
       if (mimeTypes.isEmpty())
       {
          throw new IllegalArgumentException("Cannot create a MarkupParams with an empty list of mimeTypes!");
       }
-      
+
       ParameterValidation.throwIllegalArgExceptionIfNull(mimeTypes, "MIME types");
       ParameterValidation.throwIllegalArgExceptionIfNull(stateChange, "State Change");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mode, "mode", "ResourceParams");
@@ -757,6 +758,11 @@ public class WSRPTypeFactory
       {
          return getTemplateWindowState();
       }
+
+      public Map<String, String> getProperties()
+      {
+         return Collections.emptyMap();
+      }
    };
 
    private static final RenderURL RENDER_URL = new RenderURL()
@@ -780,6 +786,11 @@ public class WSRPTypeFactory
       public WindowState getWindowState()
       {
          return getTemplateWindowState();
+      }
+
+      public Map<String, String> getProperties()
+      {
+         return Collections.emptyMap();
       }
    };
 
@@ -857,7 +868,7 @@ public class WSRPTypeFactory
 
       return templates;
    }
-   
+
    public static Templates createTemplates(String defaultTemplate, String blockingActionTemplate, String renderTemplate, String resourceTemplate, String secureDefaultTemplate, String secureBlockingActionTemplate, String secureRenderTemplate, String secureResourceTemplate)
    {
       Templates templates = new Templates();
@@ -869,7 +880,7 @@ public class WSRPTypeFactory
       templates.setSecureBlockingActionTemplate(secureBlockingActionTemplate);
       templates.setSecureRenderTemplate(secureRenderTemplate);
       templates.setSecureResourceTemplate(secureResourceTemplate);
-      
+
       return templates;
    }
 
@@ -1227,19 +1238,19 @@ public class WSRPTypeFactory
    public static MarkupType createMarkupType(String mimeType, List<String> modeNames, List<String> windowStateNames, List<String> localeNames)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME Type", "MarkupContext");
-      
+
       ParameterValidation.throwIllegalArgExceptionIfNull(modeNames, "modeNames");
       if (modeNames.isEmpty())
       {
          throw new IllegalArgumentException("Cannot create a MarkupType with an empty list of modes!");
       }
-      
+
       ParameterValidation.throwIllegalArgExceptionIfNull(windowStateNames, "windowStatesNames");
       if (windowStateNames.isEmpty())
       {
          throw new IllegalArgumentException("Cannot create a MarkupType with an empty list of windowStates!");
       }
-      
+
       MarkupType markupType = new MarkupType();
       markupType.setMimeType(mimeType);
 
@@ -1333,17 +1344,17 @@ public class WSRPTypeFactory
 
       return null;
    }
-   
+
    public static NavigationalContext createNavigationalContext(String opaqueValue, List<NamedString> publicValues)
    {
       NavigationalContext navigationalContext = new NavigationalContext();
       navigationalContext.setOpaqueValue(opaqueValue);
-      
+
       if (publicValues != null && !publicValues.isEmpty())
       {
          navigationalContext.getPublicValues().addAll(publicValues);
       }
-      
+
       return navigationalContext;
    }
 
@@ -1567,17 +1578,17 @@ public class WSRPTypeFactory
 
       return setExportLifetime;
    }
-   
+
    public static Contact createContact(Postal postal, Telecom telecom, Online online)
    {
       Contact contact = new Contact();
       contact.setPostal(postal);
       contact.setTelecom(telecom);
       contact.setOnline(online);
-      
+
       return contact;
    }
-   
+
    public static Postal createPostal(String name, String street, String city, String stateprov, String postalCode, String country, String organization)
    {
       Postal postal = new Postal();
@@ -1588,10 +1599,10 @@ public class WSRPTypeFactory
       postal.setPostalcode(postalCode);
       postal.setCountry(country);
       postal.setOrganization(organization);
-      
+
       return postal;
    }
-   
+
    public static Telecom createTelecom(TelephoneNum telephone, TelephoneNum fax, TelephoneNum mobile, TelephoneNum pager)
    {
       Telecom telecom = new Telecom();
@@ -1599,10 +1610,10 @@ public class WSRPTypeFactory
       telecom.setFax(fax);
       telecom.setMobile(mobile);
       telecom.setPager(pager);
-      
+
       return telecom;
    }
-   
+
    public static TelephoneNum createTelephoneNum(String intCode, String loccode, String number, String ext, String comment)
    {
       TelephoneNum telephoneNum = new TelephoneNum();
@@ -1611,10 +1622,10 @@ public class WSRPTypeFactory
       telephoneNum.setNumber(number);
       telephoneNum.setExt(ext);
       telephoneNum.setComment(comment);
-      
+
       return telephoneNum;
    }
-   
+
    public static Online createOnline(String email, String uri)
    {
       Online online = new Online();
@@ -1622,17 +1633,17 @@ public class WSRPTypeFactory
       online.setUri(uri);
       return online;
    }
-   
+
    public static EmployerInfo createEmployerInfo(String employer, String department, String jobTitle)
    {
       EmployerInfo employerInfo = new EmployerInfo();
       employerInfo.setEmployer(employer);
       employerInfo.setDepartment(department);
       employerInfo.setJobtitle(jobTitle);
-      
+
       return employerInfo;
    }
-   
+
    public static PersonName createPersonName(String prefix, String given, String family, String middle, String suffix, String nickname)
    {
       PersonName personName = new PersonName();
@@ -1642,59 +1653,59 @@ public class WSRPTypeFactory
       personName.setMiddle(middle);
       personName.setSuffix(suffix);
       personName.setNickname(nickname);
-      
+
       return personName;
    }
-   
+
    public static Extension createExtension(Object any)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(any, "Any");
       Extension extension = new Extension();
       extension.setAny(any);
-      
+
       return extension;
    }
-   
+
    public static MissingParametersFault createMissingParametersFault()
    {
       MissingParametersFault missingParametersFault = new MissingParametersFault();
       return missingParametersFault;
    }
-   
+
    public static OperationFailedFault createOperationFailedFault()
    {
       OperationFailedFault operationFailedFault = new OperationFailedFault();
       return operationFailedFault;
    }
-   
+
    public static ItemDescription createItemDescription(LocalizedString description, LocalizedString displayName, String itemName)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(itemName, "ItemName");
-      
+
       ItemDescription itemDescription = new ItemDescription();
       itemDescription.setDescription(description);
       itemDescription.setDisplayName(displayName);
       itemDescription.setItemName(itemName);
-      
+
       return itemDescription;
    }
-   
+
    public static Resource createResource(String resourceName, List<ResourceValue> resourceValue)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(resourceName, "ResourceName");
       Resource resource = new Resource();
       resource.setResourceName(resourceName);
-      
+
       if (resourceValue != null && !resourceValue.isEmpty())
       {
          resource.getValues().addAll(resourceValue);
       }
-      
+
       return resource;
    }
-   
+
    public static ResourceList createResourceList(List<Resource> resources)
-   {  
+   {
       if (ParameterValidation.existsAndIsNotEmpty(resources))
       {
          ResourceList resourceList = new ResourceList();
@@ -1707,30 +1718,30 @@ public class WSRPTypeFactory
          throw new IllegalArgumentException("Must provide non-null, non-empty resource list.");
       }
    }
-   
+
    public static ResourceValue createResourceValue(String lang, String value)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(lang, "Lang");
       ResourceValue resourceValue = new ResourceValue();
       resourceValue.setLang(value);
       resourceValue.setValue(value);
-      
+
       return resourceValue;
    }
-   
+
    public static ReturnAny createReturnAny()
    {
       return new ReturnAny();
    }
-   
+
    public static SessionParams createSessionParams(String sessionID)
    {
       SessionParams sessionParams = new SessionParams();
       sessionParams.setSessionID(sessionID);
-      
+
       return sessionParams;
    }
-   
+
    public static UserProfile createUserProfile(PersonName name, XMLGregorianCalendar bdate, String gender, EmployerInfo employerInfo, Contact homeInfo, Contact businessInfo)
    {
       UserProfile userProfile = new UserProfile();
@@ -1740,7 +1751,7 @@ public class WSRPTypeFactory
       userProfile.setEmployerInfo(employerInfo);
       userProfile.setHomeInfo(homeInfo);
       userProfile.setBusinessInfo(businessInfo);
-      
+
       return userProfile;
    }
 }

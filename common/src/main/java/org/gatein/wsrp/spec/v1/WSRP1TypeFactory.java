@@ -86,6 +86,7 @@ import org.oasis.wsrp.v1.V1UploadContext;
 import org.oasis.wsrp.v1.V1UserContext;
 
 import javax.xml.namespace.QName;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -657,6 +658,11 @@ public class WSRP1TypeFactory
       {
          return getTemplateWindowState();
       }
+
+      public Map<String, String> getProperties()
+      {
+         return Collections.emptyMap();
+      }
    };
 
    private static final RenderURL RENDER_URL = new RenderURL()
@@ -680,6 +686,11 @@ public class WSRP1TypeFactory
       public WindowState getWindowState()
       {
          return getTemplateWindowState();
+      }
+
+      public Map<String, String> getProperties()
+      {
+         return Collections.emptyMap();
       }
    };
 

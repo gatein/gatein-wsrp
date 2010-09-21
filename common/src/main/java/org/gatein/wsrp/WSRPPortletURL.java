@@ -588,4 +588,9 @@ public abstract class WSRPPortletURL implements ContainerURL
    {
       return navigationalState;
    }
+
+   public Map<String, String> getProperties()
+   {
+      return Collections.emptyMap();
+   }
 }
