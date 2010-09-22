@@ -123,11 +123,20 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    @Test
    public void testGetMarkupViewNoSession() throws Exception
    {
-      GetMarkup getMarkup = createMarkupRequest();
+      try
+      {
+         GetMarkup getMarkup = createMarkupRequest();
 
-      MarkupResponse response = producer.getMarkup(getMarkup);
+         MarkupResponse response = producer.getMarkup(getMarkup);
 
-      checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
+         checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
+      }
+      catch (Exception e)
+      {
+         System.out.println("ERROR running testGetMarkupViewNoSession");
+         e.printStackTrace();
+         throw e;
+      }
    }
 
    @Test
@@ -600,44 +609,53 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    @Test
    public void testImplicitCloning() throws Exception
    {
-      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
-      String archiveName = "test-implicitcloning-portlet.war";
-      deploy(archiveName);
-
       try
       {
-         // check the initial value
-         GetMarkup gm = createMarkupRequestForCurrentlyDeployedPortlet();
-         MarkupResponse res = producer.getMarkup(gm);
-         String markupString = res.getMarkupContext().getItemString();
-         ExtendedAssert.assertEquals("initial", markupString);
+         undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+         String archiveName = "test-implicitcloning-portlet.war";
+         deploy(archiveName);
 
-         // modify the preference value
-         PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
-         pbi.getInteractionParams().setPortletStateChange(StateChange.CLONE_BEFORE_WRITE); // request cloning if needed
-         String value = "new value";
-         pbi.getInteractionParams().getFormParameters().add(createNamedString("value", value));
-         BlockingInteractionResponse response = producer.performBlockingInteraction(pbi);
-         ExtendedAssert.assertNotNull(response);
+         try
+         {
+            // check the initial value
+            GetMarkup gm = createMarkupRequestForCurrentlyDeployedPortlet();
+            MarkupResponse res = producer.getMarkup(gm);
+            String markupString = res.getMarkupContext().getItemString();
+            ExtendedAssert.assertEquals("initial", markupString);
 
-         // check that we got a new portlet context
-         PortletContext pc = response.getUpdateResponse().getPortletContext();
-         ExtendedAssert.assertNotNull(pc);
+            // modify the preference value
+            PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+            pbi.getInteractionParams().setPortletStateChange(StateChange.CLONE_BEFORE_WRITE); // request cloning if needed
+            String value = "new value";
+            pbi.getInteractionParams().getFormParameters().add(createNamedString("value", value));
+            BlockingInteractionResponse response = producer.performBlockingInteraction(pbi);
+            ExtendedAssert.assertNotNull(response);
 
-         // get the markup again and check that we still get the initial value with the initial portlet context
-         res = producer.getMarkup(gm);
-         markupString = res.getMarkupContext().getItemString();
-         ExtendedAssert.assertEquals("initial", markupString);
+            // check that we got a new portlet context
+            PortletContext pc = response.getUpdateResponse().getPortletContext();
+            ExtendedAssert.assertNotNull(pc);
 
-         // retrieving the markup with the new portlet context should return the new value
-         gm.setPortletContext(pc);
-         res = producer.getMarkup(gm);
-         markupString = res.getMarkupContext().getItemString();
-         ExtendedAssert.assertEquals(value, markupString);
+            // get the markup again and check that we still get the initial value with the initial portlet context
+            res = producer.getMarkup(gm);
+            markupString = res.getMarkupContext().getItemString();
+            ExtendedAssert.assertEquals("initial", markupString);
+
+            // retrieving the markup with the new portlet context should return the new value
+            gm.setPortletContext(pc);
+            res = producer.getMarkup(gm);
+            markupString = res.getMarkupContext().getItemString();
+            ExtendedAssert.assertEquals(value, markupString);
+         }
+         finally
+         {
+            undeploy(archiveName);
+         }
       }
-      finally
+      catch (Exception e)
       {
-         undeploy(archiveName);
+         System.out.println("ERROR during " + this.getClass() + " testImplicitCloning");
+         e.printStackTrace();
+         throw new Exception (e);
       }
    }
 

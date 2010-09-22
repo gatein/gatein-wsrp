@@ -24,7 +24,7 @@
 <portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' version='2.0'>
    <portlet>
       <portlet-name>State Test Portlet</portlet-name>
-      <portlet-class>org.gatein.wsrp.portlet.StatePortlet</portlet-class>
+      <portlet-class>org.gatein.wsrp.portlet.StateCountingPortlet</portlet-class>
 
       <supports>
          <mime-type>text/html</mime-type>
@@ -34,13 +34,13 @@
       <supported-locale>en</supported-locale>
 
       <portlet-info>
-         <title>title</title>
+         <title>State Counter Portlet</title>
       </portlet-info>
 
       <portlet-preferences>
          <preference>
-            <name>name</name>
-            <value>initial</value>
+            <name>counter</name>
+            <value>0</value>
          </preference>
       </portlet-preferences>
    </portlet>

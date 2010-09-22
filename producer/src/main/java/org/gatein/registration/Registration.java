@@ -24,6 +24,8 @@
 package org.gatein.registration;
 
 import javax.xml.namespace.QName;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -106,4 +108,6 @@ public interface Registration
    Object getPropertyValueFor(QName propertyName);
 
    Object getPropertyValueFor(String propertyName);
+   
+   List<String> getPortletHandles();
 }

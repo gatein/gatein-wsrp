@@ -25,12 +25,15 @@ package org.gatein.registration.policies;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.InvalidConsumerDataException;
+import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,5 +100,25 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       consumerName = consumerName.replaceAll("/", "_");
 
       return consumerName;
+   }
+
+   public void addPortletHandle(Registration registration, String portletHandle)
+   {
+      delegate.addPortletHandle(registration, portletHandle);
+   }
+
+   public boolean checkPortletHandle(Registration registration, String portletHandle)
+   {
+      return delegate.checkPortletHandle(registration, portletHandle);
+   }
+
+   public void removePortletHandle(Registration registration, String portletHandle)
+   {
+      delegate.removePortletHandle(registration, portletHandle);
+   }
+
+   public void updatePortletHandles(List<String> portletHandles)
+   {
+      delegate.updatePortletHandles(portletHandles);
    }
 }

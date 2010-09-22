@@ -30,8 +30,10 @@ import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +49,7 @@ public class RegistrationImpl implements RegistrationSPI
    private RegistrationStatus status;
    private Map<QName, Object> properties;
    private String registrationHandle;
+   private List<String> portletHandles;
 
 
    RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties)
@@ -55,6 +58,7 @@ public class RegistrationImpl implements RegistrationSPI
       this.consumer = consumer;
       this.status = status;
       this.properties = new HashMap<QName, Object>(properties);
+      this.portletHandles = new ArrayList<String>();
    }
 
    public String getPersistentKey()
@@ -189,4 +193,8 @@ public class RegistrationImpl implements RegistrationSPI
       properties = new HashMap(registrationProperties);
    }
 
+   public List<String> getPortletHandles()
+   {
+      return portletHandles;
+   }
 }

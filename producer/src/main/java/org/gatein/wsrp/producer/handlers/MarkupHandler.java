@@ -31,6 +31,8 @@ import org.gatein.pc.api.invocation.response.HTTPRedirectionResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.portlet.state.producer.PortletStateChangeRequiredException;
+import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.producer.MarkupInterface;
 import org.gatein.wsrp.producer.Utils;
 import org.gatein.wsrp.producer.WSRPProducerImpl;
@@ -107,6 +109,8 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       try
       {
          log.debug("RenderInvocation on portlet '" + handle + "'");
+         Registration registration = producer.getRegistrationOrFailIfInvalid(getMarkup.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
          response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
          log.debug("RenderInvocation done");
       }
@@ -134,6 +138,8 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       try
       {
          log.debug("ResourceInvocation on portlet '" + handle + "'");
+         Registration registration = producer.getRegistrationOrFailIfInvalid(getResource.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
          response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
          log.debug("ResourceInvocation done");
       }
@@ -163,6 +169,8 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       try
       {
          log.debug("ActionInvocation on portlet '" + handle + "'");
+         Registration registration = producer.getRegistrationOrFailIfInvalid(performBlockingInteraction.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
          response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
          log.debug("ActionInvocation done");
       }
@@ -218,6 +226,8 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       try
       {
          log.debug("EventInvocation on portlet '" + handle + "'");
+         Registration registration = producer.getRegistrationOrFailIfInvalid(handleEvents.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
          response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
          log.debug("EventInvocation done");
       }

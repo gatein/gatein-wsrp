@@ -24,12 +24,15 @@
 package org.gatein.wsrp.producer.config;
 
 import org.gatein.registration.InvalidConsumerDataException;
+import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,6 +66,23 @@ public class TestRegistrationPolicy implements RegistrationPolicy
    }
 
    public void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException
+   {
+   }
+
+   public void addPortletHandle(Registration registration, String portletHandle)
+   {
+   }
+
+   public boolean checkPortletHandle(Registration registration, String portletHandle)
+   {
+      return true;
+   }
+
+   public void removePortletHandle(Registration registration, String portletHandle)
+   {
+   }
+
+   public void updatePortletHandles(List<String> portletHandles)
    {
    }
 

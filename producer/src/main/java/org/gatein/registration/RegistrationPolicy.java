@@ -26,6 +26,8 @@ package org.gatein.registration;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -120,5 +122,10 @@ public interface RegistrationPolicy
     * @throws RegistrationException    if an exception occurred in the Registration service
     */
    void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
-
+   
+   //TODO: add javadocs here
+   boolean checkPortletHandle(Registration registration, String portletHandle);
+   void addPortletHandle(Registration registration, String portletHandle);
+   void removePortletHandle(Registration registration, String portletHandle);
+   void updatePortletHandles(List<String> portlets);
 }

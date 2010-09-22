@@ -39,7 +39,7 @@
          <parameter>true</parameter>
       </constructor>
       <property name="portletInvoker">
-         <inject bean="PortletInvoker"/>
+         <inject bean="WSRPPortletInvoker"/>
       </property>
       <property name="registrationManager">
          <inject bean="RegistrationManagerService"/>
@@ -65,6 +65,15 @@
       <property name="stateConverter">
          <inject bean="StateConverterService"/>
       </property>
+   </bean>
+
+   <bean name="WSRPPortletInvoker" class="org.gatein.wsrp.producer.WSRPPortletInvoker">
+     <property name="next">
+       <inject bean="PortletInvoker"/>
+     </property>
+     <property name="registrationManager">
+       <inject bean="RegistrationManagerService"/>
+     </property>
    </bean>
 
    <!-- TODO: may need to write a new class for this -->

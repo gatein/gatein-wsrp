@@ -59,6 +59,17 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       internalSaveChangesTo(consumer);
    }
 
+   public void saveChangesTo(Registration registration)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
+      
+      if (registration.getPersistentKey() == null)
+      {
+         throw new IllegalArgumentException("Registration " + registration + " hasn't yet been persisted and thus cannot be updated");
+      }
+      internalSaveChangesTo(registration);
+   }
+   
    public ConsumerGroup createConsumerGroup(String name) throws RegistrationException
    {
       ConsumerGroup group = getConsumerGroup(name);
@@ -165,6 +176,8 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
    protected abstract ConsumerSPI internalCreateConsumer(String consumerId, String consumerName);
 
    protected abstract ConsumerSPI internalSaveChangesTo(Consumer consumer);
+   
+   protected abstract RegistrationSPI internalSaveChangesTo(Registration registration);
 
    protected abstract void internalAddConsumerGroup(ConsumerGroupSPI group);
 

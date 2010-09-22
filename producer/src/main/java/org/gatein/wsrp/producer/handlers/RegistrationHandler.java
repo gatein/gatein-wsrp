@@ -81,7 +81,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       throws MissingParameters, OperationFailed, OperationNotSupported
    {
       ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
-      if (registrationRequirements.isRegistrationRequired())
+      //if (registrationRequirements.isRegistrationRequired())
       {
          WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
          String consumerName = registrationData.getConsumerName();
@@ -113,7 +113,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
          return registrationContext;
       }
 
-      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
+      //throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
    }
 
    private void updateRegistrationInformation(Registration registration, RegistrationData registrationData)
@@ -324,7 +324,10 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
          {
             throwInvalidRegistrationFault("registration context is missing but registration is required");
          }
+      }
 
+      if (registrationContext != null)
+      {
          String regHandle = registrationContext.getRegistrationHandle();
          if (regHandle == null)
          {
@@ -348,11 +351,33 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       }
       else
       {
-         if (registrationContext != null)
+         try
          {
-            throwInvalidRegistrationFault("no registration necessary yet one was provided!");
+            //TODO: fix this giant hack,
+            String unregisteredConsumer = "UNREGISTEREDCONSUMER";
+            Consumer consumer = producer.getRegistrationManager().getConsumerByIdentity(unregisteredConsumer);
+            if (consumer == null)
+            {
+               consumer = producer.getRegistrationManager().createConsumer(unregisteredConsumer);
+            }
+            
+            if (consumer.getRegistrations().isEmpty())
+            {
+               Registration registration = producer.getRegistrationManager().addRegistrationTo(unregisteredConsumer, new HashMap(), null, false);
+               registration.setStatus(RegistrationStatus.VALID);
+               return registration;
+            }
+            else
+            {
+               return consumer.getRegistrations().iterator().next();
+            }
          }
-         return null;
+         catch (RegistrationException e)
+         {
+            throwOperationFailedFault("Failed to create a virtual registration with a unregistered consumer", e);
+            return null;
+         }
+        // return null;
       }
    }
 

@@ -48,6 +48,13 @@ public interface RegistrationPersistenceManager
     * @param consumer
     */
    void saveChangesTo(Consumer consumer);
+   
+   /**
+    * Saves changes made to the specified registration.
+    *
+    * @param registration
+    */
+   void saveChangesTo(Registration registration);
 
    /**
     * Retrieves the ConsumerGroup identified by the specified name.

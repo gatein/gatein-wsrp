@@ -37,8 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +56,9 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
 {
    private RegistrationPropertyValidator validator;
    private static final Logger log = LoggerFactory.getLogger(DefaultRegistrationPolicy.class);
+   
+   //Stores a list of the default portlet handles which should be available to all registrations (ie not cloned handles)
+   List<String> defaultPortletHandleList = new ArrayList<String>();
 
    @Override
    public boolean equals(Object o)
@@ -216,5 +221,41 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    public RegistrationPropertyValidator getValidator()
    {
       return validator;
+   }
+
+   public void addPortletHandle(Registration registration, String portletHandle)
+   {
+      if (registration != null && !registration.getPortletHandles().contains(portletHandle))
+      {
+         registration.getPortletHandles().add(portletHandle);
+      }
+   }
+
+   public boolean checkPortletHandle(Registration registration, String portletHandle)
+   {
+      if (defaultPortletHandleList.contains(portletHandle))
+      {
+         return true;
+      }
+      
+      if (registration != null && registration.getPortletHandles().contains(portletHandle))
+      {
+         return true;
+      }
+
+      return false;
+   }
+
+   public void removePortletHandle(Registration registration, String portletHandle)
+   {
+      if (registration != null)
+      {
+         registration.getPortletHandles().remove(portletHandle);
+      }
+   }
+
+   public void updatePortletHandles(List<String> portletHandles)
+   {
+      this.defaultPortletHandleList = portletHandles;
    }
 }

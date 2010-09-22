@@ -36,7 +36,7 @@ import org.gatein.pc.api.state.AccessMode;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-class WSRPInstanceContext implements InstanceContext
+public class WSRPInstanceContext implements InstanceContext
 {
    private PortletContext context;
    private String instanceId;
@@ -84,7 +84,7 @@ class WSRPInstanceContext implements InstanceContext
       return wasModified;
    }
 
-   PortletContext getPortletContext()
+   public PortletContext getPortletContext()
    {
       return context;
    }
