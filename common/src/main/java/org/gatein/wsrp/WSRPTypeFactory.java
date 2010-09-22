@@ -45,6 +45,9 @@ import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
 import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.Contact;
+import org.oasis.wsrp.v2.CopiedPortlet;
+import org.oasis.wsrp.v2.CopyPortlets;
+import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.EmployerInfo;
@@ -1753,5 +1756,45 @@ public class WSRPTypeFactory
       userProfile.setBusinessInfo(businessInfo);
 
       return userProfile;
+   }
+   
+   public static CopyPortlets createCopyPortlets(RegistrationContext toRegistrationContext, UserContext toUserContext, RegistrationContext fromRegistrationContext, UserContext fromUserContext, List<PortletContext> fromPortletContexts)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(fromPortletContexts))
+      {
+         throw new IllegalArgumentException("Must provide at least one PortletContext to CopyPortlets.");
+      }
+      
+      CopyPortlets copyPortlets = new CopyPortlets();
+      copyPortlets.setToRegistrationContext(toRegistrationContext);
+      copyPortlets.setToUserContext(toUserContext);
+      copyPortlets.setFromRegistrationContext(fromRegistrationContext);
+      copyPortlets.setFromUserContext(fromUserContext);
+      copyPortlets.getFromPortletContexts().addAll(fromPortletContexts);
+      
+      return copyPortlets;
+   }
+   
+   public static CopyPortletsResponse createCopyPortletsResponse(List<CopiedPortlet> copiedPortlets, List<FailedPortlets> failedPortlets, ResourceList resourceList)
+   {
+      CopyPortletsResponse response = new CopyPortletsResponse();
+      response.getCopiedPortlets().addAll(copiedPortlets);
+      response.getFailedPortlets().addAll(failedPortlets);
+      response.setResourceList(resourceList);
+      
+      return response;
+   }
+   
+   public static CopiedPortlet createCopiedPortlet(PortletContext newPortletContext, String fromPortletHandle)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(newPortletContext, "newPortletContext");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(fromPortletHandle, "fromPortletHandle", "createCopiedPortlet");
+      
+      CopiedPortlet copiedPortlet = new CopiedPortlet();
+      
+      copiedPortlet.setNewPortletContext(newPortletContext);
+      copiedPortlet.setFromPortletHandle(fromPortletHandle);
+      
+      return copiedPortlet;
    }
 }

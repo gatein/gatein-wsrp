@@ -29,7 +29,9 @@ import org.gatein.exports.data.PersistedExportData;
 import org.gatein.exports.impl.ExportManagerImpl;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.state.PropertyMap;
+import org.gatein.pc.portlet.impl.state.StateConverterV0;
 import org.gatein.pc.portlet.state.SimplePropertyMap;
+import org.gatein.pc.portlet.state.StateConverter;
 import org.gatein.pc.portlet.state.producer.PortletState;
 import org.gatein.pc.portlet.state.producer.ProducerPortletInvoker;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -47,6 +49,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.CopyPortlets;
+import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.ExportPortlets;
 import org.oasis.wsrp.v2.ExportPortletsResponse;
 import org.oasis.wsrp.v2.ExportedPortlet;
@@ -658,6 +662,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Test
    public void testExportWithState() throws Exception
    {
+      try
+      {
       undeploy(TEST_BASIC_PORTLET_WAR);
       String sessionPortletArchive = "test-portletstate-portlet.war";
       deploy(sessionPortletArchive);
@@ -694,12 +700,19 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
          //quick check that the imported portlet has the right state
          ImportPortletsResponse importResponse = createImportPortletsResponse("foo", portletContextFromExport);
+         assertEquals(1, importResponse.getImportedPortlets().size());
          checkStatePortlet(importResponse.getImportedPortlets().get(0).getNewPortletContext().getPortletHandle(), "new value");
-
       }
       finally
       {
          undeploy(sessionPortletArchive);
+      }
+      }
+      catch (Exception e)
+      {
+         System.out.println("ERROR: an error occured " + this.getClass() + " testExportWithState");
+         e.printStackTrace();
+         throw e;
       }
    }
 
@@ -760,7 +773,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
    protected byte[] createSessionByteValue(String portletHandle, String value) throws Exception
    {
-      ProducerPortletInvoker ppinvoker = (ProducerPortletInvoker)producer.getPortletInvoker();
       Map<String, List<String>> properties = new HashMap<String, List<String>>();
       List<String> values = new ArrayList<String>();
       values.add(value);
@@ -768,7 +780,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       PropertyMap property = new SimplePropertyMap(properties);
       PortletState sstate = new PortletState(portletHandle, property);
-      return ppinvoker.getStateConverter().marshall(PortletStateType.OPAQUE, sstate);
+      
+      StateConverter stateConverter = new StateConverterV0();
+      return stateConverter.marshall(PortletStateType.OPAQUE, sstate);
    }
 
    @Test
@@ -1040,6 +1054,102 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       return WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortletsList, userContext, lifetime);
    }
 
+   
+   @Test
+   public void testSimpleCopyPortletNullRegistrations() throws Exception
+   {
+      String handle = getDefaultHandle();
+      List<PortletContext> portletContexts = createPortletContextList(handle);
+
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+
+      checkSimpleCopyPortlets(response, handle);
+   }
+   
+// Enable when we can have registered and non-registered consumer active at the same time.
+   @Test
+   public void testSimpleCopyPortletFromRegistrationNull() throws Exception
+   {
+      try
+      {  
+         RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
+         RegistrationContext toregistrationContext = producer.register(toRegistrationData);
+
+         String handle = getDefaultHandle();
+         List<PortletContext> portletContexts = createPortletContextList(handle);
+
+         CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+         copyPortlets.setToRegistrationContext(toregistrationContext);
+
+         CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+
+         checkSimpleCopyPortlets(response, handle);
+      }
+      catch (Exception e)
+      {
+         System.out.println("ERROR: An exception occurred when running testSimpleCopyPortletFromRegistrationNull");
+         e.printStackTrace();
+         throw new Exception(e);
+      }
+   }
+   
+   @Test
+   public void testSimpleCopyPortletToRegistrationNull() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      
+      RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENAT.0.0", true);
+      RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
+      
+      String handle = getDefaultHandle();
+      List<PortletContext> portletContexts = createPortletContextList(handle);
+
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      copyPortlets.setFromRegistrationContext(fromRegistrationContext);   
+      CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+
+      checkSimpleCopyPortlets(response, handle);
+   }
+   
+   @Test
+   public void testSimpleCopyPortletWithRegistrations() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      
+      RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
+      RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
+      RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
+      RegistrationContext toregistrationContext = producer.register(toRegistrationData);
+
+      String handle = getDefaultHandle();
+      List<PortletContext> portletContexts = createPortletContextList(handle);
+
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      copyPortlets.setFromRegistrationContext(fromRegistrationContext);
+      copyPortlets.setToRegistrationContext(toregistrationContext);
+      
+      CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+
+      checkSimpleCopyPortlets(response, handle);
+   }
+   
+   protected CopyPortlets createSimpleCopyPortlets(List<PortletContext> portletContexts)
+   {
+      RegistrationContext toRegistrationContext = null;
+      UserContext toUserContext = null;
+      RegistrationContext fromRegistrationContext = null;
+      UserContext fromUserContext = null;
+      return WSRPTypeFactory.createCopyPortlets(toRegistrationContext, toUserContext, fromRegistrationContext, fromUserContext, portletContexts);
+   }
+   
+   protected void checkSimpleCopyPortlets(CopyPortletsResponse response, String handle)
+   {
+      assertEquals(0, response.getFailedPortlets().size());
+      assertEquals(1, response.getCopiedPortlets().size());
+      assertEquals(handle, response.getCopiedPortlets().get(0).getFromPortletHandle());
+   }
+   
    protected String getMostUsedPortletWARFileName()
    {
       return TEST_BASIC_PORTLET_WAR;

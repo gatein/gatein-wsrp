@@ -26,7 +26,6 @@ package org.gatein.wsrp.producer.handlers;
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.gatein.common.NotYetImplemented;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
@@ -57,6 +56,7 @@ import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.CopiedPortlet;
 import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.DestroyPortlets;
@@ -93,6 +93,7 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResetProperty;
 import org.oasis.wsrp.v2.ResourceList;
@@ -314,7 +315,113 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      throw new NotYetImplemented();
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(copyPortlets, "copyPortlets");
+      
+      List<PortletContext> portletContexts = copyPortlets.getFromPortletContexts();
+      
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
+      {
+         throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in CopyPortlets.", null);
+      }
+      
+      Registration fromRegistration = producer.getRegistrationOrFailIfInvalid(copyPortlets.getFromRegistrationContext());
+      
+      RegistrationContext toRegistationContext = copyPortlets.getToRegistrationContext();
+      
+      //if toRegistrationCotnext is null, then we use the fromRegistrationContext (from spec).
+      //NOTE: this means we can't move between a PortletContext on a registered consumer to a non-registered consumer
+      // between two non-registered consumers will still be ok.
+      if (toRegistationContext == null)
+      {
+         toRegistationContext = copyPortlets.getFromRegistrationContext();
+      }
+      
+      Registration toRegistration = producer.getRegistrationOrFailIfInvalid(toRegistationContext);
+      
+      UserContext fromUserContext = copyPortlets.getFromUserContext();
+      checkUserAuthorization(fromUserContext);
+      UserContext toUserContext = copyPortlets.getToUserContext();
+      checkUserAuthorization(toUserContext);
+
+      try
+      {
+         RegistrationLocal.setRegistration(fromRegistration);
+         
+         Map<String, FailedPortlets> failedPortletsMap = new HashMap<String, FailedPortlets>(portletContexts.size());
+         
+         List<CopiedPortlet> copiedPortlets = new ArrayList<CopiedPortlet>(portletContexts.size());
+         
+         for (PortletContext portletContext : portletContexts)
+         {
+            try
+            {
+               org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
+               
+               //NOTE: There are two ways we can do a copy. We can export using one registration and import using another. This seems the most straight forward way to do this, just seems a little overkill.
+               // OR we can copy the portlet, then use the RegistrationManager and RegistrationPolicy to delete the PC from one registration and add it to another. But we don't actually 
+               // create the copy under the toRegistration and we would need to add extra checks here to make sure the toRegistration has the proper permissions.
+               // Note sure why there is even a copy portlet operation since it can be replicated by an export and then an import operation.
+                
+               org.gatein.pc.api.PortletContext exportedPortletContext = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
+               //Change the registration to the new registration and try and do an import. This should force the new import to be under the new registration context
+               RegistrationLocal.setRegistration(toRegistration);
+               org.gatein.pc.api.PortletContext copiedPortletContext = producer.getPortletInvoker().importPortlet(PortletStateType.OPAQUE, exportedPortletContext);
+                              
+               PortletContext wsrpClonedPC = WSRPUtils.convertToWSRPPortletContext(copiedPortletContext);
+               
+               CopiedPortlet copiedPortlet = WSRPTypeFactory.createCopiedPortlet(wsrpClonedPC, portletContext.getPortletHandle());
+               copiedPortlets.add(copiedPortlet);
+            }
+            catch (Exception e)
+            {
+               if (log.isWarnEnabled())
+               {
+                  log.warn("Error occured while trying to export a portlet.", e);
+               }
+
+               ErrorCodes.Codes errorCode;
+               String reason;
+               if (e instanceof NoSuchPortletException || e instanceof InvalidHandle)
+               {
+                  errorCode = ErrorCodes.Codes.INVALIDHANDLE;
+                  reason = "The specified portlet handle is invalid";
+               }
+               else // default error message.
+               {
+                  errorCode = ErrorCodes.Codes.OPERATIONFAILED;
+                  reason = "Error preparing portlet for export";
+               }
+
+               if (!failedPortletsMap.containsKey(errorCode.name()))
+               {
+                  List<String> portletHandles = new ArrayList<String>();
+                  portletHandles.add(portletContext.getPortletHandle());
+
+                  FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, errorCode, reason);
+                  failedPortletsMap.put(errorCode.name(), failedPortlets);
+               }
+               else
+               {
+                  FailedPortlets failedPortlets = failedPortletsMap.get(errorCode.name());
+                  failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
+               }
+            }
+         }
+
+         List<FailedPortlets> failedPortlets = new ArrayList<FailedPortlets>(failedPortletsMap.values());
+         //TODO: handle resources properly
+         ResourceList resourceList = null;
+         CopyPortletsResponse copyPortletsResponse = WSRPTypeFactory.createCopyPortletsResponse(copiedPortlets, failedPortlets, resourceList);
+         return copyPortletsResponse;
+      }
+      catch (Exception e)
+      {
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Operation Failed while trying to CopyPortlets.", e);
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
    }
 
    public PortletContext setPortletProperties(SetPortletProperties setPortletProperties)
