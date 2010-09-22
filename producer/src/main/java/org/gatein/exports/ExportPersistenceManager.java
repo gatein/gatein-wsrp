@@ -45,27 +45,107 @@ public interface ExportPersistenceManager
     */
    boolean supports(String type, double version);
    
+   /**
+    * Returns the reference ID of a particular export (if exported by reference).
+    * The type and version are used to determine how to deal with the byte array
+    * to retrieve this ID.
+    * 
+    * @param type The type of export
+    * @param version The version of the export
+    * @param bytes The contents of the export
+    * @return The reference ID
+    * @throws UnsupportedEncodingException
+    */
    String getExportReferenceId (String type, double version, byte[] bytes) throws UnsupportedEncodingException;
    
+   /**
+    * Stores the ExportContent and returns the reference ID used to store the content.
+    * 
+    * @param exportContext The ExportContext to store
+    * @return The reference ID used to store the content
+    */
    String storeExportContext(ExportContext exportContext);
    
+   /**
+    * Retrieves an ExportContext which corresponds to a particular reference ID
+    * 
+    * @param refId The reference ID
+    * @return The ExportContext which corresponds to the reference ID
+    */
    ExportContext getExportContext(String refId);
    
-   //why are we returning an ExportContext here?
+   /**
+    * Updates an already stored ExportContext with an updated one. 
+    * 
+    * @param refId The reference ID of the stored ExportContext
+    * @param updatedExportContext The updated ExportContext
+    * @return The new ExportContext
+    */
    ExportContext updateExportContext(String refId, ExportContext updatedExportContext);
    
+   /**
+    * Remove a stored ExportContext which corresponds to a reference ID.
+    * 
+    * @param refId The reference ID of the ExportContext to remove
+    * @return True if the exportContext was removed, false otherwise
+    */
    boolean removeExportContext(String refId);
    
+   /**
+    * Retrieves an ExportContext with the specified reference ID and returns
+    * the bytes which correspond to this reference
+    * 
+    * @param refId The reference Id of the ExportContext
+    * @return The byte representation of the ExportContext
+    * @throws IOException If an error occurs when trying to encode the bytes
+    */
    byte[] encodeExportContext(String refId) throws IOException;
    
+   /**
+    * Stores a ExportPortletData to a corresponding ExportContext
+    * 
+    * @param exportContext The ExportContext
+    * @param exportPortletData The ExportPortletData
+    * @return the reference ID of the stored ExportPortletData
+    */
    String storeExportPortletData (ExportContext exportContext, ExportPortletData exportPortletData);
    
+   /**
+    * Retrieves an ExportPortletData from an ExportContext
+    * 
+    * @param exportContextId The id of the ExportContext
+    * @param portletDataId The id of the ExportPortletData
+    * @return The ExportPortletData object
+    */
    ExportPortletData getExportPortletData (String exportContextId, String portletDataId);
 
-   ExportPortletData updateExportPortletData(String refId, ExportPortletData updatedPortletData);
+   /**
+    * Updates a particular ExportPortletData corresponding to a ExportContext
+    * 
+    * @param exportContextId The refId of the ExportContext
+    * @param exportPortletId The refId of the ExportPortletData
+    * @param updatedPortletData The new ExportPortletData to use
+    * @return The updated ExportPortletData
+    */
+   ExportPortletData updateExportPortletData(String exportContextId, String exportPortletId, ExportPortletData updatedPortletData);
    
+   /**
+    * Removes a ExportPortletData from a ExportContext
+    * 
+    * @param exportContextId The reference Id of the ExportContext
+    * @param portletDataId The reference Id of the ExportPortletData to remove
+    * @return True if the ExportPortletData was removed
+    */
    boolean removeExportPortletData(String exportContextId, String portletDataId);
    
+   /**
+    * Retrieves the ExportPortletData with the specified reference ID and returns
+    * the byte representation of this export.
+    * 
+    * @param exportDataRefId The reference ID of the ExportPortletData
+    * @return The byte representation of the ExportPortletData
+    * @throws IOException
+    */
    byte[] encodeExportPortletData(String exportDataRefId) throws IOException;
 }
 

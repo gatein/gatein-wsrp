@@ -148,11 +148,11 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public ExportPortletData updateExportPortletData(String refId, ExportPortletData updatedPortletData)
+   public ExportPortletData updateExportPortletData(String exportContextId, String exportPortletId, ExportPortletData updatedPortletData)
    {
-      if (updatedPortletData != null && refId != null && exportContexts.containsKey(refId))
+      if (updatedPortletData != null && exportPortletId != null && exportContextId != null && exportContexts.containsKey(exportContextId))
       {
-         exportPortletDatas.put(refId, updatedPortletData);
+         exportPortletDatas.put(exportPortletId, updatedPortletData);
          return updatedPortletData;
       }
       else
