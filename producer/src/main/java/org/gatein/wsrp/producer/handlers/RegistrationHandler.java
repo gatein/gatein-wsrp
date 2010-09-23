@@ -369,7 +369,9 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
             }
             else
             {
-               return consumer.getRegistrations().iterator().next();
+               Registration registration = consumer.getRegistrations().iterator().next();
+               registration.setStatus(RegistrationStatus.VALID);
+               return registration;
             }
          }
          catch (RegistrationException e)
