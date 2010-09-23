@@ -128,4 +128,6 @@ public interface RegistrationPolicy
    void addPortletHandle(Registration registration, String portletHandle);
    void removePortletHandle(Registration registration, String portletHandle);
    void updatePortletHandles(List<String> portlets);
+   
+   void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener);
 }

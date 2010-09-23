@@ -36,7 +36,7 @@ import java.util.Map;
  * @version $Revision: 8966 $
  * @since 2.6
  */
-public interface RegistrationManager extends RegistrationPropertyChangeListener, RegistrationPolicyChangeListener
+public interface RegistrationManager extends RegistrationPropertyChangeListener, RegistrationPolicyChangeListener, RegistrationPortletContextChangeListener
 {
    RegistrationPolicy getPolicy();
 

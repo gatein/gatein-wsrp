@@ -228,7 +228,6 @@ public class WSRPPortletInvoker extends PortletInvokerInterceptor
       Registration registration = RegistrationLocal.getRegistration();
       String portletHandle = WSRPUtils.convertToWSRPPortletContext(portletContext).getPortletHandle();
       this.getRegistrationManager().getPolicy().addPortletHandle(registration, portletHandle);
-      this.getRegistrationManager().getPersistenceManager().saveChangesTo(registration);
    }
 
    protected void removePortletContext(PortletContext portletContext)
@@ -236,7 +235,6 @@ public class WSRPPortletInvoker extends PortletInvokerInterceptor
       Registration registration = RegistrationLocal.getRegistration();
       String portletHandle = WSRPUtils.convertToWSRPPortletContext(portletContext).getPortletHandle();
       this.getRegistrationManager().getPolicy().removePortletHandle(registration, portletHandle);
-      this.getRegistrationManager().getPersistenceManager().saveChangesTo(registration);
    }
 }
 

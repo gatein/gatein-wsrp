@@ -31,6 +31,7 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
+import org.gatein.registration.RegistrationPortletContextChangeListener;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
@@ -59,6 +60,8 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    
    //Stores a list of the default portlet handles which should be available to all registrations (ie not cloned handles)
    List<String> defaultPortletHandleList = new ArrayList<String>();
+   
+   List<RegistrationPortletContextChangeListener> listeners;
 
    @Override
    public boolean equals(Object o)
@@ -228,6 +231,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       if (registration != null && !registration.getPortletHandles().contains(portletHandle))
       {
          registration.getPortletHandles().add(portletHandle);
+         updatePortletContextListeners(registration);
       }
    }
 
@@ -251,11 +255,32 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       if (registration != null)
       {
          registration.getPortletHandles().remove(portletHandle);
+         updatePortletContextListeners(registration);
       }
    }
 
    public void updatePortletHandles(List<String> portletHandles)
    {
       this.defaultPortletHandleList = portletHandles;
+   }
+
+   public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
+   {
+      if (listeners == null)
+      {
+         listeners = new ArrayList<RegistrationPortletContextChangeListener>();
+      }
+      listeners.add(listener);
+   }
+   
+   protected void updatePortletContextListeners(Registration registration)
+   {
+      if (listeners != null)
+      {
+         for (RegistrationPortletContextChangeListener listener : listeners)
+         {
+            listener.portletContextsHaveChanged(registration);
+         }
+      }
    }
 }

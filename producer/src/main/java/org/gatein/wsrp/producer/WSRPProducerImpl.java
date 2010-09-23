@@ -383,11 +383,10 @@ public class WSRPProducerImpl implements WSRP2Producer
          registrationRequirements.addRegistrationPolicyChangeListener(registrationManager);
          registrationRequirements.addRegistrationPropertyChangeListener(registrationManager);
 
-         if (registrationRequirements.isRegistrationRequired())
-         {
-            registrationManager.setPolicy(registrationRequirements.getPolicy());
-         }
-
+         registrationManager.setPolicy(registrationRequirements.getPolicy());
+         
+         registrationManager.getPolicy().addPortletContextChangeListener(registrationManager);
+         
          started = true;
       }
    }

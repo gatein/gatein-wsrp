@@ -360,4 +360,9 @@ public class RegistrationManagerImpl implements RegistrationManager
    {
       setPolicy(policy);
    }
+
+   public void portletContextsHaveChanged(Registration registration)
+   {
+      persistenceManager.saveChangesTo(registration);
+   }
 }

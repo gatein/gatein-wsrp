@@ -28,6 +28,7 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
+import org.gatein.registration.RegistrationPortletContextChangeListener;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -83,6 +84,10 @@ public class TestRegistrationPolicy implements RegistrationPolicy
    }
 
    public void updatePortletHandles(List<String> portletHandles)
+   {
+   }
+
+   public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
    {
    }
 
