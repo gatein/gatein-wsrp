@@ -42,6 +42,7 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -216,6 +217,24 @@ public class RegistrationManagerImpl implements RegistrationManager
    public Registration getRegistration(String registrationHandle) throws RegistrationException
    {
       return (Registration)getConsumerOrRegistration(registrationHandle, false);
+   }
+
+   public Registration getNonregisteredRegistration() throws RegistrationException
+   {
+      //TODO: this might be better to place somewhere else and use the RegistrationHandler.register instead of
+      // doing basically the same thing below.
+      String NonRegisteredDConsumer = "NONREGISTERED";
+      Consumer unregConsumer = getConsumerByIdentity(NonRegisteredDConsumer);
+      if (unregConsumer == null)
+      {
+         unregConsumer = createConsumer(NonRegisteredDConsumer);
+         Registration registration = addRegistrationTo(NonRegisteredDConsumer, new HashMap<QName, Object>(), null, false);
+         registration.setStatus(RegistrationStatus.VALID);
+         getPersistenceManager().saveChangesTo(unregConsumer);
+      }
+      //The unregistered consumer should only ever have one registration, return that
+      Registration registration = unregConsumer.getRegistrations().iterator().next();
+      return registration;
    }
 
    public void removeRegistration(String registrationHandle) throws RegistrationException, NoSuchRegistrationException

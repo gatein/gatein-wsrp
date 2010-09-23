@@ -66,6 +66,8 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
 
    Registration getRegistration(String registrationHandle) throws RegistrationException;
 
+   Registration getNonregisteredRegistration() throws RegistrationException;
+
    void removeRegistration(String registrationHandle) throws RegistrationException, NoSuchRegistrationException;
 
    void removeRegistration(Registration registration) throws RegistrationException, NoSuchRegistrationException;

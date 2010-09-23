@@ -77,43 +77,38 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       super(producer);
    }
 
-   public RegistrationContext register(RegistrationData registrationData)
-      throws MissingParameters, OperationFailed, OperationNotSupported
+   public RegistrationContext register(RegistrationData registrationData) throws MissingParameters, OperationFailed, OperationNotSupported
    {
       ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
-      //if (registrationRequirements.isRegistrationRequired())
+
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
+      String consumerName = registrationData.getConsumerName();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
+
+      String consumerAgent = registrationData.getConsumerAgent();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
+
+      Registration registration;
+      try
       {
-         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
-         String consumerName = registrationData.getConsumerName();
-         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
+         log.debug("Attempting to register consumer named '" + consumerName + "', agent '" + consumerAgent + "'.");
 
-         String consumerAgent = registrationData.getConsumerAgent();
-         WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerAgent, "consumer agent", "RegistrationData");
+         // check that the consumer agent is valid before trying to register
+         RegistrationUtils.validateConsumerAgent(consumerAgent);
 
-         Registration registration;
-         try
-         {
-            log.debug("Attempting to register consumer named '" + consumerName + "', agent '" + consumerAgent + "'.");
-
-            // check that the consumer agent is valid before trying to register
-            RegistrationUtils.validateConsumerAgent(consumerAgent);
-
-            registration = producer.getRegistrationManager().addRegistrationTo(consumerName, createRegistrationProperties(registrationData), registrationRequirements.getRegistrationProperties(), true);
-            updateRegistrationInformation(registration, registrationData);
-         }
-         catch (Exception e)
-         {
-            String msg = "Could not register consumer named '" + consumerName + "'";
-            log.debug(msg, e);
-            throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
-         }
-
-         RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getRegistrationHandle());
-         log.debug("Registration completed without error.");
-         return registrationContext;
+         registration = producer.getRegistrationManager().addRegistrationTo(consumerName, createRegistrationProperties(registrationData), registrationRequirements.getRegistrationProperties(), true);
+         updateRegistrationInformation(registration, registrationData);
+      }
+      catch (Exception e)
+      {
+         String msg = "Could not register consumer named '" + consumerName + "'";
+         log.debug(msg, e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, msg, e);
       }
 
-      //throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Registration shouldn't be attempted if registration is not required", null);
+      RegistrationContext registrationContext = WSRPTypeFactory.createRegistrationContext(registration.getRegistrationHandle());
+      log.debug("Registration completed without error.");
+      return registrationContext;
    }
 
    private void updateRegistrationInformation(Registration registration, RegistrationData registrationData)
@@ -353,33 +348,18 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       {
          try
          {
-            //TODO: fix this giant hack,
-            String unregisteredConsumer = "UNREGISTEREDCONSUMER";
-            Consumer consumer = producer.getRegistrationManager().getConsumerByIdentity(unregisteredConsumer);
-            if (consumer == null)
+            Registration registration = producer.getRegistrationManager().getNonregisteredRegistration();
+            if (registration == null)
             {
-               consumer = producer.getRegistrationManager().createConsumer(unregisteredConsumer);
+               throwInvalidRegistrationFault("Could not acquire the nonregistered registration from the RegistrationManager");
             }
-            
-            if (consumer.getRegistrations().isEmpty())
-            {
-               Registration registration = producer.getRegistrationManager().addRegistrationTo(unregisteredConsumer, new HashMap(), null, false);
-               registration.setStatus(RegistrationStatus.VALID);
-               return registration;
-            }
-            else
-            {
-               Registration registration = consumer.getRegistrations().iterator().next();
-               registration.setStatus(RegistrationStatus.VALID);
-               return registration;
-            }
+            return registration;
          }
          catch (RegistrationException e)
          {
-            throwOperationFailedFault("Failed to create a virtual registration with a unregistered consumer", e);
+            throwOperationFailedFault("Failed to retrieve registration information associated with the nonregistered consumer", e);
             return null;
          }
-        // return null;
       }
    }
 
