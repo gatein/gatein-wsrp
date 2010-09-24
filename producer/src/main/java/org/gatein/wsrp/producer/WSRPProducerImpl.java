@@ -385,8 +385,6 @@ public class WSRPProducerImpl implements WSRP2Producer
 
          registrationManager.setPolicy(registrationRequirements.getPolicy());
          
-         registrationManager.getPolicy().addPortletContextChangeListener(registrationManager);
-         
          started = true;
       }
    }

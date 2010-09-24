@@ -270,7 +270,11 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       {
          listeners = new ArrayList<RegistrationPortletContextChangeListener>();
       }
-      listeners.add(listener);
+      
+      if (!listeners.contains(listener))
+      {
+         listeners.add(listener);
+      }
    }
    
    protected void updatePortletContextListeners(Registration registration)

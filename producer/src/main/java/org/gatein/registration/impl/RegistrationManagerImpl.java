@@ -223,12 +223,12 @@ public class RegistrationManagerImpl implements RegistrationManager
    {
       //TODO: this might be better to place somewhere else and use the RegistrationHandler.register instead of
       // doing basically the same thing below.
-      String NonRegisteredDConsumer = "NONREGISTERED";
-      Consumer unregConsumer = getConsumerByIdentity(NonRegisteredDConsumer);
+      String NonRegisteredConsumer = "NONREGISTERED";
+      Consumer unregConsumer = getConsumerByIdentity(NonRegisteredConsumer);
       if (unregConsumer == null)
       {
-         unregConsumer = createConsumer(NonRegisteredDConsumer);
-         Registration registration = addRegistrationTo(NonRegisteredDConsumer, new HashMap<QName, Object>(), null, false);
+         unregConsumer = createConsumer(NonRegisteredConsumer);
+         Registration registration = addRegistrationTo(NonRegisteredConsumer, new HashMap<QName, Object>(), null, false);
          registration.setStatus(RegistrationStatus.VALID);
          getPersistenceManager().saveChangesTo(unregConsumer);
       }
@@ -377,6 +377,7 @@ public class RegistrationManagerImpl implements RegistrationManager
     */
    public void policyUpdatedTo(RegistrationPolicy policy)
    {
+      policy.addPortletContextChangeListener(this);
       setPolicy(policy);
    }
 
