@@ -27,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
-import org.oasis.wsrp.v2.Lifetime;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>

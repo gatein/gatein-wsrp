@@ -22,13 +22,10 @@
  */
 package org.gatein.wsrp.support;
 
-import org.gatein.common.NotYetImplemented;
 import org.gatein.exports.ExportPersistenceManager;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.exports.data.PersistedExportData;
-import org.oasis.wsrp.v2.Lifetime;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;

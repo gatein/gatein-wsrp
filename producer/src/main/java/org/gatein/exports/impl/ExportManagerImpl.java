@@ -24,12 +24,12 @@ package org.gatein.exports.impl;
 
 import org.gatein.exports.ExportManager;
 import org.gatein.exports.ExportPersistenceManager;
+import org.gatein.exports.OperationFailedException;
+import org.gatein.exports.OperationNotSupportedException;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.wsrp.WSRPExceptionFactory;
-import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationNotSupported;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -81,7 +81,7 @@ public class ExportManagerImpl implements ExportManager
       this.preferExportByValue = preferExportByValue;
    }
 
-   public ExportContext createExportContext(byte[] bytes) throws OperationFailed
+   public ExportContext createExportContext(byte[] bytes) throws OperationFailedException
    {
       try
       {
@@ -99,16 +99,16 @@ public class ExportManagerImpl implements ExportManager
          }
          else
          {
-            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not compatible.", null);
+            throw new OperationFailedException("Byte array format not compatible");
          }
       }
       catch (UnsupportedEncodingException e)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+         throw new OperationFailedException("Could not decode the byte array.");
       }
       catch (IOException e)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+         throw new OperationFailedException("Could not decode the byte array.");
       }
    }
 
@@ -118,7 +118,7 @@ public class ExportManagerImpl implements ExportManager
       return new ExportPortletData(portletHandle, portletState);
    }
 
-   public ExportPortletData createExportPortletData(ExportContext exportContextData, long currentTime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailed
+   public ExportPortletData createExportPortletData(ExportContext exportContextData, long currentTime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailedException
    {
       try
       {
@@ -131,16 +131,16 @@ public class ExportManagerImpl implements ExportManager
          }
          else
          {
-            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Bytes array format not compatible", null);
+            throw new OperationFailedException("Bytes array format not compatible");
          }
       }
       catch (UnsupportedEncodingException e)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+         throw new OperationFailedException("Could not decode the byte array.");
       }
       catch (IOException e)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+         throw new OperationFailedException("Could not decode the byte array.");
       }
    }
 
@@ -170,11 +170,11 @@ public class ExportManagerImpl implements ExportManager
       }
    }
 
-   public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationFailed, OperationNotSupported
+   public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationNotSupportedException, OperationFailedException
    {  
       if (getPersistenceManager() == null)
       {
-         WSRPExceptionFactory.throwWSException(OperationNotSupported.class, "The producer only supports export by value. Cannot call setExportLifetime on this producer", null);
+         throw new OperationNotSupportedException("The producer only supports export by value. Cannot call setExportLifetime on this producer");
       }
       
       try
@@ -189,7 +189,7 @@ public class ExportManagerImpl implements ExportManager
 
             if (exportContext.isExportByValue())
             {
-               WSRPExceptionFactory.throwWSException(OperationFailed.class, "Cannot set the lifetime for an export that was exported by value.", null);
+               throw new OperationFailedException("Cannot set the lifetime for an export that was exported by value.");
             }
 
             exportContext.setCurrentTime(currentTime);
@@ -201,12 +201,12 @@ public class ExportManagerImpl implements ExportManager
          }
          else
          {
-            throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Byte array format not recognized.", null);
+            throw new OperationFailedException("Byte array format not recognized.");
          }
       }
       catch (IOException e)
       {
-         throw WSRPExceptionFactory.createWSException(OperationFailed.class, "Could not decode the byte array.", e);
+         throw new OperationFailedException("Could not decode the byte array.");
       }
    }
 
