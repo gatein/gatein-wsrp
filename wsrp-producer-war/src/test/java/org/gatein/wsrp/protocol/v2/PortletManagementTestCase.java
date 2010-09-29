@@ -33,11 +33,11 @@ import org.gatein.pc.portlet.impl.state.StateConverterV0;
 import org.gatein.pc.portlet.state.SimplePropertyMap;
 import org.gatein.pc.portlet.state.StateConverter;
 import org.gatein.pc.portlet.state.producer.PortletState;
-import org.gatein.pc.portlet.state.producer.ProducerPortletInvoker;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.support.TestMockExportPersistenceManager;
+import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.api.Deployment;
@@ -49,6 +49,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.ClonePortlet;
+import org.oasis.wsrp.v2.CopiedPortlet;
 import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
 import org.oasis.wsrp.v2.ExportPortlets;
@@ -60,8 +62,10 @@ import org.oasis.wsrp.v2.ImportPortlet;
 import org.oasis.wsrp.v2.ImportPortlets;
 import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.ImportedPortlet;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.NamedString;
@@ -1055,6 +1059,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    }
 
    
+   /**
+    * Simpliest check to make sure copy portlets is working
+    */
    @Test
    public void testSimpleCopyPortletNullRegistrations() throws Exception
    {
@@ -1064,27 +1071,47 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
       CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
 
-      checkSimpleCopyPortlets(response, handle);
+      checkSimpleCopyPortletsResponse(response, createStringList(handle), createStringList());
+      
+      //Check that the proper registration context can access it
+      checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
    }
-   
-// Enable when we can have registered and non-registered consumer active at the same time.
+
+   /**
+    * Check copyPortlet from a null registration context to a non null registration context
+    * Note: if the toRegistrationContext is null, then it should use the fromRegistrationContext, which is this case
+    * is also null. See also testSimpleCopyPortletToRegistrationNull()
+    */
    @Test
    public void testSimpleCopyPortletFromRegistrationNull() throws Exception
    {
       try
       {  
          RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-         RegistrationContext toregistrationContext = producer.register(toRegistrationData);
+         RegistrationContext toRegistrationContext = producer.register(toRegistrationData);
 
          String handle = getDefaultHandle();
          List<PortletContext> portletContexts = createPortletContextList(handle);
 
          CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
-         copyPortlets.setToRegistrationContext(toregistrationContext);
+         copyPortlets.setToRegistrationContext(toRegistrationContext);
 
          CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
 
-         checkSimpleCopyPortlets(response, handle);
+         checkSimpleCopyPortletsResponse(response, createStringList(handle), createStringList());
+         
+         //Check that the proper registration context can access it
+         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), toRegistrationContext);
+         //Check that the null registration cannot access it
+         try
+         {
+            checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
+            ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+         }
+         catch (InvalidHandle e)
+         {
+            //expected
+         }
       }
       catch (Exception e)
       {
@@ -1094,10 +1121,15 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
    
+   /**
+    * Check copyPortlets from a non-null registration context to a null registration context.
+    * Note: this does _NOT_ mean the copy should be available from a non registered consumer, the spec states if
+    * the toRegistration is null, it should be registered using the fromRegistrationContext
+    */
    @Test
    public void testSimpleCopyPortletToRegistrationNull() throws Exception
    {
-      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      //producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
       
       RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENAT.0.0", true);
       RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
@@ -1106,32 +1138,205 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       List<PortletContext> portletContexts = createPortletContextList(handle);
 
       CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
-      copyPortlets.setFromRegistrationContext(fromRegistrationContext);   
+      //note: createSimpleCopyPortlets sets the toRegistrationContext to null
+      copyPortlets.setFromRegistrationContext(fromRegistrationContext);  
+      
       CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
 
-      checkSimpleCopyPortlets(response, handle);
+      checkSimpleCopyPortletsResponse(response, createStringList(handle), createStringList());
+      
+      //Check that the proper registration context can access it
+      checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), fromRegistrationContext);
+      //Check that the null registration cannot access it
+      try
+      {
+         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
+         ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+      }
+      catch (InvalidHandle e)
+      {
+         //expected
+      }
    }
    
+   /**
+    * Check that we can copy one portlet from one registration context to another
+    */
    @Test
    public void testSimpleCopyPortletWithRegistrations() throws Exception
    {
-      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      //producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
       
       RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
       RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
       RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-      RegistrationContext toregistrationContext = producer.register(toRegistrationData);
+      RegistrationContext toRegistrationContext = producer.register(toRegistrationData);
 
       String handle = getDefaultHandle();
       List<PortletContext> portletContexts = createPortletContextList(handle);
 
       CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
       copyPortlets.setFromRegistrationContext(fromRegistrationContext);
-      copyPortlets.setToRegistrationContext(toregistrationContext);
+      copyPortlets.setToRegistrationContext(toRegistrationContext);
       
       CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
 
-      checkSimpleCopyPortlets(response, handle);
+      checkSimpleCopyPortletsResponse(response, createStringList(handle), createStringList());
+      
+      //Check that the proper registration context can access it
+      checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), toRegistrationContext);
+      //Check that the original registration cannot access it
+      try
+      {
+         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), fromRegistrationContext);
+         ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+      }
+      catch (InvalidHandle e)
+      {
+         //expected
+      }
+      //Check that the null registration cannot access it
+      try
+      {
+         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
+         ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+      }
+      catch (InvalidHandle e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletNullRegistrationWithRR() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      
+      List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
+      //creates a copyportlet with a null registration context
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      
+      try
+      {
+         producer.copyPortlets(copyPortlets);
+         fail("Should not be allowed to call copy portlets without a registration if a registration is requried");
+      }
+      catch (InvalidRegistration e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletNonRegisteredToRegistration() throws Exception
+   {
+      RegistrationContext invalidRegistrationContext = WSRPTypeFactory.createRegistrationContext("non_registered_handle");
+      
+      List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      copyPortlets.setToRegistrationContext(invalidRegistrationContext);
+      
+      try
+      {
+         producer.copyPortlets(copyPortlets);
+         fail();
+      }
+      catch (InvalidRegistration e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletNonRegisteredFromRegistration() throws Exception
+   {
+      RegistrationContext invalidRegistrationContext = WSRPTypeFactory.createRegistrationContext("non_registered_handle");
+      
+      List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      copyPortlets.setFromRegistrationContext(invalidRegistrationContext);
+      
+      try
+      {
+         producer.copyPortlets(copyPortlets);
+         fail();
+      }
+      catch (InvalidRegistration e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletNullPortletContexts() throws Exception
+   {
+      List<PortletContext> portletContexts = null;
+      CopyPortlets copyPortlets = new CopyPortlets();
+      
+      try
+      {
+         producer.copyPortlets(copyPortlets);
+         fail();
+      }
+      catch (MissingParameters e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletsEmptyPortletContexts() throws Exception
+   {
+      List<PortletContext> portletContexts = new ArrayList<PortletContext>();
+      CopyPortlets copyPortlets = new CopyPortlets();
+      copyPortlets.getFromPortletContexts().addAll(portletContexts);
+      
+      try
+      {
+         producer.copyPortlets(copyPortlets);
+         fail();
+      }
+      catch (MissingParameters e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testCopyPortletsInvalidPortletContexts() throws Exception
+   {
+      String fakePortletContext1 = "fakePortletContext1";
+      String fakePortletContext2 = "fakePortletContext2";
+      List<PortletContext> portletContexts = createPortletContextList(fakePortletContext1, fakePortletContext2);
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      
+      CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+      
+      assertEquals(0, response.getCopiedPortlets().size());
+      assertEquals(1, response.getFailedPortlets().size());
+      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext1));
+      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext2));
+      assertTrue(response.getFailedPortlets().get(0).getErrorCode().getLocalPart().contains("InvalidHandle"));
+   }
+   
+   @Test 
+   public void testCopyPortletsMixedPortletContexts() throws Exception
+   {
+      String fakePortletContext1 = "fakePortletContext1";
+      String fakePortletContext2 = "fakePortletContext2";
+      List<PortletContext> portletContexts = createPortletContextList(fakePortletContext1, getDefaultHandle(), fakePortletContext2);
+      CopyPortlets copyPortlets = createSimpleCopyPortlets(portletContexts);
+      
+      CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
+      
+      assertEquals(1, response.getFailedPortlets().size());
+      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext1));
+      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext2));
+      assertTrue(response.getFailedPortlets().get(0).getErrorCode().getLocalPart().contains("InvalidHandle"));
+      
+      assertEquals(1, response.getCopiedPortlets().size());
+      assertEquals(getDefaultHandle(), response.getCopiedPortlets().get(0).getFromPortletHandle());
+      assertFalse(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle().equals(getDefaultHandle()));
    }
    
    protected CopyPortlets createSimpleCopyPortlets(List<PortletContext> portletContexts)
@@ -1143,11 +1348,146 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       return WSRPTypeFactory.createCopyPortlets(toRegistrationContext, toUserContext, fromRegistrationContext, fromUserContext, portletContexts);
    }
    
-   protected void checkSimpleCopyPortlets(CopyPortletsResponse response, String handle)
+   protected void checkSimpleCopyPortletsResponse(CopyPortletsResponse response, List<String> success,List<String> failure)
    {
-      assertEquals(0, response.getFailedPortlets().size());
-      assertEquals(1, response.getCopiedPortlets().size());
-      assertEquals(handle, response.getCopiedPortlets().get(0).getFromPortletHandle());
+      //check that we are getting the expected number of copied portlets
+      assertEquals(success.size(), response.getCopiedPortlets().size());
+      for (CopiedPortlet copiedPortlet : response.getCopiedPortlets())
+      {
+         assertTrue(success.contains(copiedPortlet.getFromPortletHandle()));
+      }
+      
+      //check that we are getting the expected number of failed portlets
+      assertEquals(failure.size(), response.getFailedPortlets().size());
+      for (FailedPortlets failedPortlet : response.getFailedPortlets())
+      {
+         assertTrue(failure.containsAll(failedPortlet.getPortletHandles()));
+      }
+      
+      //Check that if we do get copiedPortlets back, that the new and old PortletHandle are not the same
+      for (CopiedPortlet copiedPortlet : response.getCopiedPortlets())
+      {
+         assertFalse(copiedPortlet.getFromPortletHandle().equals(copiedPortlet.getNewPortletContext().getPortletHandle()));
+      }
+
+   }
+   
+   protected void checkDefaultMarkup(String portletHandle, RegistrationContext registrationContext) throws Exception
+   {
+      GetMarkup getMarkup = createDefaultGetMarkup(portletHandle);
+      getMarkup.setRegistrationContext(registrationContext);
+      MarkupResponse response = producer.getMarkup(getMarkup);
+      
+      String defaultMarkup = "<p>symbol unset stock value: value unset</p>";
+      
+      MarkupContext markupContext = response.getMarkupContext();
+      assertNotNull(markupContext);
+      assertEquals("text/html", markupContext.getMimeType());
+      assertTrue(markupContext.getItemString().contains(defaultMarkup));
+   }
+   
+   protected List<String> createStringList(String... names)
+   {
+      List<String> list = new ArrayList<String>(names.length);
+      for (int i = 0; i < names.length; i++)
+      {
+         list.add(names[i]);
+      }
+      return list;
+   }
+   
+   @Test 
+   public void testClonePortletAvailabilityRR() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
+      checkClonePortletAvailability();
+   }
+   
+   @Test 
+   public void testClonePortletAvailabilityNRR() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
+      checkClonePortletAvailability();
+   }
+   
+   public void checkClonePortletAvailability() throws Exception
+   {
+      RegistrationData registrationDataA = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
+      RegistrationContext registrationContextA = producer.register(registrationDataA);
+      RegistrationData registrationDataB = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
+      RegistrationContext registrationContextB = producer.register(registrationDataB);
+      
+      checkClonePortletAvailability(registrationContextA, registrationContextB);
+   }
+   
+   public void checkClonePortletAvailability(RegistrationContext registrationContextA, RegistrationContext registrationContextB) throws Exception
+   {
+      String handle = getDefaultHandle();
+      PortletContext portletContext = WSRPTypeFactory.createPortletContext(getDefaultHandle());
+      ClonePortlet clonePortlet = WSRPTypeFactory.createClonePortlet(registrationContextA, portletContext, null);
+      PortletContext clonedPortletContext = producer.clonePortlet(clonePortlet);
+      
+      ExtendedAssert.assertFalse(portletContext.getPortletHandle().equals(clonedPortletContext.getPortletHandle()));
+      
+      GetMarkup getMarkupA = createDefaultGetMarkup(clonedPortletContext.getPortletHandle());
+      getMarkupA.setRegistrationContext(registrationContextA);
+      producer.getMarkup(getMarkupA);
+      
+      try
+      {
+         GetMarkup getMarkupB = createDefaultGetMarkup(clonedPortletContext.getPortletHandle());
+         getMarkupB.setRegistrationContext(registrationContextB);
+         producer.getMarkup(getMarkupB);
+         ExtendedAssert.fail("Should not be able to render a cloned portlet from a registration context which didn't create the clone.");
+      }
+      catch (InvalidHandle e)
+      {
+         //expected
+      }
+   }
+   
+   @Test
+   public void testClonePortletAvailabilityNonRegisteredA() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
+      
+      RegistrationData registrationDataA = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
+      RegistrationContext registrationContextA = producer.register(registrationDataA);
+      
+      checkClonePortletAvailability(registrationContextA, null);
+   }
+   
+   @Test
+   public void testClonePortletAvailabilityNonRegisteredB() throws Exception
+   {
+      producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
+      
+      RegistrationData registrationDataB = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
+      RegistrationContext registrationContextB = producer.register(registrationDataB);
+      
+      checkClonePortletAvailability(null, registrationContextB);
+   }
+   
+   @Test
+   public void testClonePortletAvailabilityNullRegistered() throws Exception
+   {
+      RegistrationContext registrationContextA = null;
+      RegistrationContext registrationContextB = null;
+      String handle = getDefaultHandle();
+      PortletContext portletContext = WSRPTypeFactory.createPortletContext(getDefaultHandle());
+      ClonePortlet clonePortlet = WSRPTypeFactory.createClonePortlet(registrationContextA, portletContext, null);
+      PortletContext clonedPortletContext = producer.clonePortlet(clonePortlet);
+      
+      ExtendedAssert.assertFalse(portletContext.getPortletHandle().equals(clonedPortletContext.getPortletHandle()));
+      
+      GetMarkup getMarkupA = createDefaultGetMarkup(clonedPortletContext.getPortletHandle());
+      getMarkupA.setRegistrationContext(registrationContextA);
+      producer.getMarkup(getMarkupA);
+      
+      //Since both A and B are null, this should work
+      GetMarkup getMarkupB = createDefaultGetMarkup(clonedPortletContext.getPortletHandle());
+      getMarkupB.setRegistrationContext(registrationContextB);
+      producer.getMarkup(getMarkupB);
    }
    
    protected String getMostUsedPortletWARFileName()
