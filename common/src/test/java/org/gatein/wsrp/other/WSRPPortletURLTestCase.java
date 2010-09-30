@@ -112,6 +112,45 @@ public class WSRPPortletURLTestCase extends TestCase
       assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
    
+   public void testResourcesNoRequiresRewrite()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
+      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+      assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
+
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      assertEquals("resource_123", resourceID);
+      
+      String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+      assertEquals("http://test.com/images/test.gif", resourceURL);
+      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+   }
+   
+   public void testResourcesNoResourceURL()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
+      "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      assertFalse(resource.requiresRewrite());
+
+      //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
+      Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
+      String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      assertEquals("resource_123", resourceID);
+      
+      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+   }
+   
    public void testPreferOperation()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +

@@ -111,11 +111,6 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
          requiresRewrite = Boolean.valueOf(requireRewrite);
          params.remove(WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE);
       }
-      else
-      {
-         throw new IllegalArgumentException("The parsed parameters don't contain a value for the required "
-            + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
-      }
 
       String url = getRawParameterValueFor(params, WSRPRewritingConstants.RESOURCE_URL);
       if (url != null)
@@ -137,6 +132,13 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       if (resourceIDParam != null)
       {
          resourceId = resourceIDParam;
+      }
+      
+      // we either need a resource Id or (requiredRewrite and url)
+      if (resourceIDParam == null && (requireRewrite == null || url == null))
+      {
+         throw new IllegalArgumentException("The parsed parameters don't are not valid for a resource url. It must contain either a "
+               + WSRP2RewritingConstants.RESOURCE_ID + " or " + WSRPRewritingConstants.RESOURCE_URL + " and " + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
       }
 
       String preferOperationParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
