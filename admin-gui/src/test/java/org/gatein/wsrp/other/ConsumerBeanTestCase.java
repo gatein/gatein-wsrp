@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,7 +24,13 @@
 package org.gatein.wsrp.other;
 
 import junit.framework.TestCase;
+import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.admin.ui.BeanContext;
 import org.gatein.wsrp.admin.ui.ConsumerBean;
+import org.gatein.wsrp.consumer.registry.InMemoryConsumerRegistry;
+
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * TODO: re-activate tests once test-support module is updated.
@@ -35,36 +41,64 @@ import org.gatein.wsrp.admin.ui.ConsumerBean;
  */
 public class ConsumerBeanTestCase extends TestCase
 {
+   private static final String CONSUMER_ID = "foo";
+   private static final String WSDL = "wsdl";
    private ConsumerBean bean;
 
    protected void setUp() throws Exception
    {
       bean = new ConsumerBean();
-//      bean.setRegistry(new MockConsumerRegistry());
+      InMemoryConsumerRegistry registry = new InMemoryConsumerRegistry();
+      registry.createConsumer(CONSUMER_ID, null, WSDL);
+      bean.setRegistry(registry);
+      bean.setBeanContext(new TestBeanContext());
 
       // consumer associated with bean is null at this point so it should be loaded from the registry
-//      bean.setId(MockConsumerRegistry.CONSUMER2);
+      bean.setId(CONSUMER_ID);
    }
 
-   // todo: remove when tests are re-activated
-   public void testNothing()
+   public void testInitialState()
    {
-      assertTrue(true);
-   }
+      assertEquals(CONSUMER_ID, bean.getId());
+      assertEquals(WSDL, bean.getWsdl());
 
-   /*public void testInitialState()
-   {
-//      assertEquals(MockConsumerRegistry.CONSUMER2, bean.getId());
-//      assertEquals(MockConsumerRegistry.MOCK_MARKUP, bean.getMarkup());
-//      assertEquals(MockConsumerRegistry.MOCK_SERVICE_DESCRIPTION, bean.getServiceDescription());
       assertFalse(bean.isModified());
+      assertTrue(bean.isRefreshNeeded());
+
+      assertFalse(bean.isActive());
+
+      assertFalse(bean.isRegistrationChecked());
+      assertTrue(bean.isRegistrationCheckNeeded());
+      assertFalse(bean.isRegistered());
+      assertFalse(bean.isRegistrationLocallyModified());
+      assertFalse(bean.isRegistrationPropertiesExisting());
+
+      try
+      {
+         assertFalse(bean.isRegistrationRequired());
+         fail("Can't know if registration is required without a refresh");
+      }
+      catch (IllegalStateException e)
+      {
+         // expected
+      }
+      try
+      {
+         assertFalse(bean.isRegistrationValid());
+         fail("Can't know if registration is valid without a refresh");
+      }
+      catch (Exception e)
+      {
+         // expected
+      }
    }
 
-  public void testSetId()
+   public void testSetId()
    {
       String newId = "newId";
       bean.setId(newId);
       assertEquals(newId, bean.getId());
+
       assertTrue(bean.isModified());
    }
 
@@ -106,5 +140,5 @@ public class ConsumerBeanTestCase extends TestCase
       {
          throw new NotYetImplemented();
       }
-   }*/
+   }
 }
