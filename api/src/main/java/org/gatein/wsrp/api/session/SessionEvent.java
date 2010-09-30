@@ -21,29 +21,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer.migration;
+package org.gatein.wsrp.api.session;
 
-import org.gatein.wsrp.api.context.ConsumerStructureProvider;
-
-import java.util.List;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public interface MigrationService
+public interface SessionEvent
 {
-   ConsumerStructureProvider getStructureProvider();
+   enum SessionEventType
+   {
+      SESSION_CREATED, SESSION_DESTROYED
+   }
 
-   void setStructureProvider(ConsumerStructureProvider structureProvider);
+   SessionEventType getType();
 
-   List<ExportInfo> getAvailableExportInfos();
-
-   ExportInfo getExportInfo(long exportTime);
-
-   void add(ExportInfo info);
-
-   ExportInfo remove(ExportInfo info);
-
-   boolean isAvailableExportInfosEmpty();
+   HttpSession getSession();
 }

@@ -21,21 +21,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.api;
-
-import org.gatein.pc.api.PortletContext;
-
-import java.util.List;
+package org.gatein.wsrp.api.session;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public interface PortalStructureProvider
+public interface SessionEventBroadcaster
 {
-   List<String> getPageIdentifiers();
+   public void registerListener(String listenerId, SessionEventListener listener);
 
-   List<String> getWindowIdentifiersFor(String pageId);
+   public void unregisterListener(String listenerId);
 
-   void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId);
+   public void notifyListenersOf(SessionEvent event);
 }

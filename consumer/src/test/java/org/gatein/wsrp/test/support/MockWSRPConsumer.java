@@ -34,7 +34,7 @@ import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.api.SessionEvent;
+import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;

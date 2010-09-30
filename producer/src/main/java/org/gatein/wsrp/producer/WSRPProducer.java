@@ -26,6 +26,7 @@ package org.gatein.wsrp.producer;
 import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.registration.RegistrationManager;
+import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 
@@ -98,4 +99,8 @@ public interface WSRPProducer extends ProducerConfigurationChangeListener
     * @param exportManager the ExportManager to be used by this WSRPProducer
     */
    void setExportManager(ExportManager exportManager);
+
+   ProducerContext getProducerContext();
+
+   void setProducerContext(ProducerContext producerContext);
 }

@@ -46,7 +46,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.api.SessionEvent;
+import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;

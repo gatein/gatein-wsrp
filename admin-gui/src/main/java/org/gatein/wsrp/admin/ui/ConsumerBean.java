@@ -30,7 +30,7 @@ import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.api.PortalStructureProvider;
+import org.gatein.wsrp.api.context.ConsumerStructureProvider;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
@@ -615,7 +615,7 @@ public class ConsumerBean extends ManagedBean
          }
          ImportInfo info = consumer.importPortlets(currentExport.getExport(), WSRPUtils.transform(portletsToImport, SELECTABLE_TO_HANDLE));
 
-         PortalStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
+         ConsumerStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
          int importCount = 0;
          for (SelectablePortletHandle importedPortlet : portletsToImport)
          {
@@ -682,9 +682,9 @@ public class ConsumerBean extends ManagedBean
       private boolean selected;
       private String page;
       private String window;
-      private PortalStructureProvider provider;
+      private ConsumerStructureProvider provider;
 
-      public SelectablePortletHandle(String handle, PortalStructureProvider provider)
+      public SelectablePortletHandle(String handle, ConsumerStructureProvider provider)
       {
          this.handle = handle;
          this.provider = provider;
@@ -772,7 +772,7 @@ public class ConsumerBean extends ManagedBean
       private List<FailedPortletsDisplay> failedPortlets;
       private List<SelectablePortletHandle> exportedPortlets;
 
-      public ExportInfoDisplay(ExportInfo export, Locale locale, PortalStructureProvider provider)
+      public ExportInfoDisplay(ExportInfo export, Locale locale, ConsumerStructureProvider provider)
       {
          this.export = export;
          this.locale = locale;

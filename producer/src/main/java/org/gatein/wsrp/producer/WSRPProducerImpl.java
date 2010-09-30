@@ -34,6 +34,8 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -149,6 +151,9 @@ public class WSRPProducerImpl implements WSRP2Producer
 
    /** export manager */
    private ExportManager exportManager;
+
+   /** producer context */
+   private ProducerContext producerContext;
 
    private boolean started = false;
 
@@ -360,6 +365,16 @@ public class WSRPProducerImpl implements WSRP2Producer
       this.exportManager = exportManger;
    }
 
+   public ProducerContext getProducerContext()
+   {
+      return producerContext;
+   }
+
+   public void setProducerContext(ProducerContext producerContext)
+   {
+      this.producerContext = producerContext;
+   }
+
    public ExportManager getExportManager()
    {
       if (exportManager == null)
@@ -384,9 +399,9 @@ public class WSRPProducerImpl implements WSRP2Producer
          registrationRequirements.addRegistrationPropertyChangeListener(registrationManager);
 
          registrationManager.setPolicy(registrationRequirements.getPolicy());
-         
+
          registrationManager.getPolicy().addPortletContextChangeListener(registrationManager);
-         
+
          started = true;
       }
    }
@@ -512,7 +527,14 @@ public class WSRPProducerImpl implements WSRP2Producer
 
    public List<String> getSupportedLocales()
    {
-      return WSRPConstants.getDefaultLocales(); // todo: avoid hardcoding this at some point...
+      if (producerContext != null)
+      {
+         return WSRPUtils.convertLocalesToRFC3066LanguageTags(producerContext.getSupportedLocales());
+      }
+      else
+      {
+         return WSRPConstants.getDefaultLocales();
+      }
    }
 
    public void usingStrictModeChangedTo(boolean strictMode)

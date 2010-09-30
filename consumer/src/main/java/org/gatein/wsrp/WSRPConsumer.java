@@ -26,7 +26,7 @@ package org.gatein.wsrp;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
-import org.gatein.wsrp.api.SessionEventListener;
+import org.gatein.wsrp.api.session.SessionEventListener;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;

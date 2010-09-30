@@ -26,6 +26,7 @@ package org.gatein.wsrp.producer.v1;
 import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.registration.RegistrationManager;
+import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
@@ -178,6 +179,16 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    public void setExportManager(ExportManager exportManager)
    {
       producer.setExportManager(exportManager);
+   }
+
+   public ProducerContext getProducerContext()
+   {
+      return producer.getProducerContext();
+   }
+
+   public void setProducerContext(ProducerContext producerContext)
+   {
+      producer.setProducerContext(producerContext);
    }
 
    public V1ServiceDescription getServiceDescription(V1GetServiceDescription gs) throws V1InvalidRegistration, V1OperationFailed

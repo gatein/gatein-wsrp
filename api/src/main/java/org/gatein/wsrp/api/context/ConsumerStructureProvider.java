@@ -21,9 +21,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer.migration;
+package org.gatein.wsrp.api.context;
 
-import org.gatein.wsrp.api.context.ConsumerStructureProvider;
+import org.gatein.pc.api.PortletContext;
 
 import java.util.List;
 
@@ -31,19 +31,11 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public interface MigrationService
+public interface ConsumerStructureProvider
 {
-   ConsumerStructureProvider getStructureProvider();
+   List<String> getPageIdentifiers();
 
-   void setStructureProvider(ConsumerStructureProvider structureProvider);
+   List<String> getWindowIdentifiersFor(String pageId);
 
-   List<ExportInfo> getAvailableExportInfos();
-
-   ExportInfo getExportInfo(long exportTime);
-
-   void add(ExportInfo info);
-
-   ExportInfo remove(ExportInfo info);
-
-   boolean isAvailableExportInfosEmpty();
+   void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId);
 }

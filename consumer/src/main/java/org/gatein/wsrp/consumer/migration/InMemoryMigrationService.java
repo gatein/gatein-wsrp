@@ -24,7 +24,7 @@
 package org.gatein.wsrp.consumer.migration;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.wsrp.api.PortalStructureProvider;
+import org.gatein.wsrp.api.context.ConsumerStructureProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +38,14 @@ import java.util.TreeMap;
 public class InMemoryMigrationService implements MigrationService
 {
    private SortedMap<Long, ExportInfo> exportInfos;
-   private PortalStructureProvider structureProvider;
+   private ConsumerStructureProvider structureProvider;
 
-   public PortalStructureProvider getStructureProvider()
+   public ConsumerStructureProvider getStructureProvider()
    {
       return structureProvider;
    }
 
-   public void setStructureProvider(PortalStructureProvider structureProvider)
+   public void setStructureProvider(ConsumerStructureProvider structureProvider)
    {
       this.structureProvider = structureProvider;
    }
