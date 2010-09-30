@@ -54,6 +54,7 @@ import org.gatein.wsrp.test.protocol.v2.behaviors.PerUserInitCookieMarkupBehavio
 import org.gatein.wsrp.test.protocol.v2.behaviors.ResourceMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.SessionMarkupBehavior;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
+import org.gatein.wsrp.test.support.RequestedMarkupBehavior;
 import org.gatein.wsrp.test.support.TestPortletInvocationContext;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
@@ -302,7 +303,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       render.setWindowContext(new AbstractWindowContext("windowcontext"));
       render.setPortalContext(new AbstractPortalContext());
 
-      requestedMarkupBehavior = portletHandle;
+      RequestedMarkupBehavior.setRequestedMarkupBehavior(portletHandle);
 
       return render;
    }
@@ -316,7 +317,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       action.setUserContext(new MockUserContext());
       action.setTarget(PortletContext.createPortletContext(portletHandle));
 
-      requestedMarkupBehavior = portletHandle;
+      RequestedMarkupBehavior.setRequestedMarkupBehavior(portletHandle);
 
       return action;
    }

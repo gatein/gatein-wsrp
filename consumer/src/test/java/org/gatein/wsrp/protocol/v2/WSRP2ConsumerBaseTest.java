@@ -47,6 +47,7 @@ import org.gatein.wsrp.test.protocol.v2.behaviors.PerUserInitCookieMarkupBehavio
 import org.gatein.wsrp.test.protocol.v2.behaviors.ResourceMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.SessionMarkupBehavior;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
+import org.gatein.wsrp.test.support.RequestedMarkupBehavior;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +71,6 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
    protected WSRPConsumerImpl consumer = new WSRPConsumerImpl();
 
    private boolean strict = true;
-   protected static String requestedMarkupBehavior;
-
 
    public void setUp() throws Exception
    {
@@ -202,21 +201,10 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
       return producer.getBehaviorRegistry().getServiceDescriptionBehavior().getPortletNumber();
    }
 
-   /**
-    * So that BehaviorBackedServiceFactory can retrieve the proper behavior when retrieving the markup service for
-    * invocation.
-    *
-    * @return
-    */
-   public static String getRequestedMarkupBehavior()
-   {
-      return requestedMarkupBehavior;
-   }
-
    @Override
    protected void tearDown() throws Exception
    {
       // reset the requested markup behavior
-      requestedMarkupBehavior = null;
+      RequestedMarkupBehavior.setRequestedMarkupBehavior(null);
    }
 }
