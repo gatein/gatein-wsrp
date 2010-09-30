@@ -25,9 +25,13 @@ package org.gatein.wsrp.other;
 
 import junit.framework.TestCase;
 import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.admin.ui.BeanContext;
 import org.gatein.wsrp.admin.ui.ConsumerBean;
+import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 import org.gatein.wsrp.consumer.registry.InMemoryConsumerRegistry;
+import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
+import org.gatein.wsrp.test.support.MockEndpointConfigurationInfo;
 
 import java.util.Locale;
 import java.util.Map;
@@ -42,13 +46,15 @@ import java.util.Map;
 public class ConsumerBeanTestCase extends TestCase
 {
    private static final String CONSUMER_ID = "foo";
-   private static final String WSDL = "wsdl";
+
+   /** Since our consumers use the MockEndpointConfigurationInfo, this is the WSDL they are configured with */
+   private static final String WSDL = BehaviorBackedServiceFactory.DEFAULT_WSDL_URL;
    private ConsumerBean bean;
 
    protected void setUp() throws Exception
    {
       bean = new ConsumerBean();
-      InMemoryConsumerRegistry registry = new InMemoryConsumerRegistry();
+      ConsumerRegistry registry = new TestInMemoryConsumerRegistry();
       registry.createConsumer(CONSUMER_ID, null, WSDL);
       bean.setRegistry(registry);
       bean.setBeanContext(new TestBeanContext());
@@ -139,6 +145,18 @@ public class ConsumerBeanTestCase extends TestCase
       public Map<String, Object> getSessionMap()
       {
          throw new NotYetImplemented();
+      }
+   }
+
+   private static class TestInMemoryConsumerRegistry extends InMemoryConsumerRegistry
+   {
+      @Override
+      public WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL)
+      {
+         // Use a "real" consumer but with a fake endpoint configuration so we can fake WS access
+         WSRPConsumer consumer = super.createConsumer(id, expirationCacheSeconds, wsdlURL);
+         consumer.getProducerInfo().setEndpointConfigurationInfo(new MockEndpointConfigurationInfo());
+         return consumer;
       }
    }
 }
