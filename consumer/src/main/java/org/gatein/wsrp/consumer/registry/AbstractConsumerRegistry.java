@@ -111,7 +111,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
       save(info, "Couldn't create Consumer '" + id + "'");
 
-      log.info(CONSUMER_WITH_ID + id + "' created");
+      log.debug(CONSUMER_WITH_ID + id + "' created");
       return createConsumerFrom(info);
    }
 
@@ -149,7 +149,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          throw new ConsumerException(CONSUMER_WITH_ID + id + "' doesn't exist!");
       }
 
-      log.info(CONSUMER_WITH_ID + id + "' destroyed");
+      log.debug(CONSUMER_WITH_ID + id + "' destroyed");
    }
 
    public void persistConsumer(WSRPConsumer consumer)
