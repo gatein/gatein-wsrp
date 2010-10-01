@@ -668,7 +668,7 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isSupportsExport()
    {
-      return consumer.isSupportsExport();
+      return isActive() && consumer.isSupportsExport();
    }
 
    public boolean isAvailableExportInfosEmpty()
