@@ -62,7 +62,7 @@ public class ConsumerManagerBean extends ManagedBean
    static final String REFRESH_MODIFY = "bean_consumermanager_refresh_modify";
    static final String REQUESTED_CONSUMER_ID = "id";
    static final String SESSION_CONSUMER_ID = "consumerId";
-   private static final String MESSAGE_TARGET = "createConsumer:consumerName";
+   private static final String MESSAGE_TARGET = "add-consumer:createConsumer:consumerName";
 
    public ConsumerRegistry getRegistry()
    {
@@ -181,7 +181,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            WSRPConsumer consumer = getRegistry().createConsumer(selectedId, null, null);
+            getRegistry().createConsumer(selectedId, null, null);
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
