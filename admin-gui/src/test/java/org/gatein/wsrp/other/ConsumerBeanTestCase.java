@@ -30,15 +30,15 @@ import org.gatein.wsrp.admin.ui.BeanContext;
 import org.gatein.wsrp.admin.ui.ConsumerBean;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 import org.gatein.wsrp.consumer.registry.InMemoryConsumerRegistry;
+import org.gatein.wsrp.services.SOAPServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.support.MockEndpointConfigurationInfo;
 
+import javax.faces.model.DataModel;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * TODO: re-activate tests once test-support module is updated.
- *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12612 $
  * @since 2.6
@@ -66,7 +66,10 @@ public class ConsumerBeanTestCase extends TestCase
    public void testInitialState()
    {
       assertEquals(CONSUMER_ID, bean.getId());
+      assertEquals(bean.getProducerInfo().getId(), bean.getId());
+
       assertEquals(WSDL, bean.getWsdl());
+      assertEquals(SOAPServiceFactory.DEFAULT_TIMEOUT_MS, bean.getTimeout().intValue());
 
       assertFalse(bean.isModified());
       assertTrue(bean.isRefreshNeeded());
@@ -78,6 +81,12 @@ public class ConsumerBeanTestCase extends TestCase
       assertFalse(bean.isRegistered());
       assertFalse(bean.isRegistrationLocallyModified());
       assertFalse(bean.isRegistrationPropertiesExisting());
+
+      assertNull(bean.getCurrentExport());
+
+      DataModel existingExports = bean.getExistingExports();
+      assertNotNull(existingExports);
+      assertEquals(0, existingExports.getRowCount());
 
       try
       {

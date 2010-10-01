@@ -67,7 +67,7 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
    private boolean initialized = false;
    private String wsdl = DEFAULT_WSDL_URL;
    public static final String DEFAULT_WSDL_URL = "http://example.com/producer?wsdl";
-   private int timeout;
+   private int timeout = DEFAULT_TIMEOUT_MS;
 
 
    public BehaviorBackedServiceFactory()
