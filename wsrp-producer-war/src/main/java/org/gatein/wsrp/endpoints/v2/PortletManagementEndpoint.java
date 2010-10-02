@@ -72,10 +72,8 @@ import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 
-import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +90,6 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2PortletManagementPortType"
 )
-@HandlerChain(file = "wshandlers.xml")
 public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV2PortletManagementPortType
 {
    public void getPortletPropertyDescription(
@@ -230,9 +227,9 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       ExportPortlets exportPortlets = WSRPTypeFactory.createExportPortlets(registrationContext, portletContext, userContext, lifetime.value, exportByValueRequired);
-      
+
       ExportPortletsResponse exportPortletsResponse = producer.exportPortlets(exportPortlets);
-      
+
       lifetime.value = exportPortletsResponse.getLifetime();
       exportContext.value = exportPortletsResponse.getExportContext();
       exportedPortlet.value = exportPortletsResponse.getExportedPortlet();
@@ -254,9 +251,9 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       ImportPortlets importPortlets = WSRPTypeFactory.createImportPortlets(registrationContext, importContext, importPortlet, userContext, lifetime);
-      
+
       ImportPortletsResponse importPortletsResponse = producer.importPortlets(importPortlets);
-      
+
       importedPortlets.value = importPortletsResponse.getImportedPortlets();
       importFailed.value = importPortletsResponse.getImportFailed();
       resourceList.value = importPortletsResponse.getResourceList();
@@ -269,9 +266,9 @@ public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV
       @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext)
    {
       ReleaseExport releaseExport = WSRPTypeFactory.createReleaseExport(registrationContext, exportContext, userContext);
-      
+
       producer.releaseExport(releaseExport);
-      
+
       //release export isn't suppose to return anything
       return new ArrayList<Extension>();
    }

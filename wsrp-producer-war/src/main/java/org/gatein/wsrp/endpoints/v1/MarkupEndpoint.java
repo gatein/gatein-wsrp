@@ -79,7 +79,6 @@ import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 
-import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -97,7 +96,6 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp_services.wsdl",
    endpointInterface = "org.oasis.wsrp.v1.WSRPV1MarkupPortType"
 )
-@HandlerChain(file = "wshandlers.xml")
 public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPortType
 {
    public void performBlockingInteraction(

@@ -68,7 +68,6 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
 
-import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -87,7 +86,6 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2MarkupPortType"
 )
-@HandlerChain(file = "wshandlers.xml")
 public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV2MarkupPortType
 {
    public void handleEvents(
