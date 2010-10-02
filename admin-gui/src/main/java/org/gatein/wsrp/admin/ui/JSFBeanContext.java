@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -60,12 +60,12 @@ public class JSFBeanContext extends BeanContext
       return facesContext.getExternalContext().getSessionMap();
    }
 
-   protected void createMessage(String target, String message, Object severity)
+   protected void createMessage(String target, String message, Object severity, Object... additionalParams)
    {
       outputMessage(target, message, severity);
    }
 
-   public static void outputMessage(String target, String message, Object severity)
+   public static void outputMessage(String target, String message, Object severity, Object... additionalParams)
    {
       if (ParameterValidation.isNullOrEmpty(target))
       {
@@ -96,7 +96,12 @@ public class JSFBeanContext extends BeanContext
          log.info("Couldn't resolve component target: " + target);
       }
 
-      FacesMessage msg = new FacesMessage(jsfSeverity, message, message);
+      String details = message;
+      if (additionalParams != null && additionalParams.length > 0)
+      {
+         details = ((Exception)additionalParams[0]).getLocalizedMessage();
+      }
+      FacesMessage msg = new FacesMessage(jsfSeverity, message, details);
       facesContext.addMessage(target, msg);
    }
 

@@ -131,7 +131,7 @@ public class ConsumerBeanTestCase extends TestCase
          throw new NotYetImplemented();
       }
 
-      protected void createMessage(String target, String message, Object severity)
+      protected void createMessage(String target, String message, Object severity, Object... addtionalParams)
       {
          // ignore for tests
       }

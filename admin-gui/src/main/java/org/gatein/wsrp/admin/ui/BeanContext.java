@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -71,8 +71,9 @@ public abstract class BeanContext
     * @param target
     * @param message
     * @param severity
+    * @param additionalParams
     */
-   protected abstract void createMessage(String target, String message, Object severity);
+   protected abstract void createMessage(String target, String message, Object severity, Object... additionalParams);
 
    protected abstract Object getErrorSeverity();
 
@@ -152,10 +153,10 @@ public abstract class BeanContext
     */
    public void createErrorMessageFrom(String target, Exception e)
    {
-      Throwable cause = e.getCause();
+//      Throwable cause = e.getCause();
       String localizedMessage = getLocalizedMessageOrExceptionName(e);
-      String message = localizedMessage + (cause != null ? "\n" + getMessageFromBundle(CAUSE) + getLocalizedMessageOrExceptionName(cause) : "");
-      createMessage(target, message, getErrorSeverity());
+//      String message = localizedMessage + (cause != null ? "\n" + getMessageFromBundle(CAUSE) + getLocalizedMessageOrExceptionName(cause) : "");
+      createMessage(target, localizedMessage, getErrorSeverity(), e.getCause());
    }
 
    /**
