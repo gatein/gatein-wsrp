@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 public class ServletAccess implements InvocationHandler
 {
 
-   public static final ThreadLocal local = new ThreadLocal();
+   public static final ThreadLocal<Invocation> local = new ThreadLocal<Invocation>();
 
    protected Object next;
 
@@ -62,7 +62,7 @@ public class ServletAccess implements InvocationHandler
          {
             Object req = args[0];
             Object resp = args[1];
-            Invocation invocation = new Invocation(req, resp);
+            Invocation invocation = new Invocation((HttpServletRequest)req, (HttpServletResponse)resp);
             local.set(invocation);
             return method.invoke(next, args);
          }
@@ -85,21 +85,21 @@ public class ServletAccess implements InvocationHandler
 
    public static HttpServletRequest getRequest()
    {
-      Invocation invocation = (Invocation)local.get();
-      return invocation != null ? (HttpServletRequest)invocation.req : null;
+      Invocation invocation = local.get();
+      return invocation != null ? invocation.req : null;
    }
 
    public static HttpServletResponse getResponse()
    {
-      return (HttpServletResponse)((Invocation)local.get()).resp;
+      return local.get().resp;
    }
 
    private static class Invocation
    {
-      private final Object req;
-      private final Object resp;
+      private final HttpServletRequest req;
+      private final HttpServletResponse resp;
 
-      public Invocation(Object req, Object resp)
+      public Invocation(HttpServletRequest req, HttpServletResponse resp)
       {
          this.req = req;
          this.resp = resp;
