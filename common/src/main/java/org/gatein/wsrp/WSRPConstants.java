@@ -43,19 +43,16 @@ import java.util.Random;
  */
 public final class WSRPConstants
 {
-   // JMX **************************************************************************************************************
-   /** JMX object name for the Portal web app registry */
-   @Deprecated
-   public static final String WEB_APP_REGISTRY_OBJECT_NAME = "portal:service=WebAppRegistry";
-   /** JMX object name for the WSRP Producer */
-   @Deprecated
-   public static final String WSRP_PRODUCER_OBJECT_NAME = "portletcontainer.wsrp:service=WSRPProducer";
+   //   public static final boolean RUNS_IN_EPP = RuntimeContext.getInstance().isRunningIn(RuntimeContext.RunningEnvironment.epp); // todo: GTNWSRP-90: Use RuntimeContext from common when possible
+   public static final boolean RUNS_IN_EPP;
 
    /**
     * The version of the WSRP service. This should match the maven version of the module. Right now, checked via the
     * UpdateWSRPForGatein.sh script.
     */
    public static final String WSRP_SERVICE_VERSION;
+
+   private static final String GATEIN_RUNTIME_CONTEXT_PROP_NAME = "gatein.runtime.context"; // todo: remove when GTNWSRP-90 is fixed
 
    static
    {
@@ -69,6 +66,8 @@ public final class WSRPConstants
          throw new RuntimeException("Could not load wsrp.properties.");
       }
       WSRP_SERVICE_VERSION = props.getProperty("wsrp.service.version");
+
+      RUNS_IN_EPP = "epp".equals(System.getProperty(GATEIN_RUNTIME_CONTEXT_PROP_NAME)); // todo: remove when GTNWSRP-90 is fixed
    }
 
 
