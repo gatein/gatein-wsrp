@@ -38,12 +38,12 @@ import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.api.state.AccessMode;
+import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.Utils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -85,10 +85,10 @@ public abstract class RequestProcessor<Response>
    protected PortletDescription portletDescription;
    protected Portlet portlet;
    protected WSRPInstanceContext instanceContext;
-   protected WSRPProducerImpl producer;
+   protected ProducerHelper producer;
 
 
-   protected RequestProcessor(WSRPProducerImpl producer)
+   protected RequestProcessor(ProducerHelper producer)
    {
       this.producer = producer;
    }
@@ -145,7 +145,8 @@ public abstract class RequestProcessor<Response>
       MarkupInfo streamInfo = createStreamInfo(markupRequest);
       PortalContext portalContext = createPortalContext(params, markupRequest);
       UserContext userContext = createUserContext(wsrpUserContext, markupRequest.getLocale(), desiredLocales);
-      instanceContext = createInstanceContext(portletContext, getAccessMode(), runtimeContext.getPortletInstanceKey());
+      String portletInstanceKey = runtimeContext.getPortletInstanceKey();
+      instanceContext = createInstanceContext(portletContext, getAccessMode(), portletInstanceKey);
       WindowContext windowContext = createWindowContext(portletContext.getId(), runtimeContext);
 
       // prepare the invocation
@@ -376,22 +377,19 @@ public abstract class RequestProcessor<Response>
 
    private WindowContext createWindowContext(final String portletHandle, final RuntimeContext runtimeContext)
    {
-      return new WindowContext()
+      String id = runtimeContext.getPortletInstanceKey();
+      if (ParameterValidation.isNullOrEmpty(id))
       {
-         public String getId()
-         {
-            String prefix = runtimeContext.getNamespacePrefix();
-            if (prefix != null && prefix.length() > 0)
-            {
-               return prefix;
-            }
-            else
-            {
-               // No provided namespace prefix for portlet, using portlet handle instead
-               return portletHandle;
-            }
-         }
-      };
+         id = portletHandle;
+      }
+
+      String namespacePrefix = runtimeContext.getNamespacePrefix();
+      if (ParameterValidation.isNullOrEmpty(namespacePrefix))
+      {
+         namespacePrefix = PortletUtils.generateNamespaceFrom(portletHandle);
+      }
+
+      return new WSRPWindowContext(id, namespacePrefix);
    }
 
    private UserContext createUserContext(final org.oasis.wsrp.v2.UserContext userContext,

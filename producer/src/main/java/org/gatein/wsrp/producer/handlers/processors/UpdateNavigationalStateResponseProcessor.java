@@ -27,7 +27,6 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.UpdateResponse;
@@ -40,7 +39,7 @@ import java.util.List;
  */
 abstract class UpdateNavigationalStateResponseProcessor<Response> extends RequestProcessor<Response>
 {
-   public UpdateNavigationalStateResponseProcessor(WSRPProducerImpl producer)
+   public UpdateNavigationalStateResponseProcessor(ProducerHelper producer)
    {
       super(producer);
    }

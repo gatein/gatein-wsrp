@@ -34,7 +34,6 @@ import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.WindowContext;
-import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -199,8 +198,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
    {
       if (windowContext != null)
       {
-         // MUST match namespace generation used in PortletResponseImpl.getNamespace in portlet module...
-         return PortletUtils.generateNamespaceFrom(windowContext.getId());
+         return windowContext.getNamespace();
       }
 
       return null;
@@ -334,15 +332,15 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          SecurityContext securityContext = invocation.getSecurityContext();
          ParameterValidation.throwIllegalArgExceptionIfNull(securityContext, SECURITY_CONTEXT);
          String authType = WSRPUtils.convertRequestAuthTypeToWSRPAuthType(securityContext.getAuthType());
-         
+
          String portletInstanceKey = invocation.getInstanceContext().getId();
          String namespacePrefix = getNamespaceFrom(invocation.getWindowContext());
-         
+
          if (namespacePrefix == null)
          {
             namespacePrefix = getPortletHandle();
          }
-         
+
          runtimeContext = WSRPTypeFactory.createRuntimeContext(authType, portletInstanceKey, namespacePrefix);
 
          // user context

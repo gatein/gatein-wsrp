@@ -44,8 +44,17 @@ public class RenderHandlerTestCase extends TestCase
    public static final TestPortletInvocationContext CONTEXT = new TestPortletInvocationContext();
    public static final URLFormat FORMAT = new URLFormat(false, false, true, true);
 
-   public void testProcessMarkup()
+   @Override
+   protected void setUp() throws Exception
    {
+      CONSUMER.setUsingWSRP2(true);
+   }
+
+   public void testProcessMarkupV1()
+   {
+      // fake using WSRP 1
+      CONSUMER.setUsingWSRP2(false);
+
       String markup;
       String expected;
       markup = "khlaksdhjflkjhsadljkwsrp_rewrite?wsrp-urlType=blockingAction&wsrp-interactionState=JBPNS_/wsrp_rewrite" +
@@ -58,7 +67,27 @@ public class RenderHandlerTestCase extends TestCase
          "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
       expected = "<form method='post' action='Action is=JBPNS_ ns=null ws=null m=null' id='" + NAMESPACE
-         + "_portfolioManager'><table><tr><td>Stock symbol</t" +
+         + "portfolioManager'><table><tr><td>Stock symbol</t" +
+         "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
+      processMarkupAndCheck(markup, expected);
+   }
+
+   public void testProcessMarkupV2()
+   {
+      String markup;
+      String expected;
+      markup = "khlaksdhjflkjhsadljkwsrp_rewrite?wsrp-urlType=blockingAction&wsrp-interactionState=JBPNS_/wsrp_rewrite" +
+         "fadsfadswsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewritefajdshfkjdshgfgrept";
+      expected = "khlaksdhjflkjhsadljkAction is=JBPNS_ ns=null ws=null m=null" +
+         "fadsfadsRender ns=JBPNS_ ws=null m=nullfajdshfkjdshgfgrept";
+      processMarkupAndCheck(markup, expected);
+
+      // in WSRP 2, we don't process wsrp_rewrite_ tokens anymore as the consumer MUST to provide a namespace
+      // so the producer can generate the proper markup directly
+      markup = "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
+         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
+         "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
+      expected = "<form method='post' action='Action is=JBPNS_ ns=null ws=null m=null' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
       processMarkupAndCheck(markup, expected);
    }

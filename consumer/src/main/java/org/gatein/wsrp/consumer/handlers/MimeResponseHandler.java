@@ -136,13 +136,17 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
       markup = TextTools.replaceBoundedString(
          markup,
-         WSRPRewritingConstants.WSRP_REWRITE,
+         WSRPRewritingConstants.BEGIN_WSRP_REWRITE,
          WSRPRewritingConstants.END_WSRP_REWRITE,
          new MarkupProcessor(namespace, context, target, format, consumer.getProducerInfo()),
          true,
-         false,
-         true
+         false
       );
+
+      if (!consumer.isUsingWSRP2())
+      {
+         markup = markup.replaceAll(WSRPRewritingConstants.WSRP_REWRITE_TOKEN, namespace);
+      }
 
       return markup;
    }
@@ -209,23 +213,8 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
       public String getReplacementFor(String match, String prefix, String suffix)
       {
-         if (prefix.equals(match))
-         {
-            return namespace;
-         }
-         else if (match.startsWith(WSRPRewritingConstants.BEGIN_WSRP_REWRITE_END))
-         {
-            // remove end of rewrite token
-            match = match.substring(WSRPRewritingConstants.BEGIN_WSRP_REWRITE_END.length());
-
-            WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
-            return context.renderURL(portletURL, format);
-         }
-         else
-         {
-            // match is not something we know how to process
-            return match;
-         }
+         WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
+         return context.renderURL(portletURL, format);
       }
 
 

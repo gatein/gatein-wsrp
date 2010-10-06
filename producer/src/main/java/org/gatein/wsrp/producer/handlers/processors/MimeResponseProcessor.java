@@ -24,13 +24,12 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
+import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.oasis.wsrp.v2.MimeResponse;
 
@@ -40,12 +39,20 @@ import org.oasis.wsrp.v2.MimeResponse;
  */
 abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Response>
 {
-   protected String namespace;
+//   private String namespace;
    private static final String EMPTY = "";
 
-   protected MimeResponseProcessor(WSRPProducerImpl producer)
+   protected MimeResponseProcessor(ProducerHelper producer)
    {
       super(producer);
+   }
+
+   @Override
+   PortletInvocation initInvocation(WSRPPortletInvocationContext context)
+   {
+//      namespace = getRuntimeContext().getNamespacePrefix();
+
+      return internalInitInvocation(context);
    }
 
    /**
@@ -57,10 +64,9 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
     */
    protected String processFragmentString(String renderString)
    {
-      String result = renderString.replaceAll(namespace, WSRPRewritingConstants.WSRP_REWRITE);
+//      String result = renderString.replaceAll(namespace, WSRPRewritingConstants.WSRP_REWRITE);
 
-      result = URLTools.replaceURLsBy(result, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
-      return result;
+      return URLTools.replaceURLsBy(renderString, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
    }
 
    public Response processResponse(PortletInvocationResponse response)
@@ -125,4 +131,6 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
    {
       // default implementation does nothing
    }
+
+   protected abstract PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context);
 }

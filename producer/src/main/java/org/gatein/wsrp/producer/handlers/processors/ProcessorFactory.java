@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.producer.handlers.processors;
 
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetResource;
@@ -44,7 +43,7 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
  */
 public class ProcessorFactory
 {
-   public static RequestProcessor getProcessorFor(WSRPProducerImpl producer, Object request)
+   public static RequestProcessor getProcessorFor(ProducerHelper producer, Object request)
       throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType,
       UnsupportedWindowState, InvalidRegistration
    {

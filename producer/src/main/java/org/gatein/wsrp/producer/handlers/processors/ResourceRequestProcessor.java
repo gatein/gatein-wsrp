@@ -26,11 +26,9 @@ import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.state.AccessMode;
-import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -57,7 +55,7 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, Re
 {
    private final GetResource getResource;
 
-   public ResourceRequestProcessor(WSRPProducerImpl producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode
+   public ResourceRequestProcessor(ProducerHelper producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode
    {
       super(producer);
       this.getResource = getResource;
@@ -105,11 +103,8 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, Re
       return getResource.getUserContext();
    }
 
-   @Override
-   PortletInvocation initInvocation(WSRPPortletInvocationContext context)
+   protected PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context)
    {
-      // MUST match namespace generation used in PortletResponseImpl.getNamespace in portlet module...
-      namespace = PortletUtils.generateNamespaceFrom(context.getWindowContext().getId());
       ResourceInvocation resourceInvocation = new ResourceInvocation(context);
 
       ResourceParams resourceParams = this.getResource.getResourceParams();

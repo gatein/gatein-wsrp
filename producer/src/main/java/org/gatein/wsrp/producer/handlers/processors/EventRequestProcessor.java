@@ -33,7 +33,6 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.payload.PayloadUtils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
@@ -67,7 +66,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
 {
    private HandleEvents handleEvents;
 
-   public EventRequestProcessor(WSRPProducerImpl producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported
+   public EventRequestProcessor(ProducerHelper producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported
    {
       super(producer);
       this.handleEvents = handleEvents;

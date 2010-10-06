@@ -32,7 +32,6 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
@@ -61,7 +60,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
 {
    private final PerformBlockingInteraction performBlockingInteraction;
 
-   ActionRequestProcessor(WSRPProducerImpl producer, PerformBlockingInteraction performBlockingInteraction)
+   ActionRequestProcessor(ProducerHelper producer, PerformBlockingInteraction performBlockingInteraction)
       throws UnsupportedMimeType, UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters,
       InvalidRegistration, OperationFailed
    {

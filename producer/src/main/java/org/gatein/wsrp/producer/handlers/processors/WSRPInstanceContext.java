@@ -51,7 +51,7 @@ public class WSRPInstanceContext implements InstanceContext
       this.context = portletContext;
       this.accessMode = accessMode;
 
-      if (instanceId != null && instanceId.length() > 0)
+      if (!ParameterValidation.isNullOrEmpty(instanceId))
       {
          this.instanceId = instanceId;
       }

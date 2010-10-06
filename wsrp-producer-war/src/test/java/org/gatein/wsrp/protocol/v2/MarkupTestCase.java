@@ -183,8 +183,9 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
       MarkupResponse response = producer.getMarkup(getMarkup);
 
+      String namespacePrefix = getMarkup.getRuntimeContext().getNamespacePrefix();
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
-         "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewriteportfolioManager'><table><tr><td>Stock symbol</t" +
+         "-interactionState=JBPNS_/wsrp_rewrite' id='" + namespacePrefix + "portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>");
    }
 
@@ -246,6 +247,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    }
 
    // fix-me: add more tests
+
    @Test
    public void testGetMarkupSession() throws Exception
    {
@@ -655,7 +657,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       {
          System.out.println("ERROR during " + this.getClass() + " testImplicitCloning");
          e.printStackTrace();
-         throw new Exception (e);
+         throw new Exception(e);
       }
    }
 
@@ -845,7 +847,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
          // send event
          HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,
-            WSRPTypeFactory.createPortletContext(consumerHandle), createDefaultRuntimeContext(consumerHandle), null,
+            WSRPTypeFactory.createPortletContext(consumerHandle), createDefaultRuntimeContext(), null,
             createDefaultMarkupParams(), WSRPTypeFactory.createEventParams(events, StateChange.READ_ONLY));
          HandleEventsResponse handleEventsResponse = producer.handleEvents(handleEvents);
 

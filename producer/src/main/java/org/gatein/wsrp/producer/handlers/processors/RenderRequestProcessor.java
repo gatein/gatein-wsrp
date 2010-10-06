@@ -27,9 +27,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.state.AccessMode;
-import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -55,7 +53,7 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, Markup
 {
    private final GetMarkup getMarkup;
 
-   public RenderRequestProcessor(WSRPProducerImpl producer, GetMarkup getMarkup) throws UnsupportedMimeType,
+   public RenderRequestProcessor(ProducerHelper producer, GetMarkup getMarkup) throws UnsupportedMimeType,
       UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters, InvalidRegistration, OperationFailed
    {
       super(producer);
@@ -98,12 +96,8 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, Markup
       return AccessMode.READ_ONLY;
    }
 
-   @Override
-   PortletInvocation initInvocation(WSRPPortletInvocationContext context)
+   protected PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context)
    {
-      // MUST match namespace generation used in PortletResponseImpl.getNamespace in portlet module...
-      namespace = PortletUtils.generateNamespaceFrom(context.getWindowContext().getId());
-
       return new RenderInvocation(context);
    }
 

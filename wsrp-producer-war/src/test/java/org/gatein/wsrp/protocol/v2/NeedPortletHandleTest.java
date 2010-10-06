@@ -202,8 +202,8 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
     * @param handle
     * @return
     * @throws RemoteException
-    * @throws V1InvalidRegistrationFault
-    * @throws V1OperationFailedFault
+    * @throws InvalidRegistration
+    * @throws OperationFailed
     * @since 2.6.3
     */
    protected GetMarkup createMarkupRequest(String handle) throws RemoteException, InvalidRegistration, OperationFailed
@@ -213,40 +213,37 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
 
       return getMarkup;
    }
-   
+
    protected GetMarkup createDefaultGetMarkup(String handle)
    {
       PortletContext portletContext = WSRPTypeFactory.createPortletContext(handle);
-      RuntimeContext runtimeContext = createDefaultRuntimeContext(handle);
-      MarkupParams runtimeParams = createDefaultMarkupParams();
+      RuntimeContext runtimeContext = createDefaultRuntimeContext();
       return WSRPTypeFactory.createGetMarkup(null, portletContext, runtimeContext, null, createDefaultMarkupParams());
    }
-   
+
    protected PerformBlockingInteraction createDefaultPerformBlockingInteraction(String handle)
    {
       PortletContext portletContext = WSRPTypeFactory.createPortletContext(handle);
-      return WSRPTypeFactory.createPerformBlockingInteraction(null, portletContext, createDefaultRuntimeContext(handle), null, createDefaultMarkupParams(),
-            createDefaultInteractionParams());
+      return WSRPTypeFactory.createPerformBlockingInteraction(null, portletContext, createDefaultRuntimeContext(), null, createDefaultMarkupParams(),
+         createDefaultInteractionParams());
    }
-   
+
    protected InteractionParams createDefaultInteractionParams()
    {
       return WSRPTypeFactory.createInteractionParams(StateChange.READ_ONLY);
    }
-   
-   protected RuntimeContext createDefaultRuntimeContext(String handle)
+
+   protected RuntimeContext createDefaultRuntimeContext()
    {
-      String portletInstanceKey = "foo";
-      String namespacePrefix = handle;
-      return WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, portletInstanceKey, namespacePrefix);
+      return WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns");
    }
 
    protected MarkupParams createDefaultMarkupParams()
    {
       return WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
-            WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE);
+         WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE);
    }
-   
+
    protected String getPortletHandleFrom(String partialHandle)
    {
       List<String> handles = getHandlesForCurrentlyDeployedArchive();
