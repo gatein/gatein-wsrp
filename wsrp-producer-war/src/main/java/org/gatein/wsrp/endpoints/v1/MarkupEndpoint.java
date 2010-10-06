@@ -117,7 +117,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
 
       PerformBlockingInteraction performBlockingInteraction = WSRPTypeFactory.createPerformBlockingInteraction(
          V1ToV2Converter.toV2RegistrationContext(registrationContext), V1ToV2Converter.toV2PortletContext(portletContext),
-         V1ToV2Converter.toV2RuntimeContext(runtimeContext),
+         V1ToV2Converter.toV2RuntimeContext(runtimeContext, portletContext.getPortletHandle()),
          V1ToV2Converter.toV2UserContext(userContext), V1ToV2Converter.toV2MarkupParams(markupParams),
          V1ToV2Converter.toV2InteractionParams(interactionParams)
       );
@@ -265,7 +265,7 @@ public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPort
       GetMarkup getMarkup = WSRPTypeFactory.createGetMarkup(
          V1ToV2Converter.toV2RegistrationContext(registrationContext),
          V1ToV2Converter.toV2PortletContext(portletContext),
-         V1ToV2Converter.toV2RuntimeContext(runtimeContext),
+         V1ToV2Converter.toV2RuntimeContext(runtimeContext, portletContext.getPortletHandle()),
          V1ToV2Converter.toV2UserContext(userContext),
          V1ToV2Converter.toV2MarkupParams(markupParams)
       );

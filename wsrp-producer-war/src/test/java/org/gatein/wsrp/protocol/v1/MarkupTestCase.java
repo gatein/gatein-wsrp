@@ -125,6 +125,31 @@ public class MarkupTestCase extends NeedPortletHandleTest
    }
 
    @Test
+   public void testGetMarkupNoPortletInstanceKeyNoNamespacePrefix() throws Exception
+   {
+      V1GetMarkup getMarkup = createMarkupRequest();
+      getMarkup.getRuntimeContext().setNamespacePrefix(null);
+      getMarkup.getRuntimeContext().setPortletInstanceKey(null);
+      
+      assertNull(getMarkup.getRuntimeContext().getNamespacePrefix());
+      assertNull(getMarkup.getRuntimeContext().getPortletInstanceKey());
+      
+      V1MarkupResponse response = producer.getMarkup(getMarkup);
+      
+      checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
+      
+      getMarkup.getRuntimeContext().setNamespacePrefix("");
+      getMarkup.getRuntimeContext().setPortletInstanceKey("");
+      
+      assertSame("", getMarkup.getRuntimeContext().getNamespacePrefix());
+      assertSame("", getMarkup.getRuntimeContext().getPortletInstanceKey());
+      
+      response = producer.getMarkup(getMarkup);
+      
+      checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
+   }
+   
+   @Test
    public void testInvalidGetMarkup() throws Exception
    {
       V1GetMarkup getMarkup = createMarkupRequest();

@@ -27,6 +27,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.OpaqueStateString;
+import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -269,11 +270,31 @@ public class V1ToV2Converter
       }
    }
 
-   public static RuntimeContext toV2RuntimeContext(V1RuntimeContext v1RuntimeContext)
+   public static RuntimeContext toV2RuntimeContext(V1RuntimeContext v1RuntimeContext, String portletHandle)
    {
       if (v1RuntimeContext != null)
       {
-         RuntimeContext runtimeContext = WSRPTypeFactory.createRuntimeContext(v1RuntimeContext.getUserAuthentication(), v1RuntimeContext.getPortletInstanceKey(), v1RuntimeContext.getNamespacePrefix());
+         String portletInstanceKey;
+         String namespacePrefix;
+         if (ParameterValidation.isNullOrEmpty(v1RuntimeContext.getPortletInstanceKey()))
+         {
+            portletInstanceKey = portletHandle;
+         }
+         else
+         {
+            portletInstanceKey = v1RuntimeContext.getPortletInstanceKey();
+         }
+         
+         if (ParameterValidation.isNullOrEmpty(v1RuntimeContext.getNamespacePrefix()))
+         {
+            namespacePrefix = PortletUtils.generateNamespaceFrom(portletHandle);
+         }
+         else
+         {
+            namespacePrefix = v1RuntimeContext.getNamespacePrefix();
+         }
+         
+         RuntimeContext runtimeContext = WSRPTypeFactory.createRuntimeContext(v1RuntimeContext.getUserAuthentication(), portletInstanceKey, namespacePrefix);
 
          SessionParams sessionParams = WSRPTypeFactory.createSessionParams(v1RuntimeContext.getSessionID());
 
@@ -868,7 +889,7 @@ public class V1ToV2Converter
       if (getMarkup != null)
       {
          PortletContext portletContext = toV2PortletContext(getMarkup.getPortletContext());
-         RuntimeContext runtimeContext = toV2RuntimeContext(getMarkup.getRuntimeContext());
+         RuntimeContext runtimeContext = toV2RuntimeContext(getMarkup.getRuntimeContext(), portletContext.getPortletHandle());
          MarkupParams markupParams = toV2MarkupParams(getMarkup.getMarkupParams());
          RegistrationContext registrationContext = toV2RegistrationContext(getMarkup.getRegistrationContext());
          UserContext userContext = toV2UserContext(getMarkup.getUserContext());
@@ -921,7 +942,7 @@ public class V1ToV2Converter
          InteractionParams interactionParams = toV2InteractionParams(performBlockingInteraction.getInteractionParams());
          MarkupParams markupParams = toV2MarkupParams(performBlockingInteraction.getMarkupParams());
          PortletContext portletContext = toV2PortletContext(performBlockingInteraction.getPortletContext());
-         RuntimeContext runtimeContext = toV2RuntimeContext(performBlockingInteraction.getRuntimeContext());
+         RuntimeContext runtimeContext = toV2RuntimeContext(performBlockingInteraction.getRuntimeContext(), portletContext.getPortletHandle());
 
          return WSRPTypeFactory.createPerformBlockingInteraction(toV2RegistrationContext(performBlockingInteraction.getRegistrationContext()),
             portletContext, runtimeContext, toV2UserContext(performBlockingInteraction.getUserContext()), markupParams, interactionParams);
