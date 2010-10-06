@@ -135,4 +135,6 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
    boolean isSupportsExport();
 
    ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException;
+
+   boolean isUsingWSRP2();
 }

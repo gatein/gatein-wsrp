@@ -518,15 +518,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    public boolean isSupportsExport()
    {
-      try
-      {
-         return getMarkupService().getVersion() > 1;
-      }
-      catch (PortletInvokerException e)
-      {
-         log.debug("Couldn't determine if Consumer supports export operation", e);
-         return false;
-      }
+      return isUsingWSRP2(); // todo: fix-me, using WSRP 2 doesn't necessarily equals supporting export...
    }
 
    // Registration *****************************************************************************************************
@@ -992,6 +984,19 @@ public class WSRPConsumerImpl implements WSRPConsumer
       else
       {
          throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
+      }
+   }
+
+   public boolean isUsingWSRP2()
+   {
+      try
+      {
+         return getMarkupService().getVersion() > 1;
+      }
+      catch (PortletInvokerException e)
+      {
+         log.debug("Couldn't determine WSRP version supported by this Consumer", e);
+         return false;
       }
    }
 
