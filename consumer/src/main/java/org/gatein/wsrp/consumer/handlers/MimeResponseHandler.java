@@ -213,6 +213,9 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
       public String getReplacementFor(String match, String prefix, String suffix)
       {
+         // work around for GTNWSRP-93:
+         match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
+
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
          return context.renderURL(portletURL, format);
       }
