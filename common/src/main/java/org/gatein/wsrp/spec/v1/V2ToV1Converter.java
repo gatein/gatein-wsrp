@@ -753,7 +753,7 @@ public class V2ToV1Converter
 
    public static V1SessionContext toV1SessionContext(SessionContext sessionContext)
    {
-      if (sessionContext != null)
+      if (sessionContext != null && !ParameterValidation.isNullOrEmpty(sessionContext.getSessionID()))
       {
          V1SessionContext v1SessionContext = WSRP1TypeFactory.createSessionContext(sessionContext.getSessionID(), sessionContext.getExpires());
          v1SessionContext.getExtensions().addAll(Lists.transform(sessionContext.getExtensions(), EXTENSION));
@@ -781,7 +781,19 @@ public class V2ToV1Converter
          {
             QName errorCode = failedPortlets.getErrorCode();
             V1LocalizedString reason = toV1LocalizedString(failedPortlets.getReason());
-            String v1Reason = errorCode.toString() + ": " + reason.getValue();
+            
+            String v1Reason;
+            //failedPortlets.getReason is optional in V2, but errorCode is required.
+            //for V2DestroyFailed the reason is required
+            if (reason != null && reason.getValue() != null)
+            {
+               v1Reason = errorCode.toString() + ": " + reason.getValue();
+            }
+            else
+            {
+               v1Reason = errorCode.toString();
+            }
+            
             for (String handle : failedPortlets.getPortletHandles())
             {
                V1DestroyFailed destroyFailed = WSRP1TypeFactory.createDestroyFailed(handle, v1Reason);
@@ -1180,7 +1192,18 @@ public class V2ToV1Converter
          {
             V1ItemDescription result = new V1ItemDescription();
             result.setItemName(from.getItemName());
-            result.setDescription(LOCALIZEDSTRING.apply(from.getDescription()));
+            if (from.getDescription() != null)
+            {
+               result.setDescription(LOCALIZEDSTRING.apply(from.getDescription()));
+            }
+            else if (from.getDisplayName() != null)
+            {
+               result.setDescription(LOCALIZEDSTRING.apply(from.getDisplayName()));
+            }
+            else
+            {
+               result.setDescription(WSRP1TypeFactory.createLocalizedString("No Description Available"));
+            }
             List<V1Extension> extensions = WSRPUtils.transform(from.getExtensions(), EXTENSION);
             if (extensions != null)
             {
@@ -1204,7 +1227,16 @@ public class V2ToV1Converter
          {
             V1NamedString result = new V1NamedString();
             result.setName(namedString.getName());
-            result.setValue(namedString.getValue());
+            //GetValue is required for V1, but optional for V2. If we receive a null
+            //value from V2, then just set the value to be equal to the name.
+            if (namedString.getValue() == null)
+            {
+               result.setValue(namedString.getName());
+            }
+            else
+            {
+               result.setValue(namedString.getValue());
+            }
             return result;
          }
          else

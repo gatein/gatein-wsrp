@@ -664,8 +664,6 @@ public class WSRPTypeFactory
     */
    public static SessionContext createSessionContext(String sessionID, int expires)
    {
-      //TODO: a sessionID is minOccurs 0, it shouldn't be required, expires also is minOccurs 0
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(sessionID, "session Id", "SessionContext");
       if (expires < 0)
       {
          throw new IllegalArgumentException("SessionContext requires a positive expiration time.");
