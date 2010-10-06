@@ -54,6 +54,7 @@ import java.util.Set;
 public class MockWSRPConsumer implements WSRPConsumer
 {
    private ProducerInfo producerInfo;
+   private boolean useWSRP2 = true;
 
    public MockWSRPConsumer(String id)
    {
@@ -183,6 +184,16 @@ public class MockWSRPConsumer implements WSRPConsumer
    public ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException
    {
       throw new NotYetImplemented();
+   }
+
+   public boolean isUsingWSRP2()
+   {
+      return useWSRP2;
+   }
+
+   public void setUsingWSRP2(boolean useWSRP2)
+   {
+      this.useWSRP2 = useWSRP2;
    }
 
    public void destroy()
