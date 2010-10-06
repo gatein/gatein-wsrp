@@ -24,6 +24,7 @@
 package org.gatein.wsrp.test.protocol.v2;
 
 import org.gatein.common.NotYetImplemented;
+import org.gatein.common.util.Version;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.services.MarkupService;
@@ -130,6 +131,11 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
    public RegistrationService getRegistrationService() throws Exception
    {
       return new V2RegistrationService(getService(WSRPV2RegistrationPortType.class));
+   }
+
+   public Version getWSRPVersion()
+   {
+      return ServiceFactory.WSRP2;
    }
 
    public BehaviorRegistry getRegistry()

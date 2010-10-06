@@ -97,8 +97,7 @@ public class InvocationDispatcher
          String preferOperationAsString = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
          boolean preferOperation = (preferOperationAsString != null && Boolean.parseBoolean(preferOperationAsString));
 
-         int version = consumer.getMarkupService().getVersion();
-         if (version == 2 && (preferOperation || resourceURL == null || (resourceId != null && resourceId.length() > 0)))
+         if (consumer.isUsingWSRP2() && (preferOperation || resourceURL == null || (resourceId != null && resourceId.length() > 0)))
          {
             handler = resourceHandler;
          }

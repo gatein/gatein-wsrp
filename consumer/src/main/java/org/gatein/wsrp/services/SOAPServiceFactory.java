@@ -24,6 +24,7 @@
 package org.gatein.wsrp.services;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.common.util.Version;
 import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
 import org.gatein.wsrp.services.v1.V1RegistrationService;
@@ -353,6 +354,25 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          WSRPV1RegistrationPortType port = getService(WSRPV1RegistrationPortType.class);
          return new V1RegistrationService(port);
+      }
+   }
+
+   public Version getWSRPVersion()
+   {
+      if (isAvailable())
+      {
+         if (isV2)
+         {
+            return WSRP2;
+         }
+         else
+         {
+            return WSRP1;
+         }
+      }
+      else
+      {
+         return null;
       }
    }
 

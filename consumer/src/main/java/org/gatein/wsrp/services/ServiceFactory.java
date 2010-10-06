@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -22,6 +22,8 @@
  */
 package org.gatein.wsrp.services;
 
+import org.gatein.common.util.Version;
+
 /**
  * A factory that gives access to remote services.
  *
@@ -31,6 +33,8 @@ package org.gatein.wsrp.services;
 public interface ServiceFactory
 {
    int DEFAULT_TIMEOUT_MS = 10000;
+   Version WSRP2 = new Version("WSRP", 2, 0, 0, new Version.Qualifier(Version.Qualifier.Prefix.GA), "WSRP2");
+   Version WSRP1 = new Version("WSRP", 1, 0, 0, new Version.Qualifier(Version.Qualifier.Prefix.GA), "WSRP1");
 
    <T> T getService(Class<T> clazz) throws Exception;
 
@@ -77,4 +81,12 @@ public interface ServiceFactory
    PortletManagementService getPortletManagementService() throws Exception;
 
    RegistrationService getRegistrationService() throws Exception;
+
+   /**
+    * Returns the WSRP version of the remote service that this ServiceFactory connects to or <code>null</code> if the
+    * ServiceFactory is not available.
+    *
+    * @return
+    */
+   Version getWSRPVersion();
 }

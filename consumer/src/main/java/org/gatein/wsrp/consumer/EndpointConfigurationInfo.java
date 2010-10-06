@@ -24,6 +24,7 @@
 package org.gatein.wsrp.consumer;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.common.util.Version;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.services.PortletManagementService;
@@ -232,5 +233,10 @@ public class EndpointConfigurationInfo
    public int getWSOperationTimeOut()
    {
       return serviceFactory.getWSOperationTimeOut();
+   }
+
+   Version getWSRPVersion()
+   {
+      return serviceFactory.getWSRPVersion();
    }
 }

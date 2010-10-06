@@ -25,6 +25,7 @@ package org.gatein.wsrp.consumer;
 
 import org.gatein.common.NotYetImplemented;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.common.util.Version;
 import org.gatein.pc.api.InvalidPortletIdException;
 import org.gatein.pc.api.InvokerUnavailableException;
 import org.gatein.pc.api.NoSuchPortletException;
@@ -989,13 +990,13 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    public boolean isUsingWSRP2()
    {
-      try
+      Version wsrpVersion = getWSRPVersion();
+      if (wsrpVersion != null)
       {
-         return getMarkupService().getVersion() > 1;
+         return wsrpVersion.getMajor() >= 2;
       }
-      catch (PortletInvokerException e)
+      else
       {
-         log.debug("Couldn't determine WSRP version supported by this Consumer", e);
          return false;
       }
    }
@@ -1003,5 +1004,10 @@ public class WSRPConsumerImpl implements WSRPConsumer
    public MigrationService getMigrationService()
    {
       return migrationService;
+   }
+
+   public Version getWSRPVersion()
+   {
+      return producerInfo.getEndpointConfigurationInfo().getWSRPVersion();
    }
 }
