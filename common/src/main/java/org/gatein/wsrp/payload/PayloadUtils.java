@@ -74,7 +74,7 @@ public class PayloadUtils
          NamedStringArray namedStringArray = payload.getNamedStringArray();
          if (namedStringArray != null)
          {
-            throw new UnsupportedOperationException("Don't know how to convert NamedStringArray to a Serializable in an interroperable way. :(");
+            return new SerializableNamedStringArray(namedStringArray);
          }
          else
          {
@@ -119,22 +119,30 @@ public class PayloadUtils
 
    public static EventPayload getPayloadAsEventPayload(QName type, Serializable payload)
    {
-      // todo: complete GTNWSRP-49
-      try
+      if (payload instanceof SerializableNamedStringArray)
       {
-         Class payloadClass = payload.getClass();
-         JAXBContext context = JAXBContext.newInstance(payloadClass);
-         Marshaller marshaller = context.createMarshaller();
-         JAXBElement<Serializable> element = new JAXBElement<Serializable>(type, payloadClass, payload);
-         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-         builderFactory.setNamespaceAware(true);
-         Document document = builderFactory.newDocumentBuilder().newDocument();
-         marshaller.marshal(element, document);
-         return WSRPTypeFactory.createEventPayloadAsAny(document.getDocumentElement());
+         SerializableNamedStringArray stringArray = (SerializableNamedStringArray)payload;
+         return WSRPTypeFactory.createEventPayloadAsNamedString(stringArray.toNamedStringArray());
       }
-      catch (Exception e)
+      else
       {
-         throw new IllegalArgumentException("Couldn't marshall payload " + payload + " with expected type " + type, e);
+         // todo: complete GTNWSRP-49
+         try
+         {
+            Class payloadClass = payload.getClass();
+            JAXBContext context = JAXBContext.newInstance(payloadClass);
+            Marshaller marshaller = context.createMarshaller();
+            JAXBElement<Serializable> element = new JAXBElement<Serializable>(type, payloadClass, payload);
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            builderFactory.setNamespaceAware(true);
+            Document document = builderFactory.newDocumentBuilder().newDocument();
+            marshaller.marshal(element, document);
+            return WSRPTypeFactory.createEventPayloadAsAny(document.getDocumentElement());
+         }
+         catch (Exception e)
+         {
+            throw new IllegalArgumentException("Couldn't marshall payload " + payload + " with expected type " + type, e);
+         }
       }
    }
 }

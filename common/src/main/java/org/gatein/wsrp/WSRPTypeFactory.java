@@ -1425,13 +1425,10 @@ public class WSRPTypeFactory
       return namedString;
    }
 
-   public static EventPayload createEventPayloadAsNamedString(Object payload)
+   public static EventPayload createEventPayloadAsNamedString(NamedStringArray payload)
    {
-      // todo: fix me GTNWSRP-49
       EventPayload result = new EventPayload();
-      NamedStringArray value = new NamedStringArray();
-      value.getNamedString().add(createNamedString("event", payload.toString()));
-      result.setNamedStringArray(value);
+      result.setNamedStringArray(payload);
       return result;
    }
 
@@ -1755,44 +1752,49 @@ public class WSRPTypeFactory
 
       return userProfile;
    }
-   
+
    public static CopyPortlets createCopyPortlets(RegistrationContext toRegistrationContext, UserContext toUserContext, RegistrationContext fromRegistrationContext, UserContext fromUserContext, List<PortletContext> fromPortletContexts)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(fromPortletContexts))
       {
          throw new IllegalArgumentException("Must provide at least one PortletContext to CopyPortlets.");
       }
-      
+
       CopyPortlets copyPortlets = new CopyPortlets();
       copyPortlets.setToRegistrationContext(toRegistrationContext);
       copyPortlets.setToUserContext(toUserContext);
       copyPortlets.setFromRegistrationContext(fromRegistrationContext);
       copyPortlets.setFromUserContext(fromUserContext);
       copyPortlets.getFromPortletContexts().addAll(fromPortletContexts);
-      
+
       return copyPortlets;
    }
-   
+
    public static CopyPortletsResponse createCopyPortletsResponse(List<CopiedPortlet> copiedPortlets, List<FailedPortlets> failedPortlets, ResourceList resourceList)
    {
       CopyPortletsResponse response = new CopyPortletsResponse();
       response.getCopiedPortlets().addAll(copiedPortlets);
       response.getFailedPortlets().addAll(failedPortlets);
       response.setResourceList(resourceList);
-      
+
       return response;
    }
-   
+
    public static CopiedPortlet createCopiedPortlet(PortletContext newPortletContext, String fromPortletHandle)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(newPortletContext, "newPortletContext");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(fromPortletHandle, "fromPortletHandle", "createCopiedPortlet");
-      
+
       CopiedPortlet copiedPortlet = new CopiedPortlet();
-      
+
       copiedPortlet.setNewPortletContext(newPortletContext);
       copiedPortlet.setFromPortletHandle(fromPortletHandle);
-      
+
       return copiedPortlet;
+   }
+
+   public static NamedStringArray createNamedStringArray()
+   {
+      return new NamedStringArray();
    }
 }
