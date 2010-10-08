@@ -109,7 +109,7 @@ public class ServiceWrapper<T>
       // better interoperability as Oracle's producer doesn't support it, for example.
       // See https://jira.jboss.org/jira/browse/JBWS-2884 and
       // http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Chunked_encoding_setup
-      requestContext.put(JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE, 0);
+      requestContext.put(JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE, "0");
 
       // Add client side handler via JAX-WS API
       Binding binding = bindingProvider.getBinding();
