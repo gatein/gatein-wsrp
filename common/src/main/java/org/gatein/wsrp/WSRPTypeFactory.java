@@ -1401,10 +1401,7 @@ public class WSRPTypeFactory
       event.setName(name);
       if (payload != null)
       {
-         Class<? extends Object> type = payload.getClass();
-         QName typeName = new QName(type.getName());
-         event.setType(typeName);
-         event.setPayload(PayloadUtils.getPayloadAsEventPayload(typeName, payload));
+         event.setPayload(PayloadUtils.getPayloadAsEventPayload(event, payload));
       }
       return event;
    }

@@ -193,6 +193,23 @@ public final class WSRPConstants
    /** A QName representing the string type defined as part of XML Schemas Part 2 */
    public static final QName XSD_STRING = new QName("http://www.w3.org/2001/XMLSchema", "string");
 
+   public static final QName XSD_INTEGER = new QName("http://www.w3.org/2001/XMLSchema", "integer");
+   public static final QName XSD_INT = new QName("http://www.w3.org/2001/XMLSchema", "int");
+   public static final QName XSD_LONG = new QName("http://www.w3.org/2001/XMLSchema", "long");
+   public static final QName XSD_SHORT = new QName("http://www.w3.org/2001/XMLSchema", "short");
+   public static final QName XSD_DECIMAL = new QName("http://www.w3.org/2001/XMLSchema", "decimal");
+   public static final QName XSD_FLOAT = new QName("http://www.w3.org/2001/XMLSchema", "float");
+   public static final QName XSD_DOUBLE = new QName("http://www.w3.org/2001/XMLSchema", "double");
+   public static final QName XSD_BOOLEAN = new QName("http://www.w3.org/2001/XMLSchema", "boolean");
+   public static final QName XSD_BYTE = new QName("http://www.w3.org/2001/XMLSchema", "byte");
+   public static final QName XSD_DATE_TIME = new QName("http://www.w3.org/2001/XMLSchema", "dateTime");
+   public static final QName XSD_BASE_64_BINARY = new QName("http://www.w3.org/2001/XMLSchema", "base64Binary");
+   public static final QName XSD_HEX_BINARY = new QName("http://www.w3.org/2001/XMLSchema", "hexBinary");
+   public static final QName XSD_UNSIGNED_INT = new QName("http://www.w3.org/2001/XMLSchema", "unsignedInt");
+   public static final QName XSD_UNSIGNED_SHORT = new QName("http://www.w3.org/2001/XMLSchema", "unsignedShort");
+   public static final QName XSD_TIME = new QName("http://www.w3.org/2001/XMLSchema", "time");
+   public static final QName XSD_DATE = new QName("http://www.w3.org/2001/XMLSchema", "date");
+   public static final QName XSD_ANY_SIMPLE_TYPE = new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType");
 
    private WSRPConstants()
    {

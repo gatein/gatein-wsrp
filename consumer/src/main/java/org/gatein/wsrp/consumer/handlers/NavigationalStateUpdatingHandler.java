@@ -26,6 +26,7 @@ package org.gatein.wsrp.consumer.handlers;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.StateEvent;
+import org.gatein.pc.api.info.EventInfo;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
@@ -33,7 +34,6 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Event;
-import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PortletContext;
@@ -96,8 +96,8 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       {
          for (Event event : events)
          {
-            EventPayload payload = event.getPayload();
-            result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), PayloadUtils.getPayloadAsSerializable(event.getType(), payload)));
+            EventInfo eventInfo = consumer.getProducerInfo().getInfoForEvent(event.getName());
+            result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), PayloadUtils.getPayloadAsSerializable(event, eventInfo)));
          }
       }
 

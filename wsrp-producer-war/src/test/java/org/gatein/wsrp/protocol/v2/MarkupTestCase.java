@@ -842,8 +842,8 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          assertEquals(1, events.size());
          Event event = events.get(0);
          assertEquals(new QName("urn:jboss:gatein:samples:event", "eventsample"), event.getName());
-         assertEquals(new QName("java.lang.String"), event.getType());
-         assertEquals("param-value", PayloadUtils.getPayloadAsSerializable(event.getType(), event.getPayload()));
+         assertEquals(WSRPConstants.XSD_STRING, event.getType());
+         assertEquals("param-value", PayloadUtils.getPayloadAsSerializable(event, null));
 
          // send event
          HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,
