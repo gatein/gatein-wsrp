@@ -24,8 +24,13 @@
 package org.gatein.wsrp.other;
 
 import junit.framework.TestCase;
+import org.gatein.pc.api.ContainerURL;
 import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.ParametersStateString;
+import org.gatein.pc.api.ResourceURL;
+import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
+import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
@@ -33,6 +38,7 @@ import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -61,20 +67,20 @@ public class WSRPPortletURLTestCase extends TestCase
       WSRPResourceURL resource = (WSRPResourceURL)url;
       assertFalse(resource.requiresRewrite());
       assertEquals("http://test.com/images/test.gif", resource.getResourceURL().toExternalForm());
-      
+
       //resource.getResourceId will not return the actual resource id, but an encoded resource map used to determine how to access the resource
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
       assertEquals("http://test.com/images/test.gif", resourceURL);
 
       assertNull(resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID));
-      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+      assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testResourceID()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
-      "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+         "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
       assertTrue(url instanceof WSRPResourceURL);
@@ -86,15 +92,15 @@ public class WSRPPortletURLTestCase extends TestCase
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
+
       assertNull(resourceMap.get(WSRPRewritingConstants.RESOURCE_URL));
       assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testResources()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
-      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+         "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
       assertTrue(url instanceof WSRPResourceURL);
@@ -106,16 +112,16 @@ public class WSRPPortletURLTestCase extends TestCase
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
+
       String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
       assertEquals("http://test.com/images/test.gif", resourceURL);
-      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+      assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testResourcesNoRequiresRewrite()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
-      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;/wsrp_rewrite";
+         "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
       assertTrue(url instanceof WSRPResourceURL);
@@ -127,16 +133,16 @@ public class WSRPPortletURLTestCase extends TestCase
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
+
       String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
       assertEquals("http://test.com/images/test.gif", resourceURL);
-      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+      assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testResourcesNoResourceURL()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
-      "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+         "&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
       assertTrue(url instanceof WSRPResourceURL);
@@ -147,14 +153,14 @@ public class WSRPPortletURLTestCase extends TestCase
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
-      assertEquals("false",resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
+
+      assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testPreferOperation()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
-      "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-preferOperation=true&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
+         "&amp;wsrp-url=http%3A%2F%2Ftest.com%2Fimages%2Ftest.gif&amp;wsrp-preferOperation=true&amp;wsrp-requiresRewrite=false/wsrp_rewrite";
       WSRPPortletURL url = WSRPPortletURL.create(expected);
 
       assertTrue(url instanceof WSRPResourceURL);
@@ -166,12 +172,38 @@ public class WSRPPortletURLTestCase extends TestCase
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resource.getResourceId());
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
+
       String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
       assertEquals("http://test.com/images/test.gif", resourceURL);
 
       String preferOperation = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
       assertEquals("true", preferOperation);
+   }
+
+   public void testShouldProperlyTransmitResourceState()
+   {
+      // create URL from container
+      ResourceURL resourceURL = new TestResourceURL("resparam", "resvalue");
+      WSRPPortletURL url = WSRPPortletURL.create(resourceURL, false);
+
+      assertTrue(url instanceof WSRPResourceURL);
+      WSRPResourceURL resource = (WSRPResourceURL)url;
+      StateString resourceState = resource.getResourceState();
+      assertNotNull(resourceState);
+
+      // serialize URL to WSRP string format
+      String resourceAsString = resource.toString();
+
+      // and re-create it
+      url = WSRPPortletURL.create(resourceAsString);
+
+      // check that we have indeed the same state
+      assertTrue(url instanceof WSRPResourceURL);
+      resource = (WSRPResourceURL)url;
+      resourceState = resource.getResourceState();
+      assertNotNull(resourceState);
+      Map<String, String[]> state = StateString.decodeOpaqueValue(resourceState.getStringValue());
+      assertEquals("resvalue", state.get("resparam")[0]);
    }
 
    /** Declare a secure interaction back to the Portlet */
@@ -389,6 +421,99 @@ public class WSRPPortletURLTestCase extends TestCase
       catch (IllegalArgumentException e)
       {
          assertTrue(e.getLocalizedMessage().contains(mustBeInException));
+      }
+   }
+
+   private static class TestContainerURL implements ContainerURL
+   {
+      private Mode mode;
+      private WindowState ws;
+      private StateString ns;
+      private Map<String, String> props;
+
+      static final StateString DEFAULT_NS;
+      static final Map<String, String[]> DEFAULT_PARAMS = new HashMap<String, String[]>(3);
+      static final String PARAM = "param";
+      static final String VALUE = "value";
+
+      static
+      {
+         DEFAULT_PARAMS.put(PARAM, new String[]{VALUE});
+         DEFAULT_NS = ParametersStateString.create(DEFAULT_PARAMS);
+      }
+
+      private TestContainerURL(Mode mode, WindowState ws, StateString ns, Map<String, String> props)
+      {
+         this.mode = mode;
+         this.ws = ws;
+         this.ns = ns;
+         this.props = props;
+      }
+
+      public Mode getMode()
+      {
+         return mode;
+      }
+
+      public WindowState getWindowState()
+      {
+         return ws;
+      }
+
+      public StateString getNavigationalState()
+      {
+         return ns;
+      }
+
+      public Map<String, String> getProperties()
+      {
+         return props;
+      }
+   }
+
+   private static class TestResourceURL extends TestContainerURL implements ResourceURL
+   {
+      private static final String RESID = "resid";
+      private String id;
+      private StateString state;
+      private CacheLevel cache;
+
+      private TestResourceURL(String id, StateString state, CacheLevel cache)
+      {
+         super(Mode.VIEW, WindowState.NORMAL, DEFAULT_NS, null);
+         init(id, state, cache);
+      }
+
+      private void init(String id, StateString state, CacheLevel cache)
+      {
+         this.id = id;
+         this.state = state;
+         this.cache = cache;
+      }
+
+      private TestResourceURL(String param, String value)
+      {
+         super(Mode.VIEW, WindowState.NORMAL, DEFAULT_NS, null);
+
+         HashMap<String, String[]> params = new HashMap<String, String[]>(3);
+         params.put(param, new String[]{value});
+
+         init(RESID, ParametersStateString.create(params), CacheLevel.FULL);
+      }
+
+      public String getResourceId()
+      {
+         return id;
+      }
+
+      public StateString getResourceState()
+      {
+         return state;
+      }
+
+      public CacheLevel getCacheability()
+      {
+         return cache;
       }
    }
 }

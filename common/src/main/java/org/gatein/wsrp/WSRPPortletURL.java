@@ -65,15 +65,19 @@ public abstract class WSRPPortletURL implements ContainerURL
 
    private WindowState windowState;
 
+   protected StateString navigationalState;
+
    /** Are we using strict rewriting parameters validation mode? */
    protected static boolean strict = true;
+
    /** Holds extra parameters if we are in relaxed validation mode */
    private Map<String, String> extraParams;
+
    /** Holds extra data after URL in relaxed mode */
    protected String extra;
+
    /** Remember position of extra parameters wrt end token */
    private boolean extraParamsAfterEndToken = false;
-   protected StateString navigationalState;
 
    public static void setStrict(boolean strict)
    {

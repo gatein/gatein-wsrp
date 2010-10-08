@@ -25,6 +25,7 @@ package org.gatein.wsrp;
 
 import org.gatein.common.net.URLTools;
 import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
@@ -98,6 +99,11 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION, Boolean.toString(preferOperation));
       }
+
+      if (resourceState != null)
+      {
+         createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_STATE, resourceState.getStringValue());
+      }
    }
 
    @Override
@@ -110,6 +116,14 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          requiresRewrite = Boolean.valueOf(requireRewrite);
          params.remove(WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE);
+      }
+
+      // navigational state
+      String resourceState = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_STATE);
+      if (resourceState != null)
+      {
+         this.resourceState = new OpaqueStateString(resourceState);
+         params.remove(WSRP2RewritingConstants.RESOURCE_STATE);
       }
 
       String url = getRawParameterValueFor(params, WSRPRewritingConstants.RESOURCE_URL);
@@ -133,12 +147,12 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       {
          resourceId = resourceIDParam;
       }
-      
+
       // we either need a resource Id or (requiredRewrite and url)
       if (resourceIDParam == null && (requireRewrite == null || url == null))
       {
          throw new IllegalArgumentException("The parsed parameters don't are not valid for a resource url. It must contain either a "
-               + WSRP2RewritingConstants.RESOURCE_ID + " or " + WSRPRewritingConstants.RESOURCE_URL + " and " + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
+            + WSRP2RewritingConstants.RESOURCE_ID + " or " + WSRPRewritingConstants.RESOURCE_URL + " and " + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
       }
 
       String preferOperationParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
