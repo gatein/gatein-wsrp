@@ -30,6 +30,7 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.info.RuntimeOptionInfo;
+import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.registration.RegistrationManager;
@@ -563,5 +564,10 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
    PortletManagementInterface getPortletManagementInterface()
    {
       return portletManagementHandler;
+   }
+
+   public void onEvent(ManagedObjectRegistryEvent event)
+   {
+      serviceDescriptionHandler.onEvent(event);
    }
 }

@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer;
 
 import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.PortletInvoker;
+import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEventListener;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
@@ -35,7 +36,7 @@ import org.gatein.wsrp.producer.config.ProducerConfigurationService;
  * @version $Revision: 12020 $
  * @since 2.4
  */
-public interface WSRPProducer extends ProducerConfigurationChangeListener
+public interface WSRPProducer extends ProducerConfigurationChangeListener, ManagedObjectRegistryEventListener
 {
    /**
     * Retrieves the RegistrationManager used by this WSRPProducer.

@@ -38,6 +38,13 @@ import org.gatein.pc.api.info.ParameterInfo;
 import org.gatein.pc.api.info.PortletInfo;
 import org.gatein.pc.api.info.SecurityInfo;
 import org.gatein.pc.api.info.WindowStateInfo;
+import org.gatein.pc.portlet.container.managed.LifeCycleStatus;
+import org.gatein.pc.portlet.container.managed.ManagedObject;
+import org.gatein.pc.portlet.container.managed.ManagedObjectEvent;
+import org.gatein.pc.portlet.container.managed.ManagedObjectLifeCycleEvent;
+import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
+import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEventListener;
+import org.gatein.pc.portlet.container.managed.ManagedPortletContainer;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -79,7 +86,7 @@ import java.util.Set;
  * @version $Revision: 12017 $
  * @since 2.4
  */
-public class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface
+public class ServiceDescriptionHandler extends ServiceHandler implements ServiceDescriptionInterface, ManagedObjectRegistryEventListener
 {
    // JBPORTAL-1220: force call to initCookie... Required so that BEA version < 9.2 will behave properly as a Consumer
    private static final CookieProtocol BEA_8_CONSUMER_FIX = CookieProtocol.PER_USER;
@@ -172,8 +179,11 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
     */
    static PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales, ServiceDescriptionInfo sdi)
    {
-      org.gatein.pc.api.PortletContext context = portlet.getContext();
-      PortletInfo info = portlet.getInfo();
+      return getPortletDescription(portlet.getContext(), portlet.getInfo(), desiredLocales, sdi);
+   }
+
+   private static PortletDescription getPortletDescription(org.gatein.pc.api.PortletContext context, PortletInfo info, List<String> desiredLocales, ServiceDescriptionInfo sdi)
+   {
       String handle = context.getId();
       if (log.isDebugEnabled())
       {
@@ -315,6 +325,40 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       * [O] Extension	extensions[]
       */
       return desc;
+   }
+
+   public void onEvent(ManagedObjectRegistryEvent event)
+   {
+      if (event instanceof ManagedObjectEvent)
+      {
+         ManagedObjectEvent managedObjectEvent = (ManagedObjectEvent)event;
+         ManagedObject managedObject = managedObjectEvent.getManagedObject();
+
+         if (managedObject instanceof ManagedPortletContainer)
+         {
+            ManagedPortletContainer portletContainer = (ManagedPortletContainer)managedObject;
+            String applicationId = portletContainer.getManagedPortletApplication().getId();
+            String containerId = portletContainer.getId();
+            // need PC 2.2.0-Beta06 API support
+//            org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
+
+            // todo: GTNWSRP-45: implement refreshing of ServiceDescriptionInfo
+            if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
+            {
+               ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
+               LifeCycleStatus status = lifeCycleEvent.getStatus();
+               if (LifeCycleStatus.STARTED.equals(status))
+               {
+                  // todo: add portlet description for newly started portlet container
+//                  getPortletDescription(pc, portletContainer.getInfo(), )
+               }
+               else
+               {
+                  // todo: remore portlet description for stopped portlet container
+               }
+            }
+         }
+      }
    }
 
    private static List<String> getLocaleNamesFrom(Collection<Locale> locales)

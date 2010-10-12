@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer.v1;
 
 import org.gatein.exports.ExportManager;
 import org.gatein.pc.api.PortletInvoker;
+import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.ProducerHolder;
@@ -786,5 +787,10 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       {
          throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
       }
+   }
+
+   public void onEvent(ManagedObjectRegistryEvent event)
+   {
+      producer.onEvent(event);
    }
 }
