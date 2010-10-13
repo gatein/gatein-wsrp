@@ -82,12 +82,10 @@ public class RenderHandlerTestCase extends TestCase
          "fadsfadsRender ns=JBPNS_ ws=null m=nullfajdshfkjdshgfgrept";
       processMarkupAndCheck(markup, expected);
 
-      // in WSRP 2, we don't process wsrp_rewrite_ tokens anymore as the consumer MUST to provide a namespace
-      // so the producer can generate the proper markup directly
       markup = "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
          "-interactionState=JBPNS_/wsrp_rewrite' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
-      expected = "<form method='post' action='Action is=JBPNS_ ns=null ws=null m=null' id='wsrp_rewrite_portfolioManager'><table><tr><td>Stock symbol</t" +
+      expected = "<form method='post' action='Action is=JBPNS_ ns=null ws=null m=null' id='" + NAMESPACE + "portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
       processMarkupAndCheck(markup, expected);
    }

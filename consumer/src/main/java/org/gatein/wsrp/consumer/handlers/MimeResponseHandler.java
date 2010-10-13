@@ -143,10 +143,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          false
       );
 
-      if (!consumer.isUsingWSRP2())
-      {
-         markup = markup.replaceAll(WSRPRewritingConstants.WSRP_REWRITE_TOKEN, namespace);
-      }
+      markup = markup.replaceAll(WSRPRewritingConstants.WSRP_REWRITE_TOKEN, namespace);
 
       return markup;
    }
