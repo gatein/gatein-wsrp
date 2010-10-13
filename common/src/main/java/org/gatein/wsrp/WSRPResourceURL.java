@@ -151,7 +151,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       // we either need a resource Id or (requiredRewrite and url)
       if (resourceIDParam == null && (requireRewrite == null || url == null))
       {
-         throw new IllegalArgumentException("The parsed parameters don't are not valid for a resource url. It must contain either a "
+         throw new IllegalArgumentException("The parsed parameters are not valid for a resource url. A resource URL must contain either a "
             + WSRP2RewritingConstants.RESOURCE_ID + " or " + WSRPRewritingConstants.RESOURCE_URL + " and " + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
       }
 
