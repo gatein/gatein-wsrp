@@ -39,6 +39,7 @@ import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.UpdateResponse;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +98,20 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
          for (Event event : events)
          {
             EventInfo eventInfo = consumer.getProducerInfo().getInfoForEvent(event.getName());
-            result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), PayloadUtils.getPayloadAsSerializable(event, eventInfo)));
+            Serializable payloadAsSerializable = null;
+            try
+            {
+               payloadAsSerializable = PayloadUtils.getPayloadAsSerializable(event, eventInfo);
+            }
+            catch (Exception e)
+            {
+               log.info("Couldn't handle payload for event " + event.getName() + ". Will ignore it.", e);
+            }
+
+            if (payloadAsSerializable != null)
+            {
+               result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), payloadAsSerializable));
+            }
          }
       }
 
