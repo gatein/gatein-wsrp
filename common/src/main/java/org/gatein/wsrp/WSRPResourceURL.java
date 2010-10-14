@@ -31,7 +31,6 @@ import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
-import org.jboss.logging.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,7 +44,6 @@ import java.util.Map;
  */
 public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 {
-   private final static Logger log = Logger.getLogger(WSRPResourceURL.class);
    public final static String DEFAULT_RESOURCE_ID = "_gtn_resid_";
 
    private String resourceId;
