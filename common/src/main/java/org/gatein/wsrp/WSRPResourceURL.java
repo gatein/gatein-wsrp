@@ -146,8 +146,14 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
          resourceId = resourceIDParam;
       }
 
+      // GTNWSRP-103: if we don't have a resource id and wsrp-requiresRewrite has not been specified, set it to false for better compatibility
+      if (resourceIDParam == null && requireRewrite == null)
+      {
+         requiresRewrite = false;
+      }
+
       // we either need a resource Id or (requiredRewrite and url)
-      if (resourceIDParam == null && (requireRewrite == null || url == null))
+      if (resourceIDParam == null && url == null)
       {
          throw new IllegalArgumentException("The parsed parameters are not valid for a resource url. A resource URL must contain either a "
             + WSRP2RewritingConstants.RESOURCE_ID + " or " + WSRPRewritingConstants.RESOURCE_URL + " and " + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + " parameter in " + originalURL);
