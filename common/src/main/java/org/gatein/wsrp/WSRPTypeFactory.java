@@ -40,6 +40,7 @@ import org.gatein.pc.api.cache.CacheLevel;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.ClientData;
@@ -134,6 +135,7 @@ import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -150,7 +152,16 @@ import static org.gatein.wsrp.WSRPRewritingConstants.*;
  */
 public class WSRPTypeFactory
 {
-   private static final String REQUIRE_REWRITE_URL_PARAM = "&" + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + "=" + WSRPRewritingConstants.WSRP_REQUIRES_REWRITE;
+   private static final String AMP = "&";
+   private static final String EQ = "=";
+   private static final String ADDITIONAL_RESOURCE_URL_PARAMS = AMP + RESOURCE_REQUIRES_REWRITE + EQ
+      + WSRP_REQUIRES_REWRITE + AMP + WSRPRewritingConstants.RESOURCE_URL + EQ + REWRITE_PARAMETER_OPEN
+      + WSRPRewritingConstants.RESOURCE_URL + REWRITE_PARAMETER_CLOSE + AMP
+      + WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION + EQ + REWRITE_PARAMETER_OPEN
+      + WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION + REWRITE_PARAMETER_CLOSE;
+   private static final OpaqueStateString WSRP_NAVIGATIONAL_STATE_TOKEN = new OpaqueStateString(REWRITE_PARAMETER_OPEN + NAVIGATIONAL_STATE + REWRITE_PARAMETER_CLOSE);
+   private static final WindowState WSRP_WINDOW_STATE_TOKEN = WindowState.create(REWRITE_PARAMETER_OPEN + WINDOW_STATE + REWRITE_PARAMETER_CLOSE, true);
+   private static final Mode WSRP_MODE_TOKEN = Mode.create(REWRITE_PARAMETER_OPEN + MODE + REWRITE_PARAMETER_CLOSE, true);
 
    private WSRPTypeFactory()
    {
@@ -738,11 +749,12 @@ public class WSRPTypeFactory
       return property;
    }
 
+   private static final OpaqueStateString WSRP_INTERACTION_STATE_TOKEN = new OpaqueStateString(REWRITE_PARAMETER_OPEN + INTERACTION_STATE + REWRITE_PARAMETER_CLOSE);
    private static final ActionURL ACTION_URL = new ActionURL()
    {
       public StateString getInteractionState()
       {
-         return new OpaqueStateString(REWRITE_PARAMETER_OPEN + INTERACTION_STATE + REWRITE_PARAMETER_CLOSE);
+         return WSRP_INTERACTION_STATE_TOKEN;
       }
 
       public StateString getNavigationalState()
@@ -765,6 +777,14 @@ public class WSRPTypeFactory
          return Collections.emptyMap();
       }
    };
+
+   private static final HashMap<String, String[]> WSRP_PNS_MAP_TOKEN = new HashMap<String, String[]>();
+
+   static
+   {
+      WSRP_PNS_MAP_TOKEN.put(WSRP2RewritingConstants.NAVIGATIONAL_VALUES,
+         new String[]{REWRITE_PARAMETER_OPEN + WSRP2RewritingConstants.NAVIGATIONAL_VALUES + REWRITE_PARAMETER_CLOSE});
+   }
 
    private static final RenderURL RENDER_URL = new RenderURL()
    {
@@ -775,8 +795,7 @@ public class WSRPTypeFactory
 
       public Map<String, String[]> getPublicNavigationalStateChanges()
       {
-         // todo: implement properly
-         return null;
+         return WSRP_PNS_MAP_TOKEN;
       }
 
       public Mode getMode()
@@ -795,23 +814,22 @@ public class WSRPTypeFactory
       }
    };
 
-   private static ResourceURL RESOURCE_URL = new WSRPResourceURL()
+   private static final OpaqueStateString WSRP_RESOURCE_STATE_TOKEN = new OpaqueStateString(REWRITE_PARAMETER_OPEN + WSRP2RewritingConstants.RESOURCE_STATE + REWRITE_PARAMETER_CLOSE);
+   private static ResourceURL RESOURCE_URL = new ResourceURL()
    {
       public String getResourceId()
       {
-         return REWRITE_PARAMETER_OPEN + WSRPRewritingConstants.RESOURCE_URL + REWRITE_PARAMETER_CLOSE;
+         return REWRITE_PARAMETER_OPEN + WSRP2RewritingConstants.RESOURCE_ID + REWRITE_PARAMETER_CLOSE;
       }
 
       public StateString getResourceState()
       {
-         // todo: fix-me
-         return null;
+         return WSRP_RESOURCE_STATE_TOKEN;
       }
 
       public CacheLevel getCacheability()
       {
-         // todo: fix-me
-         return null;
+         return CacheLevel.create(REWRITE_PARAMETER_OPEN + WSRP2RewritingConstants.RESOURCE_CACHEABILITY + REWRITE_PARAMETER_CLOSE);
       }
 
       public Mode getMode()
@@ -828,21 +846,26 @@ public class WSRPTypeFactory
       {
          return getTemplateNS();
       }
+
+      public Map<String, String> getProperties()
+      {
+         return Collections.emptyMap();
+      }
    };
 
    private static StateString getTemplateNS()
    {
-      return new OpaqueStateString(REWRITE_PARAMETER_OPEN + NAVIGATIONAL_STATE + REWRITE_PARAMETER_CLOSE);
+      return WSRP_NAVIGATIONAL_STATE_TOKEN;
    }
 
    private static WindowState getTemplateWindowState()
    {
-      return WindowState.create(REWRITE_PARAMETER_OPEN + WINDOW_STATE + REWRITE_PARAMETER_CLOSE, true);
+      return WSRP_WINDOW_STATE_TOKEN;
    }
 
    private static Mode getTemplateMode()
    {
-      return Mode.create(REWRITE_PARAMETER_OPEN + MODE + REWRITE_PARAMETER_CLOSE, true);
+      return WSRP_MODE_TOKEN;
    }
 
 
@@ -862,8 +885,6 @@ public class WSRPTypeFactory
       templates.setRenderTemplate(createTemplate(context, RENDER_URL, Boolean.FALSE));
       templates.setSecureBlockingActionTemplate(createTemplate(context, ACTION_URL, Boolean.TRUE));
       templates.setSecureRenderTemplate(createTemplate(context, RENDER_URL, Boolean.TRUE));
-
-      //fix-me: deal with resources properly, create fake ones for now
       templates.setResourceTemplate(createTemplate(context, RESOURCE_URL, false));
       templates.setSecureResourceTemplate(createTemplate(context, RESOURCE_URL, true));
 
@@ -894,7 +915,7 @@ public class WSRPTypeFactory
       // fix for GTNWSRP-22
       if (RESOURCE_URL == url)
       {
-         template += REQUIRE_REWRITE_URL_PARAM;
+         template += ADDITIONAL_RESOURCE_URL_PARAMS;
       }
 
       return template;

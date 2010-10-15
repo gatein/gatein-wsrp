@@ -38,6 +38,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
@@ -390,6 +391,14 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          // navigational state
          StateString navigationalState = invocation.getNavigationalState();
          Map<String, String[]> publicNavigationalState = invocation.getPublicNavigationalState();
+
+         // it is possible to get additonal public navigational state from the invocation attributes if the producer used templates:
+         String publicNS = (String)invocation.getAttribute(WSRP2RewritingConstants.NAVIGATIONAL_VALUES);
+         if (!ParameterValidation.isNullOrEmpty(publicNS))
+         {
+            publicNavigationalState.putAll(WSRPUtils.decodePublicNS(publicNS));
+         }
+
          NavigationalContext navigationalContext = WSRPTypeFactory.createNavigationalContextOrNull(navigationalState, publicNavigationalState);
          getMarkupParams().setNavigationalContext(navigationalContext);
 

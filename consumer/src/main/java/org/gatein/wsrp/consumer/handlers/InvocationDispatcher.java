@@ -28,6 +28,7 @@ import org.gatein.common.io.IOTools;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.util.MultiValuedPropertyMap;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.ActionInvocation;
@@ -88,13 +89,27 @@ public class InvocationDispatcher
       }
       else if (invocation instanceof ResourceInvocation)
       {
-         String resourceInvocationId = ((ResourceInvocation)invocation).getResourceId();
+         ResourceInvocation resourceInvocation = (ResourceInvocation)invocation;
+         String resourceInvocationId = resourceInvocation.getResourceId();
+         String resourceId;
+         String resourceURL;
+         String preferOperationAsString;
 
-         Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
+         if (!ParameterValidation.isNullOrEmpty(resourceInvocationId))
+         {
+            Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
+            resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+            resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
+            preferOperationAsString = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+         }
+         else
+         {
+            // GateIn-specific: WSRP-specific URL parameters might also be put as attributes by UIPortlet when the invocation is created
+            resourceId = (String)resourceInvocation.getAttribute(WSRP2RewritingConstants.RESOURCE_ID);
+            resourceURL = (String)resourceInvocation.getAttribute(WSRPRewritingConstants.RESOURCE_URL);
+            preferOperationAsString = (String)resourceInvocation.getAttribute(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+         }
 
-         String resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
-         String resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
-         String preferOperationAsString = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
          boolean preferOperation = (preferOperationAsString != null && Boolean.parseBoolean(preferOperationAsString));
 
          if (consumer.isUsingWSRP2() && (preferOperation || resourceURL == null || (resourceId != null && resourceId.length() > 0)))

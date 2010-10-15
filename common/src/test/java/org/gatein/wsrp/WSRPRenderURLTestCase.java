@@ -56,13 +56,13 @@ public class WSRPRenderURLTestCase extends TestCase
       publicNS.put("p1", new String[]{"value1", "value2"});
       publicNS.put("p2", null);
 
-      String actual = WSRPRenderURL.encodePublicNS(publicNS);
+      String actual = WSRPUtils.encodePublicNS(publicNS);
       assertEquals("p1%3Dvalue1%26p1%3Dvalue2%26p2", actual);
    }
 
    public void testPublicNavigationalStateDecoding()
    {
-      Map<String, String[]> publicNS = WSRPRenderURL.decodePublicNS("p1%3Dvalue1%26p1%3Dvalue2%26p2");
+      Map<String, String[]> publicNS = WSRPUtils.decodePublicNS("p1%3Dvalue1%26p1%3Dvalue2%26p2");
 
       assertEquals(2, publicNS.size());
       assertTrue(publicNS.containsKey("p2"));
