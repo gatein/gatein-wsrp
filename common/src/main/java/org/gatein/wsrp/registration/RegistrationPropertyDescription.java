@@ -69,8 +69,8 @@ public class RegistrationPropertyDescription implements PropertyDescription
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(other, "RegistrationPropertyDescription");
 
-      setName(new QName(other.name.toString()));
-      setType(new QName(other.type.toString()));
+      setName(QName.valueOf(other.name.toString()));
+      setType(QName.valueOf(other.type.toString()));
 
       if (other.aliases != null)
       {
