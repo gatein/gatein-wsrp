@@ -24,9 +24,13 @@
 package org.gatein.wsrp.spec.v1;
 
 import junit.framework.TestCase;
+
+import org.gatein.wsrp.test.ExtendedAssert;
+import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1OperationFailedFault;
 import org.oasis.wsrp.v2.InvalidSession;
+import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.OperationFailed;
 
 /**
@@ -87,6 +91,71 @@ public class V1ToV2ConverterTestCase extends TestCase
       catch (IllegalArgumentException e)
       {
          // expected
+      }
+   }
+   
+   public void testToV2MarkupContext()
+   {
+      //test with mimetype and markupstring
+      V1MarkupContext v1MarkupContext = new V1MarkupContext();
+      v1MarkupContext.setMarkupString("test_1");
+      v1MarkupContext.setMimeType("mimeType_1");
+      MarkupContext markupContext = V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+      assertEquals("test_1", markupContext.getItemString());
+      assertEquals("mimeType_1", markupContext.getMimeType());
+      assertNull(markupContext.getItemBinary());
+      
+      //test without the mimetype
+      v1MarkupContext.setMimeType(null);
+      try
+      {
+         V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+         ExtendedAssert.fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
+      }
+      
+      //test with mimetype and markupbinary
+      v1MarkupContext = new V1MarkupContext();
+      v1MarkupContext.setMarkupBinary(new byte[]{1,2,3});
+      v1MarkupContext.setMimeType("mimeType_2");
+      markupContext = V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+      ExtendedAssert.assertEquals(new byte[]{1,2,3}, markupContext.getItemBinary());
+      assertEquals("mimeType_2", markupContext.getMimeType());
+      assertNull(markupContext.getItemString());
+      
+      //test without the mimetype
+      v1MarkupContext.setMimeType(null);
+      try
+      {
+         V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
+      }
+      
+      //test with useCachedMarkup
+      v1MarkupContext = new V1MarkupContext();
+      v1MarkupContext.setUseCachedMarkup(Boolean.TRUE);
+      markupContext = V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+      assertNull(markupContext.getItemString());
+      assertNull(markupContext.getItemBinary());
+      assertTrue(markupContext.isUseCachedItem().booleanValue());
+      
+      v1MarkupContext = new V1MarkupContext();
+      v1MarkupContext.setUseCachedMarkup(Boolean.FALSE);
+      try
+      {
+         V1ToV2Converter.toV2MarkupContext(v1MarkupContext);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
       }
    }
 }

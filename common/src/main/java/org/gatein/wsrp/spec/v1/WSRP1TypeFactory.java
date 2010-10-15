@@ -505,41 +505,34 @@ public class WSRP1TypeFactory
     *
     * @return
     */
-   public static V1MarkupContext createMarkupContext(String mediaType, String markupString)
+   public static V1MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCacheItem)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "Media type", "MarkupContext");
-      if (markupString == null)
-      {
-         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
-      }
+      boolean isUseCacheItem = (useCacheItem == null) ? false : useCacheItem.booleanValue();
+      
       V1MarkupContext markupContext = new V1MarkupContext();
       markupContext.setMimeType(mediaType);
-      markupContext.setMarkupString(markupString);
-      return markupContext;
-   }
-
-   /**
-    * useCachedMarkup(xsd:boolean[false])?, mimeType(xsd:string)?, (markupString(xsd:string) |
-    * markupBinary(xsd:base64Binary)), locale(xsd:string)?, requiresUrlRewriting(xsd:boolean[false])?,
-    * cacheControl(CacheControl)?, preferredTitle(xsd:string)?, extensions(Extension)*
-    *
-    * @param mediaType The mime type of the returned markup. The mimeType field MUST be specified whenever markup is
-    *                  returned, and if the markupBinary field is used to return the markup, the mime type MUST include
-    *                  the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
-    *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than the
-    *                  response message.
-    * @return a new MarkupContext
-    */
-   public static V1MarkupContext createMarkupContext(String mediaType, byte[] markupBinary)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "MarkupContext");
-      if (markupBinary == null || markupBinary.length == 0)
+      
+      if (isUseCacheItem)
       {
-         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
+         markupContext.setUseCachedMarkup(useCacheItem);
       }
-      V1MarkupContext markupContext = new V1MarkupContext();
-      markupContext.setMimeType(mediaType);
-      markupContext.setMarkupBinary(markupBinary);
+      else
+      {
+         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "MarkupContext");
+         if (markupBinary != null)
+         {
+            markupContext.setMarkupBinary(markupBinary);
+         }
+         else if (markupString != null)
+         {
+            markupContext.setMarkupString(markupString);
+         }
+         else
+         {
+            throw new IllegalArgumentException("MarkupContext required either a true useCacheItem or a non-null markup string or binary markup");
+         }
+      }
+      
       return markupContext;
    }
 

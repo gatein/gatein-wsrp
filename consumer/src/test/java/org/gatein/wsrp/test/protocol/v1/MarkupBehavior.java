@@ -165,7 +165,7 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
       String markupString = getMarkupString(WSRPUtils.getJSR168PortletModeFromWSRPName(markupParams.getMode()),
          WSRPUtils.getJSR168WindowStateFromWSRPName(markupParams.getWindowState()), markupParams.getNavigationalState(), gm);
 
-      markupContext.value = WSRP1TypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString);
+      markupContext.value = WSRP1TypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString, null, null);
       markupContext.value.setRequiresUrlRewriting(Boolean.TRUE);
 
       V1MarkupResponse markupResponse = WSRP1TypeFactory.createMarkupResponse(markupContext.value);

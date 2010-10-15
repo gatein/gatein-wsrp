@@ -583,39 +583,35 @@ public class WSRPTypeFactory
     * case this character set MAY be different than the response message.
     * <p/>
     */
-   public static MarkupContext createMarkupContext(String mediaType, String markupString)
+   public static MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCachedItem)
    {
-      //TODO: this should be allowed to be null
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "Media type", "MarkupContext");
-      if (markupString == null)
-      {
-         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
-      }
+      boolean isUseCachedItem = (useCachedItem == null) ? false : useCachedItem.booleanValue();
+      
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
-      markupContext.setItemString(markupString);
-      return markupContext;
-   }
+      
+      if (isUseCachedItem)
+      {
+         markupContext.setUseCachedItem(useCachedItem);
+      }
+      else
+      {
+         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "Media type", "MarkupContext");
+         
+         if (markupBinary != null)
+         {
+            markupContext.setItemBinary(markupBinary);
+         }
+         else if (markupString != null)
+         {
+            markupContext.setItemString(markupString);
+         }
+         else
+         {
+            throw new IllegalArgumentException("MarkupContext required either a true useCacheItem or a non-null markup string or binary markup");
+         }
+      }
 
-   /**
-    * @param mediaType The mime type of the returned markup. The mimeType field MUST be specified whenever markup is
-    *                  returned, and if the markupBinary field is used to return the markup, the mime type MUST include
-    *                  the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
-    *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than the
-    *                  response message.
-    * @return a new MarkupContext
-    */
-   public static MarkupContext createMarkupContext(String mediaType, byte[] markupBinary)
-   {
-      //TODO: this should be allowed to be null
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "MIME type", "MarkupContext");
-      if (markupBinary == null || markupBinary.length == 0)
-      {
-         throw new IllegalArgumentException("MarkupContext requires either a non-null markup string or binary markup.");
-      }
-      MarkupContext markupContext = new MarkupContext();
-      markupContext.setMimeType(mediaType);
-      markupContext.setItemBinary(markupBinary);
       return markupContext;
    }
 

@@ -31,15 +31,18 @@ import junit.framework.TestCase;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.ErrorCodes.Codes;
+import org.gatein.wsrp.test.ExtendedAssert;
 import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1InvalidSession;
 import org.oasis.wsrp.v1.V1ItemDescription;
+import org.oasis.wsrp.v1.V1MarkupContext;
 import org.oasis.wsrp.v1.V1NamedString;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1SessionContext;
 import org.oasis.wsrp.v2.FailedPortlets;
 import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.LocalizedString;
+import org.oasis.wsrp.v2.MarkupContext;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.SessionContext;
@@ -226,6 +229,72 @@ public class V2ToV1ConverterTestCase extends TestCase
       assertEquals(1, destroyFailedList.size());
       
       return destroyFailedList.iterator().next();
+   }
+   
+   public void testToV1MarkupContext()
+   {
+      //test with mimetype and markupstring
+      MarkupContext markupContext = new MarkupContext();
+      markupContext.setMimeType("mimeType_1");
+      markupContext.setItemString("string_1");
+      V1MarkupContext v1MarkupContext = V2ToV1Converter.toV1MarkupContext(markupContext);
+      assertEquals("mimeType_1", v1MarkupContext.getMimeType());
+      assertEquals("string_1", v1MarkupContext.getMarkupString());
+      assertNull(v1MarkupContext.getMarkupBinary());
+      
+      //test without the mimetype
+      markupContext.setMimeType(null);
+      try
+      {
+         V2ToV1Converter.toV1MarkupContext(markupContext);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
+      }
+      
+      //test with mimetype and markupbinary
+      markupContext = new MarkupContext();
+      markupContext.setMimeType("mimeType_2");
+      markupContext.setItemBinary(new byte[]{2,1,3});
+      v1MarkupContext = V2ToV1Converter.toV1MarkupContext(markupContext);
+      assertEquals("mimeType_2", v1MarkupContext.getMimeType());
+      ExtendedAssert.assertEquals(new byte[]{2,1,3}, v1MarkupContext.getMarkupBinary());
+      assertNull(v1MarkupContext.getMarkupString());
+      
+      //test without the mimetype
+      markupContext.setMimeType(null);
+      try
+      {
+         V2ToV1Converter.toV1MarkupContext(markupContext);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
+      }
+      
+      //test with useCachedMarkup
+      markupContext = new MarkupContext();
+      markupContext.setUseCachedItem(Boolean.TRUE);
+      v1MarkupContext = V2ToV1Converter.toV1MarkupContext(markupContext);
+      assertNull(v1MarkupContext.getMarkupString());
+      assertNull(v1MarkupContext.getMarkupBinary());
+      assertTrue(v1MarkupContext.isUseCachedMarkup().booleanValue());
+      
+      markupContext = new MarkupContext();
+      markupContext.setUseCachedItem(Boolean.FALSE);
+      try
+      {
+         V2ToV1Converter.toV1MarkupContext(markupContext);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         //expected
+      }
+      
    }
 
 }

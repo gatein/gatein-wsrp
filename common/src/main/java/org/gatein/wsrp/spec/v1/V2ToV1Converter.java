@@ -515,23 +515,12 @@ public class V2ToV1Converter
    public static V1MarkupContext toV1MarkupContext(MarkupContext markupContext)
    {
       if (markupContext != null)
-      {
-         byte[] binary = markupContext.getItemBinary();
-         String string = markupContext.getItemString();
-         V1MarkupContext v1MarkupContext;
-         if (string != null)
-         {
-            v1MarkupContext = WSRP1TypeFactory.createMarkupContext(markupContext.getMimeType(), string);
-         }
-         else
-         {
-            v1MarkupContext = WSRP1TypeFactory.createMarkupContext(markupContext.getMimeType(), binary);
-         }
+      {         
+         V1MarkupContext v1MarkupContext = WSRP1TypeFactory.createMarkupContext(markupContext.getMimeType(), markupContext.getItemString(), markupContext.getItemBinary(), markupContext.isUseCachedItem());
          v1MarkupContext.setCacheControl(toV1CacheControl(markupContext.getCacheControl()));
          v1MarkupContext.setLocale(markupContext.getLocale());
          v1MarkupContext.setPreferredTitle(markupContext.getPreferredTitle());
          v1MarkupContext.setRequiresUrlRewriting(markupContext.isRequiresRewriting());
-         v1MarkupContext.setUseCachedMarkup(markupContext.isUseCachedItem());
 
          List<Extension> extensions = markupContext.getExtensions();
          if (extensions != null)

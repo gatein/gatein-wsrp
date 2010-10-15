@@ -76,19 +76,19 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       if (markup != null && binary != null)
       {
          return new ErrorResponse(new IllegalArgumentException("Markup response cannot contain both string and binary " +
-            "markup. Per Section 6.1.10 of the WSRP specification, this is a Producer error."));
+            "markup. Per Section 6.1.10 of the WSRP 1.0 specification, this is a Producer error."));
       }
 
       if (markup == null && binary == null)
       {
-         if (mimeResponse.isUseCachedItem())
+         if (mimeResponse.isUseCachedItem() != null && mimeResponse.isUseCachedItem())
          {
             //todo: deal with cache GTNWSRP-40
          }
          else
          {
             return new ErrorResponse(new IllegalArgumentException("Markup response must contain at least string or binary" +
-               " markup. Per Section 6.1.10 of the WSRP specification, this is a Producer error."));
+               " markup. Per Section 6.1.10 of the WSRP 1.0 specification, this is a Producer error."));
          }
       }
 

@@ -177,7 +177,7 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
          navigationalContext != null ? navigationalContext.getOpaqueValue() : null,
          gm);
 
-      markupContext.value = WSRPTypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString);
+      markupContext.value = WSRPTypeFactory.createMarkupContext(MediaType.TEXT_HTML.getValue(), markupString, null, null);
       markupContext.value.setRequiresRewriting(Boolean.TRUE);
 
       MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContext.value);
