@@ -431,7 +431,23 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    protected Collection<WSRPConsumer> getConsumers()
    {
-      return consumers.values();
+      Collection<WSRPConsumer> consumerz = consumers.values();
+      for (WSRPConsumer consumer : consumerz)
+      {
+         if (consumer.getProducerInfo().isActive() && !consumer.isActive())
+         {
+            try
+            {
+               consumer.refresh(false);
+            }
+            catch (Exception e)
+            {
+               log.info("Couldn't activate consumer " + consumer.getProducerId());
+               consumer.getProducerInfo().setActiveAndSave(false);
+            }
+         }
+      }
+      return consumerz;
    }
 
    protected Map<String, String> getKeyMappings()
