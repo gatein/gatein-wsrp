@@ -353,10 +353,13 @@ public class WSRPPortletURLTestCase extends TestCase
    {
       String message = "Should have detected missing parameter: ";
 
+      /*
+      // We now allow requiresRewrite to be missing and assume false instead... See GTNWSRP-103.
       String invalid = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%2F/wsrp_rewrite";
       checkInvalidURL(invalid, message, WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE);
+      */
 
-      invalid = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-requiresRewrite=true/wsrp_rewrite";
+      String invalid = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-requiresRewrite=true/wsrp_rewrite";
       checkInvalidURL(invalid, message, WSRPRewritingConstants.RESOURCE_URL);
 
       invalid = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=invalidURL&amp;wsrp-requiresRewrite=true/wsrp_rewrite";
