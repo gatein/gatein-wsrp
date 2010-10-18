@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -39,6 +39,8 @@ public interface ProducerConfigurationService
     * @since 2.6.3
     */
    void reloadConfiguration() throws Exception;
+
+   void reloadConfiguration(boolean triggerListeners) throws Exception;
 
    /**
     * Saves the producer configuration to persistent storage.

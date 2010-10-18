@@ -48,6 +48,11 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
    public void reloadConfiguration() throws Exception
    {
+      reloadConfiguration(false);
+   }
+
+   public void reloadConfiguration(boolean triggerListeners) throws Exception
+   {
       // save listeners if we already have a configuration
       List<ProducerConfigurationChangeListener> listeners = null;
       Set<RegistrationPolicyChangeListener> policyListeners = null;
@@ -67,13 +72,16 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       // reload
       loadConfiguration();
 
-      // restore listeners and trigger them
+      // restore listeners and trigger them if requested
       if (listeners != null)
       {
          for (ProducerConfigurationChangeListener listener : listeners)
          {
             configuration.addChangeListener(listener);
-            listener.usingStrictModeChangedTo(configuration.isUsingStrictMode());
+            if (triggerListeners)
+            {
+               listener.usingStrictModeChangedTo(configuration.isUsingStrictMode());
+            }
          }
       }
       registrationRequirements = configuration.getRegistrationRequirements();
@@ -84,7 +92,10 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
             for (RegistrationPropertyChangeListener listener : propertyListeners)
             {
                registrationRequirements.addRegistrationPropertyChangeListener(listener);
-               listener.propertiesHaveChanged(registrationRequirements.getRegistrationProperties());
+               if (triggerListeners)
+               {
+                  listener.propertiesHaveChanged(registrationRequirements.getRegistrationProperties());
+               }
             }
          }
          if (policyListeners != null)
@@ -92,7 +103,10 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
             for (RegistrationPolicyChangeListener listener : policyListeners)
             {
                registrationRequirements.addRegistrationPolicyChangeListener(listener);
-               listener.policyUpdatedTo(registrationRequirements.getPolicy());
+               if (triggerListeners)
+               {
+                  listener.policyUpdatedTo(registrationRequirements.getPolicy());
+               }
             }
          }
       }

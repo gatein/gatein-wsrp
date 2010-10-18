@@ -28,15 +28,15 @@ import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +53,7 @@ public class ProducerBean extends ManagedBean
    private static final String PROPERTY = "property";
    private static final String PRODUCER = "producer";
    private String selectedProp;
+   private RegistrationConfiguration registrationConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
    {
@@ -72,11 +73,6 @@ public class ProducerBean extends ManagedBean
    public boolean isRegistrationRequiredForFullDescription()
    {
       return getRegRequirements().isRegistrationRequiredForFullDescription();
-   }
-
-   private ProducerRegistrationRequirements getRegRequirements()
-   {
-      return getConfiguration().getRegistrationRequirements();
    }
 
    public void setRegistrationRequiredForFullDescription(boolean requireRegForFullDescription)
@@ -143,18 +139,7 @@ public class ProducerBean extends ManagedBean
 
    public List<RegistrationPropertyDescription> getRegistrationProperties()
    {
-      Map descriptions = getRegRequirements().getRegistrationProperties();
-      Comparator<RegistrationPropertyDescription> descComparator = new Comparator<RegistrationPropertyDescription>()
-      {
-         public int compare(RegistrationPropertyDescription o1, RegistrationPropertyDescription o2)
-         {
-            return o1.getName().toString().compareTo(o2.getName().toString());
-         }
-      };
-
-      List<RegistrationPropertyDescription> result = new ArrayList<RegistrationPropertyDescription>(descriptions.values());
-      Collections.sort(result, descComparator);
-      return result;
+      return getRegRequirements().getRegistrationProperties();
    }
 
    public List<SelectItem> getSupportedPropertyTypes()
@@ -171,10 +156,20 @@ public class ProducerBean extends ManagedBean
    {
       try
       {
+         // replicate local state to producer state
+         ProducerRegistrationRequirements registrationRequirements = getConfiguration().getRegistrationRequirements();
+         RegistrationConfiguration configuration = getRegRequirements();
+
+         registrationRequirements.setRegistrationRequiredForFullDescription(configuration.isRegistrationRequiredForFullDescription());
+         registrationRequirements.setRegistrationRequired(configuration.isRegistrationRequired());
+
          if (!ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
-            getRegRequirements().reloadPolicyFrom(policyClassName, validatorClassName);
+            registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
          }
+
+         registrationRequirements.setRegistrationProperties(configuration.getRegistrationRequirements().getRegistrationProperties());
+
          getConfigurationService().saveConfiguration();
          beanContext.createInfoMessage("bean_producer_save_success");
       }
@@ -191,6 +186,10 @@ public class ProducerBean extends ManagedBean
       try
       {
          getConfigurationService().reloadConfiguration();
+
+         // force a reload local state
+         registrationConfiguration = null;
+
          beanContext.createInfoMessage("bean_producer_cancel_success");
       }
       catch (Exception e)
@@ -234,5 +233,87 @@ public class ProducerBean extends ManagedBean
    public boolean isAlreadyExisting(String objectName)
    {
       return false; // default implementation as not used
+   }
+
+   private RegistrationConfiguration getRegRequirements()
+   {
+      if (registrationConfiguration == null)
+      {
+         registrationConfiguration = new RegistrationConfiguration();
+         registrationConfiguration.initFrom(getConfiguration().getRegistrationRequirements());
+      }
+
+      return registrationConfiguration;
+   }
+
+   private static class RegistrationConfiguration
+   {
+      private List<RegistrationPropertyDescription> registrationProperties;
+      private ProducerRegistrationRequirements registrationRequirements;
+
+      public void initFrom(ProducerRegistrationRequirements registrationRequirements)
+      {
+         this.registrationRequirements = new ProducerRegistrationRequirementsImpl(registrationRequirements);
+
+         Map descriptions = registrationRequirements.getRegistrationProperties();
+         registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
+         Collections.sort(registrationProperties);
+      }
+
+      public boolean isRegistrationRequiredForFullDescription()
+      {
+         return registrationRequirements.isRegistrationRequiredForFullDescription();
+      }
+
+      public void setRegistrationRequiredForFullDescription(boolean requireRegForFullDescription)
+      {
+         registrationRequirements.setRegistrationRequiredForFullDescription(requireRegForFullDescription);
+      }
+
+      public boolean isRegistrationRequired()
+      {
+         return registrationRequirements.isRegistrationRequired();
+      }
+
+      public void setRegistrationRequired(boolean requireRegistration)
+      {
+         registrationRequirements.setRegistrationRequired(requireRegistration);
+      }
+
+      public RegistrationPolicy getPolicy()
+      {
+         return registrationRequirements.getPolicy();
+      }
+
+      public List<RegistrationPropertyDescription> getRegistrationProperties()
+      {
+         return registrationProperties;
+      }
+
+      public void addEmptyRegistrationProperty(String propertyName)
+      {
+         RegistrationPropertyDescription prop = registrationRequirements.addEmptyRegistrationProperty(propertyName);
+
+         // Search for the non-existent item
+         int index = Collections.binarySearch(registrationProperties, prop);
+
+         // Add the non-existent item to the list
+         if (index < 0)
+         {
+            registrationProperties.add(-index - 1, prop);
+         }
+      }
+
+      public void removeRegistrationProperty(String propertyName)
+      {
+         RegistrationPropertyDescription prop = registrationRequirements.removeRegistrationProperty(propertyName);
+
+         registrationProperties.remove(prop);
+      }
+
+      public ProducerRegistrationRequirements getRegistrationRequirements()
+      {
+         return registrationRequirements;
+      }
    }
 }

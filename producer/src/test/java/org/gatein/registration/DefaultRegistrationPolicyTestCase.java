@@ -174,5 +174,10 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
       {
          return TYPE;
       }
+
+      public int compareTo(PropertyDescription o)
+      {
+         return name.toString().compareTo(o.getName().toString());
+      }
    }
 }

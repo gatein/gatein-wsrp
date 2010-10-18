@@ -24,10 +24,8 @@
 package org.gatein.wsrp.producer.config.impl.xml;
 
 import org.gatein.common.net.URLTools;
-//import org.jboss.xb.binding.Marshaller;
 import org.jboss.xb.binding.ObjectModelProvider;
 import org.jboss.xb.binding.XercesXsMarshaller;
-import org.jboss.xb.binding.sunday.marshalling.MarshallerImpl;
 import org.jboss.xb.binding.sunday.unmarshalling.DefaultSchemaResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

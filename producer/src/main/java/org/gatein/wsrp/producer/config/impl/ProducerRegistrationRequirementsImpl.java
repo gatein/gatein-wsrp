@@ -78,6 +78,21 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       registrationProperties = new HashMap<QName, RegistrationPropertyDescription>(7);
    }
 
+   public ProducerRegistrationRequirementsImpl(ProducerRegistrationRequirements other)
+   {
+      this(false, other.isRegistrationRequired(), other.isRegistrationRequiredForFullDescription());
+      setPolicy(other.getPolicy());
+
+      Set<Map.Entry<QName, RegistrationPropertyDescription>> otherProps = other.getRegistrationProperties().entrySet();
+      registrationProperties = new HashMap<QName, RegistrationPropertyDescription>(otherProps.size());
+      for (Map.Entry<QName, RegistrationPropertyDescription> entry : otherProps)
+      {
+         registrationProperties.put(entry.getKey(), new RegistrationPropertyDescription(entry.getValue()));
+      }
+
+      modifyNow();
+   }
+
    private void modifyNow()
    {
       lastModified = System.nanoTime();
@@ -88,6 +103,25 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       return lastModified;
    }
 
+   public void setRegistrationProperties(Map<QName, RegistrationPropertyDescription> regProps)
+   {
+      if (registrationProperties.equals(regProps))
+      {
+         return;
+      }
+      else
+      {
+         registrationProperties.clear();
+
+         for (RegistrationPropertyDescription propertyDescription : regProps.values())
+         {
+            addRegistrationProperty(new RegistrationPropertyDescription(propertyDescription));
+         }
+
+         notifyRegistrationPropertyChangeListeners();
+      }
+   }
+
    public boolean isRegistrationRequired()
    {
       return requiresRegistration;
@@ -95,14 +129,14 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationRequired(boolean requiresRegistration)
    {
-      // if we switch from requiring registration to no registration, erase registration properties
-      if (this.requiresRegistration && !requiresRegistration)
-      {
-         clearRegistrationProperties();
-      }
-
       if (this.requiresRegistration != requiresRegistration)
       {
+         // if we switch from requiring registration to no registration, erase registration properties
+         if (this.requiresRegistration && !requiresRegistration)
+         {
+            clearRegistrationProperties();
+         }
+
          this.requiresRegistration = requiresRegistration;
          modifyNow();
       }
@@ -139,12 +173,14 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       notifyRegistrationPropertyChangeListeners();
    }
 
-   public void addEmptyRegistrationProperty(String name)
+   public RegistrationPropertyDescription addEmptyRegistrationProperty(String name)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "Property name");
       RegistrationPropertyDescription reg = new RegistrationPropertyDescription(name, WSRPConstants.XSD_STRING);
 
       addRegistrationProperty(reg);
+
+      return reg;
    }
 
    public boolean acceptValueFor(QName propertyName, Object value)
@@ -180,14 +216,17 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       return new RegistrationPropertyDescription(registrationProperties.get(propertyName));
    }
 
-   public void removeRegistrationProperty(QName propertyName)
+   public RegistrationPropertyDescription removeRegistrationProperty(QName propertyName)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyName, "Property name");
-      if (registrationProperties.remove(propertyName) != null)
+      RegistrationPropertyDescription prop = registrationProperties.remove(propertyName);
+      if (prop != null)
       {
          modifyNow();
          notifyRegistrationPropertyChangeListeners();
       }
+
+      return prop;
    }
 
    public void clearRegistrationProperties()
@@ -197,9 +236,9 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       notifyRegistrationPropertyChangeListeners();
    }
 
-   public void removeRegistrationProperty(String propertyName)
+   public RegistrationPropertyDescription removeRegistrationProperty(String propertyName)
    {
-      removeRegistrationProperty(QName.valueOf(propertyName));
+      return removeRegistrationProperty(QName.valueOf(propertyName));
    }
 
    /*

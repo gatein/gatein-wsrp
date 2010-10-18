@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
  * @version $Revision: 9177 $
  * @since 2.6.3
  */
-public interface PropertyDescription
+public interface PropertyDescription extends Comparable<PropertyDescription>
 {
    QName getName();
 

@@ -55,9 +55,9 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
 
    void addRegistrationProperty(RegistrationPropertyDescription propertyDescription);
 
-   void removeRegistrationProperty(String propertyName);
+   RegistrationPropertyDescription removeRegistrationProperty(String propertyName);
 
-   void removeRegistrationProperty(QName propertyName);
+   RegistrationPropertyDescription removeRegistrationProperty(QName propertyName);
 
    void clearRegistrationProperties();
 
@@ -94,7 +94,7 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
     * @param name
     * @since 2.6.3
     */
-   void addEmptyRegistrationProperty(String name);
+   RegistrationPropertyDescription addEmptyRegistrationProperty(String name);
 
    /**
     * @param listener
@@ -116,4 +116,6 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
    Set<RegistrationPolicyChangeListener> getPolicyChangeListeners();
 
    long getLastModified();
+
+   void setRegistrationProperties(Map<QName, RegistrationPropertyDescription> registrationProperties);
 }

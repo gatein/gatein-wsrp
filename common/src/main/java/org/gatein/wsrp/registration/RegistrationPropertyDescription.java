@@ -147,6 +147,10 @@ public class RegistrationPropertyDescription implements PropertyDescription
          ", label=" + label;
    }
 
+   public int compareTo(PropertyDescription o)
+   {
+      return getName().toString().compareTo(o.getName().toString());
+   }
 
    public String getPersistentKey()
    {
