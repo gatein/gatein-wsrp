@@ -50,7 +50,8 @@ public class RegistrationInfoTestCase extends TestCase
 
    protected void setUp() throws Exception
    {
-      info = new RegistrationInfo();
+      ProducerInfo pi = new ProducerInfo();
+      info = pi.getRegistrationInfo();
    }
 
    public void testInitialState()

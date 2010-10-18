@@ -24,6 +24,7 @@
 package org.gatein.wsrp.consumer;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.common.util.Version;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
@@ -419,7 +420,9 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          // if we were previously undetermined, become determined! :)
          if (isUndetermined())
          {
-            setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME);
+            Version version = parent.getEndpointConfigurationInfo().getWSRPVersion();
+            String versionInfo = version != null ? " WSRP v" + version.getMajor() + " version" : " unknown WSRP version";
+            setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
          }
 
          // get a service description if we don't already have one
