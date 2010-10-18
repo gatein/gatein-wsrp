@@ -263,7 +263,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
 
    protected PortletInvocationResponse processResponse(BlockingInteractionResponse response, ActionInvocation invocation, RequestPrecursor<ActionInvocation> requestPrecursor) throws PortletInvokerException
    {
-      BlockingInteractionResponse blockingInteractionResponse = (BlockingInteractionResponse)response;
+      BlockingInteractionResponse blockingInteractionResponse = response;
 
       String redirectURL = blockingInteractionResponse.getRedirectURL();
       UpdateResponse updateResponse = blockingInteractionResponse.getUpdateResponse();

@@ -126,8 +126,6 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
          String handle = portletContext.getPortletHandle();
          if (!originalContext.getPortletHandle().equals(handle))
          {
-            // todo: GTNWSRP-36 If the Producer returns a new portletHandle without returning a new sessionID, the Consumer MUST
-            // associate the current sessionID with the new portletHandle rather than the previous portletHandle.
             if (debug)
             {
                log.debug("Portlet '" + requestPrecursor.getPortletHandle() + "' was implicitely cloned. New handle is '"
