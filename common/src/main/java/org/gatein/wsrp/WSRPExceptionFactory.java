@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.slf4j.Logger;
@@ -76,6 +77,7 @@ public abstract class WSRPExceptionFactory
 
    protected abstract static class ExceptionFactory<E extends Exception>
    {
+      private static final String CAUSE = " Cause: ";
       private final Constructor<E> exceptionConstructor;
       protected Object fault;
       private static final String FAULT = "Fault";
@@ -94,6 +96,14 @@ public abstract class WSRPExceptionFactory
       {
          try
          {
+            if (cause != null)
+            {
+               String causeMsg = cause.getLocalizedMessage();
+               if (!ParameterValidation.isNullOrEmpty(causeMsg) && !message.contains(CAUSE))
+               {
+                  message += CAUSE + causeMsg;
+               }
+            }
             return exceptionConstructor.newInstance(message, fault, cause);
          }
          catch (Exception e)

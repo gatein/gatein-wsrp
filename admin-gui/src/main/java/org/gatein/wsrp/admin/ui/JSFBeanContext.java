@@ -62,7 +62,7 @@ public class JSFBeanContext extends BeanContext
 
    protected void createMessage(String target, String message, Object severity, Object... additionalParams)
    {
-      outputMessage(target, message, severity);
+      outputMessage(target, message, severity, additionalParams);
    }
 
    public static void outputMessage(String target, String message, Object severity, Object... additionalParams)
