@@ -83,7 +83,6 @@
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
-   height: 19px;
 }
 
 .portlet-msg-warn {
@@ -92,7 +91,6 @@
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
-   height: 19px;
 }
 
 .portlet-msg-error {
@@ -101,7 +99,6 @@
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
-   height: 19px;
 }
 
 /***************************** ActionButton Style ************************/
