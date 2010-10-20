@@ -65,8 +65,11 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
    protected String processFragmentString(String renderString)
    {
 //      String result = renderString.replaceAll(namespace, WSRPRewritingConstants.WSRP_REWRITE);
-
-      return URLTools.replaceURLsBy(renderString, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
+      if (renderString != null && !renderString.isEmpty())
+      {
+         return URLTools.replaceURLsBy(renderString, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
+      }
+      return renderString;
    }
 
    public Response processResponse(PortletInvocationResponse response)
