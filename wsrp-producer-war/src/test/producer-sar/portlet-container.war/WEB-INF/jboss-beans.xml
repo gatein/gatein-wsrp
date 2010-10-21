@@ -1,32 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ JBoss, a division of Red Hat                                              ~
-  ~ Copyright 2006, Red Hat Middleware, LLC, and individual                   ~
-  ~ contributors as indicated by the @authors tag. See the                    ~
-  ~ copyright.txt in the distribution for a full listing of                   ~
-  ~ individual contributors.                                                  ~
-  ~                                                                           ~
-  ~ This is free software; you can redistribute it and/or modify it           ~
-  ~ under the terms of the GNU Lesser General Public License as               ~
-  ~ published by the Free Software Foundation; either version 2.1 of          ~
-  ~ the License, or (at your option) any later version.                       ~
-  ~                                                                           ~
-  ~ This software is distributed in the hope that it will be useful,          ~
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of            ~
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          ~
-  ~ Lesser General Public License for more details.                           ~
-  ~                                                                           ~
-  ~ You should have received a copy of the GNU Lesser General Public          ~
-  ~ License along with this software; if not, write to the Free               ~
-  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
-  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
    <bean name="PortletApplicationDeployer" class="org.gatein.pc.mc.PortletApplicationDeployer">
       <alias>PortletApplicationRegistry</alias>
-      <property name="servletContainerFactory"><inject bean="ServletContainerFactory"/></property>
-      <property name="containerPortletInvoker"><inject bean="ContainerPortletInvoker"/></property>
+      <property name="servletContainerFactory">
+         <inject bean="ServletContainerFactory"/>
+      </property>
+      <property name="containerPortletInvoker">
+         <inject bean="ContainerPortletInvoker"/>
+      </property>
    </bean>
 
    <!-- The ServletContainerFactory -->
@@ -42,11 +46,14 @@
    </bean>
 
    <!-- The producer persistence manager -->
-   <bean name="ProducerPersistenceManager" class="org.gatein.pc.portlet.impl.state.producer.PortletStatePersistenceManagerService"/>
+   <bean name="ProducerPersistenceManager"
+         class="org.gatein.pc.portlet.impl.state.producer.PortletStatePersistenceManagerService"/>
 
    <!-- The producer state management policy -->
    <bean name="ProducerStateManagementPolicy" class="org.gatein.pc.portlet.impl.state.StateManagementPolicyService">
-      <property name="persistLocally"><value>true</value></property>
+      <property name="persistLocally">
+         <value>true</value>
+      </property>
    </bean>
 
    <!-- The producer state converter -->
@@ -54,51 +61,86 @@
 
    <!-- The consumer portlet invoker -->
    <bean name="ConsumerPortletInvoker" class="org.gatein.pc.portlet.PortletInvokerInterceptor">
-      <property name="next"><inject bean="ConsumerCacheInterceptor"/></property>
+      <property name="next">
+         <inject bean="ConsumerCacheInterceptor"/>
+      </property>
    </bean>
    <bean name="ConsumerCacheInterceptor" class="org.gatein.pc.portlet.aspects.ConsumerCacheInterceptor">
-      <property name="next"><inject bean="PortletCustomizationInterceptor"/></property>
+      <property name="next">
+         <inject bean="PortletCustomizationInterceptor"/>
+      </property>
    </bean>
    <bean name="PortletCustomizationInterceptor" class="org.gatein.pc.portlet.aspects.PortletCustomizationInterceptor">
-      <property name="next"><inject bean="ProducerPortletInvoker"/></property>
+      <property name="next">
+         <inject bean="ProducerPortletInvoker"/>
+      </property>
    </bean>
 
    <!-- The producer portlet invoker -->
    <bean name="ProducerPortletInvoker" class="org.gatein.pc.portlet.state.producer.ProducerPortletInvoker">
-      <property name="next"><inject bean="ContainerPortletInvoker"/></property>
-      <property name="persistenceManager"><inject bean="ProducerPersistenceManager"/></property>
-      <property name="stateManagementPolicy"><inject bean="ProducerStateManagementPolicy"/></property>
-      <property name="stateConverter"><inject bean="ProducerStateConverter"/></property>
+      <property name="next">
+         <inject bean="ContainerPortletInvoker"/>
+      </property>
+      <property name="persistenceManager">
+         <inject bean="ProducerPersistenceManager"/>
+      </property>
+      <property name="stateManagementPolicy">
+         <inject bean="ProducerStateManagementPolicy"/>
+      </property>
+      <property name="stateConverter">
+         <inject bean="ProducerStateConverter"/>
+      </property>
    </bean>
 
    <!-- The portlet container invoker -->
    <bean name="ContainerPortletInvoker" class="org.gatein.pc.portlet.container.ContainerPortletInvoker">
-      <property name="next"><inject bean="ValveInterceptor"/></property>
+      <property name="next">
+         <inject bean="ValveInterceptor"/>
+      </property>
    </bean>
 
    <!-- Container stack -->
    <bean name="ValveInterceptor" class="org.gatein.pc.portlet.aspects.ValveInterceptor">
-      <property name="portletApplicationRegistry"><inject bean="PortletApplicationRegistry" state="Instantiated"/></property>
-      <property name="next"><inject bean="SecureTransportInterceptor"/></property>
+      <property name="portletApplicationRegistry">
+         <inject bean="PortletApplicationRegistry" state="Instantiated"/>
+      </property>
+      <property name="next">
+         <inject bean="SecureTransportInterceptor"/>
+      </property>
    </bean>
    <bean name="SecureTransportInterceptor" class="org.gatein.pc.portlet.aspects.SecureTransportInterceptor">
-      <property name="next"><inject bean="ContextDispatcherInterceptor"/></property>
+      <property name="next">
+         <inject bean="ContextDispatcherInterceptor"/>
+      </property>
    </bean>
    <bean name="ContextDispatcherInterceptor" class="org.gatein.pc.portlet.aspects.ContextDispatcherInterceptor">
-      <property name="servletContainerFactory"><inject bean="ServletContainerFactory"/></property>
-      <property name="next"><inject bean="ProducerCacheInterceptor"/></property>
+      <property name="servletContainerFactory">
+         <inject bean="ServletContainerFactory"/>
+      </property>
+      <property name="next">
+         <inject bean="ProducerCacheInterceptor"/>
+      </property>
    </bean>
    <bean name="ProducerCacheInterceptor" class="org.gatein.pc.portlet.aspects.ProducerCacheInterceptor">
-      <property name="next"><inject bean="CCPPInterceptor"/></property>
+      <property name="next">
+         <inject bean="CCPPInterceptor"/>
+      </property>
    </bean>
    <bean name="CCPPInterceptor" class="org.gatein.pc.portlet.aspects.CCPPInterceptor">
-      <property name="next"><inject bean="RequestAttributeConversationInterceptor"/></property>
+      <property name="next">
+         <inject bean="RequestAttributeConversationInterceptor"/>
+      </property>
    </bean>
-   <bean name="RequestAttributeConversationInterceptor" class="org.gatein.pc.portlet.aspects.RequestAttributeConversationInterceptor">
-      <property name="next"><inject bean="EventPayloadInterceptor"/></property>
+   <bean name="RequestAttributeConversationInterceptor"
+         class="org.gatein.pc.portlet.aspects.RequestAttributeConversationInterceptor">
+      <property name="next">
+         <inject bean="EventPayloadInterceptor"/>
+      </property>
    </bean>
-   <bean name="EventPayloadInterceptor" class="org.gatein.pc.portlet.aspects.EventPayloadInterceptor">
-      <property name="next"><inject bean="PortletContainerDispatcher"/></property>
+   <bean name="EventPayloadInterceptor" class="org.gatein.wsrp.payload.WSRPEventPayloadInterceptor">
+      <property name="next">
+         <inject bean="PortletContainerDispatcher"/>
+      </property>
    </bean>
    <bean name="PortletContainerDispatcher" class="org.gatein.pc.portlet.container.ContainerPortletDispatcher">
    </bean>

@@ -30,6 +30,7 @@ import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.payload.PayloadUtils;
+import org.gatein.wsrp.payload.SerializableSimplePayload;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -68,6 +69,7 @@ import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
 
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Locale;
@@ -843,7 +845,10 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          Event event = events.get(0);
          assertEquals(new QName("urn:jboss:gatein:samples:event", "eventsample"), event.getName());
          assertEquals(WSRPConstants.XSD_STRING, event.getType());
-         assertEquals("param-value", PayloadUtils.getPayloadAsSerializable(event, null));
+
+         Serializable serializable = PayloadUtils.getPayloadAsSerializable(event);
+         assertTrue(serializable instanceof SerializableSimplePayload);
+         assertEquals("param-value", ((SerializableSimplePayload)serializable).getPayload());
 
          // send event
          HandleEvents handleEvents = WSRPTypeFactory.createHandleEvents(null,

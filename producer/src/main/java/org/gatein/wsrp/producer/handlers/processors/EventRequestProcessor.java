@@ -149,7 +149,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
       Event event = events.get(0);
 
       eventInvocation.setName(event.getName());
-      eventInvocation.setPayload(PayloadUtils.getPayloadAsSerializable(event, null));
+      eventInvocation.setPayload(PayloadUtils.getPayloadAsSerializable(event));
 
       return eventInvocation;
    }

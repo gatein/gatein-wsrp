@@ -26,7 +26,6 @@ package org.gatein.wsrp.consumer.handlers;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.OpaqueStateString;
 import org.gatein.pc.api.StateEvent;
-import org.gatein.pc.api.info.EventInfo;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.spi.InstanceContext;
@@ -97,12 +96,11 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       {
          for (Event event : events)
          {
-            EventInfo eventInfo = consumer.getProducerInfo().getInfoForEvent(event.getName());
             Serializable payloadAsSerializable = null;
             boolean failedPayload = false;
             try
             {
-               payloadAsSerializable = PayloadUtils.getPayloadAsSerializable(event, eventInfo);
+               payloadAsSerializable = PayloadUtils.getPayloadAsSerializable(event);
             }
             catch (Exception e)
             {
