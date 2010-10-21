@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
@@ -39,7 +40,6 @@ import org.oasis.wsrp.v2.MimeResponse;
  */
 abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Response>
 {
-//   private String namespace;
    private static final String EMPTY = "";
 
    protected MimeResponseProcessor(ProducerHelper producer)
@@ -50,8 +50,6 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
    @Override
    PortletInvocation initInvocation(WSRPPortletInvocationContext context)
    {
-//      namespace = getRuntimeContext().getNamespacePrefix();
-
       return internalInitInvocation(context);
    }
 
@@ -64,8 +62,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
     */
    protected String processFragmentString(String renderString)
    {
-//      String result = renderString.replaceAll(namespace, WSRPRewritingConstants.WSRP_REWRITE);
-      if (renderString != null && !renderString.isEmpty())
+      if (ParameterValidation.isNullOrEmpty(renderString))
       {
          return URLTools.replaceURLsBy(renderString, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
       }
