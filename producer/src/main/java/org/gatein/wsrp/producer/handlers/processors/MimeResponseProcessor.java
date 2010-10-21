@@ -62,7 +62,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
     */
    protected String processFragmentString(String renderString)
    {
-      if (ParameterValidation.isNullOrEmpty(renderString))
+      if (!ParameterValidation.isNullOrEmpty(renderString))
       {
          return URLTools.replaceURLsBy(renderString, new WSRPUtils.AbsoluteURLReplacementGenerator(ServletAccess.getRequest()));
       }
