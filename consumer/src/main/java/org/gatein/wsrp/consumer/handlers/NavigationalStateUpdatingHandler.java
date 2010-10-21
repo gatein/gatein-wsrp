@@ -99,16 +99,18 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
          {
             EventInfo eventInfo = consumer.getProducerInfo().getInfoForEvent(event.getName());
             Serializable payloadAsSerializable = null;
+            boolean failedPayload = false;
             try
             {
                payloadAsSerializable = PayloadUtils.getPayloadAsSerializable(event, eventInfo);
             }
             catch (Exception e)
             {
+               failedPayload = true;
                log.info("Couldn't handle payload for event " + event.getName() + ". Will ignore it.", e);
             }
 
-            if (payloadAsSerializable != null)
+            if (!failedPayload)
             {
                result.queueEvent(new UpdateNavigationalStateResponse.Event(event.getName(), payloadAsSerializable));
             }
