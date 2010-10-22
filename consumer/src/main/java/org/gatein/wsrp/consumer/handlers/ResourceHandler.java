@@ -126,6 +126,15 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
       resourceParams.setClientData(params.getClientData());
       resourceParams.setResourceCacheability(WSRPUtils.getResourceCacheabilityFromCacheLevel(invocation.getCacheLevel()));
 
+      for (Map.Entry<String, String[]> entry : invocation.getForm().entrySet())
+      {
+         String name = entry.getKey();
+         for (String value : entry.getValue())
+         {
+            resourceParams.getFormParameters().add(WSRPTypeFactory.createNamedString(name, value));
+         }
+      }
+
       StateString resourceState = invocation.getResourceState();
       if (resourceState != null)
       {
