@@ -56,7 +56,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -69,13 +68,13 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private String wsdlDefinitionURL;
 
    private boolean isV2 = false;
+   private Service wsService;
 
    private static final String WSRP_V1_URN = "urn:oasis:names:tc:wsrp:v1:wsdl";
    private static final String WSRP_V1_BINDING = "urn:oasis:names:tc:wsrp:v1:bind";
    private static final String WSRP_V2_URN = "urn:oasis:names:tc:wsrp:v2:wsdl";
    private static final String WSRP_V2_BINDING = "urn:oasis:names:tc:wsrp:v2:bind";
 
-   private Map<Class, Object> services = new ConcurrentHashMap<Class, Object>();
    private String markupURL;
    private String serviceDescriptionURL;
    private String portletManagementURL;
@@ -99,7 +98,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          start();
       }
 
-      Object service = services.get(clazz);
+      Object service = wsService.getPort(clazz);
 
       //
       String portAddress = null;
@@ -233,25 +232,20 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          // try to get v2 of service if possible, first
          QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
          QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
-         Service service;
          if (wsrp2 != null)
          {
-            service = Service.create(wsdlURL, wsrp2);
+            wsService = Service.create(wsdlURL, wsrp2);
 
-            WSRPV2MarkupPortType markupPortType = service.getPort(WSRPV2MarkupPortType.class);
-            services.put(WSRPV2MarkupPortType.class, markupPortType);
+            WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
             markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV2ServiceDescriptionPortType sdPort = service.getPort(WSRPV2ServiceDescriptionPortType.class);
-            services.put(WSRPV2ServiceDescriptionPortType.class, sdPort);
+            WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
             serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV2PortletManagementPortType managementPortType = service.getPort(WSRPV2PortletManagementPortType.class);
-            services.put(WSRPV2PortletManagementPortType.class, managementPortType);
+            WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
             portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV2RegistrationPortType registrationPortType = service.getPort(WSRPV2RegistrationPortType.class);
-            services.put(WSRPV2RegistrationPortType.class, registrationPortType);
+            WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
             registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
             setFailed(false);
@@ -260,22 +254,18 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          }
          else if (wsrp1 != null)
          {
-            service = Service.create(wsdlURL, wsrp1);
+            wsService = Service.create(wsdlURL, wsrp1);
 
-            WSRPV1MarkupPortType markupPortType = service.getPort(WSRPV1MarkupPortType.class);
-            services.put(WSRPV1MarkupPortType.class, markupPortType);
+            WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
             markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV1ServiceDescriptionPortType sdPort = service.getPort(WSRPV1ServiceDescriptionPortType.class);
-            services.put(WSRPV1ServiceDescriptionPortType.class, sdPort);
+            WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
             serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV1PortletManagementPortType managementPortType = service.getPort(WSRPV1PortletManagementPortType.class);
-            services.put(WSRPV1PortletManagementPortType.class, managementPortType);
+            WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
             portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV1RegistrationPortType registrationPortType = service.getPort(WSRPV1RegistrationPortType.class);
-            services.put(WSRPV1RegistrationPortType.class, registrationPortType);
+            WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
             registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
             setFailed(false);
