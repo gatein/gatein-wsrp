@@ -25,6 +25,7 @@ package org.gatein.wsrp.services;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Version;
+import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
 import org.gatein.wsrp.services.v1.V1RegistrationService;
@@ -50,11 +51,15 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.Handler;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,7 +68,18 @@ import java.util.Map;
  */
 public class SOAPServiceFactory implements ManageableServiceFactory
 {
-   private final Logger log = LoggerFactory.getLogger(getClass());
+   /**
+    * HTTP request timeout property. JAX-WS doesn't standardize that value, so needs to be adapted per used
+    * implementation
+    */
+   static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
+   static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
+   static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
+
+   static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
+   static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
+
+   private static final Logger log = LoggerFactory.getLogger(SOAPServiceFactory.class);
 
    private String wsdlDefinitionURL;
 
@@ -82,6 +98,53 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean failed;
    private boolean available;
    private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
+
+   private void setTimeout(Map<String, Object> requestContext)
+   {
+      int timeout = getWSOperationTimeOut();
+      requestContext.put(JBOSS_WS_TIMEOUT, timeout);
+      requestContext.put(SUN_WS_TIMEOUT, timeout);
+      requestContext.put(IBM_WS_TIMEOUT, timeout);
+   }
+
+   private <T> T customizePort(Class<T> expectedServiceInterface, Object service, String portAddress)
+   {
+      BindingProvider bindingProvider = (BindingProvider)service;
+      Map<String, Object> requestContext = bindingProvider.getRequestContext();
+
+      // set timeout
+      setTimeout(requestContext);
+
+      // set port address
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
+
+      // Set org.jboss.ws.core.StubExt.PROPERTY_CHUNKED_ENCODING_SIZE to 0 to deactive chunked encoding for
+      // better interoperability as Oracle's producer doesn't support it, for example.
+      // See https://jira.jboss.org/jira/browse/JBWS-2884 and
+      // http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Chunked_encoding_setup
+      requestContext.put(JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE, "0");
+
+      // Add client side handler via JAX-WS API
+      Binding binding = bindingProvider.getBinding();
+      List<Handler> handlerChain = binding.getHandlerChain();
+      if (handlerChain != null)
+      {
+         // if we already have a handler chain, just add the request hearder handler if it's not already in there
+         if (!handlerChain.contains(REQUEST_HEADER_CLIENT_HANDLER))
+         {
+            handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
+         }
+      }
+      else
+      {
+         // otherwise, create a handler chain and add our handler to it
+         handlerChain = new ArrayList<Handler>(1);
+         handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
+      }
+      binding.setHandlerChain(handlerChain);
+
+      return expectedServiceInterface.cast(service);
+   }
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
@@ -137,7 +200,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
                log.debug("Setting the end point to: " + portAddress);
             }
 
-            T result = ServiceWrapper.getServiceWrapper(clazz, service, portAddress, this);
+            T result = customizePort(clazz, service, portAddress);
 
             // if we managed to retrieve a service, we're probably available
             setFailed(false);
