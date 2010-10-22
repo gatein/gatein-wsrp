@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +30,7 @@
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
-   <version>2.0.0-CR01-SNAPSHOT</version>
+   <version>2.0.0-Beta04-SNAPSHOT</version>
 
    <packaging>pom</packaging>
 
@@ -46,7 +47,7 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.2.0-Beta06</version.gatein.pc>
+      <version.gatein.pc>2.2.0-CR01</version.gatein.pc>
       <version.gatein.common>2.0.3-GA</version.gatein.common>
       <version.gatein.wci>2.0.2-GA</version.gatein.wci>
 
@@ -159,6 +160,15 @@
             <artifactId>google-collections</artifactId>
             <version>${version.google-collections}</version>
          </dependency>
+
+         <!--
+         TODO: Need to investigate this plugin to speed up tests
+         <dependency>
+            <groupId>org.jdogma.junit</groupId>
+            <artifactId>configurable-parallel-computer</artifactId>
+            <version>1.5</version>
+            <scope>test</scope>
+         </dependency>-->
       </dependencies>
    </dependencyManagement>
 
