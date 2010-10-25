@@ -636,7 +636,7 @@ public class ConsumerBean extends ManagedBean
 
          return ConsumerManagerBean.CONSUMERS;
       }
-      catch (PortletInvokerException e)
+      catch (Exception e)
       {
          beanContext.createErrorMessageFrom(e);
          return null;
