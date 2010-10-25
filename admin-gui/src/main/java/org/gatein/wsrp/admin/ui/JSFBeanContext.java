@@ -97,10 +97,17 @@ public class JSFBeanContext extends BeanContext
       }
 
       String details = message;
+
+      // todo: this should be more generic
       if (additionalParams != null && additionalParams.length > 0)
       {
-         details = ((Exception)additionalParams[0]).getLocalizedMessage();
+         Exception exception = (Exception)additionalParams[0];
+         if (exception != null)
+         {
+            details = exception.getLocalizedMessage();
+         }
       }
+
       FacesMessage msg = new FacesMessage(jsfSeverity, message, details);
       facesContext.addMessage(target, msg);
    }
