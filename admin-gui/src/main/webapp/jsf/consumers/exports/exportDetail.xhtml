@@ -33,10 +33,12 @@
             <th>#{i18n.export_detail_export_time}</th>
             <td>#{consumer.currentExport.exportTime}</td>
          </tr>
-         <tr>
-            <th>#{i18n.export_detail_expiration_time}</th>
-            <td>#{consumer.currentExport.expirationTime}</td>
-         </tr>
+         <ui:remove>
+            <tr>
+               <th>#{i18n.export_detail_expiration_time}</th>
+               <td>#{consumer.currentExport.expirationTime}</td>
+            </tr>
+         </ui:remove>
          <tr>
             <th>#{i18n.export_detail_portlets}</th>
             <td>

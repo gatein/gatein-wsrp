@@ -36,10 +36,12 @@
                #{export.exportTime}
             </h:column>
 
-            <h:column>
-               <f:facet name="header">#{i18n.export_detail_expiration_time}</f:facet>
-               #{export.expirationTime}
-            </h:column>
+            <ui:remove>
+               <h:column>
+                  <f:facet name="header">#{i18n.export_detail_expiration_time}</f:facet>
+                  #{export.expirationTime}
+               </h:column>
+            </ui:remove>
 
             <h:column>
                <f:facet name="header">#{i18n.export_detail_has_failed}</f:facet>
