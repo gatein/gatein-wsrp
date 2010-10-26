@@ -32,10 +32,6 @@ import org.gatein.wsrp.services.RegistrationService;
 import org.gatein.wsrp.services.SOAPServiceFactory;
 import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.services.ServiceFactory;
-import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
-import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
-import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
-import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,12 +194,14 @@ public class EndpointConfigurationInfo
 
    boolean forceRefresh() throws InvokerUnavailableException
    {
-      getService(WSRPV2ServiceDescriptionPortType.class, serviceFactory);
-      getService(WSRPV2MarkupPortType.class, serviceFactory);
-      getService(WSRPV2PortletManagementPortType.class, serviceFactory);
-      getService(WSRPV2RegistrationPortType.class, serviceFactory);
-
-      return true;
+      try
+      {
+         return serviceFactory.refresh(true);
+      }
+      catch (Exception e)
+      {
+         throw new InvokerUnavailableException(e);
+      }
    }
 
    public String getRemoteHostAddress()

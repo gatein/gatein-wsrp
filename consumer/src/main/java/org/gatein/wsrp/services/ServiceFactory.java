@@ -89,4 +89,6 @@ public interface ServiceFactory
     * @return
     */
    Version getWSRPVersion();
+
+   boolean refresh(boolean force) throws Exception;
 }

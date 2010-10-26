@@ -179,6 +179,18 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       return ServiceFactory.WSRP1;
    }
 
+   public boolean refresh(boolean force) throws Exception
+   {
+      if (force || (!isAvailable() && !isFailed()))
+      {
+         start();
+
+         return true;
+      }
+
+      return false;
+   }
+
    public void create() throws Exception
    {
       throw new NotYetImplemented();

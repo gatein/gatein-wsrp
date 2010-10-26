@@ -155,11 +155,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          log.debug("Getting service for class " + clazz);
       }
 
-      // if we need a refresh, reload information from WSDL
-      if (!isAvailable() && !isFailed())
-      {
-         start();
-      }
+      refresh(false);
 
       Object service = wsService.getPort(clazz);
 
@@ -427,6 +423,19 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          return null;
       }
+   }
+
+   public boolean refresh(boolean force) throws Exception
+   {
+      // if we need a refresh, reload information from WSDL
+      if (force || (!isAvailable() && !isFailed()))
+      {
+         start();
+
+         return true;
+      }
+
+      return false;
    }
 
    protected class WSDLInfo

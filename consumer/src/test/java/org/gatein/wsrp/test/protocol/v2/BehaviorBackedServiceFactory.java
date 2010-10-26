@@ -138,6 +138,18 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       return ServiceFactory.WSRP2;
    }
 
+   public boolean refresh(boolean force) throws Exception
+   {
+      if (force || (!isAvailable() && !isFailed()))
+      {
+         start();
+
+         return true;
+      }
+
+      return false;
+   }
+
    public BehaviorRegistry getRegistry()
    {
       return registry;

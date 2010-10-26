@@ -50,6 +50,7 @@ public class ConsumerManagerBean extends ManagedBean
    private static final String REFRESH_BYPASSED = "bean_consumermanager_refresh_bypassed";
    private static final String REFRESH_SUCCESS = "bean_consumermanager_refresh_success";
    private static final String REFRESH_FAILURE = "bean_consumermanager_refresh_failure";
+   private static final String REFRESH_FAILURE_WSDL = "bean_consumermanager_refresh_failure_wsdl";
    private static final String REFRESH_EXCEPTION = "bean_consumermanager_refresh_exception";
    static final String CONFIGURE_CONSUMER = "configureConsumer";
    static final String EXPORT = "export";
@@ -329,8 +330,15 @@ public class ConsumerManagerBean extends ManagedBean
       }
       else if (RefreshResult.Status.FAILURE.equals(status))
       {
-         // todo: extract information from registration result to be more precise 
-         return REFRESH_FAILURE;
+         RefreshResult registrationResult = result.getRegistrationResult();
+         if (registrationResult != null)
+         {
+            return REFRESH_FAILURE;
+         }
+         else
+         {
+            return REFRESH_FAILURE_WSDL;
+         }
       }
       else if (RefreshResult.Status.MODIFY_REGISTRATION_REQUIRED.equals(status))
       {

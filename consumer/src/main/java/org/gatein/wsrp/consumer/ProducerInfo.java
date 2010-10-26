@@ -339,6 +339,13 @@ public class ProducerInfo
    {
       RefreshResult result = internalRefresh(forceRefresh);
 
+      // if the refresh failed, return immediately
+      if (RefreshResult.Status.FAILURE.equals(result.getStatus()))
+      {
+         setActiveAndSave(false);
+         return result;
+      }
+
       // update DB
       if (result.didRefreshHappen())
       {
@@ -347,7 +354,7 @@ public class ProducerInfo
          {
             setActive(false);
 
-            // record what the Producer's expectations are
+            // record what the Producer's expectations are if we managed to get a service description
             expectedRegistrationInfo = new RegistrationInfo(this.persistentRegistrationInfo);
             expectedRegistrationInfo.refresh(result.getServiceDescription(), getId(), true, true, true);
          }
@@ -397,7 +404,16 @@ public class ProducerInfo
             log.debug("Couldn't refresh endpoint information, attempting a second time: " + e, e);
 
             // try again as refresh on a failed service factory will fail without attempting the refresh
-            didJustRefresh = persistentEndpointInfo.forceRefresh();
+            try
+            {
+               didJustRefresh = persistentEndpointInfo.forceRefresh();
+            }
+            catch (InvokerUnavailableException e1)
+            {
+               result.setStatus(RefreshResult.Status.FAILURE);
+               return result;
+            }
+
             // todo: should we fail fast here?
             // throw new PortletInvokerException("Couldn't refresh endpoint information: " + e.getLocalizedMessage());
          }
