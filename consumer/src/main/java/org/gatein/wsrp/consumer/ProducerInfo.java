@@ -394,7 +394,7 @@ public class ProducerInfo
          }
          catch (InvokerUnavailableException e)
          {
-            log.debug("Couldn't refresh endpoint information, attempting a second time: " + e);
+            log.debug("Couldn't refresh endpoint information, attempting a second time: " + e, e);
 
             // try again as refresh on a failed service factory will fail without attempting the refresh
             didJustRefresh = persistentEndpointInfo.forceRefresh();
@@ -422,7 +422,7 @@ public class ProducerInfo
             // if we have local registration info, the OperationFailedFault might indicate a need to call modifyRegistration
             if (hasLocalRegistrationInfo())
             {
-               log.debug("OperationFailedFault occurred, might indicate a need to modify registration");
+               log.debug("OperationFailedFault occurred, might indicate a need to modify registration", operationFailedFault);
 
                // attempt to get unregistered service description
                serviceDescription = getServiceDescription(true);
@@ -454,7 +454,7 @@ public class ProducerInfo
          }
          catch (InvalidRegistration invalidRegistrationFault)
          {
-            log.debug("InvalidRegistrationFault occurred");
+            log.debug("InvalidRegistrationFault occurred", invalidRegistrationFault);
 
             // attempt to get unregistered service description
             serviceDescription = getServiceDescription(true);
