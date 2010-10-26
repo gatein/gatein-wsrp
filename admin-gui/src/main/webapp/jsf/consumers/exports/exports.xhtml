@@ -43,7 +43,7 @@
                </h:column>
             </ui:remove>
 
-            <h:column>
+            <h:column headerClass="hasFailedColumn">
                <f:facet name="header">#{i18n.export_detail_has_failed}</f:facet>
                <h:selectBooleanCheckbox id="hasFailed" value="#{export.hasFailedPortlets}" disabled="true"/>
             </h:column>

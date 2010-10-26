@@ -385,3 +385,16 @@
    margin: 0 auto 0 auto;
    width: 100%;
 }
+
+.wsrp-consumers-ui .consumerNameColumn {
+   width: 37%;
+}
+
+.wsrp-consumers-ui .hasFailedColumn {
+   width: 15%;
+}
+
+.wsrp-consumers-ui .importColumn {
+   width: 7%;
+}
+

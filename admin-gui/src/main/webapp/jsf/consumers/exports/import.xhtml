@@ -31,7 +31,7 @@
       <h:form id="import-form">
          <h:dataTable id="portletsList" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
                       rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
-            <h:column>
+            <h:column headerClass="importColumn">
                <f:facet name="header">#{i18n.import_use}</f:facet>
                <h:selectBooleanCheckbox id="selected" value="#{portlet.selected}"
                                         valueChangeListener="#{portlet.select}"
