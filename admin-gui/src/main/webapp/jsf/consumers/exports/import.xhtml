@@ -51,7 +51,10 @@
                                    onclick="this.form.submit()">
                   <f:selectItems value="#{portlet.pages}"/>
                </h:selectOneListbox>
-               <h:selectOneListbox id="currentWindow" value="#{portlet.window}" rendered="#{! empty portlet.page}">
+               <h:selectOneListbox id="currentWindow" value="#{portlet.window}" rendered="#{! empty portlet.page}"
+                                   valueChangeListener="#{portlet.selectCurrentWindow}"
+                                   immediate="true"
+                                   onclick="this.form.submit()">
                   <f:selectItems value="#{portlet.windows}"/>
                </h:selectOneListbox>
             </h:column>
@@ -63,7 +66,7 @@
                   <div class="ButtonLeft">
                      <div class="ButtonRight">
                         <div class="ButtonMiddle">
-                           <h:commandButton id="import" action="#{consumer.importPortlets}"
+                           <h:commandButton id="import" action="#{consumer.importPortlets}" disabled="#{!consumer.currentExport.readyForImport}"
                                             value="#{i18n.import_import}"/>
                         </div>
                      </div>

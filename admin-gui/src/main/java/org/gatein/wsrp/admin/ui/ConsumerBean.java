@@ -690,6 +690,11 @@ public class ConsumerBean extends ManagedBean
          this.provider = provider;
       }
 
+      public boolean isReadyForImport()
+      {
+         return selected && !ParameterValidation.isNullOrEmpty(window);
+      }
+
       public String getHandle()
       {
          return handle;
@@ -728,6 +733,14 @@ public class ConsumerBean extends ManagedBean
       public void selectCurrentPage(ValueChangeEvent event)
       {
          page = (String)event.getNewValue();
+
+         // bypass the rest of the life cycle and re-display page
+         FacesContext.getCurrentInstance().renderResponse();
+      }
+
+      public void selectCurrentWindow(ValueChangeEvent event)
+      {
+         window = (String)event.getNewValue();
 
          // bypass the rest of the life cycle and re-display page
          FacesContext.getCurrentInstance().renderResponse();
@@ -834,6 +847,17 @@ public class ConsumerBean extends ManagedBean
       public ExportInfo getExport()
       {
          return export;
+      }
+
+      public boolean isReadyForImport()
+      {
+         boolean ready = false;
+         for (SelectablePortletHandle portlet : exportedPortlets)
+         {
+            ready = ready || portlet.isReadyForImport();
+         }
+
+         return ready;
       }
    }
 
