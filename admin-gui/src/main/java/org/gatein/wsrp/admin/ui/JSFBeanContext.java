@@ -96,7 +96,7 @@ public class JSFBeanContext extends BeanContext
          log.info("Couldn't resolve component target: " + target);
       }
 
-      String details = message;
+      String details = ""; // details is empty to avoid repetition of message...
 
       // todo: this should be more generic
       if (additionalParams != null && additionalParams.length > 0)
