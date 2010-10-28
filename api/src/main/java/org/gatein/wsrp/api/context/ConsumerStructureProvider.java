@@ -37,5 +37,5 @@ public interface ConsumerStructureProvider
 
    List<String> getWindowIdentifiersFor(String pageId);
 
-   void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId);
+   void assignPortletToWindow(PortletContext portletContext, String windowId, String pageId, String exportedPortletHandle);
 }

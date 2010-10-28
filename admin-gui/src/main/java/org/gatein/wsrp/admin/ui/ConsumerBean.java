@@ -619,10 +619,11 @@ public class ConsumerBean extends ManagedBean
          int importCount = 0;
          for (SelectablePortletHandle importedPortlet : portletsToImport)
          {
-            PortletContext portletContext = info.getPortletContextFor(importedPortlet.getHandle());
+            String handle = importedPortlet.getHandle();
+            PortletContext portletContext = info.getPortletContextFor(handle);
             if (portletContext != null)
             {
-               structureProvider.assignPortletToWindow(portletContext, importedPortlet.getWindow(), importedPortlet.getPage());
+               structureProvider.assignPortletToWindow(portletContext, importedPortlet.getWindow(), importedPortlet.getPage(), handle);
                importCount++;
             }
          }
@@ -733,6 +734,16 @@ public class ConsumerBean extends ManagedBean
       public void selectCurrentPage(ValueChangeEvent event)
       {
          page = (String)event.getNewValue();
+
+         // if we only have one window, select it automatically as a select event might not be triggerer if there's only one :/
+         if (page != null)
+         {
+            List<String> windows = provider.getWindowIdentifiersFor(page);
+            if (ParameterValidation.existsAndIsNotEmpty(windows) && windows.size() == 1)
+            {
+               window = windows.get(0);
+            }
+         }
 
          // bypass the rest of the life cycle and re-display page
          FacesContext.getCurrentInstance().renderResponse();
