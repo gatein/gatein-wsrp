@@ -923,14 +923,17 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          GetMarkup getMarkup = createMarkupRequest();
 
          getMarkup.getMarkupParams().setMode(WSRPConstants.EDIT_MODE);
+         assertEquals(WSRPConstants.EDIT_MODE, getMarkup.getMarkupParams().getMode());
          MarkupResponse responseEdit = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseEdit, "This is EDIT MODE.", false, true);
 
          getMarkup.getMarkupParams().setMode(WSRPConstants.VIEW_MODE);
+         assertEquals(WSRPConstants.VIEW_MODE, getMarkup.getMarkupParams().getMode());
          MarkupResponse responseView = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseView, "This is VIEW MODE.", false, true);
 
          getMarkup.getMarkupParams().setMode(WSRPConstants.HELP_MODE);
+         assertEquals(WSRPConstants.HELP_MODE, getMarkup.getMarkupParams().getMode());
          MarkupResponse responseHelp = producer.getMarkup(getMarkup);
          checkMarkupResponse(responseHelp, "This is HELP MODE.", false, true);
       }
@@ -951,6 +954,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       {
          GetMarkup getMarkup = createMarkupRequest();
          getMarkup.getMarkupParams().setMode("test_mode");
+         assertEquals("test_mode", getMarkup.getMarkupParams().getMode());
          MarkupResponse response = producer.getMarkup(getMarkup);
          checkMarkupResponse(response, "This is TEST MODE.", false, true);
       }
