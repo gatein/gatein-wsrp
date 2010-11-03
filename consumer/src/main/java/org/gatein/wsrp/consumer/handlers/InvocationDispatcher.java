@@ -116,9 +116,13 @@ public class InvocationDispatcher
          {
             handler = resourceHandler;
          }
-         else
+         else if (resourceURL != null)
          {
             return performDirectURLRequest(resourceURL);
+         }
+         else
+         {
+            return new ErrorResponse("Did not get a resource URL or a resource ID, cannot fetch resource.");
          }
       }
       else if (invocation instanceof EventInvocation)
