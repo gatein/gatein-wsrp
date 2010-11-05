@@ -200,6 +200,20 @@
    white-space: nowrap;
 }
 
+.wsrp-consumers-ui .actionImport {
+   padding: 5px 5px 5px 20px;
+   background: url(../img/jbp-icon-set/import.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
+.wsrp-consumers-ui .actionExport {
+   padding: 5px 5px 5px 20px;
+   background: url(../img/jbp-icon-set/export.gif) no-repeat left;
+   line-height: 18px;
+   white-space: nowrap;
+}
+
 .wsrp-consumers-ui td {
    border: 0;
    padding-bottom: 2px;
