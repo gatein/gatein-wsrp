@@ -52,6 +52,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       RegistrationPropertyDescription newFoo = new RegistrationPropertyDescription("newFoo", WSRPConstants.XSD_STRING);
       expected.put(newFoo.getName(), newFoo);
 
+      long lastModified = requirements.getLastModified();
+
       requirements.addRegistrationPropertyChangeListener(new RegistrationPropertyChangeListener()
       {
          public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
@@ -61,6 +63,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       });
 
       requirements.setRegistrationProperties(expected);
+
+      assertTrue(requirements.getLastModified() > lastModified);
    }
 
    public void testSetUnchangedRegistrationProperties()
@@ -72,6 +76,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       RegistrationPropertyDescription newFoo = new RegistrationPropertyDescription("foo", WSRPConstants.XSD_STRING);
       expected.put(newFoo.getName(), newFoo);
 
+      long lastModified = requirements.getLastModified();
+
       requirements.addRegistrationPropertyChangeListener(new RegistrationPropertyChangeListener()
       {
          public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
@@ -81,6 +87,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       });
 
       requirements.setRegistrationProperties(expected);
+
+      assertEquals(lastModified, requirements.getLastModified());
    }
 
    public void testReloadSamePolicy()
