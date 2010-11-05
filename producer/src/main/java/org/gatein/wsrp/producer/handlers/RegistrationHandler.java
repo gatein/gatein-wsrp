@@ -263,7 +263,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
     * @return
     * @since 2.6.2
     */
-   public boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed
+   public boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
    {
       if (reg == null)
       {
@@ -290,7 +290,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
          {
             if (isPending)
             {
-               throwOperationFailedFault("Registration with handle '" + reg.getRegistrationHandle()
+               WSRP2ExceptionFactory.throwWSException(ModifyRegistrationRequired.class, "Registration with handle '" + reg.getRegistrationHandle()
                   + "' is pending. Consumer needs to call modifyRegistration().", null);
             }
             else

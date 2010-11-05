@@ -51,6 +51,7 @@ import org.oasis.wsrp.v2.ItemDescription;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
@@ -440,28 +441,7 @@ public class ProducerInfo
             {
                log.debug("OperationFailedFault occurred, might indicate a need to modify registration", operationFailedFault);
 
-               // attempt to get unregistered service description
-               serviceDescription = getServiceDescription(true);
-               result.setServiceDescription(serviceDescription);
-
-               // re-validate the registration information
-               RefreshResult registrationResult = internalRefreshRegistration(serviceDescription, false, true, true);
-               if (registrationResult.hasIssues())
-               {
-                  // if the registration validation has issues, we need to modify our local information
-                  setModifyRegistrationRequired(true);
-                  setActiveAndSave(false);
-               }
-               else
-               {
-                  // we might be in a situation where the producer changed the registration back to the initial state
-                  // which is, granted, pretty rare... attempt modifyRegistration
-                  log.debug("modifyRegistration was called after OperationFailedFault when a check of registration data didn't reveal any issue...");
-                  modifyRegistration(true);
-               }
-
-               result.setRegistrationResult(registrationResult);
-               return result;
+               return handleModifyRegistrationNeeded(result);
             }
             else
             {
@@ -486,11 +466,41 @@ public class ProducerInfo
 
             return refreshInfo(false, serviceDescription, result);
          }
+         catch (ModifyRegistrationRequired modifyRegistrationRequired)
+         {
+            return handleModifyRegistrationNeeded(result);
+         }
 
          return refreshInfo(forceRefresh, serviceDescription, result);
       }
 
       return new RefreshResult(RefreshResult.Status.BYPASSED);
+   }
+
+   private RefreshResult handleModifyRegistrationNeeded(RefreshResult result) throws PortletInvokerException
+   {
+      ServiceDescription serviceDescription;// attempt to get unregistered service description
+      serviceDescription = getServiceDescription(true);
+      result.setServiceDescription(serviceDescription);
+
+      // re-validate the registration information
+      RefreshResult registrationResult = internalRefreshRegistration(serviceDescription, false, true, true);
+      if (registrationResult.hasIssues())
+      {
+         // if the registration validation has issues, we need to modify our local information
+         setModifyRegistrationRequired(true);
+         setActiveAndSave(false);
+      }
+      else
+      {
+         // we might be in a situation where the producer changed the registration back to the initial state
+         // which is, granted, pretty rare... attempt modifyRegistration
+         log.debug("modifyRegistration was called after OperationFailedFault when a check of registration data didn't reveal any issue...");
+         modifyRegistration(true);
+      }
+
+      result.setRegistrationResult(registrationResult);
+      return result;
    }
 
    private RefreshResult refreshInfo(boolean forceRefresh, ServiceDescription serviceDescription, RefreshResult result)
@@ -823,7 +833,7 @@ public class ProducerInfo
       this.persistentExpirationCacheSeconds = expirationCacheSeconds;
    }
 
-   private ServiceDescription getUnmanagedServiceDescription(boolean asUnregistered) throws PortletInvokerException, OperationFailed, InvalidRegistration
+   private ServiceDescription getUnmanagedServiceDescription(boolean asUnregistered) throws PortletInvokerException, OperationFailed, InvalidRegistration, ModifyRegistrationRequired
    {
       //todo: might need to implement customization of default service description
       ServiceDescription serviceDescription;
@@ -912,6 +922,10 @@ public class ProducerInfo
          {
             throw (OperationFailed)e; // rethrow to deal at higher level as meaning can vary depending on context
          }
+         else if (e instanceof ModifyRegistrationRequired)
+         {
+            throw (ModifyRegistrationRequired)e;
+         }
 
          return rethrowAsInvokerUnvailable(e);
       }
@@ -930,6 +944,10 @@ public class ProducerInfo
       catch (InvalidRegistration invalidRegistrationFault)
       {
          return rethrowAsInvokerUnvailable(invalidRegistrationFault);
+      }
+      catch (ModifyRegistrationRequired modifyRegistrationRequired)
+      {
+         return rethrowAsInvokerUnvailable(modifyRegistrationRequired);
       }
    }
 

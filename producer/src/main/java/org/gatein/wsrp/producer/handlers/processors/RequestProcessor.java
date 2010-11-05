@@ -50,6 +50,7 @@ import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -94,7 +95,7 @@ public abstract class RequestProcessor<Response>
    }
 
    void prepareInvocation() throws InvalidRegistration, OperationFailed, InvalidHandle,
-      UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters
+      UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters, ModifyRegistrationRequired
    {
       Registration registration = producer.getRegistrationOrFailIfInvalid(getRegistrationContext());
 

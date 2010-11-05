@@ -28,6 +28,7 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.registration.Registration;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
@@ -47,5 +48,5 @@ public interface ProducerHelper
 
    PortletDescription getPortletDescription(Portlet portlet, List<String> locales);
 
-   Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed;
+   Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired;
 }

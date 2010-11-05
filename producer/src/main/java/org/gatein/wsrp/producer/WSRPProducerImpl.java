@@ -499,7 +499,7 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
       return serviceDescriptionHandler.getPortletDescription(portlet, locales);
    }
 
-   public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
+   public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
    {
       Registration registration = registrationHandler.getRegistrationFrom(registrationContext);
       registrationHandler.isRegistrationValid(registration, true);

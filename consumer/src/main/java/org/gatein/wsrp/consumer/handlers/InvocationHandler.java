@@ -37,12 +37,14 @@ import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
@@ -247,6 +249,17 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       {
          log.debug("Invalid registration");
          consumer.handleInvalidRegistrationFault();
+      }
+      else if (error instanceof ModifyRegistrationRequired)
+      {
+         ProducerInfo producerInfo = consumer.getProducerInfo();
+
+         log.debug("Producer " + producerInfo.getId() + " indicated that modifyRegistration should be called.");
+
+         producerInfo.setModifyRegistrationRequired(true);
+         producerInfo.setActiveAndSave(false);
+
+         return new ErrorResponse(error);
       }
       else
       {

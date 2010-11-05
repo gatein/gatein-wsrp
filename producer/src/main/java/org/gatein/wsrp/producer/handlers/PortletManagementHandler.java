@@ -316,18 +316,18 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(copyPortlets, "copyPortlets");
-      
+
       List<PortletContext> portletContexts = copyPortlets.getFromPortletContexts();
-      
+
       if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in CopyPortlets.", null);
       }
-      
+
       Registration fromRegistration = producer.getRegistrationOrFailIfInvalid(copyPortlets.getFromRegistrationContext());
-      
+
       RegistrationContext toRegistationContext = copyPortlets.getToRegistrationContext();
-      
+
       //if toRegistrationCotnext is null, then we use the fromRegistrationContext (from spec).
       //NOTE: this means we can't move between a PortletContext on a registered consumer to a non-registered consumer
       // between two non-registered consumers will still be ok.
@@ -335,9 +335,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       {
          toRegistationContext = copyPortlets.getFromRegistrationContext();
       }
-      
+
       Registration toRegistration = producer.getRegistrationOrFailIfInvalid(toRegistationContext);
-      
+
       UserContext fromUserContext = copyPortlets.getFromUserContext();
       checkUserAuthorization(fromUserContext);
       UserContext toUserContext = copyPortlets.getToUserContext();
@@ -346,29 +346,29 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       try
       {
          RegistrationLocal.setRegistration(fromRegistration);
-         
+
          Map<String, FailedPortlets> failedPortletsMap = new HashMap<String, FailedPortlets>(portletContexts.size());
-         
+
          List<CopiedPortlet> copiedPortlets = new ArrayList<CopiedPortlet>(portletContexts.size());
-         
+
          for (PortletContext portletContext : portletContexts)
          {
             try
             {
                org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
-               
+
                //NOTE: There are two ways we can do a copy. We can export using one registration and import using another. This seems the most straight forward way to do this, just seems a little overkill.
                // OR we can copy the portlet, then use the RegistrationManager and RegistrationPolicy to delete the PC from one registration and add it to another. But we don't actually 
                // create the copy under the toRegistration and we would need to add extra checks here to make sure the toRegistration has the proper permissions.
                // Note sure why there is even a copy portlet operation since it can be replicated by an export and then an import operation.
-                
+
                org.gatein.pc.api.PortletContext exportedPortletContext = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
                //Change the registration to the new registration and try and do an import. This should force the new import to be under the new registration context
                RegistrationLocal.setRegistration(toRegistration);
                org.gatein.pc.api.PortletContext copiedPortletContext = producer.getPortletInvoker().importPortlet(PortletStateType.OPAQUE, exportedPortletContext);
-                              
+
                PortletContext wsrpClonedPC = WSRPUtils.convertToWSRPPortletContext(copiedPortletContext);
-               
+
                CopiedPortlet copiedPortlet = WSRPTypeFactory.createCopiedPortlet(wsrpClonedPC, portletContext.getPortletHandle());
                copiedPortlets.add(copiedPortlet);
             }
@@ -663,7 +663,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          {
             exportContext = producer.getExportManager().createExportContext(exportByValueRequired, -1, -1, -1);
          }
-         
+
          for (PortletContext portletContext : exportPortlets.getPortletContext())
          {
             try
@@ -740,7 +740,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          byte[] exportContextBytes = producer.getExportManager().encodeExportContextData(exportContext);
 
          Lifetime lifetime = null;
-         
+
          if (exportContext.getCurrentTime() > 0)
          {
             lifetime = new Lifetime();
@@ -748,7 +748,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
             lifetime.setTerminationTime(toXMLGregorianCalendar(exportContext.getTermintationTime()));
             lifetime.setRefreshDuration(toDuration(exportContext.getRefreshDuration()));
          }
-         
+
          return WSRPTypeFactory.createExportPortletsResponse(exportContextBytes, exportedPortlets, new ArrayList<FailedPortlets>(failedPortletsMap.values()), lifetime, resourceList);
       }
       catch (Exception e)
@@ -761,7 +761,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       }
    }
 
-   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets) throws OperationFailed, InvalidRegistration, MissingParameters
+   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets) throws OperationFailed, InvalidRegistration, MissingParameters, ModifyRegistrationRequired
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(importPortlets, "ImportPortlets");
 
@@ -813,7 +813,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                {
                   exportPortletData = producer.getExportManager().createExportPortletData(exportContext, -1, -1, -1, portletData);
                }
-               
+
                String portletHandle = exportPortletData.getPortletHandle();
                byte[] portletState = exportPortletData.getPortletState();
 
@@ -904,7 +904,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       return WSRPTypeFactory.createReturnAny().getExtensions();
    }
 
-   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration, OperationNotSupported
+   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime) throws OperationFailed, InvalidRegistration, OperationNotSupported, ModifyRegistrationRequired
    {
       //this method is only valid if the producer can handle exporting by reference.
       if (producer.getExportManager().getPersistenceManager() == null)
@@ -930,7 +930,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       try
       {
          RegistrationLocal.setRegistration(registration);
-         
+
          ExportContext exportContext;
          if (setExportLifetime != null)
          {

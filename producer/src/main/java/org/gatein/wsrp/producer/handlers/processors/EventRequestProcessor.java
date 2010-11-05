@@ -43,6 +43,7 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
@@ -65,7 +66,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
 {
    private HandleEvents handleEvents;
 
-   public EventRequestProcessor(ProducerHelper producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported
+   public EventRequestProcessor(ProducerHelper producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported, ModifyRegistrationRequired
    {
       super(producer);
       this.handleEvents = handleEvents;

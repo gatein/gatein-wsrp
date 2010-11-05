@@ -40,6 +40,7 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
@@ -62,7 +63,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
 
    ActionRequestProcessor(ProducerHelper producer, PerformBlockingInteraction performBlockingInteraction)
       throws UnsupportedMimeType, UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters,
-      InvalidRegistration, OperationFailed
+      InvalidRegistration, OperationFailed, ModifyRegistrationRequired
    {
       super(producer);
       this.performBlockingInteraction = performBlockingInteraction;

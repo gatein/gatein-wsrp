@@ -40,6 +40,7 @@ import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -58,7 +59,7 @@ public class MimeResponseProcessorTestCase extends TestCase
 {
    private static final String PORTLET_HANDLE = "portletHandle";
 
-   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration
+   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired
    {
       String namespace = "namespace";
       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(MockHttpSession.createMockSession()), MockHttpServletResponse.createMockResponse());
