@@ -251,16 +251,23 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
     */
    public static Map<String, String> decodeResource(String resourceInfo)
    {
-      Map<String, String[]> resourceParameters = StateString.decodeOpaqueValue(resourceInfo);
-
       Map<String, String> resource = new HashMap<String, String>();
-
-      for (Map.Entry<String, String[]> entry : resourceParameters.entrySet())
+      
+      if (resourceInfo != null && resourceInfo.startsWith(StateString.JBPNS_PREFIX))
       {
-         if (entry.getValue() != null && entry.getValue().length > 0)
+         Map<String, String[]> resourceParameters = StateString.decodeOpaqueValue(resourceInfo);
+
+         for (Map.Entry<String, String[]> entry : resourceParameters.entrySet())
          {
-            resource.put(entry.getKey(), entry.getValue()[0]);
+            if (entry.getValue() != null && entry.getValue().length > 0)
+            {
+               resource.put(entry.getKey(), entry.getValue()[0]);
+            }
          }
+      }
+      else //we are not dealing with an encoded resource ID but an actual resource ID
+      {
+         resource.put(WSRP2RewritingConstants.RESOURCE_ID, resourceInfo);
       }
 
       return resource;
