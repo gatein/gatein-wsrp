@@ -105,11 +105,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationProperties(Map<QName, RegistrationPropertyDescription> regProps)
    {
-      if (registrationProperties.equals(regProps))
-      {
-         return;
-      }
-      else
+      if (!registrationProperties.equals(regProps))
       {
          registrationProperties.clear();
 
@@ -117,6 +113,8 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          {
             addRegistrationProperty(new RegistrationPropertyDescription(propertyDescription));
          }
+
+         modifyNow();
 
          notifyRegistrationPropertyChangeListeners();
       }

@@ -33,6 +33,7 @@ import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.xml.namespace.QName;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,6 +92,28 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       assertEquals(lastModified, requirements.getLastModified());
    }
 
+   public void testSetRegistrationPropertiesPropertyRemoval()
+   {
+      ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
+      requirements.addEmptyRegistrationProperty("foo");
+
+      final Map<QName, RegistrationPropertyDescription> expected = Collections.emptyMap();
+
+      long lastModified = requirements.getLastModified();
+
+      requirements.addRegistrationPropertyChangeListener(new RegistrationPropertyChangeListener()
+      {
+         public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
+         {
+            assertEquals(expected, newRegistrationProperties);
+         }
+      });
+
+      requirements.setRegistrationProperties(expected);
+
+      assertTrue(requirements.getLastModified() > lastModified);
+   }
+
    public void testReloadSamePolicy()
    {
       ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
@@ -127,6 +150,26 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       });
 
       requirements.setRegistrationRequired(true);
+   }
+
+   public void testRemoveProperty()
+   {
+      ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
+      requirements.addEmptyRegistrationProperty("foo");
+
+      long lastModified = requirements.getLastModified();
+
+      requirements.removeRegistrationProperty("foo");
+
+      requirements.addRegistrationPropertyChangeListener(new RegistrationPropertyChangeListener()
+      {
+         public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
+         {
+            assertTrue(newRegistrationProperties.isEmpty());
+         }
+      });
+
+      assertTrue(requirements.getLastModified() > lastModified);
    }
 
 }
