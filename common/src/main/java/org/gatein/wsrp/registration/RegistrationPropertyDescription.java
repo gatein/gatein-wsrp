@@ -105,6 +105,7 @@ public class RegistrationPropertyDescription implements PropertyDescription
    }
 
 
+   @Override
    public boolean equals(Object o)
    {
       if (this == o)
@@ -118,23 +119,13 @@ public class RegistrationPropertyDescription implements PropertyDescription
 
       RegistrationPropertyDescription that = (RegistrationPropertyDescription)o;
 
-      if (key != null ? !key.equals(that.key) : that.key != null)
-      {
-         return false;
-      }
-      if (!name.equals(that.name))
-      {
-         return false;
-      }
-      return type.equals(that.type);
-
+      return name.equals(that.name) && type.equals(that.type);
    }
 
+   @Override
    public int hashCode()
    {
-      int result;
-      result = (key != null ? key.hashCode() : 0);
-      result = 31 * result + name.hashCode();
+      int result = name.hashCode();
       result = 31 * result + type.hashCode();
       return result;
    }
