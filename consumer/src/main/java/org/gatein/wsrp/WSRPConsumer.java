@@ -130,6 +130,8 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
 
    ExportInfo exportPortlets(List<String> portletHandles) throws PortletInvokerException;
 
+   void releaseExport(ExportInfo exportInfo) throws PortletInvokerException;
+
    MigrationService getMigrationService();
 
    boolean isSupportsExport();

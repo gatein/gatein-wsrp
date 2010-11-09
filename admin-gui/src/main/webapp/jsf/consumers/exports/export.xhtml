@@ -36,11 +36,13 @@
             <h:column>
                <f:facet name="header">#{i18n.portlets_table_column_include}</f:facet>
 
-               <h:selectBooleanCheckbox value="#{portlet.selected}"/>
+               <h:selectBooleanCheckbox value="#{portlet.selected}" valueChangeListener="#{portlet.select}"
+                                        immediate="true" onclick="this.form.submit()"/>
             </h:column>
 
             <h:column>
-               <f:facet name="header">#{i18n.portlets_table_column_portlet_name}</f:facet>
+               <f:facet name="header">#{i18n.
+                  portlets_table_column_portlet_name}</f:facet>
                #{portlet.handle}
             </h:column>
          </h:dataTable>
@@ -51,7 +53,8 @@
                      <div class="ButtonRight">
                         <div class="ButtonMiddle">
                            <h:commandButton id="exportButton" action="#{consumer.exportPortlets}"
-                                            value="#{i18n.portlets_table_export}"/>
+                                            value="#{i18n.portlets_table_export}"
+                                            disabled="#{! consumer.readyForExport}"/>
                         </div>
                      </div>
                   </div>

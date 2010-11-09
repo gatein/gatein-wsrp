@@ -539,6 +539,20 @@ public class ConsumerBean extends ManagedBean
       }
    }
 
+   public boolean isReadyForExport()
+   {
+      List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)portletHandles.getWrappedData();
+      for (SelectablePortletHandle handle : handles)
+      {
+         if (handle.isSelected())
+         {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    public String exportPortlets()
    {
       if (consumer != null)
@@ -650,6 +664,20 @@ public class ConsumerBean extends ManagedBean
       ExportInfo export = currentExport.getExport();
       if (consumer.getMigrationService().remove(export) == export)
       {
+         // release the export on the producer
+         try
+         {
+            consumer.releaseExport(export);
+         }
+         catch (PortletInvokerException e)
+         {
+            // re-add export to migration service
+            consumer.getMigrationService().add(export);
+
+            beanContext.createErrorMessageFrom(e);
+            return null;
+         }
+
          existingExports = null; // force rebuild of export list
          currentExport = null;
       }
@@ -781,6 +809,9 @@ public class ConsumerBean extends ManagedBean
       public void select(ValueChangeEvent event)
       {
          selected = (Boolean)event.getNewValue();
+
+         // bypass the rest of the life cycle and re-display page
+         FacesContext.getCurrentInstance().renderResponse();
       }
 
       public int compareTo(SelectablePortletHandle o)

@@ -171,6 +171,11 @@ public class MockWSRPConsumer implements WSRPConsumer
       throw new NotYetImplemented();
    }
 
+   public void releaseExport(ExportInfo exportInfo)
+   {
+      throw new NotYetImplemented();
+   }
+
    public MigrationService getMigrationService()
    {
       throw new NotYetImplemented();

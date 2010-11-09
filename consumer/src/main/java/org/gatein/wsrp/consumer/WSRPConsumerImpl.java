@@ -883,6 +883,13 @@ public class WSRPConsumerImpl implements WSRPConsumer
       }
    }
 
+   public void releaseExport(ExportInfo exportInfo) throws PortletInvokerException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to release");
+
+      getPortletManagementService().releaseExport(getRegistrationContext(), exportInfo.getExportContext(), UserAccess.getUserContext());
+   }
+
    public ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to import from");
