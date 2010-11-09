@@ -26,6 +26,7 @@ package org.gatein.wsrp.admin.ui;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
@@ -182,7 +183,7 @@ public class ConsumerManagerBean extends ManagedBean
       {
          try
          {
-            getRegistry().createConsumer(selectedId, null, null);
+            getRegistry().createConsumer(selectedId, ProducerInfo.DEFAULT_CACHE_VALUE, null);
             setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }

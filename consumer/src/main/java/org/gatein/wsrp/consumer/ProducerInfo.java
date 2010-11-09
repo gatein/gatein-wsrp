@@ -83,6 +83,7 @@ public class ProducerInfo
 {
    private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
    private final static boolean debug = log.isDebugEnabled();
+   public static final Integer DEFAULT_CACHE_VALUE = 30;
 
    // Persistent information
 
@@ -99,7 +100,7 @@ public class ProducerInfo
    private String persistentId;
 
    /** The cache expiration duration (in seconds) for cached values */
-   private Integer persistentExpirationCacheSeconds;
+   private Integer persistentExpirationCacheSeconds = DEFAULT_CACHE_VALUE;
 
    /** The activated status of the associated Consumer */
    private boolean persistentActive;
