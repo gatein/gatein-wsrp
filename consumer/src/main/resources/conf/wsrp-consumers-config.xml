@@ -39,6 +39,12 @@
       </wsrp-producer>
    </deployment>
    <!--<deployment>
+      <wsrp-producer id="NetUnity" expiration-cache="300">
+         <endpoint-wsdl-url>http://wsrp.netunitysoftware.com/WSRPTestService/WSRPTestService.asmx?Operation=WSDL</endpoint-wsdl-url>
+         <registration-data/>
+      </wsrp-producer>
+   </deployment>-->
+   <!--<deployment>
       <wsrp-producer id="NetUnityV2" expiration-cache="300">
          <endpoint-wsdl-url>http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=Two</endpoint-wsdl-url>
          <registration-data/>
