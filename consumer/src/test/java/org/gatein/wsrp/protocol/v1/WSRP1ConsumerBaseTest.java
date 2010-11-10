@@ -91,8 +91,11 @@ public abstract class WSRP1ConsumerBaseTest extends TestCase
       // use a fresh ConsumerRegistry
       producerInfo.setRegistry(new MockConsumerRegistry());
 
-      // use
+      // use a fresh endpoint using a behavior-backed service factory
       producerInfo.setEndpointConfigurationInfo(new EndpointConfigurationInfo(new BehaviorBackedServiceFactory(registry)));
+
+      // todo: remove, this is a quick fix for GTNWSRP-156
+      producerInfo.setExpirationCacheSeconds(null);
 
       // make sure we use clean producer info for each test
       consumer.refreshProducerInfo();
