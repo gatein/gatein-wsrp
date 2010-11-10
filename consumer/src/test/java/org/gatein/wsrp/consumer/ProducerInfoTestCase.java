@@ -131,8 +131,12 @@ public class ProducerInfoTestCase extends TestCase
       ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
       serviceFactory.getRegistry().setServiceDescriptionBehavior(behavior);
 
-      assertNull(info.getExpirationCacheSeconds());
+      // we now have a default value for cache
+      assertEquals(ProducerInfo.DEFAULT_CACHE_VALUE, info.getExpirationCacheSeconds());
 
+      // check behavior when no cache has been set
+      info.setExpirationCacheSeconds(null);
+      assertNull(info.getExpirationCacheSeconds());
       assertTrue(info.isRefreshNeeded(false));
       assertFalse(info.isRegistrationChecked());
       assertTrue(info.refresh(false));
