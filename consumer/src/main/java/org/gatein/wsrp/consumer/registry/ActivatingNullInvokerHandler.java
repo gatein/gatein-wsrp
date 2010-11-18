@@ -62,9 +62,12 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
       else
       {
          // activate the consumer which should register it with this FederatingPortletInvoker
-         consumerRegistry.activateConsumerWith(invokerId);
+         synchronized (this)
+         {
+            consumerRegistry.activateConsumerWith(invokerId);
 
-         federated = callingInvoker.getFederatedInvoker(invokerId);
+            federated = callingInvoker.getFederatedInvoker(invokerId);
+         }
       }
 
       //
