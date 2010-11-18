@@ -396,10 +396,9 @@ public class ProducerInfo
 
          RefreshResult result = new RefreshResult(); // success by default!
 
-         boolean didJustRefresh = false;
          try
          {
-            didJustRefresh = persistentEndpointInfo.refresh();
+            persistentEndpointInfo.refresh();
          }
          catch (InvokerUnavailableException e)
          {
@@ -408,23 +407,12 @@ public class ProducerInfo
             // try again as refresh on a failed service factory will fail without attempting the refresh
             try
             {
-               didJustRefresh = persistentEndpointInfo.forceRefresh();
+               persistentEndpointInfo.forceRefresh();
             }
             catch (InvokerUnavailableException e1)
             {
                result.setStatus(RefreshResult.Status.FAILURE);
                return result;
-            }
-
-            // todo: should we fail fast here?
-            // throw new PortletInvokerException("Couldn't refresh endpoint information: " + e.getLocalizedMessage());
-         }
-         finally
-         {
-            // save changes to endpoint only if we just refreshed, otherwise unneeded
-            if (didJustRefresh)
-            {
-               registry.updateProducerInfo(this);
             }
          }
 
@@ -490,7 +478,7 @@ public class ProducerInfo
       {
          // if the registration validation has issues, we need to modify our local information
          setModifyRegistrationRequired(true);
-         setActiveAndSave(false);
+         setActive(false);
       }
       else
       {
@@ -553,7 +541,6 @@ public class ProducerInfo
          // refresh and force check for extra props if the registered SD failed
          // todo: deal with forcing check of extra registration properties properly (if needed)
          RefreshResult registrationResult = internalRefreshRegistration(serviceDescription, true, forceRefresh, false);
-         registry.updateProducerInfo(this);
 
          // attempt to register and determine if the current service description can be used to extract POPs
          if (!registrationResult.hasIssues())
@@ -1031,7 +1018,15 @@ public class ProducerInfo
 
    public void register() throws PortletInvokerException
    {
-      register(null, false);
+      try
+      {
+         register(null, false);
+      }
+      catch (PortletInvokerException e)
+      {
+         registry.updateProducerInfo(this);
+         throw e;
+      }
    }
 
    /**
@@ -1102,15 +1097,11 @@ public class ProducerInfo
                   setActive(false);
                   throw new PortletInvokerException("Couldn't register with producer '" + persistentId + "'", e);
                }
-               finally
-               {
-                  registry.updateProducerInfo(this);
-               }
             }
             else
             {
                log.debug(result.getStatus().toString());
-               setActiveAndSave(false);
+               setActive(false);
                throw new PortletInvokerException("Consumer is not ready to be registered with producer because of missing or invalid registration information.");
             }
          }
@@ -1149,7 +1140,14 @@ public class ProducerInfo
 
    public void modifyRegistration() throws PortletInvokerException
    {
-      modifyRegistration(false);
+      try
+      {
+         modifyRegistration(false);
+      }
+      finally
+      {
+         registry.updateProducerInfo(this);
+      }
    }
 
    private void modifyRegistration(boolean force) throws PortletInvokerException
@@ -1191,10 +1189,6 @@ public class ProducerInfo
             catch (Exception e)
             {
                throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
-            }
-            finally
-            {
-               registry.updateProducerInfo(this);
             }
          }
       }
