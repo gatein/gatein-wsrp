@@ -40,9 +40,9 @@ public class WSRPRenderURL extends WSRPPortletURL implements RenderURL
 {
    private Map<String, String[]> publicNSChanges;
 
-   protected WSRPRenderURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, Map<String, String[]> publicNavigationalStateChanges)
+   protected WSRPRenderURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, Map<String, String[]> publicNavigationalStateChanges, URLContext context)
    {
-      super(mode, windowState, secure, navigationalState);
+      super(mode, windowState, secure, navigationalState, context);
 
       this.publicNSChanges = publicNavigationalStateChanges;
    }

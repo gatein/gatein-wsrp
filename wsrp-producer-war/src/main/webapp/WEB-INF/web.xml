@@ -54,6 +54,17 @@
       <load-on-startup>1</load-on-startup>
    </servlet>-->
 
+   <!-- Resource serving -->
+   <servlet>
+      <servlet-name>ResourceService</servlet-name>
+      <servlet-class>org.gatein.wsrp.producer.resources.ResourceServingServlet</servlet-class>
+   </servlet>
+
+   <servlet-mapping>
+      <servlet-name>ResourceService</servlet-name>
+      <url-pattern>/resource/*</url-pattern>
+   </servlet-mapping>
+
 
    <!-- WSRP 2 Endpoints -->
    <servlet>

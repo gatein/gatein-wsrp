@@ -36,8 +36,11 @@ import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.portlet.impl.spi.AbstractClientContext;
 import org.gatein.pc.portlet.impl.spi.AbstractPortletInvocationContext;
 import org.gatein.pc.portlet.impl.spi.AbstractServerContext;
+import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
 
@@ -131,7 +134,18 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
       {
          Boolean wantSecureBool = urlFormat.getWantSecure();
          boolean wantSecure = (wantSecureBool != null ? wantSecureBool : false);
-         WSRPPortletURL url = WSRPPortletURL.create(containerURL, wantSecure);
+         WSRPPortletURL.URLContext context = new WSRPPortletURL.URLContext(WSRPPortletURL.URLContext.SERVER_ADDRESS,
+            URLTools.getServerAddressFrom(request), WSRPPortletURL.URLContext.PORTLET_CONTEXT, instanceContext.getPortletContext());
+
+         Registration registration = RegistrationLocal.getRegistration();
+         if (registration != null)
+         {
+            context.setValueFor(WSRPPortletURL.URLContext.REGISTRATION_HANDLE, registration.getRegistrationHandle());
+         }
+         context.setValueFor(WSRPPortletURL.URLContext.INSTANCE_KEY, WSRPTypeFactory.getPortletInstanceKey(instanceContext));
+         context.setValueFor(WSRPPortletURL.URLContext.NAMESPACE, WSRPTypeFactory.getNamespacePrefix(windowContext, instanceContext.getPortletContext().getId()));
+
+         WSRPPortletURL url = WSRPPortletURL.create(containerURL, wantSecure, context);
          return url.toString();
       }
       return null;

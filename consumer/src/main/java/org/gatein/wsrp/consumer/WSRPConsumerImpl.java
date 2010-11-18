@@ -121,6 +121,8 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    private final static Logger log = LoggerFactory.getLogger(WSRPConsumer.class);
 
+   private final static String PORTLET_INFO_KEY = "wsrp_portlet_info";
+
    static
    {
       REGISTRATION_NOT_NEEDED.setConsumerAgent("INVALID AGENT");
@@ -493,7 +495,17 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    public WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException
    {
-      return (WSRPPortletInfo)getWSRPPortlet(getPortletContext(invocation)).getInfo();
+      // first try to get the info from the invocation
+      Object info = invocation.getAttribute(PORTLET_INFO_KEY);
+
+      // if the portlet info is not in the invocation, set it so that it can be used in further calls
+      if (info == null)
+      {
+         info = getWSRPPortlet(getPortletContext(invocation)).getInfo();
+         invocation.setAttribute(PORTLET_INFO_KEY, info);
+      }
+
+      return (WSRPPortletInfo)info;
    }
 
    WSRPPortlet getWSRPPortlet(PortletContext portletContext) throws PortletInvokerException

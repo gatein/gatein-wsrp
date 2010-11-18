@@ -40,9 +40,9 @@ public class WSRPActionURL extends WSRPPortletURL implements ActionURL
 {
    private StateString interactionState;
 
-   protected WSRPActionURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, StateString interactionState)
+   protected WSRPActionURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, StateString interactionState, URLContext context)
    {
-      super(mode, windowState, secure, navigationalState);
+      super(mode, windowState, secure, navigationalState, context);
       this.interactionState = interactionState;
    }
 

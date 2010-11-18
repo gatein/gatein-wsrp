@@ -24,6 +24,7 @@
 package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.text.TextTools;
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.cache.CacheScope;
@@ -36,8 +37,8 @@ import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
-import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.CacheControl;
@@ -92,13 +93,13 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
       }
 
-      if (markup != null && markup.length() > 0)
+      if (!ParameterValidation.isNullOrEmpty(markup))
       {
          if (Boolean.TRUE.equals(mimeResponse.isRequiresRewriting()))
          {
             markup = processMarkup(
                markup,
-               getNamespaceFrom(invocation.getWindowContext()),
+               WSRPTypeFactory.getNamespaceFrom(invocation.getWindowContext()),
                invocation.getContext(),
                invocation.getTarget(),
                new URLFormat(invocation.getSecurityContext().isSecure(), invocation.getSecurityContext().isAuthenticated(), true, true),
@@ -108,7 +109,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       }
 
       String mimeType = mimeResponse.getMimeType();
-      if (mimeType == null || mimeType.length() == 0)
+      if (ParameterValidation.isNullOrEmpty(mimeType))
       {
          return new ErrorResponse(new IllegalArgumentException("No MIME type was provided for portlet content."));
       }
@@ -215,20 +216,6 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
          return context.renderURL(portletURL, format);
-      }
-
-
-      static String getResourceURL(String urlAsString, WSRPResourceURL resource)
-      {
-         String resourceURL = resource.getResourceURL().toExternalForm();
-         if (log.isDebugEnabled())
-         {
-            log.debug("URL '" + urlAsString + "' refers to a resource which are not currently well supported. " +
-               "Attempting to craft a URL that we might be able to work with: '" + resourceURL + "'");
-         }
-
-         // right now the resourceURL should be output as is, because it will be used directly but it really should be encoded
-         return resourceURL;
       }
    }
 }

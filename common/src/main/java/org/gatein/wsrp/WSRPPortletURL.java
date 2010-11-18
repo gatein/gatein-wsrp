@@ -49,7 +49,7 @@ import java.util.Set;
  */
 public abstract class WSRPPortletURL implements ContainerURL
 {
-   private static final Logger log = LoggerFactory.getLogger(WSRPPortletURL.class);
+   protected static final Logger log = LoggerFactory.getLogger(WSRPPortletURL.class);
 
    protected static final String EQUALS = "=";
    protected static final String AMPERSAND = "&";
@@ -85,7 +85,7 @@ public abstract class WSRPPortletURL implements ContainerURL
       log.debug("Using " + (strict ? "strict" : "lenient") + " rewriting parameters validation mode.");
    }
 
-   public static WSRPPortletURL create(ContainerURL containerURL, boolean secure)
+   public static WSRPPortletURL create(ContainerURL containerURL, boolean secure, URLContext context)
    {
       if (containerURL == null)
       {
@@ -100,17 +100,17 @@ public abstract class WSRPPortletURL implements ContainerURL
       if (containerURL instanceof ActionURL)
       {
          StateString interactionState = ((ActionURL)containerURL).getInteractionState();
-         url = new WSRPActionURL(mode, windowState, secure, navigationalState, interactionState);
+         url = new WSRPActionURL(mode, windowState, secure, navigationalState, interactionState, context);
       }
       else if (containerURL instanceof RenderURL)
       {
-         url = new WSRPRenderURL(mode, windowState, secure, navigationalState, ((RenderURL)containerURL).getPublicNavigationalStateChanges());
+         url = new WSRPRenderURL(mode, windowState, secure, navigationalState, ((RenderURL)containerURL).getPublicNavigationalStateChanges(), context);
       }
       else if (containerURL instanceof ResourceURL)
       {
          ResourceURL resource = (ResourceURL)containerURL;
          url = new WSRPResourceURL(mode, windowState, secure, navigationalState, resource.getResourceState(),
-            resource.getResourceId(), resource.getCacheability());
+            resource.getResourceId(), resource.getCacheability(), context);
       }
       else
       {
@@ -283,7 +283,7 @@ public abstract class WSRPPortletURL implements ContainerURL
       return create(encodedURL, Collections.<String>emptySet(), Collections.<String>emptySet());
    }
 
-   protected WSRPPortletURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState)
+   protected WSRPPortletURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, URLContext context)
    {
       this.mode = mode;
       this.windowState = windowState;
@@ -596,5 +596,51 @@ public abstract class WSRPPortletURL implements ContainerURL
    public Map<String, String> getProperties()
    {
       return Collections.emptyMap();
+   }
+
+   public static class URLContext
+   {
+      public static final String SERVER_ADDRESS = "org.gatein.wsrp.server.address";
+      public static final String PORTLET_CONTEXT = "org.gatein.wsrp.portlet.context";
+      public static final String REGISTRATION_HANDLE = "org.gatein.wsrp.registration";
+      public static final String INSTANCE_KEY = "org.gatein.wsrp.instance.key";
+      public static final String NAMESPACE = "org.gatein.wsrp.namespace";
+
+      public static final URLContext EMPTY = new URLContext()
+      {
+         @Override
+         public Object getValueFor(String name)
+         {
+            return null;
+         }
+
+         @Override
+         public void setValueFor(String name, Object value)
+         {
+         }
+      };
+      private Map<String, Object> context;
+
+      public URLContext()
+      {
+         context = new HashMap<String, Object>(7);
+      }
+
+      public URLContext(String name1, Object value1, String name2, Object value2)
+      {
+         this();
+         context.put(name1, value1);
+         context.put(name2, value2);
+      }
+
+      public Object getValueFor(String name)
+      {
+         return context.get(name);
+      }
+
+      public void setValueFor(String name, Object value)
+      {
+         context.put(name, value);
+      }
    }
 }

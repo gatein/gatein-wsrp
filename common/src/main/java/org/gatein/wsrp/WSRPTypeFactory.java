@@ -37,7 +37,9 @@ import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
+import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.PortletInvocationContext;
+import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.spec.v2.ErrorCodes;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
@@ -419,7 +421,7 @@ public class WSRPTypeFactory
 
    private static void checkPortletHandle(String portletHandle)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", "PortletDescription");
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", null);
       if (portletHandle.length() > 255)
       {
          throw new IllegalArgumentException("Portlet handles must be less than 255 characters long. Was "
@@ -586,10 +588,10 @@ public class WSRPTypeFactory
    public static MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCachedItem)
    {
       boolean isUseCachedItem = (useCachedItem == null) ? false : useCachedItem.booleanValue();
-      
+
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
-      
+
       if (isUseCachedItem)
       {
          markupContext.setUseCachedItem(useCachedItem);
@@ -597,7 +599,7 @@ public class WSRPTypeFactory
       else
       {
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mediaType, "Media type", "MarkupContext");
-         
+
          if (markupBinary != null)
          {
             markupContext.setItemBinary(markupBinary);
@@ -1810,5 +1812,31 @@ public class WSRPTypeFactory
    public static NamedStringArray createNamedStringArray()
    {
       return new NamedStringArray();
+   }
+
+   public static String getPortletInstanceKey(InstanceContext instanceContext)
+   {
+      return instanceContext.getId();
+   }
+
+   public static String getNamespacePrefix(WindowContext windowContext, String portletHandle)
+   {
+      String namespacePrefix = getNamespaceFrom(windowContext);
+      if (namespacePrefix == null)
+      {
+         return portletHandle;
+      }
+
+      return namespacePrefix;
+   }
+
+   public static String getNamespaceFrom(WindowContext windowContext)
+   {
+      if (windowContext != null)
+      {
+         return windowContext.getNamespace();
+      }
+
+      return null;
    }
 }

@@ -23,13 +23,7 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.apache.commons.httpclient.Cookie;
-import org.gatein.common.io.IOTools;
-import org.gatein.common.net.media.MediaType;
-import org.gatein.common.net.media.TypeDef;
-import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.common.util.Tools;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.ActionInvocation;
 import org.gatein.pc.api.invocation.EventInvocation;
@@ -37,21 +31,13 @@ import org.gatein.pc.api.invocation.InvocationException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.ResourceInvocation;
-import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
-import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,6 +51,7 @@ public class InvocationDispatcher
    private final ResourceHandler resourceHandler;
    private final EventHandler eventHandler;
    private final WSRPConsumerImpl consumer;
+   private final DirectResourceServingHandler directResourceHandler;
 
    public InvocationDispatcher(WSRPConsumerImpl consumer)
    {
@@ -73,6 +60,7 @@ public class InvocationDispatcher
       renderHandler = new RenderHandler(consumer);
       resourceHandler = new ResourceHandler(consumer);
       eventHandler = new EventHandler(consumer);
+      directResourceHandler = new DirectResourceServingHandler(consumer);
    }
 
    public PortletInvocationResponse dispatchAndHandle(PortletInvocation invocation) throws PortletInvokerException
@@ -101,11 +89,16 @@ public class InvocationDispatcher
             resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
             resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
             preferOperationAsString = resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
+
+            // put the values in the invocation so that we don't need to redecode the resource id
+            resourceInvocation.setAttribute(WSRPRewritingConstants.RESOURCE_URL, resourceURL);
+            resourceInvocation.setAttribute(WSRP2RewritingConstants.RESOURCE_ID, resourceId);
+            resourceInvocation.setAttribute(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION, preferOperationAsString);
          }
          else
          {
             // GateIn-specific: WSRP-specific URL parameters might also be put as attributes by UIPortlet when the invocation is created
-            resourceId = (String)resourceInvocation.getAttribute(WSRP2RewritingConstants.RESOURCE_ID);
+            resourceId = null;
             resourceURL = (String)resourceInvocation.getAttribute(WSRPRewritingConstants.RESOURCE_URL);
             preferOperationAsString = (String)resourceInvocation.getAttribute(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
          }
@@ -118,7 +111,7 @@ public class InvocationDispatcher
          }
          else if (resourceURL != null)
          {
-            return performDirectURLRequest(resourceURL);
+            handler = directResourceHandler;
          }
          else
          {
@@ -135,84 +128,5 @@ public class InvocationDispatcher
       }
 
       return handler.handle(invocation);
-   }
-
-   private PortletInvocationResponse performDirectURLRequest(String resourceURL)
-   {
-      try
-      {
-         URL url = new URL(resourceURL);
-         URLConnection urlConnection = url.openConnection();
-         String contentType = urlConnection.getContentType();
-
-         // init ResponseProperties for ContentResponse result
-         Map<String, List<String>> headers = urlConnection.getHeaderFields();
-         ResponseProperties props = new ResponseProperties();
-         MultiValuedPropertyMap<String> transportHeaders = props.getTransportHeaders();
-         for (Map.Entry<String, List<String>> entry : headers.entrySet())
-         {
-            String key = entry.getKey();
-            if (key != null)
-            {
-               List<String> values = entry.getValue();
-               if (values != null)
-               {
-                  if (CookieUtil.SET_COOKIE.equals(key))
-                  {
-                     Cookie[] cookies = CookieUtil.extractCookiesFrom(url, values.toArray(new String[values.size()]));
-                     List<javax.servlet.http.Cookie> propCookies = props.getCookies();
-                     for (Cookie cookie : cookies)
-                     {
-                        propCookies.add(CookieUtil.convertFrom(cookie));
-                     }
-                  }
-                  else
-                  {
-                     for (String value : values)
-                     {
-                        transportHeaders.addValue(key, value);
-                     }
-                  }
-               }
-            }
-         }
-
-         int length = urlConnection.getContentLength();
-         // if length is not known, use a default value
-         length = (length > 0 ? length : Tools.DEFAULT_BUFFER_SIZE * 8);
-         byte[] bytes = IOTools.getBytes(urlConnection.getInputStream(), length);
-
-         ContentResponse result;
-         MediaType type = MediaType.create(contentType);
-         if (TypeDef.TEXT.equals(type.getType()))
-         {
-            // determine the charset of the content, if any
-            String charset = "UTF-8";
-            if (contentType != null)
-            {
-               for (String part : contentType.split(";"))
-               {
-                  if (part.startsWith("charset="))
-                  {
-                     charset = part.substring("charset=".length());
-                  }
-               }
-            }
-
-            // build a String-based content response
-            result = new ContentResponse(props, Collections.<String, Object>emptyMap(), contentType, null, new String(bytes, charset), null);
-         }
-         else
-         {
-            // build a byte-based content response
-            result = new ContentResponse(props, Collections.<String, Object>emptyMap(), contentType, bytes, null, null);
-         }
-
-         return result;
-      }
-      catch (IOException e)
-      {
-         return new ErrorResponse(e);
-      }
    }
 }

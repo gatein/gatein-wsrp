@@ -59,15 +59,25 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    {
    }
 
-   public WSRPResourceURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, StateString resourceState, String resourceId, CacheLevel cacheability)
+   public WSRPResourceURL(Mode mode, WindowState windowState, boolean secure, StateString navigationalState, StateString resourceState, String resourceId, CacheLevel cacheability, URLContext context)
    {
-      super(mode, windowState, secure, navigationalState);
+      super(mode, windowState, secure, navigationalState, context);
 
       if (resourceId == null)
       {
          // if the container didn't provide us with a resource id, fake one so that we can still build a correct WSRP URL.
          resourceId = DEFAULT_RESOURCE_ID;
       }
+
+      if (context != null && !URLContext.EMPTY.equals(context))
+      {
+         resourceURL = ResourceServingUtil.encode(mode, windowState, secure, navigationalState, resourceState, resourceId, cacheability, context);
+      }
+      else
+      {
+         resourceURL = null;
+      }
+
       this.resourceId = resourceId;
       this.resourceState = resourceState;
       this.cacheability = cacheability;
@@ -252,7 +262,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
    public static Map<String, String> decodeResource(String resourceInfo)
    {
       Map<String, String> resource = new HashMap<String, String>();
-      
+
       if (resourceInfo != null && resourceInfo.startsWith(StateString.JBPNS_PREFIX))
       {
          Map<String, String[]> resourceParameters = StateString.decodeOpaqueValue(resourceInfo);

@@ -145,7 +145,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          if (runtimeContext != null)
          {
             WindowContext windowContext = invocation.getWindowContext();
-            runtimeContext.setNamespacePrefix(getNamespaceFrom(windowContext));
+            runtimeContext.setNamespacePrefix(WSRPTypeFactory.getNamespaceFrom(windowContext));
 
             InstanceContext instanceContext = invocation.getInstanceContext();
             runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
@@ -195,16 +195,6 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          log.debug("performRequest finished. Response is " + (response != null ? response.getClass().getName() : null));
       }
       return response;
-   }
-
-   protected static String getNamespaceFrom(WindowContext windowContext)
-   {
-      if (windowContext != null)
-      {
-         return windowContext.getNamespace();
-      }
-
-      return null;
    }
 
    /**
@@ -347,13 +337,9 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          ParameterValidation.throwIllegalArgExceptionIfNull(securityContext, SECURITY_CONTEXT);
          String authType = WSRPUtils.convertRequestAuthTypeToWSRPAuthType(securityContext.getAuthType());
 
-         String portletInstanceKey = invocation.getInstanceContext().getId();
-         String namespacePrefix = getNamespaceFrom(invocation.getWindowContext());
+         String portletInstanceKey = WSRPTypeFactory.getPortletInstanceKey(invocation.getInstanceContext());
 
-         if (namespacePrefix == null)
-         {
-            namespacePrefix = getPortletHandle();
-         }
+         String namespacePrefix = WSRPTypeFactory.getNamespacePrefix(invocation.getWindowContext(), getPortletHandle());
 
          runtimeContext = WSRPTypeFactory.createRuntimeContext(authType, portletInstanceKey, namespacePrefix);
 

@@ -28,7 +28,7 @@ import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.ResourceInvocation;
 import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
-import org.gatein.wsrp.WSRPResourceURL;
+import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
@@ -92,9 +92,20 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
    @Override
    protected GetResource prepareRequest(RequestPrecursor<ResourceInvocation> requestPrecursor, ResourceInvocation invocation)
    {
-      String resourceInvocationId = invocation.getResourceId();
+      /*String resourceInvocationId = invocation.getResourceId();
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
-      String resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
+      String resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);*/
+
+      // get the resource id from the invocation attributes so that we don't need to redecode the original encoded resource id
+      String resourceId = (String)invocation.getAttribute(WSRP2RewritingConstants.RESOURCE_ID);
+
+      // if we didn't get a resource id, that means we need to use a resource URL, so get it and use it as the resource id
+      // note that the InvocationDispatcher should properly handle which handler will be used so this should be safe
+      // if we had a resource id anyway but are using WSRP 1, we need to reset it to use the URL instead
+      if (resourceId == null || !consumer.isUsingWSRP2())
+      {
+         resourceId = (String)invocation.getAttribute(WSRPRewritingConstants.RESOURCE_URL);
+      }
 
       PortletContext portletContext = requestPrecursor.getPortletContext();
 

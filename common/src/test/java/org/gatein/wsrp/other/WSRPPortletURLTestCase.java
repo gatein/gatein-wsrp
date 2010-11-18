@@ -96,16 +96,16 @@ public class WSRPPortletURLTestCase extends TestCase
       assertNull(resourceMap.get(WSRPRewritingConstants.RESOURCE_URL));
       assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
-   
+
    public void testResourceIDToken()
    {
       //Test what happens in the case where the url is created via token wsrp rewriting on the producer side
       //In this case the resource ID will not be an encoded resource map.
-      
+
       Map<String, String> resourceMap = WSRPResourceURL.decodeResource("resource_123");
       String resourceID = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
       assertEquals("resource_123", resourceID);
-      
+
       assertNull(resourceMap.get(WSRPRewritingConstants.RESOURCE_URL));
       assertNull(resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
@@ -197,7 +197,7 @@ public class WSRPPortletURLTestCase extends TestCase
    {
       // create URL from container
       ResourceURL resourceURL = new TestResourceURL("resparam", "resvalue");
-      WSRPPortletURL url = WSRPPortletURL.create(resourceURL, false);
+      WSRPPortletURL url = WSRPPortletURL.create(resourceURL, false, WSRPPortletURL.URLContext.EMPTY);
 
       assertTrue(url instanceof WSRPResourceURL);
       WSRPResourceURL resource = (WSRPResourceURL)url;

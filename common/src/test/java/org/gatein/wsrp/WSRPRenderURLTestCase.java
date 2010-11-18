@@ -39,13 +39,13 @@ public class WSRPRenderURLTestCase extends TestCase
 {
    public void testNullPublicNavigationalState()
    {
-      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, null);
+      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, null, WSRPPortletURL.URLContext.EMPTY);
       assertFalse(url.toString().contains(WSRP2RewritingConstants.NAVIGATIONAL_VALUES));
    }
 
    public void testEmptyPublicNavigationalState()
    {
-      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, Collections.<String, String[]>emptyMap());
+      WSRPRenderURL url = new WSRPRenderURL(null, null, false, null, Collections.<String, String[]>emptyMap(), WSRPPortletURL.URLContext.EMPTY);
       assertFalse(url.toString().contains(WSRP2RewritingConstants.NAVIGATIONAL_VALUES));
    }
 
