@@ -57,7 +57,6 @@ public class ResourceServingUtil
    private static final String WINDOW_STATE = "windowState";
    private static final String RESOURCE_STATE = "resourceState";
    private static final String NAV_STATE = "navState";
-   private static final String SLASH_REPLACEMENT = "__";
    private static final String QMARK = "?";
 
    public static GetResource decode(HttpServletRequest req)
