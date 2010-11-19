@@ -252,7 +252,15 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       if (oldId != null)
       {
          remove(getConsumer(oldId));
-         createConsumerFrom(producerInfo);
+         WSRPConsumer consumer = createConsumerFrom(producerInfo);
+
+         // update the federating portlet invoker:
+         FederatedPortletInvoker invoker = federatingPortletInvoker.getFederatedInvoker(oldId);
+         if (invoker != null)
+         {
+            federatingPortletInvoker.unregisterInvoker(oldId);
+            federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
+         }
       }
    }
 
