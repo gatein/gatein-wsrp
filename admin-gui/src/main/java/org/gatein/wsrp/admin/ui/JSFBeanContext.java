@@ -23,12 +23,15 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import org.gatein.common.net.URLTools;
 import org.gatein.common.util.ParameterValidation;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.portlet.PortletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
 import java.util.Map;
 
@@ -135,6 +138,28 @@ public class JSFBeanContext extends BeanContext
    protected Locale getLocale()
    {
       return getRequestLocale();
+   }
+
+   public String getServerAddress()
+   {
+      Object request = FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      String serverAddress;
+      if (request instanceof PortletRequest)
+      {
+         // basically copy URLTools.getServerAddressFrom implementation
+         PortletRequest portletRequest = (PortletRequest)request;
+         String scheme = portletRequest.getScheme();
+         String host = portletRequest.getServerName();
+         int port = portletRequest.getServerPort();
+
+         return scheme + URLTools.SCH_END + host + URLTools.PORT_END + port;
+      }
+      else
+      {
+         serverAddress = URLTools.getServerAddressFrom((HttpServletRequest)request);
+      }
+
+      return serverAddress;
    }
 
    public static Locale getRequestLocale()

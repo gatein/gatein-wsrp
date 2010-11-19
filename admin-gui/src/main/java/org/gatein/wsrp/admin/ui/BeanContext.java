@@ -81,6 +81,8 @@ public abstract class BeanContext
 
    protected abstract Locale getLocale();
 
+   public abstract String getServerAddress();
+
    public void createErrorMessage(String localizedMessageId, Object... params)
    {
       createLocalizedMessage(STATUS, localizedMessageId, getErrorSeverity(), params);

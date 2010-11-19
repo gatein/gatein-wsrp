@@ -412,3 +412,13 @@
    width: 7%;
 }
 
+.wsrp-consumers-ui #producer-wsdl {
+   border: 1px solid #fc6;
+   font-weight: bold;
+   color: #fff;
+   font-size: 11px;
+   background-color: #ffa200;
+   -moz-border-radius: 6px;
+   -webkit-border-radius: 6px;
+   padding: .5em;
+}

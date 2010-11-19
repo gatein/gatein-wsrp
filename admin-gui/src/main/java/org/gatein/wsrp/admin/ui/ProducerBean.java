@@ -246,6 +246,16 @@ public class ProducerBean extends ManagedBean
       return registrationConfiguration;
    }
 
+   public String getV1WSDL()
+   {
+      return beanContext.getServerAddress() + "/wsrp-producer/v1/MarkupService?wsdl";
+   }
+
+   public String getV2WSDL()
+   {
+      return beanContext.getServerAddress() + "/wsrp-producer/v2/MarkupService?wsdl";
+   }
+
    private static class RegistrationConfiguration
    {
       private List<RegistrationPropertyDescription> registrationProperties;

@@ -151,6 +151,11 @@ public class ConsumerBeanTestCase extends TestCase
          return Locale.getDefault();
       }
 
+      public String getServerAddress()
+      {
+         throw new NotYetImplemented();
+      }
+
       public Map<String, Object> getSessionMap()
       {
          throw new NotYetImplemented();
