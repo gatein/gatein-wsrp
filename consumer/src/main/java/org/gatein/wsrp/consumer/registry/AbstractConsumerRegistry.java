@@ -399,9 +399,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       return RELEASE_SESSIONS_LISTENER + id;
    }
 
-   protected abstract void save(ProducerInfo info, String messageOnError);
+   protected abstract void save(ProducerInfo info, String messageOnError) throws ConsumerException;
 
-   protected abstract void delete(ProducerInfo info);
+   protected abstract void delete(ProducerInfo info) throws ConsumerException;
 
    /**
     * Persists the changes made to ProducerInfo.
