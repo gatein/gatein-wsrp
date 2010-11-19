@@ -57,6 +57,7 @@ public class ResourceServingUtil
    private static final String WINDOW_STATE = "windowState";
    private static final String RESOURCE_STATE = "resourceState";
    private static final String NAV_STATE = "navState";
+   private static final String SLASH_REPLACEMENT = "__";
    private static final String QMARK = "?";
 
    public static GetResource decode(HttpServletRequest req)
@@ -158,12 +159,20 @@ public class ResourceServingUtil
    private static String encode(org.gatein.pc.api.PortletContext portletContext)
    {
       String id = portletContext.getId();
-
+      if (id.startsWith(URLTools.SLASH))
+      {
+         id = id.replace(URLTools.SLASH, SLASH_REPLACEMENT);
+      }
       return URLTools.encodeXWWWFormURL(id);
    }
 
    private static PortletContext decode(String encodedPortletContext)
    {
+      if (encodedPortletContext.startsWith(SLASH_REPLACEMENT))
+      {
+         encodedPortletContext = encodedPortletContext.replace(SLASH_REPLACEMENT, URLTools.SLASH);
+      }
+
       return WSRPTypeFactory.createPortletContext(URLTools.decodeXWWWFormURL(encodedPortletContext));
    }
 
