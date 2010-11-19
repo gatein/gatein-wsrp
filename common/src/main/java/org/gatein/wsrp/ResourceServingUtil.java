@@ -77,7 +77,7 @@ public class ResourceServingUtil
          registrationContext = WSRPTypeFactory.createRegistrationContext(registrationHandle);
       }
 
-      String instanceKey = req.getParameter(INSTANCE_KEY);
+      String instanceKey = URLTools.decodeXWWWFormURL(req.getParameter(INSTANCE_KEY));
       String ns = req.getParameter(NS);
       RuntimeContext runtimeContext = WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, instanceKey, ns);
 
@@ -106,9 +106,14 @@ public class ResourceServingUtil
       try
       {
          StringBuilder sb = new StringBuilder(createAbsoluteURLFrom(resourceId, serverAddress, portletContext));
-         appendParameter(sb, MODE, mode.toString());
-         appendParameter(sb, WINDOW_STATE, windowState.toString());
-         appendParameter(sb, INSTANCE_KEY, context.getValueFor(WSRPPortletURL.URLContext.INSTANCE_KEY));
+         appendParameter(sb, MODE, mode);
+         appendParameter(sb, WINDOW_STATE, windowState);
+
+         // instance key can contain a space if it's based on the portlet context so we need to also encode it
+         String instanceKey = (String)context.getValueFor(WSRPPortletURL.URLContext.INSTANCE_KEY);
+         instanceKey = URLTools.encodeXWWWFormURL(instanceKey);
+         appendParameter(sb, INSTANCE_KEY, instanceKey);
+
          appendParameter(sb, NS, context.getValueFor(WSRPPortletURL.URLContext.NAMESPACE));
          appendParameter(sb, REG_HANDLE, context.getValueFor(WSRPPortletURL.URLContext.REGISTRATION_HANDLE));
          if (resourceState != null)
@@ -154,21 +159,13 @@ public class ResourceServingUtil
    private static String encode(org.gatein.pc.api.PortletContext portletContext)
    {
       String id = portletContext.getId();
-      if (id.startsWith(URLTools.SLASH))
-      {
-         id = id.replace(URLTools.SLASH, SLASH_REPLACEMENT);
-      }
-      return id;
+
+      return URLTools.encodeXWWWFormURL(id);
    }
 
    private static PortletContext decode(String encodedPortletContext)
    {
-      if (encodedPortletContext.startsWith(SLASH_REPLACEMENT))
-      {
-         encodedPortletContext = encodedPortletContext.replace(SLASH_REPLACEMENT, URLTools.SLASH);
-      }
-
-      return WSRPTypeFactory.createPortletContext(encodedPortletContext);
+      return WSRPTypeFactory.createPortletContext(URLTools.decodeXWWWFormURL(encodedPortletContext));
    }
 
    private static void appendParameter(StringBuilder builder, String name, Object value)
