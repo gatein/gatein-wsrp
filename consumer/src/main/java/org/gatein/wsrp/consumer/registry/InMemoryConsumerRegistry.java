@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer.registry;
 
+import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 
@@ -37,6 +38,7 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
 {
    public InMemoryConsumerRegistry()
    {
+      setFederatingPortletInvoker(new FederatingPortletInvokerService());
       setMigrationService(new InMemoryMigrationService());
    }
 
