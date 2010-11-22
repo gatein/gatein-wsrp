@@ -115,7 +115,14 @@ public class InvocationDispatcher
          }
          else
          {
-            return new ErrorResponse("Did not get a resource URL or a resource ID, cannot fetch resource.");
+            if (consumer.isUsingWSRP2())
+            {
+               return new ErrorResponse("Did not get a resource URL or a resource ID, cannot fetch resource.");
+            }
+            else //using WSRP1
+            {
+               return new ErrorResponse("Did not get a resource URL, cannot fetch resource.");
+            }
          }
       }
       else if (invocation instanceof EventInvocation)
