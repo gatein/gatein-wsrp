@@ -105,7 +105,10 @@ public class DirectResourceServingHandler extends ResourceHandler
 
       ResourceContext resourceContext;
       MediaType type = MediaType.create(contentType);
-      if (TypeDef.TEXT.equals(type.getType()))
+      
+      //TODO: handle this better, we should probably have a class in the common module to determine if the MediaType should be treated as a text
+      // file or as binary content. We also need to implement the algorithm to determine the character encoding.
+      if (TypeDef.TEXT.equals(type.getType()) || (TypeDef.APPLICATION.equals(type.getType()) && (type.getSubtype().getName().contains("javascript"))))
       {
          // determine the charset of the content, if any
          String charset = "UTF-8";
@@ -126,7 +129,7 @@ public class DirectResourceServingHandler extends ResourceHandler
 
          // process markup if needed
          SubtypeDef subtype = type.getSubtype();
-         if (SubtypeDef.HTML.equals(subtype) || SubtypeDef.CSS.equals(subtype) || SubtypeDef.JAVASCRIPT.equals(subtype) || SubtypeDef.XML.equals(subtype))
+         if (SubtypeDef.HTML.equals(subtype) || SubtypeDef.CSS.equals(subtype) || subtype.getName().contains("javascript") || SubtypeDef.XML.equals(subtype))
          {
             resourceContext.setRequiresRewriting(true);
          }
