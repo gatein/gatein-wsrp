@@ -83,7 +83,7 @@ public class ProducerInfo
 {
    private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
    private final static boolean debug = log.isDebugEnabled();
-   public static final Integer DEFAULT_CACHE_VALUE = 30;
+   public static final Integer DEFAULT_CACHE_VALUE = 300;
 
    // Persistent information
 
