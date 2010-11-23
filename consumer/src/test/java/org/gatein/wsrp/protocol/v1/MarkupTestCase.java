@@ -163,6 +163,10 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       String handle = InitCookieNotRequiredMarkupBehavior.INIT_COOKIE_NOT_REQUIRED_HANDLE;
       InitCookieMarkupBehavior behavior = (InitCookieMarkupBehavior)producer.getBehaviorRegistry().getMarkupBehaviorFor(handle);
 
+      // this test requires that the consumer refreshes which is not the case with the setUp, so force refresh
+      consumer.getProducerInfo().setExpirationCacheSeconds(0);
+      ExtendedAssert.assertTrue(consumer.getProducerInfo().isRefreshNeeded(true));
+
       ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, V1CookieProtocol.NONE.value());
 
       ExtendedAssert.assertNotNull(sessionInfo);

@@ -789,11 +789,7 @@ public class ProducerInfo
 
    private void resetCacheTimerIfNeeded()
    {
-      if (useCache())
-      {
-         // reset expiration time
-         expirationTimeMillis = System.currentTimeMillis() + (persistentExpirationCacheSeconds * 1000);
-      }
+      expirationTimeMillis = System.currentTimeMillis() + (getSafeExpirationCacheSeconds() * 1000);
    }
 
    /**
@@ -818,7 +814,35 @@ public class ProducerInfo
 
    public void setExpirationCacheSeconds(Integer expirationCacheSeconds)
    {
+      // record the previous cache expiration duration
+      Integer previousMS = getSafeExpirationCacheSeconds() * 1000;
+
+      // assign the new value
       this.persistentExpirationCacheSeconds = expirationCacheSeconds;
+
+      // recompute the expiration time based on previous value and new one
+      long lastExpirationTimeChange = expirationTimeMillis - previousMS;
+      int newMS = getSafeExpirationCacheSeconds() * 1000;
+      if (lastExpirationTimeChange > 0)
+      {
+         expirationTimeMillis = lastExpirationTimeChange + newMS;
+      }
+      else
+      {
+         expirationTimeMillis = System.currentTimeMillis();
+      }
+
+   }
+
+   /**
+    * Returns the cache expiration duration in seconds as a positive value or zero so that it's safe to use in cache
+    * expiration time computations.
+    *
+    * @return
+    */
+   private int getSafeExpirationCacheSeconds()
+   {
+      return useCache() ? persistentExpirationCacheSeconds : 0;
    }
 
    private ServiceDescription getUnmanagedServiceDescription(boolean asUnregistered) throws PortletInvokerException, OperationFailed, InvalidRegistration, ModifyRegistrationRequired

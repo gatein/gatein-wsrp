@@ -126,7 +126,73 @@ public class ProducerInfoTestCase extends TestCase
       }
    }
 
-   public void testRefreshAndCache() throws Exception
+   public void testSetNullCache() throws PortletInvokerException
+   {
+      ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
+      serviceFactory.getRegistry().setServiceDescriptionBehavior(behavior);
+
+      // we now have a default value for cache
+      assertEquals(ProducerInfo.DEFAULT_CACHE_VALUE, info.getExpirationCacheSeconds());
+
+      // check behavior when no cache has been set
+      info.setExpirationCacheSeconds(null);
+      assertNull(info.getExpirationCacheSeconds());
+      assertTrue(info.isRefreshNeeded(false));
+      assertFalse(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertEquals(2, behavior.getCallCount());
+   }
+
+   public void testSetNegativeCache() throws PortletInvokerException
+   {
+      ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
+      serviceFactory.getRegistry().setServiceDescriptionBehavior(behavior);
+
+      // we now have a default value for cache
+      assertEquals(ProducerInfo.DEFAULT_CACHE_VALUE, info.getExpirationCacheSeconds());
+
+      // check behavior when cache has been set to a negative value
+      info.setExpirationCacheSeconds(-100);
+      assertEquals(new Integer(-100), info.getExpirationCacheSeconds());
+      assertTrue(info.isRefreshNeeded(false));
+      assertFalse(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertEquals(2, behavior.getCallCount());
+   }
+
+   public void testSetZeroCache() throws PortletInvokerException
+   {
+      ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
+      serviceFactory.getRegistry().setServiceDescriptionBehavior(behavior);
+
+      // we now have a default value for cache
+      assertEquals(ProducerInfo.DEFAULT_CACHE_VALUE, info.getExpirationCacheSeconds());
+
+      // check behavior when cache has been set to zero
+      info.setExpirationCacheSeconds(0);
+      assertEquals(new Integer(0), info.getExpirationCacheSeconds());
+      assertTrue(info.isRefreshNeeded(false));
+      assertFalse(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertTrue(info.refresh(false));
+      assertFalse(info.isRefreshNeeded(false));
+      assertTrue(info.isRegistrationChecked());
+      assertEquals(2, behavior.getCallCount());
+   }
+
+   public void testCacheTransitions() throws Exception
    {
       ServiceDescriptionBehavior behavior = new ServiceDescriptionBehavior();
       serviceFactory.getRegistry().setServiceDescriptionBehavior(behavior);
@@ -147,16 +213,19 @@ public class ProducerInfoTestCase extends TestCase
       assertTrue(info.isRegistrationChecked());
       assertEquals(2, behavior.getCallCount());
 
+      // wait a little so that computations that are only precise to the ms can actually mean something
+      Thread.sleep(10);
+
+      // set cache and check that we don't refresh as much
       info.setExpirationCacheSeconds(1);
       assertEquals(new Integer(1), info.getExpirationCacheSeconds());
-      assertTrue(info.refresh(false));
-      assertFalse(info.refresh(false));
+      assertFalse("we refreshed less than a second ago so we don't need to refresh again", info.refresh(false));
       assertFalse(info.isRefreshNeeded(false));
       assertTrue(info.isRegistrationChecked());
-      assertEquals(3, behavior.getCallCount());
+      assertEquals(2, behavior.getCallCount());
 
       // wait for cache expiration
-      Thread.sleep(1500);
+      Thread.sleep(1100);
       assertFalse("refresh is not needed if cache is not considered", info.isRefreshNeeded(false));
       assertTrue("refresh is needed if cache is considered since it has expired", info.isRefreshNeeded(true));
       assertTrue(info.refresh(false));
@@ -166,7 +235,20 @@ public class ProducerInfoTestCase extends TestCase
       assertTrue(info.refresh(true));
       assertFalse(info.isRefreshNeeded(false));
       assertTrue(info.isRegistrationChecked());
-      assertEquals(5, behavior.getCallCount());
+      assertEquals(4, behavior.getCallCount());
+
+      // wait a little so that computations that are only precise to the ms can actually mean something
+      Thread.sleep(10);
+
+      // now ask to not use the cache anymore and check that we do refresh
+      info.setExpirationCacheSeconds(0);
+      assertEquals(new Integer(0), info.getExpirationCacheSeconds());
+      assertTrue(info.refresh(false));
+      assertTrue(info.refresh(false));
+      assertFalse("since we've been refreshed at least once before, refreshing the endpoint and registration has been done so refresh is not needed", info.isRefreshNeeded(false));
+      assertTrue(info.isRefreshNeeded(true));
+      assertTrue(info.isRegistrationChecked());
+      assertEquals(6, behavior.getCallCount());
    }
 
    public void testGetPortlet() throws Exception
