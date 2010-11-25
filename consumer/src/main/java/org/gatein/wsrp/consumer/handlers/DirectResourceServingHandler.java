@@ -34,6 +34,7 @@ import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.handler.CookieUtil;
+import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceResponse;
@@ -63,6 +64,18 @@ public class DirectResourceServingHandler extends ResourceHandler
 
       URL url = new URL(resourceURL);
       URLConnection urlConnection = url.openConnection();
+
+      ProducerSessionInformation sessionInfo = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
+      if (sessionInfo != null)
+      {
+         String cookie = RequestHeaderClientHandler.createCookie(sessionInfo);
+
+         if (cookie.length() != 0)
+         {
+            urlConnection.addRequestProperty(CookieUtil.COOKIE, cookie);
+         }
+      }
+
       String contentType = urlConnection.getContentType();
 
       // init ResponseProperties for ContentResponse result
@@ -105,7 +118,7 @@ public class DirectResourceServingHandler extends ResourceHandler
 
       ResourceContext resourceContext;
       MediaType type = MediaType.create(contentType);
-      
+
       //TODO: handle this better, we should probably have a class in the common module to determine if the MediaType should be treated as a text
       // file or as binary content. We also need to implement the algorithm to determine the character encoding.
       if (TypeDef.TEXT.equals(type.getType()) || (TypeDef.APPLICATION.equals(type.getType()) && (type.getSubtype().getName().contains("javascript"))))

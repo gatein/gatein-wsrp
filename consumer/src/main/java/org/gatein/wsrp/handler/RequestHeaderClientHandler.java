@@ -47,6 +47,7 @@ import java.util.Set;
 public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static final ThreadLocal<CurrentInfo> local = new ThreadLocal<CurrentInfo>();
+   private static final String EMPTY = "";
 
    public Set<QName> getHeaders()
    {
@@ -92,7 +93,33 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
       SOAPMessage message = msgContext.getMessage();
       MimeHeaders mimeHeaders = message.getMimeHeaders();
-      StringBuffer cookie = new StringBuffer(64);
+
+      String cookie = createCookie(info, sessionInfo);
+
+      if (cookie.length() != 0)
+      {
+         mimeHeaders.setHeader(CookieUtil.COOKIE, cookie);
+      }
+
+      return true;
+   }
+
+   public static String createCookie(ProducerSessionInformation sessionInformation)
+   {
+      CurrentInfo currentInfo = getCurrentInfo(false);
+      if (currentInfo != null)
+      {
+         return createCookie(currentInfo, sessionInformation);
+      }
+      else
+      {
+         return EMPTY;
+      }
+   }
+
+   private static String createCookie(CurrentInfo info, ProducerSessionInformation sessionInfo)
+   {
+      StringBuilder cookie = new StringBuilder(128);
       if (sessionInfo.isPerGroupCookies())
       {
          if (info.groupId == null)
@@ -116,13 +143,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
          }
          cookie.append(userCookie);
       }
-
-      if (cookie.length() != 0)
-      {
-         mimeHeaders.setHeader(CookieUtil.COOKIE, cookie.toString());
-      }
-
-      return true;
+      return cookie.toString();
    }
 
    public boolean handleResponse(MessageContext msgContext)
