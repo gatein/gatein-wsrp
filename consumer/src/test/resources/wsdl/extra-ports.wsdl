@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<s0:definitions targetNamespace="urn:oasis:names:tc:wsrp:v2:wsdl" xmlns="" xmlns:s0="http://schemas.xmlsoap.org/wsdl/"
+                xmlns:s1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                xmlns:s2="urn:oasis:names:tc:wsrp:v2:bind" xmlns:s3="http://schemas.xmlsoap.org/wsdl/soap/"
+                xmlns:s4="urn:bea:wsrp:ext:v2:bind" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+   <s0:import
+      location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL/wsrp-2.0-bindings.wsdl"
+      namespace="urn:oasis:names:tc:wsrp:v2:bind"/>
+   <s0:import
+      location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL/wlp-wsrp-2.0-bindings.wsdl"
+      namespace="urn:bea:wsrp:ext:v2:bind"/>
+   <wsp:UsingPolicy s0:Required="true"/>
+   <wsp:Policy s1:Id="ProducerDefaultPolicy">
+      <wsp:All>
+         <wssp:Identity xmlns:wssp="http://www.bea.com/wls90/security/policy">
+            <wssp:SupportedTokens>
+               <wssp:SecurityToken
+                  TokenType="http://docs.oasis-open.org/wss/2004/01/oasis-2004-01-saml-token-profile-1.0#SAMLAssertionID">
+                  <wssp:Claims>
+                     <wssp:ConfirmationMethod>sender-vouches</wssp:ConfirmationMethod>
+                  </wssp:Claims>
+               </wssp:SecurityToken>
+            </wssp:SupportedTokens>
+         </wssp:Identity>
+      </wsp:All>
+   </wsp:Policy>
+   <s0:service name="WSRP_v2_Service">
+      <s0:port binding="s2:WSRP_v2_Markup_Binding_SOAP" name="WSRP_v2_Markup_Service">
+         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup"/>
+      </s0:port>
+      <s0:port binding="s2:WSRP_v2_ServiceDescription_Binding_SOAP" name="WSRP_v2_ServiceDescription_Service">
+         <s3:address
+            location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/serviceDescription"/>
+      </s0:port>
+      <s0:port binding="s2:WSRP_v2_Registration_Binding_SOAP" name="WSRP_v2_Registration_Service">
+         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/registration"/>
+      </s0:port>
+      <s0:port binding="s2:WSRP_v2_PortletManagement_Binding_SOAP" name="WSRP_v2_PortletManagement_Service">
+         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/portletManagement"/>
+      </s0:port>
+      <s0:port binding="s4:WLP_WSRP_v2_Markup_Ext_Binding_SOAP" name="WLP_WSRP_v2_Ext_Service">
+         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-wlp-ext-2.0/markup"/>
+      </s0:port>
+   </s0:service>
+</s0:definitions>

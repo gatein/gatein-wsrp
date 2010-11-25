@@ -86,9 +86,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean isV2 = false;
    private Service wsService;
 
-   private static final String WSRP_V1_URN = "urn:oasis:names:tc:wsrp:v1:wsdl";
    private static final String WSRP_V1_BINDING = "urn:oasis:names:tc:wsrp:v1:bind";
-   private static final String WSRP_V2_URN = "urn:oasis:names:tc:wsrp:v2:wsdl";
    private static final String WSRP_V2_BINDING = "urn:oasis:names:tc:wsrp:v2:bind";
 
    private String markupURL;
@@ -157,7 +155,15 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
       refresh(false);
 
-      Object service = wsService.getPort(clazz);
+      Object service = null;
+      try
+      {
+         service = wsService.getPort(clazz);
+      }
+      catch (Exception e)
+      {
+         log.debug("No port available for " + clazz, e);
+      }
 
       //
       String portAddress = null;
@@ -295,17 +301,45 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          {
             wsService = Service.create(wsdlURL, wsrp2);
 
-            WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
-            markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            Class portTypeClass = null;
+            try
+            {
+               portTypeClass = WSRPV2MarkupPortType.class;
+               WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
+               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
-            serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+               portTypeClass = WSRPV2ServiceDescriptionPortType.class;
+               WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
+               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               setFailed(true);
+               throw new IllegalArgumentException("Mandatory WSRP 2 port "
+                  + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
+            }
 
-            WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
-            portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            try
+            {
+               WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
+               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
+               portletManagementURL = null;
+            }
 
-            WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
-            registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            try
+            {
+               WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
+               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
+               registrationURL = null;
+            }
 
             setFailed(false);
             setAvailable(true);
@@ -315,17 +349,44 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          {
             wsService = Service.create(wsdlURL, wsrp1);
 
-            WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
-            markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            Class portTypeClass = null;
+            try
+            {
+               portTypeClass = WSRPV1MarkupPortType.class;
+               WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
+               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
-            serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+               portTypeClass = WSRPV1ServiceDescriptionPortType.class;
+               WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
+               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               setFailed(true);
+               throw new IllegalArgumentException("Mandatory WSRP 1 port " + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
+            }
 
-            WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
-            portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            try
+            {
+               WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
+               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               log.debug("PortletManagement port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               portletManagementURL = null;
+            }
 
-            WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
-            registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            try
+            {
+               WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
+               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            }
+            catch (Exception e)
+            {
+               log.debug("Registration port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               registrationURL = null;
+            }
 
             setFailed(false);
             setAvailable(true);
@@ -461,48 +522,41 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          }
 
          QName wsrp1 = null, wsrp2 = null;
+         String ns = definition.getTargetNamespace();
          for (QName name : services.keySet())
          {
-            String ns = name.getNamespaceURI();
             javax.wsdl.Service service = services.get(name);
 
             // if the namespace is using one of the WSRP-defined ones, we have a potential candidate
-            if (WSRP_V1_URN.equals(ns) || WSRP_V2_URN.equals(ns))
+            // but we need to check that the port namespaces to really know which version of the service we've found
+            // this is needed for http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=All
+            // where the WSRP1 service name has the WSRP2 global target namespace so we need more processing :(
+            Map<String, Port> ports = service.getPorts();
+            String bindingNSURI = null;
+            for (Port port : ports.values())
             {
-               // but we need to check that the port namespaces to really know which version of the service we've found
-               // this is needed for http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=All
-               // where the WSRP1 service name has the WSRP2 global target namespace so we need more processing :(
-               Map<String, Port> ports = service.getPorts();
-               String bindingNSURI = null;
-               for (Port port : ports.values())
+               QName bindingName = port.getBinding().getQName();
+               String newBindingNS = bindingName.getNamespaceURI();
+               if (WSRP_V1_BINDING.equals(newBindingNS) || WSRP_V2_BINDING.equals(newBindingNS))
                {
-                  QName bindingName = port.getBinding().getQName();
-                  String newBindingNS = bindingName.getNamespaceURI();
-                  if (WSRP_V1_BINDING.equals(newBindingNS) || WSRP_V2_BINDING.equals(newBindingNS))
+                  if (bindingNSURI != null && !bindingNSURI.equals(newBindingNS))
                   {
-                     if (bindingNSURI != null && !bindingNSURI.equals(newBindingNS))
-                     {
-                        throw new WSDLException(WSDLException.OTHER_ERROR, "Inconsistent NS in port bindings. Aborting.");
-                     }
-                     bindingNSURI = newBindingNS;
+                     throw new WSDLException(WSDLException.OTHER_ERROR, "Inconsistent NS in port bindings. Aborting.");
                   }
-                  else
-                  {
-                     log.debug("Unknown binding namespace: " + newBindingNS + ". Ignoring binding: " + bindingName);
-                  }
+                  bindingNSURI = newBindingNS;
                }
-               if (WSRP_V1_BINDING.equals(bindingNSURI))
+               else
                {
-                  wsrp1 = checkPotentialServiceName(wsrp1, name, ns);
-               }
-               else if (WSRP_V2_BINDING.equals(bindingNSURI))
-               {
-                  wsrp2 = checkPotentialServiceName(wsrp2, name, ns);
+                  log.debug("Unknown binding namespace: " + newBindingNS + ". Ignoring binding: " + bindingName);
                }
             }
-            else
+            if (WSRP_V1_BINDING.equals(bindingNSURI))
             {
-               log.debug("Unknown service namespace: " + ns);
+               wsrp1 = checkPotentialServiceName(wsrp1, name, ns);
+            }
+            else if (WSRP_V2_BINDING.equals(bindingNSURI))
+            {
+               wsrp2 = checkPotentialServiceName(wsrp2, name, ns);
             }
          }
 

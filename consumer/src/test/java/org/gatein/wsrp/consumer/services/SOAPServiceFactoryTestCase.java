@@ -35,6 +35,7 @@ import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
 import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 
 import javax.wsdl.WSDLException;
+import java.net.URL;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -52,11 +53,39 @@ public class SOAPServiceFactoryTestCase extends TestCase
       factory = new SOAPServiceFactory();
    }
 
-   /*public void testV2ServiceWithExtraPorts() throws Exception
+   private String getWSDLURL(String fileName)
    {
-      factory.setWsdlDefinitionURL("http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL");
+      URL url = Thread.currentThread().getContextClassLoader().getResource(fileName);
+      return url.toExternalForm();
+   }
+
+   public void testMissingMandatoryPort() throws Exception
+   {
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/missing-mandatory.wsdl"));
+      try
+      {
+         checkPorts(WSRP2_PORT_TYPES);
+         fail();
+      }
+      catch (IllegalArgumentException e)
+      {
+         // expected
+      }
+   }
+
+   public void testV2ServiceWithExtraPorts() throws Exception
+   {
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/extra-ports.wsdl"));
       checkPorts(WSRP2_PORT_TYPES);
-   }*/
+   }
+
+   public void testWebsphere() throws Exception
+   {
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/missing-registration-non-std-ns.wsdl"));
+
+      // missing-registration-non-std-ns.wsdl doesn't contain registration port
+      checkPorts(WSRPV2MarkupPortType.class, WSRPV2ServiceDescriptionPortType.class, WSRPV2PortletManagementPortType.class);
+   }
 
    public void testSimpleV2Service() throws Exception
    {
@@ -88,11 +117,11 @@ public class SOAPServiceFactoryTestCase extends TestCase
       {
          assertTrue(e instanceof WSDLException);
          WSDLException wsdlEx = (WSDLException)e;
-         assertEquals(WSDLException.INVALID_WSDL, wsdlEx.getFaultCode());
+         assertEquals(WSDLException.OTHER_ERROR, wsdlEx.getFaultCode());
       }
    }
 
-   private void checkPorts(Class[] ports) throws Exception
+   private void checkPorts(Class... ports) throws Exception
    {
       for (Class portClass : ports)
       {
