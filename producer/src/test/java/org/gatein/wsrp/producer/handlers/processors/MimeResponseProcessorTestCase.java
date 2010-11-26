@@ -72,8 +72,87 @@ public class MimeResponseProcessorTestCase extends TestCase
       assertEquals("namespace", processor.invocation.getWindowContext().getNamespace());
    }
 
+   public void testShouldProperlyHandleWildCardsInRequestedMimeTypes() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration
+   {
+      List<String> mimeTypes = new ArrayList<String>(1);
+      mimeTypes.add("*/*");
+      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(MockHttpSession.createMockSession()), MockHttpServletResponse.createMockResponse());
+
+      MimeResponseProcessor processor = new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+         WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+         WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+         WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+
+      assertEquals(TestProducerHelper.PORTLET_MIME_TYPE, processor.markupRequest.getMediaType());
+
+      mimeTypes = new ArrayList<String>(1);
+      mimeTypes.add("*");
+
+      processor = new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+         WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+         WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+         WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+
+      assertEquals(TestProducerHelper.PORTLET_MIME_TYPE, processor.markupRequest.getMediaType());
+
+      mimeTypes = new ArrayList<String>(1);
+      mimeTypes.add("text/*");
+
+      processor = new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+         WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+         WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+         WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+
+      assertEquals(TestProducerHelper.PORTLET_MIME_TYPE, processor.markupRequest.getMediaType());
+
+      mimeTypes = new ArrayList<String>(1);
+      mimeTypes.add("image/*");
+
+      try
+      {
+         new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+            WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+            WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+            WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+         fail("Should have failed on unsupported MIME type");
+      }
+      catch (UnsupportedMimeType unsupportedMimeType)
+      {
+         // expected
+      }
+   }
+
+   public void testShouldReturnFirstMimeTypeMatching() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration
+   {
+      List<String> mimeTypes = new ArrayList<String>(2);
+      mimeTypes.add("text/xml");
+      mimeTypes.add("text/*");
+
+      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(MockHttpSession.createMockSession()), MockHttpServletResponse.createMockResponse());
+
+      MimeResponseProcessor processor = new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+         WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+         WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+         WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+
+      assertEquals("text/xml", processor.markupRequest.getMediaType());
+
+      mimeTypes = new ArrayList<String>(2);
+      mimeTypes.add("image/*");
+      mimeTypes.add("text/*");
+
+      processor = new RenderRequestProcessor(new TestProducerHelper(), WSRPTypeFactory.createGetMarkup(null,
+         WSRPTypeFactory.createPortletContext(PORTLET_HANDLE),
+         WSRPTypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "ns"), null,
+         WSRPTypeFactory.createMarkupParams(false, WSRPConstants.getDefaultLocales(), mimeTypes, WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE)));
+
+      assertEquals(TestProducerHelper.PORTLET_MIME_TYPE, processor.markupRequest.getMediaType());
+   }
+
    private static class TestProducerHelper implements ProducerHelper
    {
+      static final String PORTLET_MIME_TYPE = MediaType.TEXT_HTML.getValue();
+
       public Portlet getPortletWith(PortletContext portletContext, Registration registration) throws InvalidHandle, PortletInvokerException
       {
          return new Portlet()
@@ -109,7 +188,8 @@ public class MimeResponseProcessorTestCase extends TestCase
          windowStateNames.add(WSRPConstants.NORMAL_WINDOW_STATE);
 
          List<MarkupType> markupTypes = new ArrayList<MarkupType>(1);
-         markupTypes.add(WSRPTypeFactory.createMarkupType(MediaType.TEXT_HTML.getValue(), modeNames, windowStateNames, locales));
+         markupTypes.add(WSRPTypeFactory.createMarkupType(PORTLET_MIME_TYPE, modeNames, windowStateNames, locales));
+         markupTypes.add(WSRPTypeFactory.createMarkupType("text/xml", modeNames, windowStateNames, locales));
 
          return WSRPTypeFactory.createPortletDescription(PORTLET_HANDLE, markupTypes);
       }

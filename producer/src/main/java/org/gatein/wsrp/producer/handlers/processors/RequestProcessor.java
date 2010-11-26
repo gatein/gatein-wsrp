@@ -211,15 +211,43 @@ public abstract class RequestProcessor<Response>
       MarkupType markupType = null;
 
       // Get the MIME type to use
+      // todo: MIME type resolution should really be done in common... maybe as part of GTNCOMMON-14?
       for (String desiredMIMEType : desiredMIMETypes)
       {
-         for (MarkupType type : markupTypes)
+         desiredMIMEType = desiredMIMEType.trim();
+
+         // first deal with full wildcards
+         if ("*".equals(desiredMIMEType) || "*/*".equals(desiredMIMEType))
          {
-            if (desiredMIMEType.equals(type.getMimeType()))
+            markupType = markupTypes.get(0);
+            break;
+         }
+         else
+         {
+            MediaType mt = MediaType.create(desiredMIMEType);
+            String superType = mt.getType().getName();
+            String subType = mt.getSubtype().getName();
+            boolean isWildcard = "*".equals(subType);
+
+            for (MarkupType type : markupTypes)
             {
-               markupType = type;
-               break;
+               if (isWildcard && type.getMimeType().startsWith(superType))
+               {
+                  markupType = type;
+                  break;
+               }
+               else if (desiredMIMEType.equals(type.getMimeType()))
+               {
+                  markupType = type;
+                  break;
+               }
             }
+         }
+
+         // if we've found a match, do not examine the other possible matches
+         if (markupType != null)
+         {
+            break;
          }
       }
 
