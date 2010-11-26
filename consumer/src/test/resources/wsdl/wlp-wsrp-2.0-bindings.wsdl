@@ -1,0 +1,573 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<s0:definitions targetNamespace="urn:bea:wsrp:ext:v2:bind" xmlns="" xmlns:s0="http://schemas.xmlsoap.org/wsdl/"
+                xmlns:s1="urn:oasis:names:tc:wsrp:v2:types" xmlns:s2="urn:bea:wsrp:ext:v2:types"
+                xmlns:s3="urn:bea:wsrp:ext:v2:bind" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/"
+                xmlns:s5="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s6="http://schemas.xmlsoap.org/wsdl/mime/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:import namespace="urn:bea:wsrp:ext:v2:types" schemaLocation="wlp-wsrp-2.0-types.xsd"/>
+   <s0:message name="AccessDenied">
+      <s0:part element="s1:AccessDenied" name="fault"/>
+   </s0:message>
+   <s0:message name="InvalidUserCategory">
+      <s0:part element="s1:InvalidUserCategory" name="fault"/>
+   </s0:message>
+   <s0:message name="InconsistentParameters">
+      <s0:part element="s1:InconsistentParameters" name="fault"/>
+   </s0:message>
+   <s0:message name="InvalidRegistration">
+      <s0:part element="s1:InvalidRegistration" name="fault"/>
+   </s0:message>
+   <s0:message name="ModifyRegistrationRequired">
+      <s0:part element="s1:ModifyRegistrationRequired" name="fault"/>
+   </s0:message>
+   <s0:message name="MissingParameters">
+      <s0:part element="s1:MissingParameters" name="fault"/>
+   </s0:message>
+   <s0:message name="OperationFailed">
+      <s0:part element="s1:OperationFailed" name="fault"/>
+   </s0:message>
+   <s0:message name="OperationNotSupported">
+      <s0:part element="s1:OperationNotSupported" name="fault"/>
+   </s0:message>
+   <s0:message name="InvalidHandle">
+      <s0:part element="s1:InvalidHandle" name="fault"/>
+   </s0:message>
+   <s0:message name="PortletStateChangeRequired">
+      <s0:part element="s1:PortletStateChangeRequired" name="fault"/>
+   </s0:message>
+   <s0:message name="ResourceSuspended">
+      <s0:part element="s1:ResourceSuspended" name="fault"/>
+   </s0:message>
+   <s0:message name="InvalidCookie">
+      <s0:part element="s1:InvalidCookie" name="fault"/>
+   </s0:message>
+   <s0:message name="InvalidSession">
+      <s0:part element="s1:InvalidSession" name="fault"/>
+   </s0:message>
+   <s0:message name="UnsupportedMode">
+      <s0:part element="s1:UnsupportedMode" name="fault"/>
+   </s0:message>
+   <s0:message name="UnsupportedWindowState">
+      <s0:part element="s1:UnsupportedWindowState" name="fault"/>
+   </s0:message>
+   <s0:message name="UnsupportedLocale">
+      <s0:part element="s1:UnsupportedLocale" name="fault"/>
+   </s0:message>
+   <s0:message name="UnsupportedMimeType">
+      <s0:part element="s1:UnsupportedMimeType" name="fault"/>
+   </s0:message>
+   <s0:message name="getMarkup">
+      <s0:part element="s1:getMarkup" name="getMarkup"/>
+   </s0:message>
+   <s0:message name="getMarkupResponse">
+      <s0:part element="s1:getMarkupResponse" name="getMarkupResponse"/>
+   </s0:message>
+   <s0:message name="getResource">
+      <s0:part element="s1:getResource" name="getResource"/>
+   </s0:message>
+   <s0:message name="getResourceResponse">
+      <s0:part element="s1:getResourceResponse" name="getResourceResponse"/>
+      <s0:part element="s2:Markup" name="markup"/>
+   </s0:message>
+   <s0:message name="performBlockingInteraction">
+      <s0:part element="s1:performBlockingInteraction" name="performBlockingInteraction"/>
+   </s0:message>
+   <s0:message name="performBlockingInteractionResponse">
+      <s0:part element="s1:performBlockingInteractionResponse" name="performBlockingInteractionResponse"/>
+   </s0:message>
+   <s0:message name="handleEvents">
+      <s0:part element="s1:handleEvents" name="handleEvents"/>
+   </s0:message>
+   <s0:message name="handleEventsResponse">
+      <s0:part element="s1:handleEventsResponse" name="handleEventsResponse"/>
+   </s0:message>
+   <s0:message name="getRenderDependencies">
+      <s0:part element="s2:getRenderDependencies" name="getRenderDependencies"/>
+   </s0:message>
+   <s0:message name="getRenderDependenciesResponse">
+      <s0:part element="s2:RenderDependenciesResponse" name="getRenderDependenciesResponse"/>
+   </s0:message>
+   <s0:message name="releaseSessions">
+      <s0:part element="s1:releaseSessions" name="releaseSessions"/>
+   </s0:message>
+   <s0:message name="releaseSessionsResponse">
+      <s0:part element="s1:releaseSessionsResponse" name="releaseSessionsResponse"/>
+   </s0:message>
+   <s0:message name="initCookie">
+      <s0:part element="s1:initCookie" name="initCookie"/>
+   </s0:message>
+   <s0:message name="initCookieResponse">
+      <s0:part element="s1:initCookieResponse" name="initCookieResponse"/>
+   </s0:message>
+   <s0:portType name="WLP_WSRP_v2_Markup_Ext_PortType">
+      <s0:operation name="getMarkup">
+         <s0:input message="s3:getMarkup" name="getMarkup"/>
+         <s0:output message="s3:getMarkupResponse" name="getMarkupResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InvalidUserCategory" name="InvalidUserCategory"/>
+         <s0:fault message="s3:InconsistentParameters" name="InconsistentParameters"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+         <s0:fault message="s3:InvalidHandle" name="InvalidHandle"/>
+         <s0:fault message="s3:InvalidCookie" name="InvalidCookie"/>
+         <s0:fault message="s3:InvalidSession" name="InvalidSession"/>
+         <s0:fault message="s3:UnsupportedMode" name="UnsupportedMode"/>
+         <s0:fault message="s3:UnsupportedWindowState" name="UnsupportedWindowState"/>
+         <s0:fault message="s3:UnsupportedLocale" name="UnsupportedLocale"/>
+         <s0:fault message="s3:UnsupportedMimeType" name="UnsupportedMimeType"/>
+      </s0:operation>
+      <s0:operation name="getResource">
+         <s0:input message="s3:getResource" name="getResource"/>
+         <s0:output message="s3:getResourceResponse" name="getResourceResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InvalidUserCategory" name="InvalidUserCategory"/>
+         <s0:fault message="s3:InconsistentParameters" name="InconsistentParameters"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+         <s0:fault message="s3:InvalidHandle" name="InvalidHandle"/>
+         <s0:fault message="s3:InvalidCookie" name="InvalidCookie"/>
+         <s0:fault message="s3:InvalidSession" name="InvalidSession"/>
+         <s0:fault message="s3:UnsupportedMode" name="UnsupportedMode"/>
+         <s0:fault message="s3:UnsupportedWindowState" name="UnsupportedWindowState"/>
+         <s0:fault message="s3:UnsupportedLocale" name="UnsupportedLocale"/>
+         <s0:fault message="s3:UnsupportedMimeType" name="UnsupportedMimeType"/>
+      </s0:operation>
+      <s0:operation name="performBlockingInteraction">
+         <s0:input message="s3:performBlockingInteraction" name="performBlockingInteraction"/>
+         <s0:output message="s3:performBlockingInteractionResponse" name="performBlockingInteractionResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InvalidUserCategory" name="InvalidUserCategory"/>
+         <s0:fault message="s3:InconsistentParameters" name="InconsistentParameters"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+         <s0:fault message="s3:InvalidHandle" name="InvalidHandle"/>
+         <s0:fault message="s3:PortletStateChangeRequired" name="PortletStateChangeRequired"/>
+         <s0:fault message="s3:InvalidCookie" name="InvalidCookie"/>
+         <s0:fault message="s3:InvalidSession" name="InvalidSession"/>
+         <s0:fault message="s3:UnsupportedMode" name="UnsupportedMode"/>
+         <s0:fault message="s3:UnsupportedWindowState" name="UnsupportedWindowState"/>
+         <s0:fault message="s3:UnsupportedLocale" name="UnsupportedLocale"/>
+         <s0:fault message="s3:UnsupportedMimeType" name="UnsupportedMimeType"/>
+      </s0:operation>
+      <s0:operation name="releaseSessions">
+         <s0:input message="s3:releaseSessions" name="releaseSessions"/>
+         <s0:output message="s3:releaseSessionsResponse" name="releaseSessionsResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+      </s0:operation>
+      <s0:operation name="initCookie">
+         <s0:input message="s3:initCookie" name="initCookie"/>
+         <s0:output message="s3:initCookieResponse" name="initCookieResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+      </s0:operation>
+      <s0:operation name="handleEvents">
+         <s0:input message="s3:handleEvents"/>
+         <s0:output message="s3:handleEventsResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InconsistentParameters" name="InconsistentParameters"/>
+         <s0:fault message="s3:InvalidCookie" name="InvalidCookie"/>
+         <s0:fault message="s3:InvalidHandle" name="InvalidHandle"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:InvalidSession" name="InvalidSession"/>
+         <s0:fault message="s3:InvalidUserCategory" name="InvalidUserCategory"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:ModifyRegistrationRequired" name="ModifyRegistrationRequired"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+         <s0:fault message="s3:OperationNotSupported" name="OperationNotSupported"/>
+         <s0:fault message="s3:PortletStateChangeRequired" name="PortletStateChangeRequired"/>
+         <s0:fault message="s3:ResourceSuspended" name="ResourceSuspended"/>
+         <s0:fault message="s3:UnsupportedLocale" name="UnsupportedLocale"/>
+         <s0:fault message="s3:UnsupportedMimeType" name="UnsupportedMimeType"/>
+         <s0:fault message="s3:UnsupportedMode" name="UnsupportedMode"/>
+         <s0:fault message="s3:UnsupportedWindowState" name="UnsupportedWindowState"/>
+      </s0:operation>
+      <s0:operation name="getRenderDependencies">
+         <s0:input message="s3:getRenderDependencies"/>
+         <s0:output message="s3:getRenderDependenciesResponse"/>
+         <s0:fault message="s3:AccessDenied" name="AccessDenied"/>
+         <s0:fault message="s3:InconsistentParameters" name="InconsistentParameters"/>
+         <s0:fault message="s3:InvalidCookie" name="InvalidCookie"/>
+         <s0:fault message="s3:InvalidHandle" name="InvalidHandle"/>
+         <s0:fault message="s3:InvalidRegistration" name="InvalidRegistration"/>
+         <s0:fault message="s3:InvalidSession" name="InvalidSession"/>
+         <s0:fault message="s3:InvalidUserCategory" name="InvalidUserCategory"/>
+         <s0:fault message="s3:MissingParameters" name="MissingParameters"/>
+         <s0:fault message="s3:ModifyRegistrationRequired" name="ModifyRegistrationRequired"/>
+         <s0:fault message="s3:OperationFailed" name="OperationFailed"/>
+         <s0:fault message="s3:ResourceSuspended" name="ResourceSuspended"/>
+         <s0:fault message="s3:UnsupportedLocale" name="UnsupportedLocale"/>
+         <s0:fault message="s3:UnsupportedMimeType" name="UnsupportedMimeType"/>
+         <s0:fault message="s3:UnsupportedMode" name="UnsupportedMode"/>
+         <s0:fault message="s3:UnsupportedWindowState" name="UnsupportedWindowState"/>
+      </s0:operation>
+   </s0:portType>
+   <s0:binding name="WLP_WSRP_v2_Markup_Ext_Binding_SOAP" type="s3:WLP_WSRP_v2_Markup_Ext_PortType">
+      <s4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <s0:operation name="getMarkup">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:getMarkup"/>
+         <s0:input name="getMarkup">
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output name="getMarkupResponse">
+            <s6:multipartRelated>
+               <s6:part>
+                  <s4:body parts="getMarkupResponse" use="literal"/>
+               </s6:part>
+            </s6:multipartRelated>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidUserCategory">
+            <s4:fault name="InvalidUserCategory" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InconsistentParameters">
+            <s4:fault name="InconsistentParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidHandle">
+            <s4:fault name="InvalidHandle" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidCookie">
+            <s4:fault name="InvalidCookie" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidSession">
+            <s4:fault name="InvalidSession" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMode">
+            <s4:fault name="UnsupportedMode" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedWindowState">
+            <s4:fault name="UnsupportedWindowState" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedLocale">
+            <s4:fault name="UnsupportedLocale" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMimeType">
+            <s4:fault name="UnsupportedMimeType" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="getResource">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:getResource"/>
+         <s0:input name="getResource">
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output name="getResourceResponse">
+            <s6:multipartRelated>
+               <s6:part>
+                  <s4:body parts="getResourceResponse" use="literal"/>
+               </s6:part>
+               <s6:part>
+                  <s6:content part="markup" type="application/octetstream"/>
+               </s6:part>
+            </s6:multipartRelated>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidUserCategory">
+            <s4:fault name="InvalidUserCategory" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InconsistentParameters">
+            <s4:fault name="InconsistentParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidHandle">
+            <s4:fault name="InvalidHandle" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidCookie">
+            <s4:fault name="InvalidCookie" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidSession">
+            <s4:fault name="InvalidSession" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMode">
+            <s4:fault name="UnsupportedMode" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedWindowState">
+            <s4:fault name="UnsupportedWindowState" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedLocale">
+            <s4:fault name="UnsupportedLocale" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMimeType">
+            <s4:fault name="UnsupportedMimeType" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="performBlockingInteraction">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:performBlockingInteraction"/>
+         <s0:input name="performBlockingInteraction">
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s6:multipartRelated>
+               <s6:part>
+                  <s4:body parts="performBlockingInteraction" use="literal"/>
+               </s6:part>
+            </s6:multipartRelated>
+         </s0:input>
+         <s0:output name="performBlockingInteractionResponse">
+            <s4:body use="literal"/>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidUserCategory">
+            <s4:fault name="InvalidUserCategory" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InconsistentParameters">
+            <s4:fault name="InconsistentParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidHandle">
+            <s4:fault name="InvalidHandle" use="literal"/>
+         </s0:fault>
+         <s0:fault name="PortletStateChangeRequired">
+            <s4:fault name="PortletStateChangeRequired" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidCookie">
+            <s4:fault name="InvalidCookie" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidSession">
+            <s4:fault name="InvalidSession" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMode">
+            <s4:fault name="UnsupportedMode" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedWindowState">
+            <s4:fault name="UnsupportedWindowState" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedLocale">
+            <s4:fault name="UnsupportedLocale" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMimeType">
+            <s4:fault name="UnsupportedMimeType" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="releaseSessions">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:releaseSessions"/>
+         <s0:input name="releaseSessions">
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output name="releaseSessionsResponse">
+            <s4:body use="literal"/>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="initCookie">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:initCookie"/>
+         <s0:input name="initCookie">
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output name="initCookieResponse">
+            <s4:body use="literal"/>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="handleEvents">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:handleEvents"/>
+         <s0:input>
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output>
+            <s4:body use="literal"/>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InconsistentParameters">
+            <s4:fault name="InconsistentParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidCookie">
+            <s4:fault name="InvalidCookie" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidHandle">
+            <s4:fault name="InvalidHandle" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidSession">
+            <s4:fault name="InvalidSession" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidUserCategory">
+            <s4:fault name="InvalidUserCategory" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="ModifyRegistrationRequired">
+            <s4:fault name="ModifyRegistrationRequired" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationNotSupported">
+            <s4:fault name="OperationNotSupported" use="literal"/>
+         </s0:fault>
+         <s0:fault name="PortletStateChangeRequired">
+            <s4:fault name="PortletStateChangeRequired" use="literal"/>
+         </s0:fault>
+         <s0:fault name="ResourceSuspended">
+            <s4:fault name="ResourceSuspended" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedLocale">
+            <s4:fault name="UnsupportedLocale" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMimeType">
+            <s4:fault name="UnsupportedMimeType" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMode">
+            <s4:fault name="UnsupportedMode" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedWindowState">
+            <s4:fault name="UnsupportedWindowState" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+      <s0:operation name="getRenderDependencies">
+         <s4:operation soapAction="urn:bea:wsrp:ext:v2:getRenderDependencies"/>
+         <s0:input>
+            <s5:Policy>
+               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
+            </s5:Policy>
+            <s4:body use="literal"/>
+         </s0:input>
+         <s0:output>
+            <s4:body use="literal"/>
+         </s0:output>
+         <s0:fault name="AccessDenied">
+            <s4:fault name="AccessDenied" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InconsistentParameters">
+            <s4:fault name="InconsistentParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidCookie">
+            <s4:fault name="InvalidCookie" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidHandle">
+            <s4:fault name="InvalidHandle" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidRegistration">
+            <s4:fault name="InvalidRegistration" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidSession">
+            <s4:fault name="InvalidSession" use="literal"/>
+         </s0:fault>
+         <s0:fault name="InvalidUserCategory">
+            <s4:fault name="InvalidUserCategory" use="literal"/>
+         </s0:fault>
+         <s0:fault name="MissingParameters">
+            <s4:fault name="MissingParameters" use="literal"/>
+         </s0:fault>
+         <s0:fault name="ModifyRegistrationRequired">
+            <s4:fault name="ModifyRegistrationRequired" use="literal"/>
+         </s0:fault>
+         <s0:fault name="OperationFailed">
+            <s4:fault name="OperationFailed" use="literal"/>
+         </s0:fault>
+         <s0:fault name="ResourceSuspended">
+            <s4:fault name="ResourceSuspended" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedLocale">
+            <s4:fault name="UnsupportedLocale" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMimeType">
+            <s4:fault name="UnsupportedMimeType" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedMode">
+            <s4:fault name="UnsupportedMode" use="literal"/>
+         </s0:fault>
+         <s0:fault name="UnsupportedWindowState">
+            <s4:fault name="UnsupportedWindowState" use="literal"/>
+         </s0:fault>
+      </s0:operation>
+   </s0:binding>
+</s0:definitions>

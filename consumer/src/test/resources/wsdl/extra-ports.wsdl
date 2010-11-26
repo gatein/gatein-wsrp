@@ -26,12 +26,8 @@
                 xmlns:s1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
                 xmlns:s2="urn:oasis:names:tc:wsrp:v2:bind" xmlns:s3="http://schemas.xmlsoap.org/wsdl/soap/"
                 xmlns:s4="urn:bea:wsrp:ext:v2:bind" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-   <s0:import
-      location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL/wsrp-2.0-bindings.wsdl"
-      namespace="urn:oasis:names:tc:wsrp:v2:bind"/>
-   <s0:import
-      location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup?WSDL/wlp-wsrp-2.0-bindings.wsdl"
-      namespace="urn:bea:wsrp:ext:v2:bind"/>
+   <s0:import location="wsrp-2.0-bindings.wsdl" namespace="urn:oasis:names:tc:wsrp:v2:bind"/>
+   <s0:import location="wlp-wsrp-2.0-bindings.wsdl" namespace="urn:bea:wsrp:ext:v2:bind"/>
    <wsp:UsingPolicy s0:Required="true"/>
    <wsp:Policy s1:Id="ProducerDefaultPolicy">
       <wsp:All>
@@ -49,20 +45,20 @@
    </wsp:Policy>
    <s0:service name="WSRP_v2_Service">
       <s0:port binding="s2:WSRP_v2_Markup_Binding_SOAP" name="WSRP_v2_Markup_Service">
-         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/markup"/>
+         <s3:address location="http://localhost:7001/wsrp/producer/wsrp-2.0/markup"/>
       </s0:port>
       <s0:port binding="s2:WSRP_v2_ServiceDescription_Binding_SOAP" name="WSRP_v2_ServiceDescription_Service">
          <s3:address
-            location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/serviceDescription"/>
+            location="http://localhost:7001/wsrp/producer/wsrp-2.0/serviceDescription"/>
       </s0:port>
       <s0:port binding="s2:WSRP_v2_Registration_Binding_SOAP" name="WSRP_v2_Registration_Service">
-         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/registration"/>
+         <s3:address location="http://localhost:7001/wsrp/producer/wsrp-2.0/registration"/>
       </s0:port>
       <s0:port binding="s2:WSRP_v2_PortletManagement_Binding_SOAP" name="WSRP_v2_PortletManagement_Service">
-         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-2.0/portletManagement"/>
+         <s3:address location="http://localhost:7001/wsrp/producer/wsrp-2.0/portletManagement"/>
       </s0:port>
       <s0:port binding="s4:WLP_WSRP_v2_Markup_Ext_Binding_SOAP" name="WLP_WSRP_v2_Ext_Service">
-         <s3:address location="http://stacks3.mw.lab.eng.bos.redhat.com:7001/wsrp/producer/wsrp-wlp-ext-2.0/markup"/>
+         <s3:address location="http://localhost :7001/wsrp/producer/wsrp-wlp-ext-2.0/markup"/>
       </s0:port>
    </s0:service>
 </s0:definitions>

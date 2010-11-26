@@ -1,0 +1,600 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+
+<xs:schema elementFormDefault="qualified" targetNamespace="urn:bea:wsrp:ext:v2:types"
+           xmlns:types="urn:oasis:names:tc:wsrp:v2:types" xmlns:wlp-types="urn:bea:wsrp:ext:v2:types"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <!-- Import WSRP V2 Types -->
+   <xs:import namespace="urn:oasis:names:tc:wsrp:v2:types" schemaLocation="wsrp-2.0-types.xsd"/>
+   <xs:element name="FaultDetail">
+      <xs:annotation>
+         <xs:documentation>Specifies fault detail</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="1" name="created" type="xs:dateTime"/>
+            <xs:element minOccurs="1" name="trace" type="xs:string"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="Markup">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="binary" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="Upload">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="binary" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <!-- This element descriptions an event handler in a portlet description-->
+   <xs:element name="EventDescription" type="wlp-types:EventDescription"/>
+   <xs:complexType name="EventDescription">
+      <xs:sequence>
+         <xs:element name="eventName" type="xs:QName"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="alias" type="xs:QName"/>
+         <xs:element maxOccurs="1" minOccurs="0" name="portalEventType" type="wlp-types:PortalEventType"/>
+         <xs:element minOccurs="0" name="description" type="types:LocalizedString"/>
+         <xs:element minOccurs="0" name="handleEventDescription" type="wlp-types:FrameworkEventDescription"/>
+      </xs:sequence>
+      <xs:attribute default="true" name="chainWildcardAliases" type="xs:boolean"/>
+   </xs:complexType>
+   <xs:element name="portletEventDescriptions" type="wlp-types:handledEvents"/>
+   <xs:complexType name="PortalEventType">
+      <xs:attribute name="type" type="xs:string"/>
+   </xs:complexType>
+   <!-- This element extends event descriptions in the service description -->
+   <xs:element name="EventInformation" type="wlp-types:EventInformation"/>
+   <xs:complexType name="EventInformation">
+      <xs:attribute name="class" type="xs:string" use="optional"/>
+   </xs:complexType>
+   <xs:complexType name="handledEvents">
+      <xs:sequence>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="event" type="wlp-types:EventDescription"/>
+      </xs:sequence>
+   </xs:complexType>
+   <!-- This element describes an event -->
+   <xs:element name="eventSource" type="wlp-types:EventSource"/>
+   <xs:complexType name="EventSource">
+      <xs:sequence>
+         <xs:element minOccurs="0" name="sourceDefinitionLabel" type="xs:string"/>
+         <xs:element minOccurs="0" name="sourceInstanceLabel" type="xs:string"/>
+         <xs:element minOccurs="0" name="windowInfo" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="class" type="xs:string" use="optional"/>
+   </xs:complexType>
+   <xs:complexType name="EventPayload">
+      <xs:sequence>
+         <xs:element name="binary" type="xs:base64Binary"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="SimpleEventPayload">
+      <xs:sequence>
+         <xs:choice maxOccurs="1" minOccurs="0">
+            <xs:element name="boolean" type="xs:boolean"/>
+            <xs:element name="byte" type="xs:byte"/>
+            <xs:element name="short" type="xs:short"/>
+            <xs:element name="int" type="xs:int"/>
+            <xs:element name="long" type="xs:long"/>
+            <xs:element name="float" type="xs:float"/>
+            <xs:element name="double" type="xs:double"/>
+            <xs:element name="string" type="xs:string"/>
+            <xs:element name="integer" type="xs:integer"/>
+            <xs:element name="decimal" type="xs:decimal"/>
+            <xs:element name="QName" type="xs:QName"/>
+            <xs:element name="duration" type="xs:duration"/>
+            <xs:element name="dateTime" type="xs:dateTime"/>
+         </xs:choice>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="FrameworkEventDescription">
+      <xs:sequence>
+         <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element ref="wlp-types:changeWindowState"/>
+            <xs:element ref="wlp-types:changeWindowMode"/>
+            <xs:element ref="wlp-types:activatePage"/>
+            <xs:element ref="wlp-types:invokePageFlowAction"/>
+            <xs:element ref="wlp-types:invokeStrutsAction"/>
+            <xs:element ref="wlp-types:fireCustomEvent"/>
+            <xs:element ref="wlp-types:fireEvent"/>
+            <xs:element ref="wlp-types:invokeBackingFileMethod"/>
+            <xs:element ref="wlp-types:dispatchToRemotePortlet"/>
+            <xs:element ref="wlp-types:invokeJavaPortletMethod"/>
+         </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="eventLabel" type="xs:string"/>
+      <!-- This restriction cannot be validated with XML Spy
+      <xs:simpleType>
+      <xs:restriction base="xs:string">
+      <xs:pattern value="(\p{L}|_|\$)(\p{L}|_|\$|\p{Nd})*"/>
+      </xs:restriction>
+      </xs:simpleType>
+      </xs:attribute>
+      -->
+      <xs:attribute name="filterable" type="xs:boolean"/>
+      <xs:attribute name="onlyIfDisplayed" type="xs:boolean"/>
+      <xs:attribute name="sourceDefinitionLabels" type="xs:string"/>
+      <xs:attribute name="fromSelfInstanceOnly" type="xs:boolean"/>
+      <xs:attribute name="sourceDefinitionWildcard">
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="this"/>
+               <xs:enumeration value="any"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+      <!--        <xs:attribute name="description" type="xs:string"/>-->
+   </xs:complexType>
+   <xs:complexType name="FrameworkPortalEventDescription">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:FrameworkEventDescription">
+            <xs:sequence>
+               <xs:element maxOccurs="unbounded" minOccurs="0" name="filterEvent" type="wlp-types:filterEventType"/>
+            </xs:sequence>
+            <xs:attribute name="event">
+               <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                     <xs:enumeration value="onActivation"/>
+                     <xs:enumeration value="onDeactivation"/>
+                     <xs:enumeration value="onMinimize"/>
+                     <xs:enumeration value="onMaximize"/>
+                     <xs:enumeration value="onNormal"/>
+                     <xs:enumeration value="onDelete"/>
+                     <xs:enumeration value="onFloat"/>
+                     <xs:enumeration value="onHelp"/>
+                     <xs:enumeration value="onEdit"/>
+                     <xs:enumeration value="onView"/>
+                     <xs:enumeration value="onRefresh"/>
+                  </xs:restriction>
+               </xs:simpleType>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:element name="FrameworkEventDescription" type="wlp-types:FrameworkEventDescription"/>
+   <xs:element name="handlePortalEventDescription" substitutionGroup="wlp-types:FrameworkEventDescription"
+               type="wlp-types:FrameworkPortalEventDescription"/>
+   <xs:complexType name="filterEventType">
+      <xs:attribute name="eventLabel" type="xs:string"/>
+      <!-- This restriction cannot be validated with XML Spy
+      <xs:simpleType>
+      <xs:restriction base="xs:string">
+      <xs:pattern value="(\p{L}|_|\$)(\p{L}|_|\$|\p{Nd})*"/>
+      </xs:restriction>
+      </xs:simpleType>
+      </xs:attribute>
+      -->
+      <xs:attribute name="sourceInstanceLabels" type="xs:string"/>
+      <xs:attribute name="sourceInstanceWildcard">
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="this"/>
+               <xs:enumeration value="any"/>
+               <xs:enumeration value="none"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+   </xs:complexType>
+   <xs:element name="changeWindowState" type="wlp-types:changeWindowStateType"/>
+   <xs:element name="changeWindowMode" type="wlp-types:changeWindowModeType"/>
+   <xs:element name="activatePage" type="wlp-types:activatePageType"/>
+   <xs:element name="invokePageFlowAction" type="wlp-types:invokePageFlowActionType"/>
+   <xs:element name="invokeStrutsAction" type="wlp-types:invokeStrutsActionType"/>
+   <xs:element name="fireEvent" type="wlp-types:fireEventType"/>
+   <xs:element name="fireCustomEvent" type="xs:QName"/>
+   <xs:element name="invokeBackingFileMethod" type="wlp-types:invokeBackingFileMethodType"/>
+   <xs:element name="invokeJavaPortletMethod" type="wlp-types:invokeJavaPortletMethodType"/>
+   <xs:element name="dispatchToRemotePortlet" type="wlp-types:dispatchToRemotePortletType"/>
+   <xs:complexType name="changeWindowStateType">
+      <xs:attribute name="newState">
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="minimized"/>
+               <xs:enumeration value="maximized"/>
+               <xs:enumeration value="normal"/>
+               <xs:enumeration value="delete"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+   </xs:complexType>
+   <xs:complexType name="changeWindowModeType">
+      <xs:attribute name="newMode" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="activatePageType"/>
+   <xs:complexType name="invokePageFlowActionType">
+      <xs:attribute name="action" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="invokeStrutsActionType">
+      <xs:attribute name="action" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="invokeBackingFileMethodType">
+      <xs:attribute name="method" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="invokeJavaPortletMethodType">
+      <xs:attribute name="method" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="fireEventType">
+      <xs:attribute name="event" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType name="dispatchToRemotePortletType"/>
+   <xs:element name="InteractionRequestState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="state" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="InteractionResponseState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="state" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="MarkupRequestState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="state" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="MarkupResponseState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="state" type="xs:base64Binary"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="XmlMarkupRequestState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="1" processContents="skip"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="XmlMarkupResponseState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="1" processContents="skip"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="XmlInteractionRequestState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="1" processContents="skip"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="XmlInteractionResponseState">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="1" processContents="skip"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="MarkupRef">
+      <xs:annotation>
+         <xs:documentation>Specifies how markup is being returned.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="refId">
+            <xs:simpleType>
+               <xs:restriction base="xs:string">
+                  <xs:enumeration value="attachment"/>
+                  <xs:enumeration value="stream"/>
+                  <xs:enumeration value="inline"/>
+               </xs:restriction>
+            </xs:simpleType>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="LookAndFeelDescriptor">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="skeletonId" type="xs:string"/>
+            <xs:element name="skeletonPath" type="xs:string"/>
+            <xs:element name="skinId" type="xs:string"/>
+            <xs:element name="skinPath" type="xs:string"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:complexType abstract="true" name="ProxiableType">
+      <xs:attribute name="theme" type="xs:string"/>
+   </xs:complexType>
+   <xs:complexType abstract="true" name="PlaceableType">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:ProxiableType">
+            <xs:attribute name="placeholder" type="xs:int"/>
+            <xs:attribute name="placement" type="xs:int"/>
+            <xs:attribute name="position" type="xs:int"/>
+            <xs:attribute name="alignment" type="xs:int"/>
+            <xs:attribute name="default" type="xs:boolean"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType abstract="true" name="NavigableType">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:PlaceableType">
+            <xs:sequence>
+               <xs:element minOccurs="0" name="description" type="types:LocalizedString"/>
+               <xs:element minOccurs="1" name="title" type="types:LocalizedString"/>
+            </xs:sequence>
+            <xs:attribute name="hidden" type="xs:boolean"/>
+            <xs:attribute name="public" type="xs:boolean"/>
+            <xs:attribute name="active" type="xs:boolean"/>
+            <xs:attribute name="orientation" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="PageDescriptionType">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:NavigableType">
+            <xs:sequence>
+               <xs:element name="layout" type="xs:string"/>
+               <xs:element maxOccurs="unbounded" minOccurs="0" name="placeable" type="wlp-types:PlaceableType"/>
+            </xs:sequence>
+            <xs:attribute name="pageContentUri" type="xs:string"/>
+            <xs:attribute name="pageHandle" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:element name="PageDescription" type="wlp-types:PageDescriptionType"/>
+   <!-- This is also navigable - but we cannot enforce it here -->
+   <xs:complexType name="BookDescriptionType">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:NavigableType">
+            <xs:sequence>
+               <xs:element maxOccurs="1" minOccurs="0" name="menu" type="xs:string"/>
+               <xs:choice maxOccurs="unbounded" minOccurs="0">
+                  <xs:element name="PageDescription" type="wlp-types:PageDescriptionType"/>
+                  <xs:element name="BookDescription" type="wlp-types:BookDescriptionType"/>
+               </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="bookHandle" type="xs:string"/>
+            <xs:attribute name="defaultPage" type="xs:string"/>
+            <xs:attribute name="bookContentUri" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:element name="BookDescription" type="wlp-types:BookDescriptionType"/>
+   <xs:complexType name="PortletRefType">
+      <xs:complexContent>
+         <xs:extension base="wlp-types:PlaceableType">
+            <xs:sequence>
+               <xs:element name="title" type="types:LocalizedString"/>
+            </xs:sequence>
+            <xs:attribute name="portletHandle" type="xs:string"/>
+            <xs:attribute name="defaultMinimized" type="xs:boolean"/>
+            <xs:attribute name="orientation" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:element name="PortletRef" type="wlp-types:PortletRefType"/>
+   <xs:complexType name="AbstractProperty">
+      <xs:attribute name="name" type="xs:string" use="optional"/>
+      <!-- isList needed to differentiate a single value from a list of size 1 -->
+      <xs:attribute default="false" name="isList" type="xs:boolean" use="optional"/>
+   </xs:complexType>
+   <xs:element name="stringProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:string"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="longProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:long"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="LongProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:long"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="doubleProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:double"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="DoubleProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:double"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="booleanProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:boolean"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="BooleanProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:boolean"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dateTimeProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:dateTime"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="DateTimeProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty">
+               <xs:sequence>
+                  <xs:element maxOccurs="unbounded" minOccurs="1" name="value" type="xs:dateTime"/>
+               </xs:sequence>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="emptyListProperty">
+      <xs:complexType>
+         <xs:complexContent>
+            <xs:extension base="wlp-types:AbstractProperty"/>
+         </xs:complexContent>
+      </xs:complexType>
+   </xs:element>
+   <!-- to fit it in a single extensions elsement -->
+   <xs:element name="propertyWrapper">
+      <xs:complexType>
+         <xs:sequence maxOccurs="unbounded" minOccurs="0">
+            <xs:choice>
+               <xs:element ref="wlp-types:stringProperty"/>
+               <xs:element ref="wlp-types:longProperty"/>
+               <xs:element ref="wlp-types:LongProperty"/>
+               <xs:element ref="wlp-types:doubleProperty"/>
+               <xs:element ref="wlp-types:DoubleProperty"/>
+               <xs:element ref="wlp-types:booleanProperty"/>
+               <xs:element ref="wlp-types:BooleanProperty"/>
+               <xs:element ref="wlp-types:dateTimeProperty"/>
+               <xs:element ref="wlp-types:DateTimeProperty"/>
+               <xs:element ref="wlp-types:emptyListProperty"/>
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:complexType>
+   </xs:element>
+   <!-- Describe look and feel dependencies -->
+   <xs:element name="renderDependenciesDescription">
+      <xs:complexType>
+         <xs:attribute default="false" name="hasRenderDependencies" type="xs:boolean"/>
+         <!-- The consumer can cache dependencies information if this is enabled -->
+         <xs:attribute default="true" name="cacheRenderDependencies" type="xs:boolean"/>
+      </xs:complexType>
+   </xs:element>
+   <xs:complexType name="DependenciesContext">
+      <xs:sequence>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="tags" type="wlp-types:RenderDependencyTag"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="scripts" type="wlp-types:ScriptFragment"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="clientAttributes" type="types:NamedString"/>
+         <xs:element default="false" minOccurs="0" name="requiresRewriting" type="xs:boolean"/>
+         <xs:element minOccurs="0" name="preferredTitle" type="xs:string"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="validNewModes" type="xs:string"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="RenderDependencyTag">
+      <xs:sequence>
+         <xs:element name="text" nillable="true" type="xs:string"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="attribute">
+            <xs:complexType>
+               <xs:attribute name="name" type="xs:string" use="required"/>
+               <xs:attribute name="value" type="xs:string" use="required"/>
+            </xs:complexType>
+         </xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+   </xs:complexType>
+   <xs:complexType name="ScriptFragment">
+      <xs:sequence>
+         <!-- The eventHandler should better be an attribute. But does fails to deserialize. -->
+         <xs:element minOccurs="1" name="eventHandler" type="xs:string"/>
+         <xs:element maxOccurs="unbounded" minOccurs="0" name="fragment" type="xs:string"/>
+      </xs:sequence>
+   </xs:complexType>
+   <!-- getRenderDependencies request -->
+   <xs:element name="getRenderDependencies">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="registrationContext" nillable="true" type="types:RegistrationContext"/>
+            <xs:element name="portletContext" type="types:PortletContext"/>
+            <xs:element name="runtimeContext" type="types:RuntimeContext"/>
+            <xs:element name="userContext" nillable="true" type="types:UserContext"/>
+            <xs:element name="markupParams" type="types:MarkupParams"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <!-- getRenderDependencies response -->
+   <xs:complexType name="RenderDependenciesResponse">
+      <xs:sequence>
+         <xs:element maxOccurs="1" minOccurs="0" name="dependenciesContext" type="wlp-types:DependenciesContext"/>
+         <xs:element maxOccurs="1" minOccurs="0" name="sessionContext" type="types:SessionContext"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:element name="RenderDependenciesResponse" type="wlp-types:RenderDependenciesResponse"/>
+   <!-- getServiceDescription registration context extension -->
+   <xs:element name="getRegistrationPropertyValues">
+      <xs:complexType/>
+   </xs:element>
+   <!-- getResource status code -->
+   <xs:complexType name="ResourceStatus">
+      <xs:sequence>
+         <xs:element default="200" maxOccurs="1" minOccurs="0" name="resourceStatusCode" type="xs:integer"/>
+         <xs:element maxOccurs="1" minOccurs="0" name="resourceStatusMessage" type="xs:string"/>
+         <xs:element maxOccurs="1" minOccurs="0" name="resourceRedirectLocation" type="xs:string"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:element name="ResourceStatus" type="wlp-types:ResourceStatus"/>
+</xs:schema>
