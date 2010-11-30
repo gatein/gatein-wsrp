@@ -64,7 +64,7 @@ else
    echo \| ===============
    if [ $# -eq 1 ]
    then
-      mvn clean install '-Dmaven.test.skip=true'
+      mvn clean install -DskipTests
    else
       if [ $# -eq 2 ]
       then
@@ -78,7 +78,7 @@ else
          echo \| == to remove the GUI module
          echo --------------------------------------------------------------------------
          cd admin-gui
-         mvn clean install -Dmaven.test.skip=true
+         mvn clean install -DskipTests
          war=wsrp-admin-gui
          echo Copying $war-$CURRENT_WSRP.war to $GATEIN_EAR_HOME/../$war.war
          cp $HOME/.m2/repository/org/gatein/wsrp/$war/$CURRENT_WSRP/$war-$CURRENT_WSRP.war $GATEIN_EAR_HOME/../$war.war
