@@ -23,6 +23,8 @@
 package org.gatein.registration;
 
 /**
+ * Listeners for when the portlet contexts of a registration change.
+ * 
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
