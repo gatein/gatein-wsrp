@@ -25,16 +25,12 @@ package org.gatein.registration.policies;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.InvalidConsumerDataException;
-import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
-import org.gatein.registration.RegistrationPortletContextChangeListener;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -103,6 +99,7 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       return consumerName;
    }
 
+   /* GTNWSRP-72
    public void addPortletHandle(Registration registration, String portletHandle)
    {
       delegate.addPortletHandle(registration, portletHandle);
@@ -126,5 +123,5 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
    public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
    {
       delegate.addPortletContextChangeListener(listener);
-   }
+   }*/
 }

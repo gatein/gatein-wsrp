@@ -377,10 +377,11 @@ public class RegistrationManagerImpl implements RegistrationManager
     */
    public void policyUpdatedTo(RegistrationPolicy policy)
    {
-      policy.addPortletContextChangeListener(this);
+//      policy.addPortletContextChangeListener(this); // GTNWSRP-72
       setPolicy(policy);
    }
 
+   // GTNWSRP-72
    public void portletContextsHaveChanged(Registration registration)
    {
       persistenceManager.saveChangesTo(registration);

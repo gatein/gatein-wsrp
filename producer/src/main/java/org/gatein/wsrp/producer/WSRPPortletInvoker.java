@@ -20,31 +20,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.gatein.wsrp.producer;
 
-import org.gatein.pc.api.NoSuchPortletException;
-import org.gatein.pc.api.Portlet;
-import org.gatein.pc.api.PortletContext;
-import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.pc.api.PortletStateType;
-import org.gatein.pc.api.invocation.PortletInvocation;
-import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.state.DestroyCloneFailure;
-import org.gatein.pc.api.state.PropertyChange;
-import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.pc.portlet.PortletInvokerInterceptor;
-import org.gatein.registration.Registration;
-import org.gatein.registration.RegistrationLocal;
 import org.gatein.registration.RegistrationManager;
-import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.handlers.processors.WSRPInstanceContext;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
+ * GTNWSRP-72
+ *
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
@@ -63,7 +47,7 @@ public class WSRPPortletInvoker extends PortletInvokerInterceptor
       this.registrationManager = registrationManager;
    }
 
-   public Portlet getPortlet(PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException
+   /*public Portlet getPortlet(PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException
    {
       checkPortletContext(portletContext);
       Portlet portlet = super.getPortlet(portletContext);
@@ -78,11 +62,11 @@ public class WSRPPortletInvoker extends PortletInvokerInterceptor
 
    public Set<Portlet> getPortlets() throws PortletInvokerException
    {
-      /**
-       * Note: due to the way the ProducerPortletInvoker work, when calling super.getPortlets() it will
-       * return the portlets not for the ProducerPortletInvoker from its parent, which should only return
-       * non-cloned Portlets.
-       */
+      *//**
+ * Note: due to the way the ProducerPortletInvoker work, when calling super.getPortlets() it will
+ * return the portlets not for the ProducerPortletInvoker from its parent, which should only return
+ * non-cloned Portlets.
+ *//*
 
       Registration registration = RegistrationLocal.getRegistration();
       Set<Portlet> portlets = super.getPortlets();
@@ -235,6 +219,6 @@ public class WSRPPortletInvoker extends PortletInvokerInterceptor
       Registration registration = RegistrationLocal.getRegistration();
       String portletHandle = WSRPUtils.convertToWSRPPortletContext(portletContext).getPortletHandle();
       this.getRegistrationManager().getPolicy().removePortletHandle(registration, portletHandle);
-   }
+   }*/
 }
 

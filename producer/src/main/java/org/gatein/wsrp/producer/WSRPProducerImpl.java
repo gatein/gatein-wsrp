@@ -402,7 +402,8 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
 
          registrationManager.setPolicy(registrationRequirements.getPolicy());
 
-         registrationManager.getPolicy().addPortletContextChangeListener(registrationManager);
+         // GTNWSRP-72
+//         registrationManager.getPolicy().addPortletContextChangeListener(registrationManager);
 
          started = true;
       }
@@ -452,7 +453,7 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
       }
       catch (NoSuchPortletException e)
       {
-         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet with handle '" + portletContext.getId() + "'", null);
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet with handle '" + portletContext.getId() + "'", e);
       }
       finally
       {
