@@ -162,6 +162,15 @@ public abstract class RequestProcessor<Response>
       invocation.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(markupRequest.getWindowState()));
       invocation.setMode(WSRPUtils.getJSR168PortletModeFromWSRPName(markupRequest.getMode()));
 
+      List<Extension> extensions = params.getExtensions();
+      if (ParameterValidation.existsAndIsNotEmpty(extensions))
+      {
+         for (Extension extension : extensions)
+         {
+            log.debug("NavigationalContext extension: " + extension);
+         }
+      }
+
       NavigationalContext navigationalContext = params.getNavigationalContext();
       if (navigationalContext != null)
       {
@@ -170,14 +179,6 @@ public abstract class RequestProcessor<Response>
 
          List<NamedString> publicParams = navigationalContext.getPublicValues();
 
-         List<Extension> extensions = navigationalContext.getExtensions();
-         if (ParameterValidation.existsAndIsNotEmpty(extensions))
-         {
-            for (Extension extension : extensions)
-            {
-               log.debug("NavigationalContext extension: " + extension);
-            }
-         }
 
          if (ParameterValidation.existsAndIsNotEmpty(publicParams))
          {
