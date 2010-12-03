@@ -28,7 +28,7 @@
 
 if [ -z "$GATEIN_EAR_HOME" -o ! -d "$GATEIN_EAR_HOME" ]
 then
-   echo \=\=\> Please set GATEIN_EAR_HOME to point to the repository on your application server that contains gatein.ear
+   echo \=\=\> Please set GATEIN_EAR_HOME to point to the gatein.ear directory of your GateIn installation
    exit
 fi
 echo Using GateIn home at: $GATEIN_EAR_HOME
