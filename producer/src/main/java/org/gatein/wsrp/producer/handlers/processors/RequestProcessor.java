@@ -45,6 +45,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.Utils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
@@ -62,6 +63,8 @@ import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -80,6 +83,7 @@ public abstract class RequestProcessor<Response>
 {
    private static final String WINDOW_STATE = "window state";
    private static final String PORTLET_MODE = "portlet mode";
+   private static final Logger log = LoggerFactory.getLogger(RequestProcessor.class);
 
    protected PortletInvocation invocation;
    protected MarkupRequest markupRequest;
@@ -165,6 +169,16 @@ public abstract class RequestProcessor<Response>
          invocation.setNavigationalState(navigationalState);
 
          List<NamedString> publicParams = navigationalContext.getPublicValues();
+
+         List<Extension> extensions = navigationalContext.getExtensions();
+         if (ParameterValidation.existsAndIsNotEmpty(extensions))
+         {
+            for (Extension extension : extensions)
+            {
+               log.debug("NavigationalContext extension: " + extension);
+            }
+         }
+
          if (ParameterValidation.existsAndIsNotEmpty(publicParams))
          {
             Map<String, String[]> publicNS = WSRPUtils.createPublicNSFrom(publicParams);
