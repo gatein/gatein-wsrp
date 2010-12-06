@@ -135,6 +135,7 @@ public class SessionHandler implements SessionEventListener
       // check if the cookie protocol requires cookie initialization
       if (!requiresInitCookie())
       {
+         log.debug("Doesn't require initCookie");
          return;
       }
 

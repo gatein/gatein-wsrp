@@ -497,6 +497,7 @@ public class ProducerInfo
    {
       // do we need to call initCookie or not?
       requiresInitCookie = serviceDescription.getRequiresInitCookie();
+      log.debug("Requires initCookie: " + requiresInitCookie);
 
       // custom mode descriptions
       customModes = toMap(serviceDescription.getCustomModeDescriptions());
