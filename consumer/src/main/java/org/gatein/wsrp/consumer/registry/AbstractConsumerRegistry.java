@@ -60,7 +60,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    private SortedMap<String, WSRPConsumer> consumers;
    private Map<String, String> keysToIds;
 
-   private SessionEventBroadcaster sessionEventBroadcaster;
+   private SessionEventBroadcaster sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
    private MigrationService migrationService;
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
@@ -183,10 +183,21 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    private WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
-      WSRPConsumer consumer = new WSRPConsumerImpl(producerInfo, migrationService);
+      WSRPConsumer consumer = newConsumer(producerInfo);
       add(consumer);
 
       return consumer;
+   }
+
+   /**
+    * Extracted for testing purposes...
+    *
+    * @param producerInfo
+    * @return
+    */
+   protected WSRPConsumer newConsumer(ProducerInfo producerInfo)
+   {
+      return new WSRPConsumerImpl(producerInfo, migrationService);
    }
 
    public void activateConsumerWith(String id) throws ConsumerException
@@ -291,7 +302,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void stop() throws Exception
    {
-      for (WSRPConsumer consumer : getConsumers())
+      for (WSRPConsumer consumer : getConsumers(false))
       {
          // if producer is not active, it shouldn't be registered with the federating portlet invoker, hence do not
          // unregister it. We have changed how consumers are registered (active consumers are not automatically
@@ -423,7 +434,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    // internal management methods
 
-   private void add(WSRPConsumer consumer)
+   protected void add(WSRPConsumer consumer)
    {
       String id = consumer.getProducerId();
       consumers.put(id, consumer);
@@ -439,19 +450,28 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    protected Collection<WSRPConsumer> getConsumers()
    {
+      return getConsumers(true);
+   }
+
+   protected Collection<WSRPConsumer> getConsumers(boolean startConsumers)
+   {
       Collection<WSRPConsumer> consumerz = consumers.values();
-      for (WSRPConsumer consumer : consumerz)
+
+      if (startConsumers)
       {
-         if (consumer.getProducerInfo().isActive() && !consumer.isActive())
+         for (WSRPConsumer consumer : consumerz)
          {
-            try
+            if (consumer.getProducerInfo().isActive() && !consumer.isActive())
             {
-               consumer.refresh(false);
-            }
-            catch (Exception e)
-            {
-               log.info("Couldn't activate consumer " + consumer.getProducerId());
-               consumer.getProducerInfo().setActiveAndSave(false);
+               try
+               {
+                  consumer.refresh(false);
+               }
+               catch (Exception e)
+               {
+                  log.info("Couldn't activate consumer " + consumer.getProducerId());
+                  consumer.getProducerInfo().setActiveAndSave(false);
+               }
             }
          }
       }

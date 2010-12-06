@@ -29,9 +29,33 @@ package org.gatein.wsrp.api.session;
  */
 public interface SessionEventBroadcaster
 {
-   public void registerListener(String listenerId, SessionEventListener listener);
+   void registerListener(String listenerId, SessionEventListener listener);
 
-   public void unregisterListener(String listenerId);
+   void unregisterListener(String listenerId);
 
-   public void notifyListenersOf(SessionEvent event);
+   void notifyListenersOf(SessionEvent event);
+
+   /**
+    * A default implementation of SessionEventBroadcaster that does nothing, in case we're not interested in
+    * SessionEvents.
+    */
+   final static class NullSessionEventBroadcaster implements SessionEventBroadcaster
+   {
+      public void registerListener(String listenerId, SessionEventListener listener)
+      {
+         // do nothing
+      }
+
+      public void unregisterListener(String listenerId)
+      {
+         // do nothing
+      }
+
+      public void notifyListenersOf(SessionEvent event)
+      {
+         // do nothing
+      }
+   }
+
+   static final SessionEventBroadcaster NO_OP_BROADCASTER = new NullSessionEventBroadcaster();
 }

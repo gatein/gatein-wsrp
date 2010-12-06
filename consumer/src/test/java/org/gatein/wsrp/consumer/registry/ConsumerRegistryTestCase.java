@@ -1,37 +1,38 @@
-/******************************************************************************
- * JBoss, a division of Red Hat                                               *
- * Copyright 2009, Red Hat Middleware, LLC, and individual                    *
- * contributors as indicated by the @authors tag. See the                     *
- * copyright.txt in the distribution for a full listing of                    *
- * individual contributors.                                                   *
- *                                                                            *
- * This is free software; you can redistribute it and/or modify it            *
- * under the terms of the GNU Lesser General Public License as                *
- * published by the Free Software Foundation; either version 2.1 of           *
- * the License, or (at your option) any later version.                        *
- *                                                                            *
- * This software is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU           *
- * Lesser General Public License for more details.                            *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public           *
- * License along with this software; if not, write to the Free                *
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
- ******************************************************************************/
+/*
+ * JBoss, a division of Red Hat
+ * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of
+ * individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 
 package org.gatein.wsrp.consumer.registry;
 
 import junit.framework.TestCase;
-import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
+import org.mockito.Mockito;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -46,7 +47,6 @@ public class ConsumerRegistryTestCase extends TestCase
    protected void setUp() throws Exception
    {
       registry = new InMemoryConsumerRegistry();
-      registry.setFederatingPortletInvoker(new FederatingPortletInvokerService());
    }
 
    public void testCreateAndGet()
@@ -145,5 +145,42 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(info, consumer.getProducerInfo());
       assertEquals(info, registry.getProducerInfoByKey(key));
       assertEquals(consumer, registry.getConsumer("bar"));
+   }
+
+   public void testStoppingShouldntStartConsumers() throws Exception
+   {
+      // fake marking consumer as active in persistence
+      ProducerInfo info = Mockito.mock(ProducerInfo.class);
+      Mockito.stub(info.isActive()).toReturn(true);
+      Mockito.stub(info.getId()).toReturn("foo");
+      Mockito.stub(info.getKey()).toReturn("fooKey");
+      EndpointConfigurationInfo endpoint = Mockito.mock(EndpointConfigurationInfo.class);
+      Mockito.stub(info.getEndpointConfigurationInfo()).toReturn(endpoint);
+
+      // create a consumer to spy from
+      WSRPConsumer original = ((AbstractConsumerRegistry)registry).newConsumer(info);
+      WSRPConsumer consumer = Mockito.spy(original);
+
+      // force re-init of registry from "persistence" to ensure that the spy registry actually uses our spy consumer
+      ConsumerRegistry registrySpy = Mockito.spy(registry);
+      Mockito.doReturn(Collections.singletonList(info).iterator()).when((AbstractConsumerRegistry)registrySpy).getProducerInfosFromStorage();
+      Mockito.doReturn(consumer).when((AbstractConsumerRegistry)registrySpy).newConsumer(info);
+      registrySpy.reloadConsumers();
+
+      WSRPConsumer foo = registrySpy.getConsumer("foo");
+      assertTrue(foo.getProducerInfo().isActive());
+      assertEquals(consumer, foo);
+
+      // start consumer and check that it's properly added to the FederatingPortletInvoker
+      ((AbstractConsumerRegistry)registrySpy).activateConsumer(foo);
+      assertEquals(consumer, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
+
+      // stop the consumer and then the registry and check that consumer.start has only been called once
+      consumer.stop();
+      registrySpy.stop();
+      Mockito.verify(consumer, Mockito.times(1)).start();
+
+      // check that consumer is not known by the FederatingPortletInvoker anymore
+      assertEquals(null, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo"));
    }
 }
