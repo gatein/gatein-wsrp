@@ -63,9 +63,6 @@ public class SessionHandler implements SessionEventListener
    protected WSRPConsumerImpl consumer;
    private static Logger log = LoggerFactory.getLogger(SessionHandler.class);
 
-   /** Cookie protocol required by the producer with the consumer */
-   private CookieProtocol requiresInitCookie;
-
    /** The prefix used to isolate WSRP-related session information in the actual session object. */
    private static final String SESSION_ID_PREFIX = "org.gatein.wsrp.session.";
 
@@ -84,17 +81,12 @@ public class SessionHandler implements SessionEventListener
 
    public boolean isPerUserCookieInit()
    {
-      return CookieProtocol.PER_USER.equals(requiresInitCookie);
+      return CookieProtocol.PER_USER.equals(getRequiresInitCookie());
    }
 
    public boolean requiresInitCookie()
    {
-      return requiresInitCookie != null && !CookieProtocol.NONE.equals(requiresInitCookie);
-   }
-
-   public void setRequiresInitCookie(CookieProtocol requiresInitCookie)
-   {
-      this.requiresInitCookie = requiresInitCookie;
+      return getRequiresInitCookie() != null && !CookieProtocol.NONE.equals(getRequiresInitCookie());
    }
 
    void initProducerSessionInformation(PortletInvocation invocation) throws PortletInvokerException
@@ -116,7 +108,7 @@ public class SessionHandler implements SessionEventListener
 
    private boolean requiresGroupInitCookie()
    {
-      return requiresInitCookie() && CookieProtocol.PER_GROUP.equals(requiresInitCookie);
+      return requiresInitCookie() && CookieProtocol.PER_GROUP.equals(getRequiresInitCookie());
    }
 
    /** Resets the information held by RequestHeaderClientHandler for the current interaction. */
@@ -449,5 +441,11 @@ public class SessionHandler implements SessionEventListener
       {
          info.updateHandleAssociatedInfo(originalHandle, newHandle);
       }
+   }
+
+   /** Cookie protocol required by the producer with the consumer */
+   private CookieProtocol getRequiresInitCookie()
+   {
+      return consumer.getProducerInfo().getRequiresInitCookie();
    }
 }

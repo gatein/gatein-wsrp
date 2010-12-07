@@ -238,6 +238,9 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       // set init cookie requirement
       producer.setRequiresInitCookie(cookieProtocol);
 
+      // Force ProducerInfo refresh so that we make sure that the consumer knows about the new CookieProtocol
+      consumer.refreshProducerInfo();
+
       // tell the producer which markup behavior we want to use
       producer.setCurrentMarkupBehaviorHandle(handle);
 

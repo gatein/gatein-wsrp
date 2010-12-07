@@ -48,6 +48,7 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
 {
    protected String portletHandle;
    protected int initCookieCallCount;
+   private boolean initCookieCalled;
 
    public InitCookieMarkupBehavior(BehaviorRegistry registry)
    {
@@ -61,6 +62,11 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
 
    protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, V1GetMarkup getMarkup) throws V1OperationFailed, V1InvalidCookie
    {
+      if (!initCookieCalled)
+      {
+         throw new IllegalStateException("initCookie should have been called first!");
+      }
+
       String handle = getMarkup.getPortletContext().getPortletHandle();
 
       if (portletHandle.equals(handle))
@@ -92,6 +98,7 @@ public abstract class InitCookieMarkupBehavior extends MarkupBehavior
    @Override
    public List<V1Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext) throws V1InvalidRegistration, V1AccessDenied, V1OperationFailed
    {
+      initCookieCalled = true;
       initCookieCallCount++;
       return null;
    }

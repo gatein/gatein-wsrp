@@ -673,9 +673,7 @@ public class WSRPConsumerImpl implements WSRPConsumer
 
    private RefreshResult refreshProducerInfo(boolean forceRefresh) throws PortletInvokerException
    {
-      RefreshResult refreshResult = producerInfo.detailedRefresh(forceRefresh);
-      sessionHandler.setRequiresInitCookie(producerInfo.getRequiresInitCookie());
-      return refreshResult;
+      return producerInfo.detailedRefresh(forceRefresh);
    }
 
    public void releaseSessions() throws PortletInvokerException

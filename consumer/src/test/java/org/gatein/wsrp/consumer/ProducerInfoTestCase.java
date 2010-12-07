@@ -31,8 +31,10 @@ import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
 import org.gatein.wsrp.test.protocol.v2.RegistrationBehavior;
 import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.GroupedPortletsServiceDescriptionBehavior;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -55,6 +57,7 @@ import org.oasis.wsrp.v2.UserContext;
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -443,6 +446,17 @@ public class ProducerInfoTestCase extends TestCase
    public void testGetInfoForEvent()
    {
       assertNull(info.getInfoForEvent(null));
+   }
+
+   public void testRequiresInitCookieIsProperlySet() throws PortletInvokerException
+   {
+      ServiceDescriptionBehavior sdb = new GroupedPortletsServiceDescriptionBehavior(new ArrayList<PortletDescription>(3));
+      sdb.setRequiresInitCookie(CookieProtocol.PER_GROUP);
+      serviceFactory.getRegistry().setServiceDescriptionBehavior(sdb);
+
+      info.refresh(false);
+
+      assertEquals(CookieProtocol.PER_GROUP, info.getRequiresInitCookie());
    }
 
    private static class TestPortletManagementBehavior extends PortletManagementBehavior

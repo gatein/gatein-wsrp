@@ -186,7 +186,6 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       String handle = PerUserInitCookieMarkupBehavior.PER_USER_INIT_COOKIE_HANDLE;
       InitCookieMarkupBehavior behavior = (InitCookieMarkupBehavior)producer.getBehaviorRegistry().getMarkupBehaviorFor(handle);
 
-
       ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, CookieProtocol.PER_USER.value());
 
       ExtendedAssert.assertFalse(sessionInfo.isPerGroupCookies());
@@ -241,6 +240,9 @@ public class MarkupTestCase extends V2ConsumerBaseTest
 
       // set init cookie requirement
       producer.setRequiresInitCookie(CookieProtocol.fromValue(cookieProtocol));
+
+      // Force ProducerInfo refresh so that we make sure that the consumer knows about the new CookieProtocol
+      consumer.refreshProducerInfo();
 
       // tell the producer which markup behavior we want to use
       producer.setCurrentMarkupBehaviorHandle(handle);
