@@ -663,7 +663,7 @@ public class ProducerInfo
       {
          if (info.isHasUserSpecificState())
          {
-            log.debug("Portlet '" + portletHandle + "' will store persistent state for each user. NOT WELL TESTED!");
+            log.debug("Portlet '" + portletHandle + "' will store persistent state for each user.");
          }
 
          wsrpPortlet = new WSRPPortlet(PortletContext.createPortletContext(portletHandle), info);
