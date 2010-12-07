@@ -60,15 +60,16 @@ public class FileSystemXMLProducerConfigurationService extends SimpleXMLProducer
 
    private static DefaultSchemaResolver RESOLVER;
 
-   private static final String PRODUCER_NAMESPACE = "urn:jboss:portal:wsrp:producer:v2_7";
-   private static final String PRODUCER_XSD = "jboss-wsrp-producer_2_7.xsd";
+   private static final String PRODUCER_NAMESPACE = "http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0";
+   private static final String PRODUCER_XSD = "gatein_wsrp_producer_1_0.xsd";
 
    static
    {
       RESOLVER = new DefaultSchemaResolver();
       RESOLVER.setCacheResolvedSchemas(true);
       RESOLVER.addSchemaLocation("http://www.w3.org/XML/1998/namespace", "xsd/xml.xsd");
-      RESOLVER.addSchemaLocation("urn:jboss:portal:wsrp:producer:v2_6", "xsd/jboss-wsrp-producer_2_6.xsd");
+      /*RESOLVER.addSchemaLocation("urn:jboss:portal:wsrp:producer:v2_6", "xsd/jboss-wsrp-producer_2_6.xsd");
+      RESOLVER.addSchemaLocation("urn:jboss:portal:wsrp:producer:v2_7", "xsd/jboss-wsrp-producer_2_7.xsd");*/
       RESOLVER.addSchemaLocation(PRODUCER_NAMESPACE, "xsd/" + PRODUCER_XSD);
    }
 

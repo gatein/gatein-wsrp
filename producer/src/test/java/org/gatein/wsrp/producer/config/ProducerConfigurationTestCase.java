@@ -76,7 +76,7 @@ public class ProducerConfigurationTestCase extends TestCase
       RESOLVER = new DefaultSchemaResolver();
       RESOLVER.setCacheResolvedSchemas(true);
       RESOLVER.addSchemaLocation("http://www.w3.org/XML/1998/namespace", "xsd/xml.xsd");
-      RESOLVER.addSchemaLocation("urn:jboss:portal:wsrp:producer:v2_7", "xsd/jboss-wsrp-producer_2_7.xsd");
+      RESOLVER.addSchemaLocation("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "xsd/gatein_wsrp_producer_1_0.xsd");
    }
 
    protected void setUp() throws Exception
@@ -277,7 +277,7 @@ public class ProducerConfigurationTestCase extends TestCase
       StringWriter xmlOutput = new StringWriter();
 
       // get the XML Schema source
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("xsd/jboss-wsrp-producer_2_7.xsd");
+      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("xsd/gatein_wsrp_producer_1_0.xsd");
 
       Reader xsReader = new InputStreamReader(is);
 
@@ -287,15 +287,15 @@ public class ProducerConfigurationTestCase extends TestCase
       marshaller.setSchemaResolver(RESOLVER);
 
       // we need to specify what elements are top most (roots) providing namespace URI, prefix and local name
-      marshaller.addRootElement("urn:jboss:portal:wsrp:producer:v2_7", "", "producer-configuration");
+      marshaller.addRootElement("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "", "producer-configuration");
 
       // declare default namespace
-      marshaller.declareNamespace("wpc", "urn:jboss:portal:wsrp:producer:v2_7");
+      marshaller.declareNamespace("wpc", "http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0");
 
       // add schema location by declaring xsi namespace and adding xsi:schemaLocation attribute
       marshaller.declareNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
       marshaller.addAttribute("xsi", "schemaLocation", "string",
-         "urn:jboss:portal:wsrp:producer:v2_7 http://www.jboss.org/portal/xsd/jboss-wsrp-producer_2_7.xsd");
+         "http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0 http://www.jboss.org/portal/xsd/gatein_wsrp_producer_1_0.xsd");
 
       // create an instance of Object Model Provider
       ObjectModelProvider provider = new ProducerConfigurationProvider();
