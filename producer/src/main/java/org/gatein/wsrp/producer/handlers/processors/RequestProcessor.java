@@ -45,7 +45,6 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.Utils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
-import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
@@ -161,15 +160,6 @@ public abstract class RequestProcessor<Response>
       invocation.setTarget(portlet.getContext());
       invocation.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(markupRequest.getWindowState()));
       invocation.setMode(WSRPUtils.getJSR168PortletModeFromWSRPName(markupRequest.getMode()));
-
-      List<Extension> extensions = params.getExtensions();
-      if (ParameterValidation.existsAndIsNotEmpty(extensions))
-      {
-         for (Extension extension : extensions)
-         {
-            log.debug("NavigationalContext extension: " + extension);
-         }
-      }
 
       NavigationalContext navigationalContext = params.getNavigationalContext();
       if (navigationalContext != null)
