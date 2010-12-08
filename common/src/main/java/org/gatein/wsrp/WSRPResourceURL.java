@@ -68,6 +68,11 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
          // if the container didn't provide us with a resource id, fake one so that we can still build a correct WSRP URL.
          resourceId = DEFAULT_RESOURCE_ID;
       }
+      else
+      {
+         // request operation if we have a proper resource id
+         preferOperation = true;
+      }
 
       if (context != null && !URLContext.EMPTY.equals(context))
       {
