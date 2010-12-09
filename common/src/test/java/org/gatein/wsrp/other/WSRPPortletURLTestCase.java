@@ -193,17 +193,6 @@ public class WSRPPortletURLTestCase extends TestCase
       assertEquals("true", preferOperation);
    }
 
-   public void testShouldSetPreferOperationToTrueWhenResourceIdIsPresent()
-   {
-      ResourceURL resourceURL = new TestResourceURL(TestResourceURL.RESID, TestResourceURL.DEFAULT_NS, CacheLevel.FULL);
-      WSRPPortletURL url = WSRPPortletURL.create(resourceURL, false, WSRPPortletURL.URLContext.EMPTY);
-
-      String actual = url.toString();
-      assertTrue(actual.contains("wsrp-urlType=resource"));
-      assertTrue(actual.contains("wsrp-resourceID=" + TestResourceURL.RESID));
-      assertTrue(actual.contains("wsrp-preferOperation=true"));
-   }
-
    public void testShouldProperlyTransmitResourceState()
    {
       // create URL from container

@@ -68,11 +68,6 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
          // if the container didn't provide us with a resource id, fake one so that we can still build a correct WSRP URL.
          resourceId = DEFAULT_RESOURCE_ID;
       }
-      else
-      {
-         // request operation if we have a proper resource id
-         preferOperation = true;
-      }
 
       if (context != null && !URLContext.EMPTY.equals(context))
       {
@@ -104,7 +99,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 
       if (resourceId != null)
       {
-         createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_ID, resourceId);
+         createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_ID, URLTools.encodeXWWWFormURL(resourceId));
       }
 
       // false is the default value, so we don't actually need to add it to the string
@@ -158,7 +153,8 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       String resourceIDParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_ID);
       if (resourceIDParam != null)
       {
-         resourceId = resourceIDParam;
+         resourceId = URLTools.decodeXWWWFormURL(resourceIDParam);
+         params.remove(WSRP2RewritingConstants.RESOURCE_ID);
       }
 
       // GTNWSRP-103: if we don't have a resource id and wsrp-requiresRewrite has not been specified, set it to false for better compatibility
@@ -178,12 +174,14 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       if (preferOperationParam != null)
       {
          preferOperation = Boolean.valueOf(preferOperationParam);
+         params.remove(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION);
       }
 
       String cacheabilityParam = getRawParameterValueFor(params, WSRP2RewritingConstants.RESOURCE_CACHEABILITY);
       if (cacheabilityParam != null)
       {
          cacheability = WSRPUtils.getCacheLevelFromResourceCacheability(cacheabilityParam);
+         params.remove(WSRP2RewritingConstants.RESOURCE_CACHEABILITY);
       }
 
       if (resourceIDParam == null && url == null)
