@@ -89,25 +89,25 @@ public class SOAPServiceFactoryTestCase extends TestCase
 
    public void testSimpleV2Service() throws Exception
    {
-      factory.setWsdlDefinitionURL("http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=Two");
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/simplev2.wsdl"));
       checkPorts(WSRP2_PORT_TYPES);
    }
 
    public void testSimpleV1Service() throws Exception
    {
-      factory.setWsdlDefinitionURL("http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=One");
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/simplev1.wsdl"));
       checkPorts(WSRP1_PORT_TYPES);
    }
 
    public void testBothServices() throws Exception
    {
-      factory.setWsdlDefinitionURL("http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?Operation=WSDL&WsrpVersion=All");
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/both-services.wsdl"));
       checkPorts(WSRP2_PORT_TYPES);
    }
 
    public void testDefaultDotNetWSDLCompositeService() throws Exception
    {
-      factory.setWsdlDefinitionURL("http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?WSDL");
+      factory.setWsdlDefinitionURL(getWSDLURL("wsdl/dot-net-composite.wsdl"));
       try
       {
          checkPorts(WSRP2_PORT_TYPES);

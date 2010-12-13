@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/"
+                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="urn:netunitysoftware:wsrp2interop"
+                  xmlns:i0="urn:oasis:names:tc:wsrp:v1:bind" xmlns:i1="urn:oasis:names:tc:wsrp:v2:bind"
+                  xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="urn:netunitysoftware:wsrp2interop"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+   <!-- Original from http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?WSDL -->
+   <wsdl:import namespace="urn:oasis:names:tc:wsrp:v1:bind"
+                location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?wsdl=wsdl1"/>
+   <wsdl:import namespace="urn:oasis:names:tc:wsrp:v2:bind"
+                location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?wsdl=wsdl2"/>
+   <wsdl:types>
+      <s:schema targetNamespace="urn:netunitysoftware:wsrp2interop">
+         <s:import schemaLocation="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?schema=schema1"
+                   namespace="urn:oasis:names:tc:wsrp:v1:types"/>
+         <s:import schemaLocation="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx?schema=schema2"
+                   namespace="urn:oasis:names:tc:wsrp:v2:types"/>
+      </s:schema>
+   </wsdl:types>
+   <wsdl:service name="WsrpProducer">
+      <wsdl:port name="WSRP_v1_PortletManagement_Binding_SOAP" binding="i0:WSRP_v1_PortletManagement_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v1_ServiceDescription_Binding_SOAP" binding="i0:WSRP_v1_ServiceDescription_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v2_ServiceDescription_Binding_SOAP" binding="i1:WSRP_v2_ServiceDescription_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v1_Markup_Binding_SOAP" binding="i0:WSRP_v1_Markup_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v2_PortletManagement_Binding_SOAP" binding="i1:WSRP_v2_PortletManagement_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v1_Registration_Binding_SOAP" binding="i0:WSRP_v1_Registration_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v2_Registration_Binding_SOAP" binding="i1:WSRP_v2_Registration_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+      <wsdl:port name="WSRP_v2_Markup_Binding_SOAP" binding="i1:WSRP_v2_Markup_Binding_SOAP">
+         <soap:address location="http://www.netunitysoftware.com/wsrp2interop/WsrpProducer.asmx"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>
