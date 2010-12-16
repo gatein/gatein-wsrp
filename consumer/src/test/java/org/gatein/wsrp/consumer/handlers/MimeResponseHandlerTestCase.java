@@ -25,17 +25,31 @@ package org.gatein.wsrp.consumer.handlers;
 
 import junit.framework.TestCase;
 import org.gatein.pc.api.PortletContext;
+import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.URLFormat;
+import org.gatein.pc.api.invocation.PortletInvocation;
+import org.gatein.pc.api.invocation.response.ContentResponse;
+import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockWSRPConsumer;
 import org.gatein.wsrp.test.support.TestPortletInvocationContext;
+import org.gatein.wsrp.test.support.TestRenderInvocation;
+import org.gatein.wsrp.test.support.TestResourceInvocation;
+import org.gatein.wsrp.test.support.TestWindowContext;
+import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.ResourceContext;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 10507 $
  * @since 2.6
  */
-public class RenderHandlerTestCase extends TestCase
+public class MimeResponseHandlerTestCase extends TestCase
 {
    public static final String NAMESPACE = "NAMESPACE";
    public static final String PORTLETID = "PORTLETID";
@@ -184,9 +198,61 @@ public class RenderHandlerTestCase extends TestCase
       processMarkupAndCheck(markup, expected);
    }
 
+   public void testRewritingRequiredWithBinaryContent() throws UnsupportedEncodingException, PortletInvokerException
+   {
+      String expected = "/* Style Sheet */\n" +
+         "." + TestWindowContext.NAMESPACE + "ExternalStyleClass\n" +
+         "{\n" +
+         "\tfont-weight: bold;\n" +
+         "\tcolor: green;\n" +
+         "\tfont-family: Arial;\n" +
+         "\tborder:dashed 1px black; \n" +
+         "\tpadding: 15px;\n" +
+         "}";
+      byte[] expectedBinary = expected.getBytes("UTF-8");
+      String original = "/* Style Sheet */\n" +
+         ".wsrp_rewrite_ExternalStyleClass\n" +
+         "{\n" +
+         "\tfont-weight: bold;\n" +
+         "\tcolor: green;\n" +
+         "\tfont-family: Arial;\n" +
+         "\tborder:dashed 1px black; \n" +
+         "\tpadding: 15px;\n" +
+         "}";
+      byte[] originalBinary = original.getBytes("UTF-8");
+
+      processBinaryAndCheck(expectedBinary, new RenderHandler(CONSUMER), new TestRenderInvocation(CONTEXT), WSRPTypeFactory.createMimeResponse("text/css", null, originalBinary, MarkupContext.class));
+      processBinaryAndCheck(expectedBinary, new ResourceHandler(CONSUMER), new TestResourceInvocation(CONTEXT), WSRPTypeFactory.createMimeResponse("text/css", null, originalBinary, ResourceContext.class));
+
+      original = "//JScript file\n" +
+         "function wsrp_rewrite_ExternalScriptFunction()\n" +
+         "{\n" +
+         "\talert('Script Function in Script File');\n" +
+         "}";
+      originalBinary = original.getBytes("UTF-8");
+      expected = "//JScript file\n" +
+         "function " + TestWindowContext.NAMESPACE + "ExternalScriptFunction()\n" +
+         "{\n" +
+         "\talert('Script Function in Script File');\n" +
+         "}";
+      expectedBinary = expected.getBytes("UTF-8");
+
+      processBinaryAndCheck(expectedBinary, new RenderHandler(CONSUMER), new TestRenderInvocation(CONTEXT), WSRPTypeFactory.createMimeResponse("application/x-javascript", null, originalBinary, MarkupContext.class));
+      processBinaryAndCheck(expectedBinary, new ResourceHandler(CONSUMER), new TestResourceInvocation(CONTEXT), WSRPTypeFactory.createMimeResponse("application/x-javascript", null, originalBinary, ResourceContext.class));
+   }
+
+   private void processBinaryAndCheck(byte[] expectedBinary, final MimeResponseHandler handler, final PortletInvocation invocation, final MimeResponse mimeResponse) throws PortletInvokerException
+   {
+      mimeResponse.setRequiresRewriting(true);
+      PortletInvocationResponse response = handler.rewriteResponseIfNeeded(mimeResponse, invocation);
+      assertTrue(response instanceof ContentResponse);
+      ContentResponse contentResponse = (ContentResponse)response;
+      ExtendedAssert.assertEquals(expectedBinary, contentResponse.getBytes());
+   }
+
    private void processMarkupAndCheck(String markup, String expected)
    {
-      String result = RenderHandler.processMarkup(
+      String result = MimeResponseHandler.processMarkup(
          markup,
          NAMESPACE,
          CONTEXT,

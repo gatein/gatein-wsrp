@@ -28,7 +28,7 @@ import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.MarkupContext;
@@ -49,7 +49,7 @@ import java.util.Map;
 public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMarkup, MarkupResponse, MarkupContext>
 {
 
-   public RenderHandler(WSRPConsumerImpl consumer)
+   public RenderHandler(WSRPConsumerSPI consumer)
    {
       super(consumer);
    }
@@ -116,7 +116,7 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
       consumer.getMarkupService().getMarkup(request.getRegistrationContext(), request.getPortletContext(),
          request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
          markupContextHolder, sessionContextHolder, new Holder<List<Extension>>());
-      
+
       MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
       return markupResponse;
