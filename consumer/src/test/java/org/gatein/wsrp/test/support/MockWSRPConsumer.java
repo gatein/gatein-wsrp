@@ -33,14 +33,19 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.state.DestroyCloneFailure;
 import org.gatein.pc.api.state.PropertyChange;
 import org.gatein.pc.api.state.PropertyMap;
-import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
+import org.gatein.wsrp.services.MarkupService;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UserContext;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -51,7 +56,7 @@ import java.util.Set;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class MockWSRPConsumer implements WSRPConsumer
+public class MockWSRPConsumer implements WSRPConsumerSPI
 {
    private ProducerInfo producerInfo;
    private boolean useWSRP2 = true;
@@ -83,8 +88,44 @@ public class MockWSRPConsumer implements WSRPConsumer
       return producerInfo;
    }
 
+   public MarkupService getMarkupService() throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
+   public boolean supportsUserScope(String userScope)
+   {
+      throw new NotYetImplemented();
+   }
+
+   public RegistrationContext getRegistrationContext() throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
+   public UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
+   public SessionHandler getSessionHandler()
+   {
+      throw new NotYetImplemented();
+   }
+
+   public void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
    public void refreshProducerInfo() throws PortletInvokerException
    {
+      throw new NotYetImplemented();
+   }
+
+   public void handleInvalidRegistrationFault() throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
    }
 
    public void releaseSessions()

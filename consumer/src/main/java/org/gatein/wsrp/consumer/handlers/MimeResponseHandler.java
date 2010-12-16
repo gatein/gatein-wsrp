@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
+import org.gatein.common.net.media.MediaType;
+import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.text.TextTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
@@ -34,17 +36,19 @@ import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.pc.api.spi.PortletInvocationContext;
+import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.SessionContext;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,9 +60,22 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 {
    private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
 
-   protected MimeResponseHandler(WSRPConsumerImpl consumer)
+   protected MimeResponseHandler(WSRPConsumerSPI consumer)
    {
       super(consumer);
+   }
+
+   /**
+    * TODO: handle this better, we should probably have a class in the common module to determine if the MediaType
+    * should be treated as a text file or as binary content. We also need to implement the algorithm to determine the
+    * character encoding. See GTNCOMMON-14
+    *
+    * @param type
+    * @return
+    */
+   public static boolean isInterpretableAsText(MediaType type)
+   {
+      return TypeDef.TEXT.equals(type.getType()) || (TypeDef.APPLICATION.equals(type.getType()) && (type.getSubtype().getName().contains("javascript")));
    }
 
    protected abstract SessionContext getSessionContextFrom(Response response);
@@ -72,6 +89,11 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          requestPrecursor.getPortletHandle());
 
       LocalMimeResponse mimeResponse = getMimeResponseFrom(response);
+      return rewriteResponseIfNeeded(mimeResponse, invocation);
+   }
+
+   PortletInvocationResponse rewriteResponseIfNeeded(final LocalMimeResponse mimeResponse, final Invocation invocation) throws PortletInvokerException
+   {
       String markup = mimeResponse.getItemString();
       byte[] binary = mimeResponse.getItemBinary();
       if (markup != null && binary != null)
@@ -85,26 +107,12 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          if (mimeResponse.isUseCachedItem() != null && mimeResponse.isUseCachedItem())
          {
             //todo: deal with cache GTNWSRP-40
+            log.debug("Consumer " + consumer.getProducerId() + " requested cached data. Not implemented yet!");
          }
          else
          {
             return new ErrorResponse(new IllegalArgumentException("Markup response must contain at least string or binary" +
                " markup. Per Section 6.1.10 of the WSRP 1.0 specification, this is a Producer error."));
-         }
-      }
-
-      if (!ParameterValidation.isNullOrEmpty(markup))
-      {
-         if (Boolean.TRUE.equals(mimeResponse.isRequiresRewriting()))
-         {
-            markup = processMarkup(
-               markup,
-               WSRPTypeFactory.getNamespaceFrom(invocation.getWindowContext()),
-               invocation.getContext(),
-               invocation.getTarget(),
-               new URLFormat(invocation.getSecurityContext().isSecure(), invocation.getSecurityContext().isAuthenticated(), true, true),
-               consumer
-            );
          }
       }
 
@@ -114,7 +122,49 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          return new ErrorResponse(new IllegalArgumentException("No MIME type was provided for portlet content."));
       }
 
+      if (Boolean.TRUE.equals(mimeResponse.isRequiresRewriting()))
+      {
+         if (!ParameterValidation.isNullOrEmpty(markup))
+         {
+            markup = processMarkup(markup, invocation);
+         }
+
+         // GTNWSRP-189:
+         // if we have binary and we require rewriting, convert binary to a string assuming UTF-8 encoding and process
+         // this is seen with NetUnity producer's resource download portlet which sends CSS and JS as binary for example
+         if (binary != null && binary.length > 0 && isInterpretableAsText(MediaType.create(mimeType)))
+         {
+            try
+            {
+               String binaryAsString = new String(binary, "UTF-8");
+               binaryAsString = processMarkup(binaryAsString, invocation);
+
+               // reconvert to binary
+               binary = binaryAsString.getBytes("UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+               // shouldn't happen since UTF-8 is always supported...
+               throw new PortletInvokerException("Couldn't convert binary as String.", e);
+            }
+         }
+      }
+
       return createContentResponse(mimeResponse, invocation, null, null, mimeType, binary, markup, createCacheControl(mimeResponse));
+   }
+
+   private String processMarkup(String markup, Invocation invocation)
+   {
+      SecurityContext securityContext = invocation.getSecurityContext();
+      markup = processMarkup(
+         markup,
+         WSRPTypeFactory.getNamespaceFrom(invocation.getWindowContext()),
+         invocation.getContext(),
+         invocation.getTarget(),
+         new URLFormat(securityContext.isSecure(), securityContext.isAuthenticated(), true, true),
+         consumer
+      );
+      return markup;
    }
 
    protected PortletInvocationResponse createContentResponse(LocalMimeResponse mimeResponse, Invocation invocation,

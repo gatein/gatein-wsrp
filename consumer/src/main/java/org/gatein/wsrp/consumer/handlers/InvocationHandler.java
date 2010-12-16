@@ -39,6 +39,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -65,7 +66,7 @@ import java.util.Map;
  */
 public abstract class InvocationHandler<Invocation extends PortletInvocation, Request, Response>
 {
-   protected final WSRPConsumerImpl consumer;
+   protected final WSRPConsumerSPI consumer;
 
    protected static Logger log = LoggerFactory.getLogger(InvocationHandler.class);
    protected static boolean debug = log.isDebugEnabled();
@@ -80,7 +81,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
    /** Maximum number of tries before giving up. */
    private static final int MAXIMUM_RETRY_NUMBER = 3;
 
-   protected InvocationHandler(WSRPConsumerImpl consumer)
+   protected InvocationHandler(WSRPConsumerSPI consumer)
    {
       this.consumer = consumer;
    }
@@ -318,7 +319,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       private static final String STREAM_INFO = "stream info in invocation context";
       private static final String USER_AGENT = "User-Agent";
 
-      public RequestPrecursor(WSRPConsumerImpl wsrpConsumer, Invocation invocation) throws PortletInvokerException
+      public RequestPrecursor(WSRPConsumerSPI wsrpConsumer, Invocation invocation) throws PortletInvokerException
       {
          // retrieve handle
          portletContext = WSRPUtils.convertToWSRPPortletContext(WSRPConsumerImpl.getPortletContext(invocation));

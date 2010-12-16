@@ -31,7 +31,7 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetResource;
@@ -54,7 +54,7 @@ import java.util.Map;
 public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, GetResource, ResourceResponse, ResourceContext>
 {
 
-   public ResourceHandler(WSRPConsumerImpl consumer)
+   public ResourceHandler(WSRPConsumerSPI consumer)
    {
       super(consumer);
    }

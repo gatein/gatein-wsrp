@@ -27,12 +27,11 @@ import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.io.IOTools;
 import org.gatein.common.net.media.MediaType;
 import org.gatein.common.net.media.SubtypeDef;
-import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.oasis.wsrp.v2.GetResource;
@@ -50,7 +49,7 @@ import java.util.Map;
  */
 public class DirectResourceServingHandler extends ResourceHandler
 {
-   protected DirectResourceServingHandler(WSRPConsumerImpl consumer)
+   protected DirectResourceServingHandler(WSRPConsumerSPI consumer)
    {
       super(consumer);
    }
@@ -119,9 +118,8 @@ public class DirectResourceServingHandler extends ResourceHandler
       ResourceContext resourceContext;
       MediaType type = MediaType.create(contentType);
 
-      //TODO: handle this better, we should probably have a class in the common module to determine if the MediaType should be treated as a text
-      // file or as binary content. We also need to implement the algorithm to determine the character encoding.
-      if (TypeDef.TEXT.equals(type.getType()) || (TypeDef.APPLICATION.equals(type.getType()) && (type.getSubtype().getName().contains("javascript"))))
+      // GTNCOMMON-14
+      if (isInterpretableAsText(type))
       {
          // determine the charset of the content, if any
          String charset = "UTF-8";

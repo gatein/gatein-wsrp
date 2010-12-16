@@ -57,6 +57,7 @@ import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
+import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.services.PortletManagementService;
 import org.gatein.wsrp.services.RegistrationService;
@@ -106,7 +107,7 @@ import java.util.TreeMap;
  * @version $Revision: 11692 $
  * @since 2.4
  */
-public class WSRPConsumerImpl implements WSRPConsumer
+public class WSRPConsumerImpl implements WSRPConsumerSPI
 {
    private final SessionHandler sessionHandler;
 
@@ -518,12 +519,6 @@ public class WSRPConsumerImpl implements WSRPConsumer
       return Collections.unmodifiableSet(supportedUserScopes);
    }
 
-   /**
-    * Determines whether the specified user scope (for markup caching) is supported.
-    *
-    * @param userScope the user scope which support is to be determined
-    * @return <code>true</code> if the given user scope is supported, <code>false</code> otherwise
-    */
    public boolean supportsUserScope(String userScope)
    {
       return supportedUserScopes.contains(userScope);
