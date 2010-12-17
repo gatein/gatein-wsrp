@@ -225,7 +225,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       PortletInvocationResponse response = consumer.invoke(render);
 
       String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
-      String expectedResult = "<img src='Resource id=" + resourceID + " ns=null ws=null m=null'/>";
+      String expectedResult = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";
 
       //NOTE: the value we get back is from the TestPortletInvocationContext, not what we would normally receive
       checkRenderResult(response, expectedResult);

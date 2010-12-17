@@ -30,6 +30,7 @@ import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -43,6 +44,7 @@ import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.ResourceContext;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -101,6 +103,29 @@ public class MimeResponseHandlerTestCase extends TestCase
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
       expected = "<form method='post' action='Action is=JBPNS_ ns=null ws=null m=null' id='" + NAMESPACE + "portfolioManager'><table><tr><td>Stock symbol</t" +
          "d><td><input name='symbol'/></td></tr><tr><td><input type='submit' value='Submit'></td></tr></table></form>";
+      processMarkupAndCheck(markup, expected);
+   }
+
+   public void testURLEscaping() throws Exception
+   {
+      String markup;
+      String expected;
+      
+      String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
+      
+      //test with &amp;
+      markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";      
+      processMarkupAndCheck(markup, expected);
+      
+      //test with &
+      markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&wsrp-requiresRewrite=true/wsrp_rewrite'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&mock:resourceID=" + resourceID + "'/>";     
+      processMarkupAndCheck(markup, expected);
+      
+      //test with /x26
+      markup = "<img src='wsrp_rewrite?wsrp-urlType=resource\\x26wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif\\x26wsrp-requiresRewrite=true/wsrp_rewrite'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar\\x26mock:resourceID=" + resourceID + "'/>";     
       processMarkupAndCheck(markup, expected);
    }
 
