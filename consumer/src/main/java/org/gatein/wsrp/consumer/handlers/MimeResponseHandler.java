@@ -250,6 +250,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       private final Set<String> supportedCustomWindowStates;
       private final String namespace;
 
+      //TODO: the URLFormat here doesn't make any sense, the escaping needs to be unique for each url processed.
       protected MarkupProcessor(String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
       {
          this.namespace = namespace;
@@ -261,11 +262,45 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
       public String getReplacementFor(String match, String prefix, String suffix)
       {
+         // We run into some issues with url encoding. We should not be making assumptions about
+         // what url encoding we should be using. For example, we may be dealing with html encoding (ampersand as &)
+         // or xhtml/xml encoding (ampersand as &amp;) or javascript encoding (ampersand as \x26).
+         // When we recreate the WSRP url as a portlet url, we have to use whatever encoding was used in the original wsrp url,
+         // we need to assume that is the correct encoding for the situation.
+
+         // NOTE: there may be other encoding situations we are not currently dealing with :(
+         
+         boolean useJavaScriptEscaping = false;  
          // work around for GTNWSRP-93:
-         match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
+         if (match.contains("\\x2D") || match.contains("\\x26"))
+         {
+            useJavaScriptEscaping = true;
+            match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
+         }
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
-         return context.renderURL(portletURL, format);
+         
+         URLFormat urlFormat;
+         // If the current url is using &amp; then specify we want to use xml escaped ampersands
+         if (match.contains("&amp;"))
+         {
+            urlFormat = new URLFormat(format.getWantSecure(), format.getWantAuthenticated(), format.getWantRelative(), true);
+         }
+         else
+         {
+            urlFormat = new URLFormat(format.getWantSecure(), format.getWantAuthenticated(), format.getWantRelative(), false);
+         }
+         
+         String value = context.renderURL(portletURL, urlFormat);
+         
+         // we now need to add back the javascript url encoding if it was originally used
+         // NOTE: we should fix this by specifying the escaping to be used in URLFormat when it supported (see GTNPC-41)
+         if (useJavaScriptEscaping)
+         {
+            value = value.replaceAll("-", "\\\\x2D").replaceAll("&amp;", "\\\\x26");
+         }
+         
+         return value;
       }
    }
 }

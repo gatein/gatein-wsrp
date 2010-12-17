@@ -101,9 +101,24 @@ public class TestPortletInvocationContext extends AbstractPortletInvocationConte
       {
          result = "Render";
       }
-      else
+      else //dealing with a resource
       {
-         result = "Resource id=" + ((ResourceURL)containerURL).getResourceId();
+         //fake setup which approximates what the actual PortletInvocationContext should be doing.
+         String url = "http://test/mock:type=resource?mock:ComponentID=foobar";
+         ResourceURL resourceURL = ((ResourceURL)containerURL);
+         
+         if (urlFormat.getWantEscapeXML())
+         {
+            url += "&amp;";
+         }
+         else
+         {
+            url += "&";  
+         }
+         
+         url += "mock:resourceID=" + resourceURL.getResourceId();
+         
+         return url;
       }
 
       StateString ns = containerURL.getNavigationalState();
