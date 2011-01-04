@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -40,6 +40,10 @@
       </locale-config>
    </application>
 
+   <lifecycle>
+      <phase-listener>org.gatein.wsrp.admin.ui.RedirectToErrorIfWSRPUnavailablePhaseListener</phase-listener>
+   </lifecycle>
+
    <converter>
       <converter-for-class>org.gatein.wsrp.registration.LocalizedString</converter-for-class>
       <converter-class>org.gatein.wsrp.admin.ui.LocalizedStringConverter</converter-class>
@@ -53,6 +57,11 @@
    <managed-bean>
       <managed-bean-name>beanContext</managed-bean-name>
       <managed-bean-class>org.gatein.wsrp.admin.ui.JSFBeanContext</managed-bean-class>
+      <managed-bean-scope>application</managed-bean-scope>
+   </managed-bean>
+   <managed-bean>
+      <managed-bean-name>version</managed-bean-name>
+      <managed-bean-class>org.gatein.wsrp.admin.ui.WSRPVersionBean</managed-bean-class>
       <managed-bean-scope>application</managed-bean-scope>
    </managed-bean>
    <managed-bean>
@@ -174,6 +183,13 @@
       <navigation-case>
          <from-outcome>import</from-outcome>
          <to-view-id>/jsf/consumers/exports/import.xhtml</to-view-id>
+      </navigation-case>
+   </navigation-rule>
+   <navigation-rule>
+      <navigation-case>
+         <from-outcome>error</from-outcome>
+         <to-view-id>/jsf/error.xhtml</to-view-id>
+         <!--<redirect/>-->
       </navigation-case>
    </navigation-rule>
 </faces-config>

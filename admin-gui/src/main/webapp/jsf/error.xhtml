@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -22,12 +22,18 @@
   -->
 
 <ui:decorate template="errorTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
-             xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:c="http://java.sun.com/jstl/core"
-             xmlns:webui="http://jboss.org/gatein">
+             xmlns:h="http://java.sun.com/jsf/html">
    <ui:define name="content">
-      An Error Has Occured.
+      <div class="portlet-msg">
+         <div class="portlet-msg-icon">
+            <h:graphicImage url="/img/msgIcon_Warning.gif" alt="/!\"/>
+         </div>
+         <div class="portlet-msg-body">
+            <p class="portlet-msg-alert">
+               #{i18n.unavailable_service}
+            </p>
+         </div>
+      </div>
    </ui:define>
 </ui:decorate>
