@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -41,6 +41,7 @@ import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
+import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.services.MarkupService;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -98,12 +99,17 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
       throw new NotYetImplemented();
    }
 
+   public WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
    public RegistrationContext getRegistrationContext() throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
 
-   public UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public UserContext getUserContextFrom(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
@@ -113,7 +119,7 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
       throw new NotYetImplemented();
    }
 
-   public void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public void setTemplatesIfNeeded(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       throw new NotYetImplemented();
    }
