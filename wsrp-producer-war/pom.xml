@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -461,6 +461,7 @@
                      <jboss.deploy.url.prefix>http://localhost:8080/jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=deploy&amp;argType=java.net.URL&amp;arg0=</jboss.deploy.url.prefix>
                      <jboss.undeploy.url.prefix>http://localhost:8080//jmx-console/HtmlAdaptor?action=invokeOpByName&amp;name=jboss.system:service%3DMainDeployer&amp;methodName=undeploy&amp;argType=java.net.URL&amp;arg0=</jboss.undeploy.url.prefix>
                   </systemProperties>
+                  <timeout>180000</timeout>
                </container>
                <wait>false</wait>
                <configuration>
