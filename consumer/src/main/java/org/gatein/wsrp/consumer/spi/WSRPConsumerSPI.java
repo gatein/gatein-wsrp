@@ -27,6 +27,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
+import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
@@ -40,11 +41,11 @@ public interface WSRPConsumerSPI extends WSRPConsumer
 {
    RegistrationContext getRegistrationContext() throws PortletInvokerException;
 
-   UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
+   UserContext getUserContextFrom(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
 
    SessionHandler getSessionHandler();
 
-   void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
+   void setTemplatesIfNeeded(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
 
    void refreshProducerInfo() throws PortletInvokerException;
 
@@ -61,4 +62,6 @@ public interface WSRPConsumerSPI extends WSRPConsumer
     * @return <code>true</code> if the given user scope is supported, <code>false</code> otherwise
     */
    boolean supportsUserScope(String userScope);
+
+   WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException;
 }

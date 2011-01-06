@@ -39,6 +39,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.InvalidCookie;
@@ -140,7 +141,6 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          SessionHandler sessionHandler = consumer.getSessionHandler();
 
          // prepare everything for the request
-//         updateRegistrationContext(request);
          RuntimeContext runtimeContext = getRuntimeContextFrom(request);
 
          if (runtimeContext != null)
@@ -150,9 +150,6 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
             InstanceContext instanceContext = invocation.getInstanceContext();
             runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
-
-//            updateUserContext(request, consumer.getUserContextFrom(invocation, runtimeContext));
-            consumer.setTemplatesIfNeeded(invocation, runtimeContext);
          }
 
          try
@@ -307,11 +304,11 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
    {
       private final static Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
 
-      private PortletContext portletContext;
-      private RuntimeContext runtimeContext;
-      private MarkupParams markupParams;
-      private RegistrationContext registrationContext;
-      private UserContext userContext;
+      private final PortletContext portletContext;
+      private final RuntimeContext runtimeContext;
+      private final MarkupParams markupParams;
+      private final RegistrationContext registrationContext;
+      private final UserContext userContext;
       private static final String PORTLET_HANDLE = "portlet handle";
       private static final String SECURITY_CONTEXT = "security context";
       private static final String USER_CONTEXT = "user context";
@@ -344,13 +341,16 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
          runtimeContext = WSRPTypeFactory.createRuntimeContext(authType, portletInstanceKey, namespacePrefix);
 
+         WSRPPortletInfo info = wsrpConsumer.getPortletInfo(invocation);
+
          // user context
-         userContext = wsrpConsumer.getUserContextFrom(invocation, runtimeContext);
+         userContext = wsrpConsumer.getUserContextFrom(info, invocation, runtimeContext);
+
+         // templates
+         wsrpConsumer.setTemplatesIfNeeded(info, invocation, getRuntimeContext());
 
          // set the session id if needed
          wsrpConsumer.getSessionHandler().setSessionIdIfNeeded(invocation, getRuntimeContext(), getPortletHandle());
-
-         wsrpConsumer.setTemplatesIfNeeded(invocation, getRuntimeContext());
 
          // create markup params
          org.gatein.pc.api.spi.UserContext userContext = invocation.getUserContext();

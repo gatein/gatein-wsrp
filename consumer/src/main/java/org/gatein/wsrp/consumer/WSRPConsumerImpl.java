@@ -694,11 +694,9 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    // fix-me!
 
-   public org.oasis.wsrp.v2.UserContext getUserContextFrom(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public org.oasis.wsrp.v2.UserContext getUserContextFrom(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // first decide if we need to pass the user context...
-      WSRPPortletInfo info = getPortletInfo(invocation);
-
       SessionParams sessionParams = runtimeContext.getSessionParams();
       if (info != null && info.isUserContextStoredInSession() && sessionParams != null && sessionParams.getSessionID() != null)
       {
@@ -720,11 +718,9 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       return null;
    }
 
-   public void setTemplatesIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
+   public void setTemplatesIfNeeded(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // todo: could store templates in producer session info to avoid to re-generate them all the time?
-      WSRPPortletInfo info = getPortletInfo(invocation);
-
       SessionParams sessionParams = runtimeContext.getSessionParams();
       if (info != null && info.isDoesUrlTemplateProcessing()
          && (!info.isTemplatesStoredInSession() || sessionParams == null || sessionParams.getSessionID() == null))
