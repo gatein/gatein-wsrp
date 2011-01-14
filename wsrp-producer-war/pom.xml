@@ -182,6 +182,7 @@
                         <descriptor>src/test/assembly/test-prp-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-state-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-resourceserving-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-windowstates-portlet.xml</descriptor>
                      </descriptors>
                   </configuration>
                   <executions>
