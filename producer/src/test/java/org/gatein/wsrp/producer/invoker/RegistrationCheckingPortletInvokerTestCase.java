@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.producer;
+package org.gatein.wsrp.producer.invoker;
 
 import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
@@ -38,11 +38,11 @@ import static org.mockito.Mockito.when;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class WSRPPortletInvokerTestCase extends TestCase
+public class RegistrationCheckingPortletInvokerTestCase extends TestCase
 {
    public void testGetPortletShouldWorkDirectly() throws PortletInvokerException
    {
-      WSRPPortletInvoker invoker = new WSRPPortletInvoker();
+      RegistrationCheckingPortletInvoker invoker = new RegistrationCheckingPortletInvoker();
       RegistrationManagerImpl registrationManager = new RegistrationManagerImpl();
       registrationManager.setPolicy(new DefaultRegistrationPolicy());
       invoker.setRegistrationManager(registrationManager);

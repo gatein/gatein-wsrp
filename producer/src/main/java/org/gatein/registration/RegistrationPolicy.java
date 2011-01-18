@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.registration;
 
+import org.gatein.pc.api.PortletContext;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -121,52 +122,5 @@ public interface RegistrationPolicy
     */
    void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
 
-   /**
-    * Checks if a portlet handle belongs to a specific registration.
-    * GTNWSRP-72
-    *
-    * @param registration The registration to check
-    * @param portletHandle The portlet handle to use
-    * @return True if the registration contains this portlet handle
-    */
-//   boolean checkPortletHandle(Registration registration, String portletHandle);
-
-   /**
-    * Adds a Portlet Handle to a Registration
-    * GTNWSRP-72
-    *
-    * @param registration The registration to use
-    * @param portletHandle The portletHandle to add
-    */
-//   void addPortletHandle(Registration registration, String portletHandle);
-
-   /**
-    * Removes a portlet handle from a specific registration
-    * GTNWSRP-72
-    *
-    * @param registration The registration to use
-    * @param portletHandle The portlet handle to remove
-    */
-//   void removePortletHandle(Registration registration, String portletHandle);
-
-   /**
-    * Updates the list of currently available portlet handles.
-    * GTNWSRP-72
-    *
-    * Note: this is not registration specific. This method deals with the situation where
-    * the producer has a change in the available portlets. The RegistrationPolicy needs to either handle
-    * the globally available portlets separately or update each registration when this type of change occurs.
-    *
-    * @param portlets
-    */
-//   void updatePortletHandles(List<String> portlets);
-
-   /**
-    * Adds a PortletContextChangeListener to the RegistrationPolicy. The PortletContextChangeListener
-    * will be called whenever the portlet contexts within a registration changes.
-    * GTNWSRP-72
-    *
-    * @param listener The listener to add
-    */
-//   void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener);
+   boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation);
 }

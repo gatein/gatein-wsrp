@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -40,6 +40,7 @@ import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
@@ -197,7 +198,19 @@ public abstract class RequestProcessor<Response>
 
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
-   public abstract Response processResponse(PortletInvocationResponse response);
+   public Response processResponse(PortletInvocationResponse response)
+   {
+      try
+      {
+         return internalProcessResponse(response);
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
+   }
+
+   protected abstract Response internalProcessResponse(PortletInvocationResponse response);
 
 
    /**

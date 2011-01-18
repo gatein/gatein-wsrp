@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -165,41 +165,49 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       PortletContext portletContext = getPortletPropertyDescription.getPortletContext();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletContext, PORTLET_CONTEXT, GET_PORTLET_PROPERTY_DESCRIPTION);
 
-      Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletPropertyDescription.getRegistrationContext());
-
-      UserContext userContext = getPortletPropertyDescription.getUserContext();
-      checkUserAuthorization(userContext);
-
-      List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
-      Portlet portlet = getPortletFrom(portletContext, registration);
-      PortletInfo info = portlet.getInfo();
-      PreferencesInfo prefsInfo = info.getPreferences();
-
-      List<PropertyDescription> descs = Collections.emptyList();
-      if (prefsInfo != null)
+      try
       {
-         Set keySet = prefsInfo.getKeys();
-         descs = new ArrayList<PropertyDescription>(keySet.size());
-         for (Object key : keySet)
-         {
-            PreferenceInfo prefInfo = prefsInfo.getPreference((String)key);
+         Registration registration = producer.getRegistrationOrFailIfInvalid(getPortletPropertyDescription.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
 
-            // WSRP Spec 8.7: return only the portion of the Portlet's persistent state the user is allowed to modify
-            // if read only status is not determined, we consider it as being read-only to be safe
-            Boolean readOnly = prefInfo.isReadOnly();
-            if (readOnly != null && !readOnly)
+         UserContext userContext = getPortletPropertyDescription.getUserContext();
+         checkUserAuthorization(userContext);
+
+         List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
+         Portlet portlet = getPortletFrom(portletContext, registration);
+         PortletInfo info = portlet.getInfo();
+         PreferencesInfo prefsInfo = info.getPreferences();
+
+         List<PropertyDescription> descs = Collections.emptyList();
+         if (prefsInfo != null)
+         {
+            Set keySet = prefsInfo.getKeys();
+            descs = new ArrayList<PropertyDescription>(keySet.size());
+            for (Object key : keySet)
             {
-               //todo: check what we should use key
-               //todo: right now we only support String properties
-               PropertyDescription desc = WSRPTypeFactory.createPropertyDescription(prefInfo.getKey(), WSRPConstants.XSD_STRING);
-               desc.setLabel(Utils.convertToWSRPLocalizedString(prefInfo.getDisplayName(), desiredLocales));
-               desc.setHint(Utils.convertToWSRPLocalizedString(prefInfo.getDescription(), desiredLocales));
-               descs.add(desc);
+               PreferenceInfo prefInfo = prefsInfo.getPreference((String)key);
+
+               // WSRP Spec 8.7: return only the portion of the Portlet's persistent state the user is allowed to modify
+               // if read only status is not determined, we consider it as being read-only to be safe
+               Boolean readOnly = prefInfo.isReadOnly();
+               if (readOnly != null && !readOnly)
+               {
+                  //todo: check what we should use key
+                  //todo: right now we only support String properties
+                  PropertyDescription desc = WSRPTypeFactory.createPropertyDescription(prefInfo.getKey(), WSRPConstants.XSD_STRING);
+                  desc.setLabel(Utils.convertToWSRPLocalizedString(prefInfo.getDisplayName(), desiredLocales));
+                  desc.setHint(Utils.convertToWSRPLocalizedString(prefInfo.getDescription(), desiredLocales));
+                  descs.add(desc);
+               }
             }
          }
-      }
 
-      return WSRPTypeFactory.createPortletPropertyDescriptionResponse(descs);
+         return WSRPTypeFactory.createPortletPropertyDescriptionResponse(descs);
+      }
+      finally
+      {
+         RegistrationLocal.setRegistration(null);
+      }
    }
 
    public PortletContext clonePortlet(ClonePortlet clonePortlet)

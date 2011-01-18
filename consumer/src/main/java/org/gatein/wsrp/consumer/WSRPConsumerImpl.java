@@ -33,6 +33,7 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
+import org.gatein.pc.api.PortletStatus;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.spi.UserContext;
@@ -192,6 +193,18 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       else
       {
          return portlet;
+      }
+   }
+
+   public PortletStatus getStatus(PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException
+   {
+      if (producerInfo.getPortlet(portletContext) != null)
+      {
+         return PortletStatus.OFFERED;
+      }
+      else
+      {
+         return null;
       }
    }
 

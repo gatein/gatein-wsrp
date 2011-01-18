@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,7 +24,9 @@
 package org.gatein.registration.policies;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.InvalidConsumerDataException;
+import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
@@ -99,29 +101,8 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       return consumerName;
    }
 
-   /* GTNWSRP-72
-   public void addPortletHandle(Registration registration, String portletHandle)
+   public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
    {
-      delegate.addPortletHandle(registration, portletHandle);
+      return delegate.allowAccessTo(portletContext, registration, operation);
    }
-
-   public boolean checkPortletHandle(Registration registration, String portletHandle)
-   {
-      return delegate.checkPortletHandle(registration, portletHandle);
-   }
-
-   public void removePortletHandle(Registration registration, String portletHandle)
-   {
-      delegate.removePortletHandle(registration, portletHandle);
-   }
-
-   public void updatePortletHandles(List<String> portletHandles)
-   {
-      delegate.updatePortletHandles(portletHandles);
-   }
-
-   public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
-   {
-      delegate.addPortletContextChangeListener(listener);
-   }*/
 }

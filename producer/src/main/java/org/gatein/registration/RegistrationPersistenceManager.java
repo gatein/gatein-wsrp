@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -22,6 +22,8 @@
  */
 
 package org.gatein.registration;
+
+import org.gatein.registration.spi.RegistrationSPI;
 
 import javax.xml.namespace.QName;
 import java.util.Collection;
@@ -48,7 +50,7 @@ public interface RegistrationPersistenceManager
     * @param consumer
     */
    void saveChangesTo(Consumer consumer);
-   
+
    /**
     * Saves changes made to the specified registration.
     *
@@ -90,7 +92,7 @@ public interface RegistrationPersistenceManager
     */
    Consumer getConsumerById(String consumerId) throws IllegalArgumentException, RegistrationException;
 
-   Registration addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException;
+   RegistrationSPI addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException;
 
    Collection<? extends ConsumerGroup> getConsumerGroups();
 

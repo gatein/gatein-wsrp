@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -29,11 +29,13 @@ import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.InvalidConsumerDataException;
 import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationDestructionListener;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.registration.spi.RegistrationSPI;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -56,6 +61,7 @@ public class RegistrationManagerImpl implements RegistrationManager
 
    private RegistrationPolicy policy;
    private RegistrationPersistenceManager persistenceManager;
+   private AtomicReference<CopyOnWriteArrayList<RegistrationDestructionListener>> listeners = new AtomicReference<CopyOnWriteArrayList<RegistrationDestructionListener>>();
 
    public RegistrationManagerImpl()
    {
@@ -81,6 +87,26 @@ public class RegistrationManagerImpl implements RegistrationManager
       this.persistenceManager = persistenceManager;
    }
 
+   public void addRegistrationDestructionListener(RegistrationDestructionListener listener)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(listener, "RegistrationDestructionListener");
+
+      listeners.compareAndSet(null, new CopyOnWriteArrayList<RegistrationDestructionListener>());
+      listeners.get().add(listener);
+   }
+
+   public void removeRegistrationDestructionListener(RegistrationDestructionListener listener)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(listener, "RegistrationDestructionListener");
+
+      if (listeners.get() == null)
+      {
+         return;
+      }
+
+      listeners.get().remove(listener);
+   }
+
    public Registration addRegistrationTo(String consumerName, Map<QName, Object> registrationProperties, final Map<QName, ? extends PropertyDescription> expectations, boolean createConsumerIfNeeded)
       throws RegistrationException
    {
@@ -93,11 +119,13 @@ public class RegistrationManagerImpl implements RegistrationManager
       Consumer consumer = getOrCreateConsumer(identity, createConsumerIfNeeded, consumerName);
 
       // create the actual registration
-      Registration registration = persistenceManager.addRegistrationFor(identity, registrationProperties);
+      RegistrationSPI registration = persistenceManager.addRegistrationFor(identity, registrationProperties);
 
       // let the policy decide what the handle should be
       String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
       registration.setRegistrationHandle(handle);
+
+      registration.setManager(this);
 
       return registration;
    }
@@ -252,7 +280,20 @@ public class RegistrationManagerImpl implements RegistrationManager
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
       registration.setStatus(RegistrationStatus.INVALID); // just in case...
-//      registration.clearAssociatedState(); // todo: do we need to clear associated state?
+
+      AtomicBoolean canRemove = new AtomicBoolean(true);
+      if (listeners.get() != null)
+      {
+         for (RegistrationDestructionListener listener : listeners.get())
+         {
+            RegistrationDestructionListener.Vote vote = listener.destructionScheduledFor(registration);
+            if (canRemove.compareAndSet(false, vote.result))
+            {
+               throw new RegistrationException("Could not remove Registration '" + registration.getRegistrationHandle()
+                  + "' because listener '" + listener + "' vetoed removal. Cause: " + vote.reason);
+            }
+         }
+      }
 
       persistenceManager.removeRegistration(registration.getPersistentKey());
    }
@@ -364,8 +405,6 @@ public class RegistrationManagerImpl implements RegistrationManager
          // make changes persistent
          Consumer consumer = reg.getConsumer();
          persistenceManager.saveChangesTo(consumer);
-
-//         reg.clearAssociatedState(); //todo: do we need to clear the associated state? If we do, should we wait until current operations are done?
       }
    }
 
@@ -377,13 +416,6 @@ public class RegistrationManagerImpl implements RegistrationManager
     */
    public void policyUpdatedTo(RegistrationPolicy policy)
    {
-//      policy.addPortletContextChangeListener(this); // GTNWSRP-72
       setPolicy(policy);
-   }
-
-   // GTNWSRP-72
-   public void portletContextsHaveChanged(Registration registration)
-   {
-      persistenceManager.saveChangesTo(registration);
    }
 }

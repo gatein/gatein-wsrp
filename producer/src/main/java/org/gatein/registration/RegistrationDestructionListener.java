@@ -21,23 +21,46 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.registration.spi;
-
-import org.gatein.pc.api.PortletContext;
-import org.gatein.registration.Registration;
-import org.gatein.registration.RegistrationManager;
+package org.gatein.registration;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public interface RegistrationSPI extends Registration
+public interface RegistrationDestructionListener
 {
-   ConsumerSPI getConsumer();
+   /**
+    * Called before the specified registration is destroyed. Listener has the opportunity to prevent destruction by
+    * returning <code>false</code>.
+    *
+    * @param registration the Registration about to be destroyed
+    * @return {@link #SUCCESS} if this listener agrees to move forward with the destruction, or a negative Vote built
+    *         using {@link Vote#negativeVote(String)} specifying the reason of the negative vote.
+    */
+   Vote destructionScheduledFor(Registration registration);
 
-   void addPortletContext(PortletContext portletContext);
+   static class Vote
+   {
+      public final boolean result;
+      public final String reason;
 
-   void removePortletContext(PortletContext portletContext);
+      public static Vote negativeVote(String reason)
+      {
+         return new Vote(reason);
+      }
 
-   void setManager(RegistrationManager manager);
+      Vote(String reason)
+      {
+         this.result = false;
+         this.reason = reason;
+      }
+
+      Vote()
+      {
+         result = true;
+         reason = null;
+      }
+   }
+
+   static final Vote SUCCESS = new Vote();
 }

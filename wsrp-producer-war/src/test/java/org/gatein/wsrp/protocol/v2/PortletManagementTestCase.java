@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -62,6 +62,7 @@ import org.oasis.wsrp.v2.ImportPortlet;
 import org.oasis.wsrp.v2.ImportPortlets;
 import org.oasis.wsrp.v2.ImportPortletsResponse;
 import org.oasis.wsrp.v2.ImportedPortlet;
+import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.Lifetime;
 import org.oasis.wsrp.v2.MarkupContext;
@@ -1100,8 +1101,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          //Check that the proper registration context can access it
          checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), toRegistrationContext);
 
-         /*
-         GTNWSRP-72
          //Check that the null registration cannot access it
          try
          {
@@ -1111,7 +1110,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          catch (InvalidHandle e)
          {
             //expected
-         }*/
+         }
       }
       catch (Exception e)
       {
@@ -1148,18 +1147,16 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       //Check that the proper registration context can access it
       checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), fromRegistrationContext);
 
-      /*
-      GTNWSRP-72
       //Check that the null registration cannot access it
       try
       {
          checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
-         ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+         fail("The null registration context should not be able to access this portlet");
       }
       catch (InvalidHandle e)
       {
          //expected
-      }*/
+      }
    }
 
    /** Check that we can copy one portlet from one registration context to another */
@@ -1185,15 +1182,14 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       checkSimpleCopyPortletsResponse(response, createStringList(handle), createStringList());
 
       //Check that the proper registration context can access it
-      checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), toRegistrationContext);
+      String portletHandle = response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle();
+      checkDefaultMarkup(portletHandle, toRegistrationContext);
 
-      /*
-      GTNWSRP-72
       //Check that the original registration cannot access it
       try
       {
-         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), fromRegistrationContext);
-         ExtendedAssert.fail("The original registration context should not be able to access this portlet");
+         checkDefaultMarkup(portletHandle, fromRegistrationContext);
+         fail("The original registration context should not be able to access this portlet");
       }
       catch (InvalidHandle e)
       {
@@ -1202,13 +1198,13 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       //Check that the null registration cannot access it
       try
       {
-         checkDefaultMarkup(response.getCopiedPortlets().get(0).getNewPortletContext().getPortletHandle(), null);
-         ExtendedAssert.fail("The null registration context should not be able to access this portlet");
+         checkDefaultMarkup(portletHandle, null);
+         fail("The null registration context should not be able to access this portlet");
       }
       catch (InvalidHandle e)
       {
          //expected
-      }*/
+      }
    }
 
    @Test
@@ -1334,9 +1330,10 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       CopyPortletsResponse response = producer.copyPortlets(copyPortlets);
 
       assertEquals(1, response.getFailedPortlets().size());
-      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext1));
-      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext2));
-      assertTrue(response.getFailedPortlets().get(0).getErrorCode().getLocalPart().contains("InvalidHandle"));
+      FailedPortlets failedPortlets = response.getFailedPortlets().get(0);
+      assertTrue(failedPortlets.getPortletHandles().contains(fakePortletContext1));
+      assertTrue(failedPortlets.getPortletHandles().contains(fakePortletContext2));
+      assertTrue(failedPortlets.getErrorCode().getLocalPart().contains("InvalidHandle"));
 
       assertEquals(1, response.getCopiedPortlets().size());
       assertEquals(getDefaultHandle(), response.getCopiedPortlets().get(0).getFromPortletHandle());
@@ -1426,7 +1423,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
    public void checkClonePortletAvailability(RegistrationContext registrationContextA, RegistrationContext registrationContextB) throws Exception
    {
-      String handle = getDefaultHandle();
       PortletContext portletContext = WSRPTypeFactory.createPortletContext(getDefaultHandle());
       ClonePortlet clonePortlet = WSRPTypeFactory.createClonePortlet(registrationContextA, portletContext, null);
       PortletContext clonedPortletContext = producer.clonePortlet(clonePortlet);
@@ -1437,8 +1433,6 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       getMarkupA.setRegistrationContext(registrationContextA);
       producer.getMarkup(getMarkupA);
 
-      /*
-      GTNWSRP-72
       try
       {
          GetMarkup getMarkupB = createDefaultGetMarkup(clonedPortletContext.getPortletHandle());
@@ -1449,7 +1443,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       catch (InvalidHandle e)
       {
          //expected
-      }*/
+      }
    }
 
    @Test

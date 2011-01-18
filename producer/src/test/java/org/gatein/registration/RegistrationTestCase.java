@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,9 +24,11 @@
 package org.gatein.registration;
 
 import junit.framework.TestCase;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.spi.RegistrationSPI;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
@@ -34,6 +36,7 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -42,7 +45,7 @@ import java.util.Map;
  */
 public class RegistrationTestCase extends TestCase
 {
-   private Registration registration;
+   private RegistrationSPI registration;
    private Map<QName, Object> registrationProperties;
 
    protected void setUp() throws Exception
@@ -68,7 +71,7 @@ public class RegistrationTestCase extends TestCase
       expectations.put(prop1Name, new RegistrationPropertyDescription(prop1Name, WSRPConstants.XSD_STRING));
       expectations.put(prop2Name, new RegistrationPropertyDescription(prop2Name, WSRPConstants.XSD_STRING));
 
-      registration = manager.addRegistrationTo("name", registrationProperties, expectations, true);
+      registration = (RegistrationSPI)manager.addRegistrationTo("name", registrationProperties, expectations, true);
    }
 
    public void testGetPropertiesIsUnmodifiable()
@@ -155,9 +158,21 @@ public class RegistrationTestCase extends TestCase
       assertTrue(!registration.hasEqualProperties(registrationProperties));
    }
 
-   public void testClearAssociatedState()
+   public void testPortletContextOperations()
    {
-      //todo: implement
-   }
+      PortletContext foo = PortletContext.createPortletContext("foo");
 
+      registration.addPortletContext(foo);
+      assertTrue(registration.knows(foo));
+      assertTrue(registration.knows("foo"));
+      Set<PortletContext> knownPortletContexts = registration.getKnownPortletContexts();
+      assertEquals(1, knownPortletContexts.size());
+      assertTrue(knownPortletContexts.contains(foo));
+
+      registration.removePortletContext(foo);
+      assertFalse(registration.knows(foo));
+      assertFalse(registration.knows("foo"));
+      knownPortletContexts = registration.getKnownPortletContexts();
+      assertTrue(knownPortletContexts.isEmpty());
+   }
 }

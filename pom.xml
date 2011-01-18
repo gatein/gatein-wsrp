@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -47,7 +47,7 @@
    </scm>
 
    <properties>
-      <version.gatein.pc>2.2.0-GA</version.gatein.pc>
+      <version.gatein.pc>2.3.0-Alpha01</version.gatein.pc>
       <version.gatein.common>2.0.3-GA</version.gatein.common>
       <version.gatein.wci>2.0.2-GA</version.gatein.wci>
 

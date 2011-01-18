@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,17 +24,19 @@
 package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -49,7 +51,8 @@ public class RegistrationImpl implements RegistrationSPI
    private RegistrationStatus status;
    private Map<QName, Object> properties;
    private String registrationHandle;
-   private List<String> portletHandles;
+   private Set<PortletContext> portletContexts;
+   private transient RegistrationManager manager;
 
 
    RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties)
@@ -58,7 +61,7 @@ public class RegistrationImpl implements RegistrationSPI
       this.consumer = consumer;
       this.status = status;
       this.properties = new HashMap<QName, Object>(properties);
-      this.portletHandles = new ArrayList<String>();
+      portletContexts = new HashSet<PortletContext>();
    }
 
    public String getPersistentKey()
@@ -79,6 +82,24 @@ public class RegistrationImpl implements RegistrationSPI
    public ConsumerSPI getConsumer()
    {
       return consumer;
+   }
+
+   public void addPortletContext(PortletContext portletContext)
+   {
+      portletContexts.add(portletContext);
+      manager.getPersistenceManager().saveChangesTo(this);
+   }
+
+   public void removePortletContext(PortletContext portletContext)
+   {
+      portletContexts.remove(portletContext);
+      manager.getPersistenceManager().saveChangesTo(this);
+   }
+
+   public void setManager(RegistrationManager manager)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(manager, "RegistrationManager");
+      this.manager = manager;
    }
 
    public Map<QName, Object> getProperties()
@@ -183,18 +204,23 @@ public class RegistrationImpl implements RegistrationSPI
       this.status = status;
    }
 
-   public void clearAssociatedState()
-   {
-      //todo: implement
-   }
-
    public void updateProperties(Map registrationProperties)
    {
       properties = new HashMap(registrationProperties);
    }
 
-   public List<String> getPortletHandles()
+   public boolean knows(PortletContext portletContext)
    {
-      return portletHandles;
+      return portletContexts.contains(portletContext);
+   }
+
+   public boolean knows(String portletContextId)
+   {
+      return knows(PortletContext.createPortletContext(portletContextId));
+   }
+
+   public Set<PortletContext> getKnownPortletContexts()
+   {
+      return Collections.unmodifiableSet(portletContexts);
    }
 }

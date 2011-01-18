@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -46,6 +46,7 @@ import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
 import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEventListener;
 import org.gatein.pc.portlet.container.managed.ManagedPortletContainer;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.ServiceDescriptionInterface;
@@ -103,42 +104,49 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
    {
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(gs, "GetServiceDescription");
 
-      RegistrationContext registrationContext = gs.getRegistrationContext();
-
-      // if a RegistrationContext is provided, we need to validate the registration information
-      Registration registration = null;
-      if (registrationContext != null)
+      try
       {
-         registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
+         // if a RegistrationContext is provided, we need to validate the registration information
+         RegistrationContext registrationContext = gs.getRegistrationContext();
+         Registration registration = null;
+         if (registrationContext != null)
+         {
+            registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
+            RegistrationLocal.setRegistration(registration);
+         }
+
+         ProducerRegistrationRequirements requirements = producer.getProducerRegistrationRequirements();
+
+         //update the registration properties with the registration requirements
+         serviceDescription.updateRegistrationProperties(requirements);
+
+         // if we don't have registration information but a registration is required, send registration props information
+         boolean needsRegistrationProperties = registration == null && requirements.isRegistrationRequired();
+
+         // if we allow sending portlet descriptions even when not registered
+         boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
+            && requirements.isRegistrationRequiredForFullDescription());
+         if (needsPortletDescriptions)
+         {
+            Set<Portlet> portlets;
+            try
+            {
+               portlets = producer.getRemotablePortlets();
+            }
+            catch (PortletInvokerException e)
+            {
+               log.warn("Could not retrieve portlets. Reason:\n\t" + e.getLocalizedMessage());
+               portlets = Collections.emptySet();
+            }
+            serviceDescription.updatePortletDescriptions(portlets, gs.getDesiredLocales(), registration);
+         }
+
+         return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions, gs.getPortletHandles());
       }
-
-      ProducerRegistrationRequirements requirements = producer.getProducerRegistrationRequirements();
-
-      //update the registration properties with the registration requirements
-      serviceDescription.updateRegistrationProperties(requirements);
-
-      // if we don't have registration information but a registration is required, send registration props information
-      boolean needsRegistrationProperties = registration == null && requirements.isRegistrationRequired();
-
-      // if we allow sending portlet descriptions even when not registered
-      boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
-         && requirements.isRegistrationRequiredForFullDescription());
-      if (needsPortletDescriptions)
+      finally
       {
-         Set<Portlet> portlets;
-         try
-         {
-            portlets = producer.getRemotablePortlets();
-         }
-         catch (PortletInvokerException e)
-         {
-            log.warn("Could not retrieve portlets. Reason:\n\t" + e.getLocalizedMessage());
-            portlets = Collections.emptySet();
-         }
-         serviceDescription.updatePortletDescriptions(portlets, gs.getDesiredLocales(), registration);
+         RegistrationLocal.setRegistration(null);
       }
-
-      return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions, gs.getPortletHandles());
    }
 
    public PortletDescription getPortletDescription(PortletContext portletContext, List<String> desiredLocales, Registration registration) throws InvalidHandle, OperationFailed

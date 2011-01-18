@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,10 +23,11 @@
 
 package org.gatein.registration;
 
-import javax.xml.namespace.QName;
+import org.gatein.pc.api.PortletContext;
 
-import java.util.List;
+import javax.xml.namespace.QName;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A class representing an association between a consumer and a producer.
@@ -96,9 +97,6 @@ public interface Registration
     */
    void setStatus(RegistrationStatus status);
 
-   /** Clears any state (cloned portlet information, session, etc) associated with this Registration */
-   void clearAssociatedState();
-
    void updateProperties(Map registrationProperties);
 
    void removeProperty(QName propertyName);
@@ -108,6 +106,10 @@ public interface Registration
    Object getPropertyValueFor(QName propertyName);
 
    Object getPropertyValueFor(String propertyName);
-   
-   List<String> getPortletHandles();
+
+   boolean knows(PortletContext portletContext);
+
+   Set<PortletContext> getKnownPortletContexts();
+
+   boolean knows(String portletContextId);
 }

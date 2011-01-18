@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -36,7 +36,7 @@ import java.util.Map;
  * @version $Revision: 8966 $
  * @since 2.6
  */
-public interface RegistrationManager extends RegistrationPropertyChangeListener, RegistrationPolicyChangeListener /*, RegistrationPortletContextChangeListener GTNWSRP-72 */
+public interface RegistrationManager extends RegistrationPropertyChangeListener, RegistrationPolicyChangeListener
 {
    RegistrationPolicy getPolicy();
 
@@ -83,4 +83,8 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
    Collection<? extends Consumer> getConsumers() throws RegistrationException;
 
    void clear() throws RegistrationException;
+
+   void addRegistrationDestructionListener(RegistrationDestructionListener listener);
+
+   void removeRegistrationDestructionListener(RegistrationDestructionListener listener);
 }
