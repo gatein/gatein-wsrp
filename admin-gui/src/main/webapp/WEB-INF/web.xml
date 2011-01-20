@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -35,6 +35,12 @@
    <context-param>
       <param-name>javax.portlet.faces.preserveActionParams</param-name>
       <param-value>true</param-value>
+   </context-param>
+
+   <!-- Tell JBoss AS 6 to use JSF 1.2 -->
+   <context-param>
+      <param-name>org.jboss.jbossfaces.JSF_CONFIG_NAME</param-name>
+      <param-value>Mojarra-1.2</param-value>
    </context-param>
 
    <!-- Facelet configuration -->
