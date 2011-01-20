@@ -38,7 +38,7 @@ public class WSRPBaseEndpoint
 {
    public WSRPBaseEndpoint()
    {
-      producer = ProducerHolder.getProducer();
+      producer = ProducerHolder.getProducer(true);
    }
 
    protected void forceSessionAccess()
