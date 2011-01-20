@@ -37,6 +37,12 @@
       <param-value>true</param-value>
    </context-param>
 
+   <!-- Tell JBoss AS 6 to use JSF 1.2 -->
+   <context-param>
+      <param-name>org.jboss.jbossfaces.JSF_CONFIG_NAME</param-name>
+      <param-value>Mojarra-1.2</param-value>
+   </context-param>
+
    <!-- Facelet configuration -->
    <context-param>
       <param-name>facelets.DEVELOPMENT</param-name>
