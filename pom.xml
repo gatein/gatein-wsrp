@@ -183,6 +183,7 @@
       <module>admin-gui</module>
       <module>wsrp-producer-war</module>
       <module>hibernate-impl</module>
+      <module>jcr-impl</module>
    </modules>
 
    <repositories>
