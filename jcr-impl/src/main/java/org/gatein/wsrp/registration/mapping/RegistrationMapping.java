@@ -26,19 +26,25 @@ package org.gatein.wsrp.registration.mapping;
 import org.chromattic.api.annotations.Create;
 import org.chromattic.api.annotations.Id;
 import org.chromattic.api.annotations.MappedBy;
+import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletContext;
+import org.gatein.pc.api.PortletStateType;
+import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
+import org.gatein.wsrp.jcr.mapping.Utils;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -64,12 +70,11 @@ public abstract class RegistrationMapping
 
    public abstract void setRegistrationHandle(String handle);
 
-   /*
-TODO: convert to use PortletContexts instead of just handles
-@Property(name="portlethandles")
-public abstract List<String> getPortletHandles();
+   @OneToMany
+   public abstract Collection<PortletContextMapping> getPortletContexts();
 
-public abstract void setPortletHandles(List<String> portletHandles);*/
+   @Create
+   public abstract PortletContextMapping createPortletContext(String id);
 
    @OneToOne
    @Owner
@@ -90,7 +95,29 @@ public abstract void setPortletHandles(List<String> portletHandles);*/
    {
       setStatus(registration.getStatus());
       setRegistrationHandle(registration.getRegistrationHandle());
-//      setPortletHandles(registration.getPortletHandles()); // TODO
+
+      // clear and recreate portlet context mappings
+      Collection<PortletContextMapping> contextMappings = getPortletContexts();
+      contextMappings.clear();
+      for (PortletContext portletContext : registration.getKnownPortletContexts())
+      {
+         String id = portletContext.getId();
+         PortletContextMapping contextMapping = createPortletContext(id);
+         contextMappings.add(contextMapping);
+
+         if (portletContext instanceof StatefulPortletContext)
+         {
+            StatefulPortletContext context = (StatefulPortletContext)portletContext;
+            if (PortletStateType.OPAQUE.equals(context.getType()))
+            {
+               contextMapping.initFrom(id, ((StatefulPortletContext<byte[]>)context).getState());
+            }
+            else
+            {
+               throw new IllegalArgumentException("Cannot handle PortletContext state: " + context.getState());
+            }
+         }
+      }
 
       Map<QName, Object> properties = registration.getProperties();
       if (ParameterValidation.existsAndIsNotEmpty(properties))
@@ -117,7 +144,13 @@ public abstract void setPortletHandles(List<String> portletHandles);*/
       RegistrationSPI reg = persistenceManager.newRegistrationSPI(consumer, props, getPersistentKey());
       reg.setStatus(getStatus());
       reg.setRegistrationHandle(getRegistrationHandle());
-//      reg.getPortletHandles().addAll(getPortletHandles());  // TODO
+
+      Collection<PortletContextMapping> pcms = getPortletContexts();
+      for (PortletContextMapping pcm : pcms)
+      {
+         PortletContext pc = PortletContext.createPortletContext(pcm.getId(), Utils.safeGetBytes(pcm.getState()));
+         reg.addPortletContext(pc);
+      }
 
       return reg;
    }
