@@ -32,7 +32,7 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>jcr-impl</artifactId>
+   <artifactId>wsrp-jcr-impl</artifactId>
    <name>GateIn WSRP JCR-based persistence implementation</name>
    <dependencies>
       <dependency>
@@ -54,7 +54,14 @@
       <dependency>
          <groupId>org.chromattic</groupId>
          <artifactId>chromattic.api</artifactId>
-         <version>1.0.4</version>
+         <version>${version.chromattic}</version>
+      </dependency>
+      <!-- Required to process Chromattic annotations -->
+      <dependency>
+         <groupId>org.chromattic</groupId>
+         <artifactId>chromattic.apt</artifactId>
+         <version>${version.chromattic}</version>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.common</groupId>
