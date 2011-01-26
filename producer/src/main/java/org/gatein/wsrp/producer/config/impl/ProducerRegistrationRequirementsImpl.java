@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -358,12 +358,8 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    {
       // only reload if we don't already have a policy or if the requested policy/validator classes are different
       // from the ones we already have 
-      if (
-         policy == null ||
-            (
-               ParameterValidation.isOldAndNewDifferent(this.policyClassName, policyClassName) &&
-                  ParameterValidation.isOldAndNewDifferent(this.validatorClassName, validatorClassName)
-            )
+      if (policy == null || ParameterValidation.isOldAndNewDifferent(this.policyClassName, policyClassName) ||
+         (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName) && ParameterValidation.isOldAndNewDifferent(this.validatorClassName, validatorClassName))
          )
       {
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,6 +27,8 @@ import junit.framework.TestCase;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationPolicyChangeListener;
 import org.gatein.registration.RegistrationPropertyChangeListener;
+import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.PropertyDescription;
@@ -66,6 +68,20 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       requirements.setRegistrationProperties(expected);
 
       assertTrue(requirements.getLastModified() > lastModified);
+   }
+
+   public void testChangeRegistrationPolicy()
+   {
+      ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
+      requirements.setRegistrationRequired(true); // so that we load the policy
+      assertTrue(requirements.getPolicy() instanceof DefaultRegistrationPolicy);
+
+      requirements.reloadPolicyFrom("org.gatein.wsrp.producer.config.TestRegistrationPolicy", ProducerRegistrationRequirements.DEFAULT_VALIDATOR_CLASS_NAME);
+
+      RegistrationPolicy policy = requirements.getPolicy();
+      assertTrue(policy instanceof RegistrationPolicyWrapper);
+      RegistrationPolicyWrapper wrapper = (RegistrationPolicyWrapper)policy;
+      assertTrue(wrapper.getDelegate() instanceof TestRegistrationPolicy);
    }
 
    public void testSetUnchangedRegistrationProperties()
