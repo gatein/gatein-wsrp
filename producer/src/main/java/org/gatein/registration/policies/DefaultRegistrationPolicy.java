@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,6 +24,7 @@
 package org.gatein.registration.policies;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.DuplicateRegistrationException;
 import org.gatein.registration.InvalidConsumerDataException;
@@ -31,17 +32,14 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
-import org.gatein.registration.RegistrationPortletContextChangeListener;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,11 +55,11 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
 {
    private RegistrationPropertyValidator validator;
    private static final Logger log = LoggerFactory.getLogger(DefaultRegistrationPolicy.class);
-   
-   //Stores a list of the default portlet handles which should be available to all registrations (ie not cloned handles)
-   List<String> defaultPortletHandleList = new ArrayList<String>();
-   
-   List<RegistrationPortletContextChangeListener> listeners;
+
+   public DefaultRegistrationPolicy()
+   {
+      validator = DefaultRegistrationPropertyValidator.DEFAULT;
+   }
 
    @Override
    public boolean equals(Object o)
@@ -170,28 +168,24 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    /** Simply returns the given registration id. */
    public String createRegistrationHandleFor(String registrationId)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration id", null);
       return registrationId;
    }
 
    /** Doesn't support automatic ConsumerGroups so always return <code>null</code>. */
    public String getAutomaticGroupNameFor(String consumerName)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
       return null;
    }
 
    /** Compute a simple, safe id based on the provided consumer name trusted (!) to be unique. */
    public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
    {
-      return RegistrationPolicyWrapper.sanitizeConsumerName(consumerName);
+      return consumerName;
    }
 
    /** Rejects registration if a Consumer with the specified name already exists. */
    public void validateConsumerName(String consumerName, final RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
-
       Consumer consumer = manager.getConsumerByIdentity(getConsumerIdFrom(consumerName, Collections.<QName, Object>emptyMap()));
       if (consumer != null)
       {
@@ -203,6 +197,26 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    public void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
       // this is already the behavior in the RegistrationPersistenceManager so no need to do anything
+   }
+
+   public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
+   {
+      return true;
+   }
+
+   public boolean isWrapped()
+   {
+      return false;
+   }
+
+   public String getClassName()
+   {
+      return getClass().getName();
+   }
+
+   public Class<? extends RegistrationPolicy> getRealClass()
+   {
+      return getClass();
    }
 
    /**
@@ -224,67 +238,5 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    public RegistrationPropertyValidator getValidator()
    {
       return validator;
-   }
-
-   public void addPortletHandle(Registration registration, String portletHandle)
-   {
-      if (registration != null && !registration.getPortletHandles().contains(portletHandle))
-      {
-         registration.getPortletHandles().add(portletHandle);
-         updatePortletContextListeners(registration);
-      }
-   }
-
-   public boolean checkPortletHandle(Registration registration, String portletHandle)
-   {
-      if (defaultPortletHandleList.contains(portletHandle))
-      {
-         return true;
-      }
-      
-      if (registration != null && registration.getPortletHandles().contains(portletHandle))
-      {
-         return true;
-      }
-
-      return false;
-   }
-
-   public void removePortletHandle(Registration registration, String portletHandle)
-   {
-      if (registration != null)
-      {
-         registration.getPortletHandles().remove(portletHandle);
-         updatePortletContextListeners(registration);
-      }
-   }
-
-   public void updatePortletHandles(List<String> portletHandles)
-   {
-      this.defaultPortletHandleList = portletHandles;
-   }
-
-   public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
-   {
-      if (listeners == null)
-      {
-         listeners = new ArrayList<RegistrationPortletContextChangeListener>();
-      }
-      
-      if (!listeners.contains(listener))
-      {
-         listeners.add(listener);
-      }
-   }
-   
-   protected void updatePortletContextListeners(Registration registration)
-   {
-      if (listeners != null)
-      {
-         for (RegistrationPortletContextChangeListener listener : listeners)
-         {
-            listener.portletContextsHaveChanged(registration);
-         }
-      }
    }
 }

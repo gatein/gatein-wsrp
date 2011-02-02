@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,17 +23,15 @@
 
 package org.gatein.wsrp.producer.config;
 
+import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.InvalidConsumerDataException;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
-import org.gatein.registration.RegistrationPortletContextChangeListener;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,25 +68,23 @@ public class TestRegistrationPolicy implements RegistrationPolicy
    {
    }
 
-   public void addPortletHandle(Registration registration, String portletHandle)
-   {
-   }
-
-   public boolean checkPortletHandle(Registration registration, String portletHandle)
+   public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
    {
       return true;
    }
 
-   public void removePortletHandle(Registration registration, String portletHandle)
+   public boolean isWrapped()
    {
+      return false;
    }
 
-   public void updatePortletHandles(List<String> portletHandles)
+   public String getClassName()
    {
+      return getClass().getName();
    }
 
-   public void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener)
+   public Class<? extends RegistrationPolicy> getRealClass()
    {
+      return getClass();
    }
-
 }

@@ -326,17 +326,24 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    {
       if (ParameterValidation.isOldAndNewDifferent(this.policy, policy))
       {
-         this.policy = policy;
-
          if (policy != null)
          {
-            policyClassName = policy.getClass().getName();
+            this.policy = RegistrationPolicyWrapper.wrap(policy);
+            policyClassName = policy.getClassName();
 
-            if (policy instanceof DefaultRegistrationPolicy)
+            if (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
             {
                DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)policy;
                validatorClassName = registrationPolicy.getValidator().getClass().getName();
             }
+            else
+            {
+               validatorClassName = null;
+            }
+         }
+         else
+         {
+            this.policy = null;
          }
 
          modifyNow();
@@ -375,10 +382,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
                }
                RegistrationPolicy policy = (RegistrationPolicy)policyClass.newInstance();
 
-               // wrap policy so that we can perform minimal sanitization of values
-               RegistrationPolicyWrapper wrapper = new RegistrationPolicyWrapper(policy);
-
-               setPolicy(wrapper);
+               setPolicy(policy);
             }
             catch (ClassNotFoundException e)
             {
@@ -422,9 +426,9 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
             }
 
 
-            DefaultRegistrationPolicy policy = new DefaultRegistrationPolicy();
-            policy.setValidator(validator);
-            setPolicy(policy);
+            DefaultRegistrationPolicy delegate = new DefaultRegistrationPolicy();
+            delegate.setValidator(validator);
+            setPolicy(delegate);
          }
       }
    }

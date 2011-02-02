@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,6 +23,7 @@
 
 package org.gatein.registration;
 
+import org.gatein.pc.api.PortletContext;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -32,6 +33,13 @@ import java.util.Map;
  * An interface allowing users of the Registration service to customize different aspects of how Consumers are handled.
  * Methods of this interface are used by RegistrationManager to make appropriate decisions. Implementations of this
  * interface <strong>MUST</strong> provide a no-argument constructor for instantiation from the class name.
+ * <p/>
+ * <strong>IMPORTANT</strong>: RegistrationPolicy instances are wrapped using a {@link
+ * org.gatein.registration.policies.RegistrationPolicyWrapper}. As a result, using <code>instanceof</code> on a
+ * RegistrationPolicy will probably result in unexpected result. To retrieve the actual class of the RegistrationPolicy
+ * instance in use, use {@link #getRealClass()} (or {@link #getClassName()} to retrieve the class name). If, for some
+ * reason, the actual RegistrationPolicy instance is needed, use {@link org.gatein.registration.policies.RegistrationPolicyWrapper#unwrap(RegistrationPolicy)},
+ * though it is not recommended to manipulate actual RegistrationPolicy instances directly.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11406 $
@@ -122,51 +130,33 @@ public interface RegistrationPolicy
    void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
 
    /**
-    * Checks if a portlet handle belongs to a specific registration.
-    * GTNWSRP-72
+    * TODO
     *
-    * @param registration The registration to check
-    * @param portletHandle The portlet handle to use
-    * @return True if the registration contains this portlet handle
+    * @param portletContext
+    * @param registration
+    * @param operation
+    * @return
     */
-//   boolean checkPortletHandle(Registration registration, String portletHandle);
+   boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation);
 
    /**
-    * Adds a Portlet Handle to a Registration
-    * GTNWSRP-72
+    * TODO
     *
-    * @param registration The registration to use
-    * @param portletHandle The portletHandle to add
+    * @return
     */
-//   void addPortletHandle(Registration registration, String portletHandle);
+   boolean isWrapped();
 
    /**
-    * Removes a portlet handle from a specific registration
-    * GTNWSRP-72
+    * TODO
     *
-    * @param registration The registration to use
-    * @param portletHandle The portlet handle to remove
+    * @return
     */
-//   void removePortletHandle(Registration registration, String portletHandle);
+   String getClassName();
 
    /**
-    * Updates the list of currently available portlet handles.
-    * GTNWSRP-72
+    * TODO
     *
-    * Note: this is not registration specific. This method deals with the situation where
-    * the producer has a change in the available portlets. The RegistrationPolicy needs to either handle
-    * the globally available portlets separately or update each registration when this type of change occurs.
-    *
-    * @param portlets
+    * @return
     */
-//   void updatePortletHandles(List<String> portlets);
-
-   /**
-    * Adds a PortletContextChangeListener to the RegistrationPolicy. The PortletContextChangeListener
-    * will be called whenever the portlet contexts within a registration changes.
-    * GTNWSRP-72
-    *
-    * @param listener The listener to add
-    */
-//   void addPortletContextChangeListener(RegistrationPortletContextChangeListener listener);
+   Class<? extends RegistrationPolicy> getRealClass();
 }
