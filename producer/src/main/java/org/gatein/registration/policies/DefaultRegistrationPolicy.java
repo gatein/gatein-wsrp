@@ -56,6 +56,11 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    private RegistrationPropertyValidator validator;
    private static final Logger log = LoggerFactory.getLogger(DefaultRegistrationPolicy.class);
 
+   public DefaultRegistrationPolicy()
+   {
+      validator = DefaultRegistrationPropertyValidator.DEFAULT;
+   }
+
    @Override
    public boolean equals(Object o)
    {
@@ -163,28 +168,24 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    /** Simply returns the given registration id. */
    public String createRegistrationHandleFor(String registrationId)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration id", null);
       return registrationId;
    }
 
    /** Doesn't support automatic ConsumerGroups so always return <code>null</code>. */
    public String getAutomaticGroupNameFor(String consumerName)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
       return null;
    }
 
    /** Compute a simple, safe id based on the provided consumer name trusted (!) to be unique. */
    public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties) throws IllegalArgumentException, InvalidConsumerDataException
    {
-      return RegistrationPolicyWrapper.sanitizeConsumerName(consumerName);
+      return consumerName;
    }
 
    /** Rejects registration if a Consumer with the specified name already exists. */
    public void validateConsumerName(String consumerName, final RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
-
       Consumer consumer = manager.getConsumerByIdentity(getConsumerIdFrom(consumerName, Collections.<QName, Object>emptyMap()));
       if (consumer != null)
       {
@@ -201,6 +202,21 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
    {
       return true;
+   }
+
+   public boolean isWrapped()
+   {
+      return false;
+   }
+
+   public String getClassName()
+   {
+      return getClass().getName();
+   }
+
+   public Class<? extends RegistrationPolicy> getRealClass()
+   {
+      return getClass();
    }
 
    /**

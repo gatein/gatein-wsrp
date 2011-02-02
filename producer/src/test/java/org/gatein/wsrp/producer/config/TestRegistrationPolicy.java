@@ -72,4 +72,19 @@ public class TestRegistrationPolicy implements RegistrationPolicy
    {
       return true;
    }
+
+   public boolean isWrapped()
+   {
+      return false;
+   }
+
+   public String getClassName()
+   {
+      return getClass().getName();
+   }
+
+   public Class<? extends RegistrationPolicy> getRealClass()
+   {
+      return getClass();
+   }
 }

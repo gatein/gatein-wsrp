@@ -23,24 +23,28 @@
 
 package org.gatein.registration.policies;
 
-import javax.xml.namespace.QName;
+import junit.framework.TestCase;
+import org.gatein.registration.RegistrationPolicy;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision: 8784 $
- * @since 2.6
+ * @version $Revision$
  */
-public class DefaultRegistrationPropertyValidator implements RegistrationPropertyValidator
+public class RegistrationPolicyWrapperTestCase extends TestCase
 {
-   public void validateValueFor(QName propertyName, Object value) throws IllegalArgumentException
+   public void testWrap()
    {
-      // accepts only non-null, non-empty String values
-      if (!(value instanceof String) || ((String)value).length() <= 0)
-      {
-         throw new IllegalArgumentException(value + " is not a valid value for property '" + propertyName +
-            "'. DefaultRegistrationPropertyValidator only accepts non-null, non-empty Strings.");
-      }
-   }
+      RegistrationPolicy policy = new DefaultRegistrationPolicy();
 
-   public static final RegistrationPropertyValidator DEFAULT = new DefaultRegistrationPropertyValidator();
+      RegistrationPolicy wrapper = RegistrationPolicyWrapper.wrap(policy);
+      assertEquals(policy.getClass(), wrapper.getRealClass());
+      assertEquals(policy.getClassName(), wrapper.getClassName());
+      assertEquals(policy.getClass().getName(), wrapper.getClassName());
+
+      assertEquals(wrapper, RegistrationPolicyWrapper.wrap(wrapper));
+      assertTrue(wrapper instanceof RegistrationPolicyWrapper);
+
+      assertEquals(policy, RegistrationPolicyWrapper.unwrap(wrapper));
+      assertEquals(policy, RegistrationPolicyWrapper.unwrap(policy));
+   }
 }

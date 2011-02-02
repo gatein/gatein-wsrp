@@ -33,6 +33,13 @@ import java.util.Map;
  * An interface allowing users of the Registration service to customize different aspects of how Consumers are handled.
  * Methods of this interface are used by RegistrationManager to make appropriate decisions. Implementations of this
  * interface <strong>MUST</strong> provide a no-argument constructor for instantiation from the class name.
+ * <p/>
+ * <strong>IMPORTANT</strong>: RegistrationPolicy instances are wrapped using a {@link
+ * org.gatein.registration.policies.RegistrationPolicyWrapper}. As a result, using <code>instanceof</code> on a
+ * RegistrationPolicy will probably result in unexpected result. To retrieve the actual class of the RegistrationPolicy
+ * instance in use, use {@link #getRealClass()} (or {@link #getClassName()} to retrieve the class name). If, for some
+ * reason, the actual RegistrationPolicy instance is needed, use {@link org.gatein.registration.policies.RegistrationPolicyWrapper#unwrap(RegistrationPolicy)},
+ * though it is not recommended to manipulate actual RegistrationPolicy instances directly.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11406 $
@@ -122,5 +129,34 @@ public interface RegistrationPolicy
     */
    void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
 
+   /**
+    * TODO
+    *
+    * @param portletContext
+    * @param registration
+    * @param operation
+    * @return
+    */
    boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation);
+
+   /**
+    * TODO
+    *
+    * @return
+    */
+   boolean isWrapped();
+
+   /**
+    * TODO
+    *
+    * @return
+    */
+   String getClassName();
+
+   /**
+    * TODO
+    *
+    * @return
+    */
+   Class<? extends RegistrationPolicy> getRealClass();
 }

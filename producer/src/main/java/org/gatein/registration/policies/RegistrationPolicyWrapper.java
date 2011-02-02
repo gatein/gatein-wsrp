@@ -43,13 +43,40 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
 {
    private final RegistrationPolicy delegate;
 
-   public RegistrationPolicyWrapper(RegistrationPolicy delegate)
+   public static RegistrationPolicy wrap(RegistrationPolicy policy)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(delegate, "Delegate");
+      ParameterValidation.throwIllegalArgExceptionIfNull(policy, "RegistrationPolicy to wrap");
+
+      if (!policy.isWrapped())
+      {
+         return new RegistrationPolicyWrapper(policy);
+      }
+      else
+      {
+         return policy;
+      }
+   }
+
+   public static RegistrationPolicy unwrap(RegistrationPolicy policy)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(policy, "RegistrationPolicy to unwrap");
+
+      if (policy.isWrapped())
+      {
+         return ((RegistrationPolicyWrapper)policy).getDelegate();
+      }
+      else
+      {
+         return policy;
+      }
+   }
+
+   private RegistrationPolicyWrapper(RegistrationPolicy delegate)
+   {
       this.delegate = delegate;
    }
 
-   public RegistrationPolicy getDelegate()
+   private RegistrationPolicy getDelegate()
    {
       return delegate;
    }
@@ -63,13 +90,14 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
    public String createRegistrationHandleFor(String registrationId)
       throws IllegalArgumentException
    {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "Registration id", null);
       return delegate.createRegistrationHandleFor(registrationId);
    }
 
    public String getAutomaticGroupNameFor(String consumerName)
       throws IllegalArgumentException
    {
-      return delegate.getAutomaticGroupNameFor(consumerName);
+      return delegate.getAutomaticGroupNameFor(sanitizeConsumerName(consumerName));
    }
 
    public String getConsumerIdFrom(String consumerName, Map<QName, Object> registrationProperties)
@@ -81,13 +109,33 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
    public void validateConsumerName(String consumerName, final RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
-      delegate.validateConsumerName(consumerName, manager);
+      delegate.validateConsumerName(sanitizeConsumerName(consumerName), manager);
    }
 
    public void validateConsumerGroupName(String groupName, RegistrationManager manager)
       throws IllegalArgumentException, RegistrationException
    {
       delegate.validateConsumerGroupName(groupName, manager);
+   }
+
+   public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
+   {
+      return delegate.allowAccessTo(portletContext, registration, operation);
+   }
+
+   public boolean isWrapped()
+   {
+      return true;
+   }
+
+   public String getClassName()
+   {
+      return delegate.getClassName();
+   }
+
+   public Class<? extends RegistrationPolicy> getRealClass()
+   {
+      return delegate.getClass();
    }
 
    static String sanitizeConsumerName(String consumerName)
@@ -99,10 +147,5 @@ public class RegistrationPolicyWrapper implements RegistrationPolicy
       consumerName = consumerName.replaceAll("/", "_");
 
       return consumerName;
-   }
-
-   public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
-   {
-      return delegate.allowAccessTo(portletContext, registration, operation);
    }
 }

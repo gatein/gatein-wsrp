@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer.config.impl.xml;
 
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
@@ -104,12 +105,12 @@ public class ProducerConfigurationProvider implements ObjectModelProvider
          RegistrationPolicy policy = regReq.getPolicy();
          if (policy != null)
          {
-            value = policy.getClass().getName();
+            value = policy.getClassName();
          }
       }
       else if ("registration-property-validator".equals(localName))
       {
-         RegistrationPolicy policy = regReq.getPolicy();
+         RegistrationPolicy policy = RegistrationPolicyWrapper.unwrap(regReq.getPolicy());
          if (policy instanceof DefaultRegistrationPolicy)
          {
             DefaultRegistrationPolicy defaultRegistrationPolicy = (DefaultRegistrationPolicy)policy;

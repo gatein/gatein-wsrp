@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -21,13 +21,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.registration;
+package org.gatein.registration.policies;
 
 import junit.framework.TestCase;
+import org.gatein.registration.RegistrationException;
+import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
-import org.gatein.registration.policies.DefaultRegistrationPolicy;
-import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -68,6 +68,12 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
       registrationProperties.put(PROP2, "value2");
 
       expectations = new HashMap<QName, PropertyDescription>();
+   }
+
+   public void testInitialState()
+   {
+      DefaultRegistrationPolicy registrationPolicy = new DefaultRegistrationPolicy();
+      assertEquals(DefaultRegistrationPropertyValidator.DEFAULT, registrationPolicy.getValidator());
    }
 
    public void testValidateRegistrationDataForNull() throws RegistrationException

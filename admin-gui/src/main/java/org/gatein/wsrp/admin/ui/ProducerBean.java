@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -25,6 +25,7 @@ package org.gatein.wsrp.admin.ui;
 
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -95,7 +96,7 @@ public class ProducerBean extends ManagedBean
       RegistrationPolicy policy = getRegRequirements().getPolicy();
       if (policy != null)
       {
-         return policy.getClass().getName();
+         return policy.getClassName();
       }
       else
       {
@@ -117,7 +118,8 @@ public class ProducerBean extends ManagedBean
    {
       if (isDefaultRegistrationPolicy())
       {
-         return ((DefaultRegistrationPolicy)getRegRequirements().getPolicy()).getValidator().getClass().getName();
+         DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getRegRequirements().getPolicy());
+         return policy.getValidator().getClass().getName();
       }
       throw new IllegalStateException("getValidatorClassName shouldn't be called if we're not using the default registration");
    }
@@ -163,14 +165,15 @@ public class ProducerBean extends ManagedBean
          registrationRequirements.setRegistrationRequiredForFullDescription(configuration.isRegistrationRequiredForFullDescription());
          registrationRequirements.setRegistrationRequired(configuration.isRegistrationRequired());
 
-         if (!ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
-         {
-            registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
-         }
+         registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
 
          registrationRequirements.setRegistrationProperties(configuration.getRegistrationRequirements().getRegistrationProperties());
 
          getConfigurationService().saveConfiguration();
+
+         // force a reload local state
+         registrationConfiguration = null;
+
          beanContext.createInfoMessage("bean_producer_save_success");
       }
       catch (Exception e)
