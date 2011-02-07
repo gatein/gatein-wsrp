@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.test.protocol.v1;
 
+import org.gatein.wsrp.services.v1.interfaces.V1RegistrationPortType;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1MissingParameters;
@@ -41,7 +42,7 @@ import java.util.List;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class RegistrationBehavior extends TestProducerBehavior implements WSRPV1RegistrationPortType
+public class RegistrationBehavior extends TestProducerBehavior implements V1RegistrationPortType
 {
    public static final String REGISTRATION_HANDLE = "registration";
 

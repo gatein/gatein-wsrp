@@ -24,6 +24,7 @@
 package org.gatein.wsrp.services.v2;
 
 import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.Extension;
@@ -55,7 +56,6 @@ import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UserContext;
-import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -64,9 +64,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2MarkupService extends MarkupService<WSRPV2MarkupPortType>
+public class V2MarkupService extends MarkupService<V2MarkupPortType>
 {
-   public V2MarkupService(WSRPV2MarkupPortType port)
+   public V2MarkupService(V2MarkupPortType port)
    {
       super(port);
    }

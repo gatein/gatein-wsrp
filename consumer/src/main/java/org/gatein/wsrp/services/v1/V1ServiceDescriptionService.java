@@ -25,6 +25,7 @@ package org.gatein.wsrp.services.v1;
 
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.ServiceDescriptionService;
+import org.gatein.wsrp.services.v1.interfaces.V1ServiceDescriptionPortType;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1CookieProtocol;
@@ -36,7 +37,6 @@ import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1RegistrationContext;
 import org.oasis.wsrp.v1.V1ResourceList;
-import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.ExportDescription;
@@ -61,9 +61,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V1ServiceDescriptionService extends ServiceDescriptionService<WSRPV1ServiceDescriptionPortType>
+public class V1ServiceDescriptionService extends ServiceDescriptionService<V1ServiceDescriptionPortType>
 {
-   public V1ServiceDescriptionService(WSRPV1ServiceDescriptionPortType port)
+   public V1ServiceDescriptionService(V1ServiceDescriptionPortType port)
    {
       super(port);
    }

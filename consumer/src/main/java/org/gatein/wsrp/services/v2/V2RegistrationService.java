@@ -23,6 +23,7 @@
 package org.gatein.wsrp.services.v2;
 
 import org.gatein.wsrp.services.RegistrationService;
+import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
@@ -38,7 +39,6 @@ import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.SetRegistrationLifetime;
 import org.oasis.wsrp.v2.UserContext;
-import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -47,9 +47,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2RegistrationService extends RegistrationService<WSRPV2RegistrationPortType>
+public class V2RegistrationService extends RegistrationService<V2RegistrationPortType>
 {
-   public V2RegistrationService(WSRPV2RegistrationPortType service)
+   public V2RegistrationService(V2RegistrationPortType service)
    {
       super(service);
    }

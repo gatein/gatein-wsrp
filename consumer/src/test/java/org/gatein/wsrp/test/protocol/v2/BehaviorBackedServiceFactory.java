@@ -36,6 +36,10 @@ import org.gatein.wsrp.services.v2.V2MarkupService;
 import org.gatein.wsrp.services.v2.V2PortletManagementService;
 import org.gatein.wsrp.services.v2.V2RegistrationService;
 import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
+import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2PortletManagementPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.gatein.wsrp.test.support.RequestedMarkupBehavior;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.GetMarkup;
@@ -51,10 +55,6 @@ import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
-import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
-import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
-import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
-import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -89,11 +89,11 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
          start();
       }
 
-      if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(serviceClass))
+      if (V2ServiceDescriptionPortType.class.isAssignableFrom(serviceClass))
       {
          return (T)registry.getServiceDescriptionBehavior();
       }
-      if (WSRPV2MarkupPortType.class.isAssignableFrom(serviceClass))
+      if (V2MarkupPortType.class.isAssignableFrom(serviceClass))
       {
          String requestedMarkupBehavior = RequestedMarkupBehavior.getRequestedMarkupBehavior();
          if (requestedMarkupBehavior == null)
@@ -102,11 +102,11 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
          }
          return (T)registry.getMarkupBehaviorFor(requestedMarkupBehavior);
       }
-      if (WSRPV2PortletManagementPortType.class.isAssignableFrom(serviceClass))
+      if (V2PortletManagementPortType.class.isAssignableFrom(serviceClass))
       {
          return (T)registry.getPortletManagementBehavior();
       }
-      if (WSRPV2RegistrationPortType.class.isAssignableFrom(serviceClass))
+      if (V2RegistrationPortType.class.isAssignableFrom(serviceClass))
       {
          return (T)registry.getRegistrationBehavior();
       }
@@ -115,22 +115,22 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public ServiceDescriptionService getServiceDescriptionService() throws Exception
    {
-      return new V2ServiceDescriptionService(getService(WSRPV2ServiceDescriptionPortType.class));
+      return new V2ServiceDescriptionService(getService(V2ServiceDescriptionPortType.class));
    }
 
    public MarkupService getMarkupService() throws Exception
    {
-      return new V2MarkupService(getService(WSRPV2MarkupPortType.class));
+      return new V2MarkupService(getService(V2MarkupPortType.class));
    }
 
    public PortletManagementService getPortletManagementService() throws Exception
    {
-      return new V2PortletManagementService(getService(WSRPV2PortletManagementPortType.class));
+      return new V2PortletManagementService(getService(V2PortletManagementPortType.class));
    }
 
    public RegistrationService getRegistrationService() throws Exception
    {
-      return new V2RegistrationService(getService(WSRPV2RegistrationPortType.class));
+      return new V2RegistrationService(getService(V2RegistrationPortType.class));
    }
 
    public Version getWSRPVersion()

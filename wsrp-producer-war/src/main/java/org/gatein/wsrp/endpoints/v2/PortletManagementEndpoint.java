@@ -72,6 +72,7 @@ import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2PortletManagementPortType"
 )
+@HandlerChain(file="../producer-handler-chains.xml")
 public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV2PortletManagementPortType
 {
    public void getPortletPropertyDescription(

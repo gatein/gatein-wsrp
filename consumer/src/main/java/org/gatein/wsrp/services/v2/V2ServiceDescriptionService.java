@@ -23,6 +23,7 @@
 package org.gatein.wsrp.services.v2;
 
 import org.gatein.wsrp.services.ServiceDescriptionService;
+import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.ExportDescription;
@@ -39,7 +40,6 @@ import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.UserContext;
-import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -48,9 +48,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2ServiceDescriptionService extends ServiceDescriptionService<WSRPV2ServiceDescriptionPortType> implements WSRPV2ServiceDescriptionPortType
+public class V2ServiceDescriptionService extends ServiceDescriptionService<V2ServiceDescriptionPortType> implements V2ServiceDescriptionPortType
 {
-   public V2ServiceDescriptionService(WSRPV2ServiceDescriptionPortType service)
+   public V2ServiceDescriptionService(V2ServiceDescriptionPortType service)
    {
       super(service);
    }

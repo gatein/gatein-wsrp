@@ -23,6 +23,7 @@
 package org.gatein.wsrp.services.v2;
 
 import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.v2.interfaces.V2PortletManagementPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.CopiedPortlet;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
@@ -54,7 +55,6 @@ import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.UserContext;
-import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -63,9 +63,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2PortletManagementService extends PortletManagementService<WSRPV2PortletManagementPortType>
+public class V2PortletManagementService extends PortletManagementService<V2PortletManagementPortType>
 {
-   public V2PortletManagementService(WSRPV2PortletManagementPortType port)
+   public V2PortletManagementService(V2PortletManagementPortType port)
    {
       super(port);
    }

@@ -45,6 +45,7 @@ import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.Utils;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -73,6 +74,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -513,40 +516,95 @@ public abstract class RequestProcessor<Response>
    private SecurityContext createSecurityContext(final MimeRequest params, final RuntimeContext runtimeContext,
                                                  final org.oasis.wsrp.v2.UserContext wsrpUserContext)
    {
+      
+      final HttpServletRequest request = ServletAccess.getRequest();
+      final boolean useSecurity;
+      if (request != null && request.getRemoteUser() != null)
+      {
+         useSecurity = true;
+      }
+      else
+      {
+         useSecurity = false;
+      }
+      
       return new SecurityContext()
       {
          public boolean isSecure()
          {
-            return params.isSecureClientCommunication();
+            if (useSecurity)
+            {
+               return request.isSecure();
+            }
+            else
+            {
+               return params.isSecureClientCommunication();
+            }
          }
 
          public String getAuthType()
          {
-            return runtimeContext.getUserAuthentication();
+            if (useSecurity)
+            {
+               return request.getAuthType();
+            }
+            else
+            {
+               return runtimeContext.getUserAuthentication();
+            }
          }
 
          public String getRemoteUser()
          {
-            if (wsrpUserContext != null)
+            if (useSecurity)
             {
-               return wsrpUserContext.getUserContextKey();
+               return request.getRemoteUser();
             }
-            return null;
+            else
+            {
+               if (wsrpUserContext != null)
+               {
+                  return wsrpUserContext.getUserContextKey();
+               }
+               return null;
+            }
          }
 
          public Principal getUserPrincipal()
          {
-            return null;
+            if (useSecurity)
+            {
+               return request.getUserPrincipal();
+            }
+            else
+            {
+               return null;
+            }
          }
 
          public boolean isUserInRole(String roleName)
          {
-            return wsrpUserContext != null && wsrpUserContext.getUserCategories().contains(roleName);
+            if (useSecurity)
+            {
+               return request.isUserInRole(roleName);
+            }
+            else
+            {
+               return wsrpUserContext != null && wsrpUserContext.getUserCategories().contains(roleName);
+            }
          }
 
          public boolean isAuthenticated()
          {
-            return wsrpUserContext != null;
+            if (useSecurity)
+            {
+               //TODO: is this correct?
+               return request.getUserPrincipal() != null;
+            }
+            else
+            {
+               return wsrpUserContext != null;
+            }
          }
       };
    }

@@ -27,6 +27,7 @@ import org.gatein.common.NotYetImplemented;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.PortletManagementService;
+import org.gatein.wsrp.services.v1.interfaces.V1PortletManagementPortType;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
@@ -43,7 +44,6 @@ import org.oasis.wsrp.v1.V1PortletDescription;
 import org.oasis.wsrp.v1.V1Property;
 import org.oasis.wsrp.v1.V1ResetProperty;
 import org.oasis.wsrp.v1.V1ResourceList;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.CopiedPortlet;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
@@ -83,9 +83,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V1PortletManagementService extends PortletManagementService<WSRPV1PortletManagementPortType>
+public class V1PortletManagementService extends PortletManagementService<V1PortletManagementPortType>
 {
-   public V1PortletManagementService(WSRPV1PortletManagementPortType port)
+   public V1PortletManagementService(V1PortletManagementPortType port)
    {
       super(port);
    }

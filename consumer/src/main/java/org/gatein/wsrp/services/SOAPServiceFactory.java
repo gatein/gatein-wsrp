@@ -30,18 +30,18 @@ import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
 import org.gatein.wsrp.services.v1.V1RegistrationService;
 import org.gatein.wsrp.services.v1.V1ServiceDescriptionService;
+import org.gatein.wsrp.services.v1.interfaces.V1MarkupPortType;
+import org.gatein.wsrp.services.v1.interfaces.V1PortletManagementPortType;
+import org.gatein.wsrp.services.v1.interfaces.V1RegistrationPortType;
+import org.gatein.wsrp.services.v1.interfaces.V1ServiceDescriptionPortType;
 import org.gatein.wsrp.services.v2.V2MarkupService;
 import org.gatein.wsrp.services.v2.V2PortletManagementService;
 import org.gatein.wsrp.services.v2.V2RegistrationService;
 import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
-import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
-import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
-import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
-import org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType;
-import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
-import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
-import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
-import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2PortletManagementPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
+import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,25 +168,25 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       //
       String portAddress = null;
       boolean isMandatoryInterface = false;
-      if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz)
-         || WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz))
+      if (V2ServiceDescriptionPortType.class.isAssignableFrom(clazz)
+         || V1ServiceDescriptionPortType.class.isAssignableFrom(clazz))
       {
          portAddress = serviceDescriptionURL;
          isMandatoryInterface = true;
       }
-      else if (WSRPV2MarkupPortType.class.isAssignableFrom(clazz)
-         || WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
+      else if (V2MarkupPortType.class.isAssignableFrom(clazz)
+         || V1MarkupPortType.class.isAssignableFrom(clazz))
       {
          portAddress = markupURL;
          isMandatoryInterface = true;
       }
-      else if (WSRPV2RegistrationPortType.class.isAssignableFrom(clazz)
-         || WSRPV1RegistrationPortType.class.isAssignableFrom(clazz))
+      else if (V2RegistrationPortType.class.isAssignableFrom(clazz)
+         || V1RegistrationPortType.class.isAssignableFrom(clazz))
       {
          portAddress = registrationURL;
       }
-      else if (WSRPV2PortletManagementPortType.class.isAssignableFrom(clazz)
-         || WSRPV1PortletManagementPortType.class.isAssignableFrom(clazz))
+      else if (V2PortletManagementPortType.class.isAssignableFrom(clazz)
+         || V1PortletManagementPortType.class.isAssignableFrom(clazz))
       {
          portAddress = portletManagementURL;
       }
@@ -304,12 +304,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             Class portTypeClass = null;
             try
             {
-               portTypeClass = WSRPV2MarkupPortType.class;
-               WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
+               portTypeClass = V2MarkupPortType.class;
+               V2MarkupPortType markupPortType = wsService.getPort(V2MarkupPortType.class);
                markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               portTypeClass = WSRPV2ServiceDescriptionPortType.class;
-               WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
+               portTypeClass = V2ServiceDescriptionPortType.class;
+               V2ServiceDescriptionPortType sdPort = wsService.getPort(V2ServiceDescriptionPortType.class);
                serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -321,7 +321,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
             try
             {
-               WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
+               V2PortletManagementPortType managementPortType = wsService.getPort(V2PortletManagementPortType.class);
                portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -332,7 +332,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
             try
             {
-               WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
+               V2RegistrationPortType registrationPortType = wsService.getPort(V2RegistrationPortType.class);
                registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -352,12 +352,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             Class portTypeClass = null;
             try
             {
-               portTypeClass = WSRPV1MarkupPortType.class;
-               WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
+               portTypeClass = V1MarkupPortType.class;
+               V1MarkupPortType markupPortType = wsService.getPort(V1MarkupPortType.class);
                markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-               portTypeClass = WSRPV1ServiceDescriptionPortType.class;
-               WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
+               portTypeClass = V1ServiceDescriptionPortType.class;
+               V1ServiceDescriptionPortType sdPort = wsService.getPort(V1ServiceDescriptionPortType.class);
                serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -368,7 +368,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
             try
             {
-               WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
+               V1PortletManagementPortType managementPortType = wsService.getPort(V1PortletManagementPortType.class);
                portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -379,7 +379,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
             try
             {
-               WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
+               V1RegistrationPortType registrationPortType = wsService.getPort(V1RegistrationPortType.class);
                registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             }
             catch (Exception e)
@@ -415,12 +415,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       if (isV2)
       {
-         WSRPV2ServiceDescriptionPortType port = getService(WSRPV2ServiceDescriptionPortType.class);
+         V2ServiceDescriptionPortType port = getService(V2ServiceDescriptionPortType.class);
          return new V2ServiceDescriptionService(port);
       }
       else
       {
-         WSRPV1ServiceDescriptionPortType port = getService(WSRPV1ServiceDescriptionPortType.class);
+         V1ServiceDescriptionPortType port = getService(V1ServiceDescriptionPortType.class);
          return new V1ServiceDescriptionService(port);
       }
    }
@@ -429,12 +429,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       if (isV2)
       {
-         WSRPV2MarkupPortType port = getService(WSRPV2MarkupPortType.class);
+         V2MarkupPortType port = getService(V2MarkupPortType.class);
          return new V2MarkupService(port);
       }
       else
       {
-         WSRPV1MarkupPortType port = getService(WSRPV1MarkupPortType.class);
+         V1MarkupPortType port = getService(V1MarkupPortType.class);
          return new V1MarkupService(port);
       }
    }
@@ -443,12 +443,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       if (isV2)
       {
-         WSRPV2PortletManagementPortType port = getService(WSRPV2PortletManagementPortType.class);
+         V2PortletManagementPortType port = getService(V2PortletManagementPortType.class);
          return new V2PortletManagementService(port);
       }
       else
       {
-         WSRPV1PortletManagementPortType port = getService(WSRPV1PortletManagementPortType.class);
+         V1PortletManagementPortType port = getService(V1PortletManagementPortType.class);
          return new V1PortletManagementService(port);
       }
    }
@@ -457,12 +457,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       if (isV2)
       {
-         WSRPV2RegistrationPortType port = getService(WSRPV2RegistrationPortType.class);
+         V2RegistrationPortType port = getService(V2RegistrationPortType.class);
          return new V2RegistrationService(port);
       }
       else
       {
-         WSRPV1RegistrationPortType port = getService(WSRPV1RegistrationPortType.class);
+         V1RegistrationPortType port = getService(V1RegistrationPortType.class);
          return new V1RegistrationService(port);
       }
    }

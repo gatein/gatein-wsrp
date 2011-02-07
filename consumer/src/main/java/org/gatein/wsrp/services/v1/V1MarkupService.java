@@ -26,6 +26,7 @@ package org.gatein.wsrp.services.v1;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.MarkupService;
+import org.gatein.wsrp.services.v1.interfaces.V1MarkupPortType;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1AccessDenied;
@@ -46,7 +47,6 @@ import org.oasis.wsrp.v1.V1UnsupportedMimeType;
 import org.oasis.wsrp.v1.V1UnsupportedMode;
 import org.oasis.wsrp.v1.V1UnsupportedWindowState;
 import org.oasis.wsrp.v1.V1UpdateResponse;
-import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.Extension;
@@ -86,9 +86,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V1MarkupService extends MarkupService<WSRPV1MarkupPortType>
+public class V1MarkupService extends MarkupService<V1MarkupPortType>
 {
-   public V1MarkupService(WSRPV1MarkupPortType port)
+   public V1MarkupService(V1MarkupPortType port)
    {
       super(port);
    }

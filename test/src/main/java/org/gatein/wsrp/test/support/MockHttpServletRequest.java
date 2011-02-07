@@ -187,6 +187,10 @@ public class MockHttpServletRequest implements InvocationHandler, Serializable
       {
          return null;
       }
+      if ("getRemoteUser".equals(methodName))
+      {
+         return null;
+      }
 
       throw new UnsupportedOperationException("MockHttpServletRequest does not support: " + method);
    }

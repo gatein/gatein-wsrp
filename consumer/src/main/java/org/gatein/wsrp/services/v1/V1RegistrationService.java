@@ -26,13 +26,13 @@ package org.gatein.wsrp.services.v1;
 import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.services.RegistrationService;
+import org.gatein.wsrp.services.v1.interfaces.V1RegistrationPortType;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.oasis.wsrp.v1.V1Extension;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1OperationFailed;
-import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
@@ -56,9 +56,9 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V1RegistrationService extends RegistrationService<WSRPV1RegistrationPortType>
+public class V1RegistrationService extends RegistrationService<V1RegistrationPortType>
 {
-   public V1RegistrationService(WSRPV1RegistrationPortType service)
+   public V1RegistrationService(V1RegistrationPortType service)
    {
       super(service);
    }

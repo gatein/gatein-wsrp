@@ -24,6 +24,7 @@
 package org.gatein.wsrp.test.protocol.v2;
 
 import org.gatein.common.NotYetImplemented;
+import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
@@ -50,7 +51,7 @@ import java.util.List;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class RegistrationBehavior extends TestProducerBehavior implements WSRPV2RegistrationPortType
+public class RegistrationBehavior extends TestProducerBehavior implements V2RegistrationPortType
 {
    public static final String REGISTRATION_HANDLE = "registration";
 

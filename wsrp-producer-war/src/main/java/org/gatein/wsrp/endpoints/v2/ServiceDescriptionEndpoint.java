@@ -45,6 +45,7 @@ import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.UserContext;
 import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.util.List;
@@ -61,6 +62,7 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType"
 )
+@HandlerChain(file="../producer-handler-chains.xml")
 public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRPV2ServiceDescriptionPortType
 {
    public void getServiceDescription(
