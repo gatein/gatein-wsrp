@@ -52,6 +52,7 @@
       <version.gatein.wci>2.0.2-GA</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
+      <version.servlet>2.5</version.servlet>
       <version.apache.commons-fileupload>1.2.1</version.apache.commons-fileupload>
       <version.javax.mail>1.4.1</version.javax.mail>
       <version.javax.xml.ws>2.1</version.javax.xml.ws>
@@ -133,6 +134,12 @@
          </dependency>
 
          <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${version.servlet}</version>
+         </dependency>
+
+         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>${version.apache.commons-fileupload}</version>
@@ -185,6 +192,7 @@
       <module>wsrp-producer-war</module>
       <module>hibernate-impl</module>
       <module>jcr-impl</module>
+      <module>ws-security/jboss5</module>
    </modules>
 
    <repositories>
