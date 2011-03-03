@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -41,9 +41,13 @@
       <h:form id="producer-form">
          <h:panelGrid columns="2" width="100%">
             <h:selectBooleanCheckbox id="cons-reg-req-check"
-                                     value="#{producer.registrationRequiredForFullDescription}"/>
+                                     value="#{producer.registrationRequiredForFullDescription}"
+                                     immediate="true"
+                                     valueChangeListener="#{producer.requireRegistrationForFullDescListener}"/>
             <h:outputText value="#{i18n.producer_config_sd_requires_reg}"/>
-            <h:selectBooleanCheckbox value="#{producer.strictMode}"/>
+            <h:selectBooleanCheckbox id="strict-mode-check" value="#{producer.strictMode}"
+                                     immediate="true"
+                                     valueChangeListener="#{producer.strictModeListener}"/>
             <h:outputText value="#{i18n.producer_config_strict}"/>
 
             <h:selectBooleanCheckbox id="req-reg-check" value="#{producer.registrationRequired}" immediate="true"
