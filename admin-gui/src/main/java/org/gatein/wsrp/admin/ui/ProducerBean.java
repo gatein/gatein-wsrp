@@ -54,7 +54,7 @@ public class ProducerBean extends ManagedBean
    private static final String PROPERTY = "property";
    private static final String PRODUCER = "producer";
    private String selectedProp;
-   private RegistrationConfiguration registrationConfiguration;
+   private LocalProducerConfiguration localProducerConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
    {
@@ -73,27 +73,27 @@ public class ProducerBean extends ManagedBean
 
    public boolean isRegistrationRequiredForFullDescription()
    {
-      return getRegRequirements().isRegistrationRequiredForFullDescription();
+      return getLocalConfiguration().isRegistrationRequiredForFullDescription();
    }
 
    public void setRegistrationRequiredForFullDescription(boolean requireRegForFullDescription)
    {
-      getRegRequirements().setRegistrationRequiredForFullDescription(requireRegForFullDescription);
+      getLocalConfiguration().setRegistrationRequiredForFullDescription(requireRegForFullDescription);
    }
 
    public boolean isRegistrationRequired()
    {
-      return getRegRequirements().isRegistrationRequired();
+      return getLocalConfiguration().isRegistrationRequired();
    }
 
    public void setRegistrationRequired(boolean requireRegistration)
    {
-      getRegRequirements().setRegistrationRequired(requireRegistration);
+      getLocalConfiguration().setRegistrationRequired(requireRegistration);
    }
 
    public String getRegistrationPolicyClassName()
    {
-      RegistrationPolicy policy = getRegRequirements().getPolicy();
+      RegistrationPolicy policy = getLocalConfiguration().getPolicy();
       if (policy != null)
       {
          return policy.getClassName();
@@ -118,7 +118,7 @@ public class ProducerBean extends ManagedBean
    {
       if (isDefaultRegistrationPolicy())
       {
-         DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getRegRequirements().getPolicy());
+         DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getLocalConfiguration().getPolicy());
          return policy.getValidator().getClass().getName();
       }
       throw new IllegalStateException("getValidatorClassName shouldn't be called if we're not using the default registration");
@@ -131,17 +131,17 @@ public class ProducerBean extends ManagedBean
 
    public boolean isStrictMode()
    {
-      return getConfiguration().isUsingStrictMode();
+      return getLocalConfiguration().isUsingStrictMode();
    }
 
    public void setStrictMode(boolean strictMode)
    {
-      getConfiguration().setUsingStrictMode(strictMode);
+      getLocalConfiguration().setUsingStrictMode(strictMode);
    }
 
    public List<RegistrationPropertyDescription> getRegistrationProperties()
    {
-      return getRegRequirements().getRegistrationProperties();
+      return getLocalConfiguration().getRegistrationProperties();
    }
 
    public List<SelectItem> getSupportedPropertyTypes()
@@ -159,20 +159,24 @@ public class ProducerBean extends ManagedBean
       try
       {
          // replicate local state to producer state
-         ProducerRegistrationRequirements registrationRequirements = getConfiguration().getRegistrationRequirements();
-         RegistrationConfiguration configuration = getRegRequirements();
+         ProducerConfiguration currentlyPersistedConfiguration = getConfiguration();
+         LocalProducerConfiguration localConfiguration = getLocalConfiguration();
 
-         registrationRequirements.setRegistrationRequiredForFullDescription(configuration.isRegistrationRequiredForFullDescription());
-         registrationRequirements.setRegistrationRequired(configuration.isRegistrationRequired());
+         ProducerRegistrationRequirements registrationRequirements = currentlyPersistedConfiguration.getRegistrationRequirements();
+
+         registrationRequirements.setRegistrationRequiredForFullDescription(localConfiguration.isRegistrationRequiredForFullDescription());
+         registrationRequirements.setRegistrationRequired(localConfiguration.isRegistrationRequired());
 
          registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
 
-         registrationRequirements.setRegistrationProperties(configuration.getRegistrationRequirements().getRegistrationProperties());
+         registrationRequirements.setRegistrationProperties(localConfiguration.getRegistrationRequirements().getRegistrationProperties());
+
+         currentlyPersistedConfiguration.setUsingStrictMode(localConfiguration.isUsingStrictMode());
 
          getConfigurationService().saveConfiguration();
 
          // force a reload local state
-         registrationConfiguration = null;
+         localProducerConfiguration = null;
 
          beanContext.createInfoMessage("bean_producer_save_success");
       }
@@ -191,7 +195,7 @@ public class ProducerBean extends ManagedBean
          getConfigurationService().reloadConfiguration();
 
          // force a reload local state
-         registrationConfiguration = null;
+         localProducerConfiguration = null;
 
          beanContext.createInfoMessage("bean_producer_cancel_success");
       }
@@ -205,19 +209,35 @@ public class ProducerBean extends ManagedBean
 
    public String addRegistrationProperty()
    {
-      getRegRequirements().addEmptyRegistrationProperty(PROPERTY + System.currentTimeMillis());
+      getLocalConfiguration().addEmptyRegistrationProperty(PROPERTY + System.currentTimeMillis());
       return PRODUCER;
    }
 
    public String deleteRegistrationProperty()
    {
-      getRegRequirements().removeRegistrationProperty(selectedProp);
+      getLocalConfiguration().removeRegistrationProperty(selectedProp);
       return PRODUCER;
    }
 
    public void requireRegistrationListener(ValueChangeEvent event)
    {
       setRegistrationRequired((Boolean)event.getNewValue());
+
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
+
+   public void strictModeListener(ValueChangeEvent event)
+   {
+      setStrictMode((Boolean)event.getNewValue());
+
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
+
+   public void requireRegistrationForFullDescListener(ValueChangeEvent event)
+   {
+      setRegistrationRequiredForFullDescription((Boolean)event.getNewValue());
 
       // bypass the rest of the life cycle and re-display page
       FacesContext.getCurrentInstance().renderResponse();
@@ -238,15 +258,16 @@ public class ProducerBean extends ManagedBean
       return false; // default implementation as not used
    }
 
-   private RegistrationConfiguration getRegRequirements()
+   private LocalProducerConfiguration getLocalConfiguration()
    {
-      if (registrationConfiguration == null)
+      if (localProducerConfiguration == null)
       {
-         registrationConfiguration = new RegistrationConfiguration();
-         registrationConfiguration.initFrom(getConfiguration().getRegistrationRequirements());
+         localProducerConfiguration = new LocalProducerConfiguration();
+         ProducerConfiguration configuration = getConfiguration();
+         localProducerConfiguration.initFrom(configuration.getRegistrationRequirements(), configuration.isUsingStrictMode());
       }
 
-      return registrationConfiguration;
+      return localProducerConfiguration;
    }
 
    public String getV1WSDL()
@@ -259,18 +280,21 @@ public class ProducerBean extends ManagedBean
       return beanContext.getServerAddress() + "/wsrp-producer/v2/MarkupService?wsdl";
    }
 
-   private static class RegistrationConfiguration
+   private static class LocalProducerConfiguration
    {
       private List<RegistrationPropertyDescription> registrationProperties;
       private ProducerRegistrationRequirements registrationRequirements;
+      private boolean strictMode;
 
-      public void initFrom(ProducerRegistrationRequirements registrationRequirements)
+      public void initFrom(ProducerRegistrationRequirements registrationRequirements, boolean usingStrictMode)
       {
          this.registrationRequirements = new ProducerRegistrationRequirementsImpl(registrationRequirements);
 
          Map descriptions = registrationRequirements.getRegistrationProperties();
          registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
          Collections.sort(registrationProperties);
+
+         this.strictMode = usingStrictMode;
       }
 
       public boolean isRegistrationRequiredForFullDescription()
@@ -327,6 +351,16 @@ public class ProducerBean extends ManagedBean
       public ProducerRegistrationRequirements getRegistrationRequirements()
       {
          return registrationRequirements;
+      }
+
+      public boolean isUsingStrictMode()
+      {
+         return strictMode;
+      }
+
+      public void setUsingStrictMode(boolean usingStrictMode)
+      {
+         this.strictMode = usingStrictMode;
       }
    }
 }
