@@ -28,6 +28,8 @@ import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationPolicyChangeListener;
 import org.gatein.registration.RegistrationPropertyChangeListener;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
+import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
+import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.PropertyDescription;
@@ -87,6 +89,21 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       assertEquals("org.gatein.wsrp.producer.config.TestRegistrationPolicy", requirements.getPolicyClassName());
       assertEquals("org.gatein.wsrp.producer.config.TestRegistrationPolicy", policy.getClassName());
       assertNull(requirements.getValidatorClassName());
+   }
+
+   public void testChangeToDefaultPolicyWithEmptyValidatorName()
+   {
+      ProducerRegistrationRequirementsImpl requirements = new ProducerRegistrationRequirementsImpl();
+      requirements.setRegistrationRequired(true); // so that we load the policy
+
+      requirements.reloadPolicyFrom(ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME, "");
+
+      RegistrationPolicy policy = requirements.getPolicy();
+      assertEquals(ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME, policy.getClassName());
+      assertEquals(ProducerRegistrationRequirements.DEFAULT_VALIDATOR_CLASS_NAME, requirements.getValidatorClassName());
+
+      DefaultRegistrationPolicy unwrap = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(policy);
+      assertTrue(unwrap.getValidator() instanceof DefaultRegistrationPropertyValidator);
    }
 
    public void testSetUnchangedRegistrationProperties()
