@@ -53,8 +53,10 @@ import java.util.Set;
  */
 public class DefaultRegistrationPolicy implements RegistrationPolicy
 {
+   static final String MISSING_VALUE_ERROR_MSG_BEGIN = "Missing value for expected '";
    private RegistrationPropertyValidator validator;
    private static final Logger log = LoggerFactory.getLogger(DefaultRegistrationPolicy.class);
+   static final String INVALID_VALUE_ERROR_MSG_BEGIN = "Invalid value for property '";
 
    public DefaultRegistrationPolicy()
    {
@@ -129,14 +131,23 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
          {
             QName name = entry.getKey();
             Object value = registrationProperties.get(name);
-            try
+
+            if (value == null || (value instanceof String && ((String)value).isEmpty()))
             {
-               validator.validateValueFor(name, value);
-            }
-            catch (IllegalArgumentException e)
-            {
-               message.append("Missing value for expected '").append(name.getLocalPart()).append("' property.\n");
+               message.append(MISSING_VALUE_ERROR_MSG_BEGIN).append(name.getLocalPart()).append("' property.\n");
                consistentWithExpectations = false;
+            }
+            else
+            {
+               try
+               {
+                  validator.validateValueFor(name, value);
+               }
+               catch (IllegalArgumentException e)
+               {
+                  message.append(INVALID_VALUE_ERROR_MSG_BEGIN).append(name.getLocalPart()).append("' property.\n").append(e.getLocalizedMessage()).append("\n");
+                  consistentWithExpectations = false;
+               }
             }
          }
 

@@ -28,6 +28,7 @@ import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
+import org.gatein.wsrp.producer.config.TestRegistrationPropertyValidator;
 import org.gatein.wsrp.registration.PropertyDescription;
 
 import javax.xml.namespace.QName;
@@ -124,7 +125,31 @@ public class DefaultRegistrationPolicyTestCase extends TestCase
       }
       catch (RegistrationException e)
       {
-         assertTrue(e.getLocalizedMessage().contains("prop3"));
+         String message = e.getLocalizedMessage();
+         assertTrue(message.startsWith(DefaultRegistrationPolicy.MISSING_VALUE_ERROR_MSG_BEGIN));
+         assertTrue(message.contains("prop3"));
+      }
+   }
+
+   public void testValidateRegistrationDataFailedValidation()
+   {
+      expectations.put(PROP1, new TestPropertyDescription(PROP1));
+      expectations.put(PROP2, new TestPropertyDescription(PROP2));
+
+      // set validator for test
+      policy.setValidator(new TestRegistrationPropertyValidator());
+
+      try
+      {
+         policy.validateRegistrationDataFor(registrationProperties, CONSUMER, expectations, manager);
+         fail("Should have rejected properties based on values");
+      }
+      catch (RegistrationException e)
+      {
+         String message = e.getLocalizedMessage();
+         assertTrue(message.startsWith(DefaultRegistrationPolicy.INVALID_VALUE_ERROR_MSG_BEGIN));
+         assertTrue(message.contains("prop1"));
+         assertTrue(message.contains("prop2"));
       }
    }
 
