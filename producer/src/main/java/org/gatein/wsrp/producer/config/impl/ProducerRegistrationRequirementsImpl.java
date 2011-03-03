@@ -397,7 +397,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          {
             log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
             RegistrationPropertyValidator validator;
-            if (validatorClassName != null && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
+            if (validatorClassName != null && validatorClassName.length() > 0 && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
             {
                log.debug("Using registration property validator: " + validatorClassName);
                ClassLoader loader = Thread.currentThread().getContextClassLoader();
