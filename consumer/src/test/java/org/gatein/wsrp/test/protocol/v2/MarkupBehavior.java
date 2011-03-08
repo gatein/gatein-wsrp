@@ -29,7 +29,6 @@ import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.EventParams;
 import org.oasis.wsrp.v2.Extension;
@@ -65,6 +64,7 @@ import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UserContext;
+import org.oasis.wsrp.v2.WSRPV2MarkupPortType;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -78,7 +78,7 @@ import java.util.List;
  * @version $Revision: 10337 $
  * @since 2.6
  */
-public abstract class MarkupBehavior extends TestProducerBehavior implements V2MarkupPortType
+public abstract class MarkupBehavior extends TestProducerBehavior implements WSRPV2MarkupPortType
 {
    private List<String> handles = new ArrayList<String>(3);
    private BehaviorRegistry registry;

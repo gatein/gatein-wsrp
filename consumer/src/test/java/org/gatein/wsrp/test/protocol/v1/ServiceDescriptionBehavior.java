@@ -24,7 +24,6 @@
 package org.gatein.wsrp.test.protocol.v1;
 
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.services.v1.interfaces.V1ServiceDescriptionPortType;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.oasis.wsrp.v1.V1CookieProtocol;
 import org.oasis.wsrp.v1.V1Extension;
@@ -53,7 +52,7 @@ import java.util.Set;
  * @version $Revision: 11320 $
  * @since 2.6
  */
-public class ServiceDescriptionBehavior extends TestProducerBehavior implements V1ServiceDescriptionPortType
+public class ServiceDescriptionBehavior extends TestProducerBehavior implements WSRPV1ServiceDescriptionPortType
 {
    protected V1ServiceDescription serviceDescription;
    private static final V1ServiceDescription DEFAULT_SERVICE_DESCRIPTION = WSRP1TypeFactory.createServiceDescription(false);

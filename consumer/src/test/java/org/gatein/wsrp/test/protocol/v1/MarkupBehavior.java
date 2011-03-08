@@ -27,7 +27,6 @@ import org.gatein.common.net.media.MediaType;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.services.v1.interfaces.V1MarkupPortType;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
@@ -70,7 +69,7 @@ import java.util.List;
  * @version $Revision: 10337 $
  * @since 2.6
  */
-public abstract class MarkupBehavior extends TestProducerBehavior implements V1MarkupPortType
+public abstract class MarkupBehavior extends TestProducerBehavior implements WSRPV1MarkupPortType
 {
    private List<String> handles = new ArrayList<String>(3);
    private BehaviorRegistry registry;

@@ -25,7 +25,6 @@ package org.gatein.wsrp.test.protocol.v2;
 
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.ExportDescription;
@@ -44,6 +43,7 @@ import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.UserContext;
+import org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
@@ -59,7 +59,7 @@ import java.util.Set;
  * @version $Revision: 11320 $
  * @since 2.6
  */
-public class ServiceDescriptionBehavior extends TestProducerBehavior implements V2ServiceDescriptionPortType
+public class ServiceDescriptionBehavior extends TestProducerBehavior implements WSRPV2ServiceDescriptionPortType
 {
    protected ServiceDescription serviceDescription;
    private static final ServiceDescription DEFAULT_SERVICE_DESCRIPTION = WSRPTypeFactory.createServiceDescription(false);

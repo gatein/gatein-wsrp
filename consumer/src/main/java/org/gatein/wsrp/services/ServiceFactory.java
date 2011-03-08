@@ -91,4 +91,7 @@ public interface ServiceFactory
    Version getWSRPVersion();
 
    boolean refresh(boolean force) throws Exception;
+   
+   void enableWSS(boolean enable);
+   boolean isWSSEnabled();
 }

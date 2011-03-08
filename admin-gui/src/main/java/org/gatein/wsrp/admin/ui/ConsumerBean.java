@@ -704,6 +704,16 @@ public class ConsumerBean extends ManagedBean
    {
       return consumer.getMigrationService().isAvailableExportInfosEmpty();
    }
+   
+   public boolean isWssEnabled()
+   {
+      return consumer.getProducerInfo().getEndpointConfigurationInfo().getWSSEnabled();
+   }
+   
+   public void setWssEnabled(boolean enable)
+   {
+      consumer.getProducerInfo().getEndpointConfigurationInfo().setWSSEnabled(enable);
+   }
 
    public static class SelectablePortletHandle implements Comparable<SelectablePortletHandle>
    {

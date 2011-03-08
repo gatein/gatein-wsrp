@@ -46,16 +46,23 @@ public abstract class EndpointInfoMapping
 
    public abstract void setWSTimeoutMilliseconds(Integer expiration);
 
+   @Property(name = "enablewss", defaultValue = "false")
+   public abstract boolean getWSSEnabled();
+   
+   public abstract void setWSSEnabled(boolean enable);
+   
    public void initFrom(EndpointConfigurationInfo info)
    {
       setWSDLURL(info.getWsdlDefinitionURL());
       setWSTimeoutMilliseconds(info.getWSOperationTimeOut());
+      setWSSEnabled(info.getWSSEnabled());
    }
 
    EndpointConfigurationInfo toEndpointConfigurationInfo(EndpointConfigurationInfo initial)
    {
       initial.setWsdlDefinitionURL(getWSDLURL());
       initial.setWSOperationTimeOut(getWSTimeoutMilliseconds());
+      initial.setWSSEnabled(getWSSEnabled());
       return initial;
    }
 }

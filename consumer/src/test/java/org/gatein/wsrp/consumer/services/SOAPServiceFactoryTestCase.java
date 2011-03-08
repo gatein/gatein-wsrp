@@ -25,14 +25,6 @@ package org.gatein.wsrp.consumer.services;
 
 import junit.framework.TestCase;
 import org.gatein.wsrp.services.SOAPServiceFactory;
-import org.gatein.wsrp.services.v1.interfaces.V1MarkupPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1PortletManagementPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1RegistrationPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1ServiceDescriptionPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2PortletManagementPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
@@ -52,8 +44,8 @@ import java.net.URL;
 public class SOAPServiceFactoryTestCase extends TestCase
 {
    private SOAPServiceFactory factory;
-   public static final Class[] WSRP2_PORT_TYPES = new Class[]{V2MarkupPortType.class, V2ServiceDescriptionPortType.class, V2PortletManagementPortType.class, V2RegistrationPortType.class};
-   public static final Class[] WSRP1_PORT_TYPES = new Class[]{V1MarkupPortType.class, V1ServiceDescriptionPortType.class, V1PortletManagementPortType.class, V1RegistrationPortType.class};
+   public static final Class[] WSRP2_PORT_TYPES = new Class[]{WSRPV2MarkupPortType.class, WSRPV2ServiceDescriptionPortType.class, WSRPV2PortletManagementPortType.class, WSRPV2RegistrationPortType.class};
+   public static final Class[] WSRP1_PORT_TYPES = new Class[]{WSRPV1MarkupPortType.class, WSRPV1ServiceDescriptionPortType.class, WSRPV1PortletManagementPortType.class, WSRPV1RegistrationPortType.class};
 
    @Override
    protected void setUp() throws Exception
@@ -92,7 +84,7 @@ public class SOAPServiceFactoryTestCase extends TestCase
       factory.setWsdlDefinitionURL(getWSDLURL("wsdl/missing-registration-non-std-ns.wsdl"));
 
       // missing-registration-non-std-ns.wsdl doesn't contain registration port
-      checkPorts(V2MarkupPortType.class, V2ServiceDescriptionPortType.class, V2PortletManagementPortType.class);
+      checkPorts(WSRPV2MarkupPortType.class, WSRPV2ServiceDescriptionPortType.class, WSRPV2PortletManagementPortType.class);
    }
 
    public void testSimpleV2Service() throws Exception

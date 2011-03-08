@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.test.protocol.v1;
 
-import org.gatein.wsrp.services.v1.interfaces.V1PortletManagementPortType;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1DestroyFailed;
 import org.oasis.wsrp.v1.V1Extension;
@@ -54,7 +53,7 @@ import java.util.List;
  * @version $Revision: 8784 $
  * @since 2.6
  */
-public class PortletManagementBehavior extends TestProducerBehavior implements V1PortletManagementPortType
+public class PortletManagementBehavior extends TestProducerBehavior implements WSRPV1PortletManagementPortType
 {
    public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") V1UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types") List<String> desiredLocales, @WebParam(name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1PortletDescription> portletDescription, @WebParam(name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<V1ResourceList> resourceList, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v1:types", mode = WebParam.Mode.OUT) Holder<List<V1Extension>> extensions) throws V1AccessDenied, V1InconsistentParameters, V1InvalidHandle, V1InvalidRegistration, V1InvalidUserCategory, V1MissingParameters, V1OperationFailed
    {

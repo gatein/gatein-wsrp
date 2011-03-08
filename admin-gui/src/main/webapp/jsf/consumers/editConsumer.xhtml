@@ -64,6 +64,13 @@
       <h:message styleClass="portlet-msg-error" for="wsdl"/>
    </td>
 </tr>
+<tr>
+   <th>#{i18n.edit_enable_ws_security}</th>
+   <td>
+     <h:selectBooleanCheckbox value="#{consumer.wssEnabled}"/>
+     <h:message styleClass="portlet-msg-error" for="wsdl"/>
+   </td>
+</tr>
 <c:if test="#{consumer.localInfoPresent}">
    <tr>
       <th>#{i18n.edit_consumer_registration}</th>

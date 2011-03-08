@@ -36,10 +36,6 @@ import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
 import org.gatein.wsrp.services.v1.V1RegistrationService;
 import org.gatein.wsrp.services.v1.V1ServiceDescriptionService;
-import org.gatein.wsrp.services.v1.interfaces.V1MarkupPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1PortletManagementPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1RegistrationPortType;
-import org.gatein.wsrp.services.v1.interfaces.V1ServiceDescriptionPortType;
 import org.gatein.wsrp.test.support.RequestedMarkupBehavior;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1GetMarkup;
@@ -160,22 +156,22 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public ServiceDescriptionService getServiceDescriptionService() throws Exception
    {
-      return new V1ServiceDescriptionService(getService(V1ServiceDescriptionPortType.class));
+      return new V1ServiceDescriptionService(getService(WSRPV1ServiceDescriptionPortType.class));
    }
 
    public MarkupService getMarkupService() throws Exception
    {
-      return new V1MarkupService(getService(V1MarkupPortType.class));
+      return new V1MarkupService(getService(WSRPV1MarkupPortType.class));
    }
 
    public PortletManagementService getPortletManagementService() throws Exception
    {
-      return new V1PortletManagementService(getService(V1PortletManagementPortType.class));
+      return new V1PortletManagementService(getService(WSRPV1PortletManagementPortType.class));
    }
 
    public RegistrationService getRegistrationService() throws Exception
    {
-      return new V1RegistrationService(getService(V1RegistrationPortType.class));
+      return new V1RegistrationService(getService(WSRPV1RegistrationPortType.class));
    }
 
    public Version getWSRPVersion()
@@ -241,5 +237,17 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       {
          return MARKUP;
       }
+   }
+
+   public void enableWSS(boolean enable)
+   {
+      // FIXME enableWSS
+      
+   }
+
+   public boolean isWSSEnabled()
+   {
+      // FIXME isWSSEnabled
+      return false;
    }
 }

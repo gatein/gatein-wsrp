@@ -24,10 +24,6 @@
 package org.gatein.wsrp.test.protocol.v2;
 
 import org.gatein.common.NotYetImplemented;
-import org.gatein.wsrp.services.v2.interfaces.V2MarkupPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2PortletManagementPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2RegistrationPortType;
-import org.gatein.wsrp.services.v2.interfaces.V2ServiceDescriptionPortType;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.CookieProtocol;
@@ -104,7 +100,7 @@ import java.util.List;
  * @version $Revision: 12020 $
  * @since 2.4
  */
-public class TestWSRPProducerImpl implements TestWSRPProducer, V2MarkupPortType, V2PortletManagementPortType, V2RegistrationPortType, V2ServiceDescriptionPortType
+public class TestWSRPProducerImpl implements TestWSRPProducer, WSRPV2MarkupPortType, WSRPV2PortletManagementPortType, WSRPV2RegistrationPortType, WSRPV2ServiceDescriptionPortType
 {
    private int sessionExpirationTime = 600;
 

@@ -237,4 +237,14 @@ public class EndpointConfigurationInfo
    {
       return serviceFactory.getWSRPVersion();
    }
+   
+   public boolean getWSSEnabled()
+   {
+      return serviceFactory.isWSSEnabled();
+   }
+   
+   public void setWSSEnabled(boolean enable)
+   {
+      serviceFactory.enableWSS(enable);
+   }
 }
