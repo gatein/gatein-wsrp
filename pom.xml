@@ -103,6 +103,11 @@
             <artifactId>wsrp-integration-api</artifactId>
             <version>${project.version}</version>
          </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-wss</artifactId>
+            <version>${project.version}</version>
+         </dependency>
 
          <dependency>
             <groupId>org.gatein.common</groupId>
@@ -193,6 +198,7 @@
       <module>hibernate-impl</module>
       <module>jcr-impl</module>
       <module>ws-security/jboss5</module>
+      <module>ws-security/wss</module>
    </modules>
 
    <repositories>
