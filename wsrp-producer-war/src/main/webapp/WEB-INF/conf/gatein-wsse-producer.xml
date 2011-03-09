@@ -3,7 +3,6 @@
       xsi:schemaLocation="http://www.jboss.com/ws-security/config 
             http://www.jboss.com/ws-security/schema/jboss-ws-security_1_0.xsd">
 
-   <config>
-     <username/>
-   </config>
+<!--  Configuration for the GateIn WSRP Producer WS-Security -->
+
 </jboss-ws-security>
