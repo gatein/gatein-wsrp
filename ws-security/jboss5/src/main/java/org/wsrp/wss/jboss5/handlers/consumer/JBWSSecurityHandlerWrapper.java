@@ -49,7 +49,7 @@ public class JBWSSecurityHandlerWrapper extends WSSecurityHandler
    @Override
    protected String getConfigResourceName()
    {
-      return "wsrp/gatein-wsse-consumer.xml";
+      return "gatein-wsse-consumer.xml";
    }
 
 }
