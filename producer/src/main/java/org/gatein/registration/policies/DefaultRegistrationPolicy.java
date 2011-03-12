@@ -132,7 +132,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
             QName name = entry.getKey();
             Object value = registrationProperties.get(name);
 
-            if (value == null || (value instanceof String && ((String)value).isEmpty()))
+            if (value == null || (value instanceof String && ((String)value).length() == 0))
             {
                message.append(MISSING_VALUE_ERROR_MSG_BEGIN).append(name.getLocalPart()).append("' property.\n");
                consistentWithExpectations = false;
