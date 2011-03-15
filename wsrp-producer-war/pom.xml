@@ -298,12 +298,6 @@
 
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-producer-lib</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
          <artifactId>test-framework</artifactId>
          <scope>test</scope>
          <version>${project.version}</version>
@@ -316,15 +310,9 @@
 
       <!-- Producer Sar Test Dependencies -->
       <!-- TODO: move versioning to the main pom.xml -->
-      <!--<dependency>
-         <groupId>org.gatein.wci</groupId>
-         <artifactId>wci-tomcat6</artifactId>
-         <scope>test</scope>
-         <version>${version.gatein.wci}</version>
-      </dependency>-->
       <dependency>
          <groupId>org.gatein.wci</groupId>
-         <artifactId>wci-tomcat</artifactId>
+         <artifactId>wci-tomcat6</artifactId>
          <scope>test</scope>
          <version>${version.gatein.wci}</version>
       </dependency>

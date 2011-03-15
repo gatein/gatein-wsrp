@@ -1,72 +1,72 @@
 <assembly>
-  <id>producer</id>
-  <formats>
-    <format>sar</format>
-  </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
+   <id>producer</id>
+   <formats>
+      <format>sar</format>
+   </formats>
+   <includeBaseDirectory>false</includeBaseDirectory>
 
-  <fileSets>
-    <!-- Test Classes -->
-    <fileSet>
-      <directory>target/test-classes</directory>
-      <outputDirectory></outputDirectory>
-      <includes>
-        <include>org/gatein/wsrp/config/**</include>
-      </includes>
-    </fileSet>
-    <!-- Fileset for the sar strucuture -->
-    <fileSet>
-      <directory>src/test/producer-sar</directory>
-      <outputDirectory></outputDirectory>
-    </fileSet>
-  </fileSets>
+   <fileSets>
+      <!-- Test Classes -->
+      <fileSet>
+         <directory>target/test-classes</directory>
+         <outputDirectory></outputDirectory>
+         <includes>
+            <include>org/gatein/wsrp/config/**</include>
+         </includes>
+      </fileSet>
+      <!-- Fileset for the sar strucuture -->
+      <fileSet>
+         <directory>src/test/producer-sar</directory>
+         <outputDirectory></outputDirectory>
+      </fileSet>
+   </fileSets>
 
-  <moduleSets>
-    <moduleSet>
-<!--      <includes>
-        <include>org.gatein.wsrp:wsrp-producer-lib</include>
-      </includes> -->
-      <binaries/>
-    </moduleSet>
-  </moduleSets>
+   <moduleSets>
+      <moduleSet>
+         <!--      <includes>
+          <include>org.gatein.wsrp:wsrp-producer-lib</include>
+        </includes> -->
+         <binaries/>
+      </moduleSet>
+   </moduleSets>
 
-  <dependencySets>
-   <dependencySet>
-      <scope>test</scope>
-      <outputDirectory></outputDirectory>
-      <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
-      <includes>
-        <include>org.gatein.wsrp:test-framework</include>
+   <dependencySets>
+      <dependencySet>
+         <scope>test</scope>
+         <outputDirectory></outputDirectory>
+         <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+         <includes>
+            <include>org.gatein.wsrp:test-framework</include>
 
-        <include>org.gatein.wci:wci-tomcat</include>
-        <include>org.gatein.wci:wci-wci</include>
+            <include>org.gatein.wci:wci-tomcat6</include>
+            <include>org.gatein.wci:wci-wci</include>
 
-        <include>org.gatein.pc:pc-portlet</include>
-        <include>org.gatein.pc:pc-api</include>
-        <include>javax.portlet:portlet-api</include>
+            <include>org.gatein.pc:pc-portlet</include>
+            <include>org.gatein.pc:pc-api</include>
+            <include>javax.portlet:portlet-api</include>
 
-        <include>org.gatein.pc:pc-controller</include>
-        <include>org.gatein.pc:pc-mc</include>
+            <include>org.gatein.pc:pc-controller</include>
+            <include>org.gatein.pc:pc-mc</include>
 
-        <include>org.gatein.common:common-common</include>
-        <include>org.gatein.common:common-logging</include>
+            <include>org.gatein.common:common-common</include>
+            <include>org.gatein.common:common-logging</include>
 
-        <include>javax.ccpp:ccpp</include>
+            <include>javax.ccpp:ccpp</include>
 
-        <include>org.gatein.wsrp:wsrp-common</include>
-        <include>org.gatein.wsrp:wsrp-integration-api</include>
-        <include>org.gatein.wsrp:wsrp-producer-lib</include>
-        <include>org.gatein.wsrp:wsrp-wsrp1-ws</include>
-        <include>org.gatein.wsrp:wsrp-wsrp2-ws</include>
+            <include>org.gatein.wsrp:wsrp-common</include>
+            <include>org.gatein.wsrp:wsrp-integration-api</include>
+            <include>org.gatein.wsrp:wsrp-producer-lib</include>
+            <include>org.gatein.wsrp:wsrp-wsrp1-ws</include>
+            <include>org.gatein.wsrp:wsrp-wsrp2-ws</include>
 
-        <include>junit:junit</include>
-        <include>commons-fileupload:commons-fileupload</include>
+            <include>junit:junit</include>
+            <include>commons-fileupload:commons-fileupload</include>
 
-        <include>com.google.collections:google-collections</include>
+            <include>com.google.collections:google-collections</include>
 
-      </includes>
-    </dependencySet>
-  </dependencySets>
+         </includes>
+      </dependencySet>
+   </dependencySets>
 
 </assembly>
 

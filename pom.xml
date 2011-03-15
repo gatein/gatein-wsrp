@@ -49,8 +49,7 @@
    <properties>
       <version.gatein.pc>2.3.0-Beta01</version.gatein.pc>
       <version.gatein.common>2.0.4-Beta01</version.gatein.common>
-      <!--<version.gatein.wci>2.1.0-Beta01</version.gatein.wci>-->
-      <version.gatein.wci>2.0.2-GA</version.gatein.wci>
+      <version.gatein.wci>2.1.0-Beta01</version.gatein.wci>
 
       <version.jsf>1.2_12</version.jsf>
       <version.servlet>2.5</version.servlet>
