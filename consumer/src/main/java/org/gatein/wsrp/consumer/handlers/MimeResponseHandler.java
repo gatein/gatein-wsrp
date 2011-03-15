@@ -260,7 +260,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          supportedCustomWindowStates = info.getSupportedCustomWindowStates();
       }
 
-      public String getReplacementFor(String match, String prefix, String suffix)
+      public String getReplacementFor(String match, String prefix, String suffix, boolean matchedPrefixOnly)
       {
          // We run into some issues with url encoding. We should not be making assumptions about
          // what url encoding we should be using. For example, we may be dealing with html encoding (ampersand as &)
@@ -269,8 +269,8 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          // we need to assume that is the correct encoding for the situation.
 
          // NOTE: there may be other encoding situations we are not currently dealing with :(
-         
-         boolean useJavaScriptEscaping = false;  
+
+         boolean useJavaScriptEscaping = false;
          // work around for GTNWSRP-93:
          if (match.contains("\\x2D") || match.contains("\\x26"))
          {
@@ -279,7 +279,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
-         
+
          URLFormat urlFormat;
          // If the current url is using &amp; then specify we want to use xml escaped ampersands
          if (match.contains("&amp;"))
@@ -290,16 +290,16 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          {
             urlFormat = new URLFormat(format.getWantSecure(), format.getWantAuthenticated(), format.getWantRelative(), false);
          }
-         
+
          String value = context.renderURL(portletURL, urlFormat);
-         
+
          // we now need to add back the javascript url encoding if it was originally used
          // NOTE: we should fix this by specifying the escaping to be used in URLFormat when it supported (see GTNPC-41)
          if (useJavaScriptEscaping)
          {
             value = value.replaceAll("-", "\\\\x2D").replaceAll("&amp;", "\\\\x26");
          }
-         
+
          return value;
       }
    }
