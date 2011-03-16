@@ -22,10 +22,15 @@
 
 package org.gatein.wsrp.test.handler;
 
-import org.jboss.util.xml.DOMUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPBody;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -38,6 +43,22 @@ import java.lang.reflect.Proxy;
 public class MockSOAPBody implements InvocationHandler
 {
    Element body;
+   private static DocumentBuilder BUILDER;
+
+   static
+   {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setValidating(false);
+      factory.setNamespaceAware(true);
+      try
+      {
+         BUILDER = factory.newDocumentBuilder();
+      }
+      catch (ParserConfigurationException e)
+      {
+         BUILDER = null;
+      }
+   }
 
    public MockSOAPBody(Element body)
    {
@@ -47,11 +68,24 @@ public class MockSOAPBody implements InvocationHandler
    public static SOAPBody newInstance(String body) throws IOException
    {
       return (SOAPBody)Proxy.newProxyInstance(MockSOAPBody.class.getClassLoader(), new Class[]{SOAPBody.class},
-         new MockSOAPBody(DOMUtils.parse(body)));
+         new MockSOAPBody(parse(body)));
    }
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       return method.invoke(body, args);
+   }
+
+   private static Element parse(String elementAsString) throws IOException
+   {
+      try
+      {
+         Document doc = BUILDER.parse(new ByteArrayInputStream(elementAsString.getBytes("UTF-8")));
+         return doc.getDocumentElement();
+      }
+      catch (SAXException e)
+      {
+         throw new IOException(e.toString());
+      }
    }
 }

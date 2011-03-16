@@ -37,17 +37,14 @@
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-consumer</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-producer-lib</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-integration-api</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <dependency>
@@ -63,6 +60,19 @@
       <dependency>
          <groupId>org.gatein.common</groupId>
          <artifactId>common-common</artifactId>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- Tests -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-simple</artifactId>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 
