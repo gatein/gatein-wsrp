@@ -31,6 +31,7 @@ import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
+import org.gatein.common.io.IOTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletStateType;
@@ -40,7 +41,6 @@ import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
-import org.gatein.wsrp.jcr.mapping.Utils;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
 import javax.xml.namespace.QName;
@@ -148,7 +148,7 @@ public abstract class RegistrationMapping
       Collection<PortletContextMapping> pcms = getPortletContexts();
       for (PortletContextMapping pcm : pcms)
       {
-         PortletContext pc = PortletContext.createPortletContext(pcm.getId(), Utils.safeGetBytes(pcm.getState()));
+         PortletContext pc = PortletContext.createPortletContext(pcm.getId(), IOTools.safeGetBytes(pcm.getState()));
          reg.addPortletContext(pc);
       }
 

@@ -27,10 +27,10 @@ import org.chromattic.api.annotations.Create;
 import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
+import org.gatein.common.io.IOTools;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
-import org.gatein.wsrp.jcr.mapping.Utils;
 
 import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
@@ -128,7 +128,7 @@ public abstract class ExportInfoMapping implements BaseMapping<ExportInfo>
       SortedMap<String, byte[]> states = new TreeMap<String, byte[]>();
       for (ExportedStateMapping exportedState : exportedStates)
       {
-         states.put(ChromatticPersister.PortletNameFormatter.decode(exportedState.getHandle()), Utils.safeGetBytes(exportedState.getState()));
+         states.put(ChromatticPersister.PortletNameFormatter.decode(exportedState.getHandle()), IOTools.safeGetBytes(exportedState.getState()));
       }
 
       List<ExportErrorMapping> errors = getErrors();
@@ -138,6 +138,6 @@ public abstract class ExportInfoMapping implements BaseMapping<ExportInfo>
          errorCodesToHandles.put(error.getErrorCode(), error.getPortletHandles());
       }
 
-      return new ExportInfo(getExportTime(), errorCodesToHandles, states, Utils.safeGetBytes(getExportContext()));
+      return new ExportInfo(getExportTime(), errorCodesToHandles, states, IOTools.safeGetBytes(getExportContext()));
    }
 }

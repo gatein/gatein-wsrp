@@ -28,10 +28,10 @@ import org.chromattic.api.annotations.FormattedBy;
 import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
+import org.gatein.common.io.IOTools;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.jcr.ChromatticPersister;
-import org.gatein.wsrp.jcr.mapping.Utils;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
@@ -99,7 +99,7 @@ public abstract class RegistrationInfoMapping
    {
       initial.setConsumerName(getConsumerName());
       initial.setRegistrationHandle(getRegistrationHandle());
-      initial.setRegistrationState(Utils.safeGetBytes(getRegistrationState()));
+      initial.setRegistrationState(IOTools.safeGetBytes(getRegistrationState()));
 
       // registration properties
       for (RegistrationPropertyMapping rpm : getRegistrationProperties())
