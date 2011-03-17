@@ -44,23 +44,37 @@ public class RegistrationUtils
    }
 
    /**
+    * Per the specification (http://www.oasis-open.org/committees/download.php/18617/wsrp-2.0-spec-pr-01.html#_RegistrationData):
+    * The consumerAgent value MUST start with "productName.majorVersion.minorVersion" where "productName" identifies the
+    * product the Consumer installed for its deployment, and majorVersion and minorVersion are vendor-defined
+    * indications of the version of its product. This string can then contain any additional characters/words the
+    * product or Consumer wish to supply.
+    *
     * @param consumerAgent
     * @throws IllegalArgumentException
     * @since 2.6
     */
-   public static void validateConsumerAgent(String consumerAgent) throws IllegalArgumentException
+   public static void validateConsumerAgent(final String consumerAgent) throws IllegalArgumentException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerAgent, "consumer agent", null);
       char periodChar = '.';
-      int period = consumerAgent.indexOf(periodChar);
+
+      String tmp = consumerAgent.trim();
+
+      int period = tmp.indexOf(periodChar);
       if (period != -1)
       {
-         consumerAgent = consumerAgent.substring(period);
-         period = consumerAgent.indexOf(periodChar);
+         tmp = tmp.substring(period + 1);
+         period = tmp.indexOf(periodChar);
 
          if (period != -1)
          {
-            return;
+            tmp = tmp.substring(period + 1);
+
+            if (tmp.length() > 0)
+            {
+               return;
+            }
          }
       }
 
