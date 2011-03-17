@@ -31,7 +31,7 @@ import java.io.InputStream;
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
- * @deprecated Remove when we can use common 2.0.4
+ * @deprecated Remove when we can use common 2.0.4 GTNWSRP-90
  */
 public class Utils
 {
