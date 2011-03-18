@@ -333,7 +333,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
             if (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
             {
-               DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)policy;
+               DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(policy);
                validatorClassName = registrationPolicy.getValidator().getClass().getName();
             }
             else
