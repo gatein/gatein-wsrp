@@ -31,7 +31,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>wsrp-wss-jboss5</artifactId>
    <packaging>jar</packaging>
-   <name>GateIn WSRP WS Security for JBoss 5</name>
+   <name>GateIn WSRP WS Security Integration: JBoss AS 5</name>
 
    <dependencies>
       <dependency>
@@ -55,14 +55,17 @@
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-api</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-portlet</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
          <artifactId>pc-federation</artifactId>
+         <scope>provided</scope>
       </dependency>
 
       <!--      <dependency>

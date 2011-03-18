@@ -25,8 +25,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <name>GateIn WSRP WS Security Integration</name>
-
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
@@ -36,6 +34,7 @@
    <artifactId>wsrp-wss-parent</artifactId>
    <packaging>pom</packaging>
 
+   <name>GateIn WSRP WS Security Integration</name>
    <description>GateIn WSRP Integration extension parent</description>
    <modules>
       <module>wss</module>

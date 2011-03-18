@@ -32,7 +32,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>wsrp-jcr-impl</artifactId>
-   <name>GateIn WSRP JCR-based persistence implementation</name>
+   <name>GateIn WSRP Persistence: JCR</name>
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
