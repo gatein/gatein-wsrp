@@ -52,7 +52,7 @@ public final class WSRPConstants
     */
    public static final String WSRP_SERVICE_VERSION;
 
-   private static final String GATEIN_RUNTIME_CONTEXT_PROP_NAME = "gatein.runtime.context"; // todo: remove when GTNWSRP-90 is fixed
+   private static final String GATEIN_RUNTIME_CONTEXT_PROP_NAME = "gatein.runtime.context"; // todo: remove when common is upgraded to 2.0.4+ (see GTNWSRP-90)
 
    static
    {
@@ -67,7 +67,7 @@ public final class WSRPConstants
       }
       WSRP_SERVICE_VERSION = props.getProperty("wsrp.service.version");
 
-      RUNS_IN_EPP = "epp".equals(System.getProperty(GATEIN_RUNTIME_CONTEXT_PROP_NAME)); // todo: remove when GTNWSRP-90 is fixed
+      RUNS_IN_EPP = "epp".equals(System.getProperty(GATEIN_RUNTIME_CONTEXT_PROP_NAME)); // todo: remove when common is upgraded to 2.0.4+ (see GTNWSRP-90)
    }
 
 
