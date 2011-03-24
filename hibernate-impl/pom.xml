@@ -28,13 +28,13 @@
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
-      <version>2.1.0-Alpha02-SNAPSHOT</version>
+      <version>2.1.0-Beta01</version>
    </parent>
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-hibernate-impl</artifactId>
    <packaging>jar</packaging>
-   <name>GateIn WSRP Hibernate-based persistence implementation</name>
+   <name>GateIn WSRP Persistence: Hibernate</name>
 
    <dependencies>
       <dependency>
@@ -47,6 +47,7 @@
          <groupId>org.hibernate</groupId>
          <artifactId>hibernate-core</artifactId>
          <version>3.3.2.GA</version>
+         <scope>provided</scope>
       </dependency>
    </dependencies>
 

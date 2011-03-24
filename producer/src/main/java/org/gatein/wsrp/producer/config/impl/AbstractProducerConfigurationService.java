@@ -25,6 +25,7 @@ package org.gatein.wsrp.producer.config.impl;
 
 import org.gatein.registration.RegistrationPolicyChangeListener;
 import org.gatein.registration.RegistrationPropertyChangeListener;
+import org.gatein.wsrp.producer.WSRPValidator;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
@@ -71,6 +72,10 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
       // reload
       loadConfiguration();
+
+      // make sure that we set strict mode on things which need to know about it regardless of listeners (which might
+      // not exist when this method is called, as is the case at startup)
+      WSRPValidator.setStrict(configuration.isUsingStrictMode());
 
       // restore listeners and trigger them if requested
       if (listeners != null)
