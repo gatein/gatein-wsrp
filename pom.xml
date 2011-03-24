@@ -57,7 +57,7 @@
       <version.javax.xml.ws>2.1</version.javax.xml.ws>
       <version.javax.xml.soap.saaj>1.3</version.javax.xml.soap.saaj>
       <version.google-collections>1.0</version.google-collections>
-      <version.chromattic>1.0.6</version.chromattic>
+      <version.chromattic>1.0.8</version.chromattic>
    </properties>
 
    <dependencyManagement>
