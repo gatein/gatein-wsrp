@@ -21,11 +21,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.other;
+package org.gatein.wsrp;
 
 import junit.framework.TestCase;
 import org.gatein.common.NotYetImplemented;
-import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.admin.ui.BeanContext;
 import org.gatein.wsrp.admin.ui.ConsumerBean;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;

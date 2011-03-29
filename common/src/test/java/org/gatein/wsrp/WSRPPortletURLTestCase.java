@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.other;
+package org.gatein.wsrp;
 
 import junit.framework.TestCase;
 import org.gatein.pc.api.ContainerURL;
@@ -31,11 +31,6 @@ import org.gatein.pc.api.ResourceURL;
 import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.cache.CacheLevel;
-import org.gatein.wsrp.WSRPActionURL;
-import org.gatein.wsrp.WSRPPortletURL;
-import org.gatein.wsrp.WSRPRenderURL;
-import org.gatein.wsrp.WSRPResourceURL;
-import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 
 import java.util.HashMap;
