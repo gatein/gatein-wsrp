@@ -83,11 +83,11 @@
       </dependency>
 
       <!-- To make JSF works on AS 6 -->
-      <dependency>
+      <!--<dependency>
          <groupId>org.jboss.el</groupId>
          <artifactId>jboss-el</artifactId>
          <version>1.0_02.CR5</version>
-      </dependency>
+      </dependency>-->
 
       <dependency>
          <groupId>org.slf4j</groupId>
