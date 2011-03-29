@@ -25,6 +25,7 @@ package org.gatein.registration.spi;
 
 import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 
 /**
@@ -35,9 +36,9 @@ public interface RegistrationSPI extends Registration
 {
    ConsumerSPI getConsumer();
 
-   void addPortletContext(PortletContext portletContext);
+   void addPortletContext(PortletContext portletContext) throws RegistrationException;
 
-   void removePortletContext(PortletContext portletContext);
+   void removePortletContext(PortletContext portletContext) throws RegistrationException;
 
    void setManager(RegistrationManager manager);
 }

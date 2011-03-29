@@ -98,7 +98,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
-   protected RegistrationSPI internalRemoveRegistration(String registrationId)
+   protected RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException
    {
       Registration registration = getRegistration(registrationId);
       remove(registration.getPersistentKey(), RegistrationMapping.class);
@@ -107,7 +107,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
-   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties)
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties) throws RegistrationException
    {
       ChromatticSession session = persister.getSession();
       RegistrationSPI registration = null;
@@ -121,15 +121,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
       catch (Exception e)
       {
-         e.printStackTrace(); // todo fix me
          persister.closeSession(false);
+         throw new RegistrationException(e);
       }
 
       return registration;
    }
 
    @Override
-   protected ConsumerSPI internalRemoveConsumer(String consumerId)
+   protected ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException
    {
       remove(consumerId, ConsumerMapping.class);
 
@@ -144,7 +144,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
-   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName)
+   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName) throws RegistrationException
    {
       ConsumerSPI consumer = super.internalCreateConsumer(consumerId, consumerName);
 
@@ -160,15 +160,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
       catch (Exception e)
       {
-         e.printStackTrace(); // todo: fix me
          persister.closeSession(false);
+         throw new RegistrationException(e);
       }
 
       return consumer;
    }
 
    @Override
-   protected ConsumerSPI internalSaveChangesTo(Consumer consumer)
+   protected ConsumerSPI internalSaveChangesTo(Consumer consumer) throws RegistrationException
    {
       ConsumerSPI consumerSPI = super.internalSaveChangesTo(consumer);
 
@@ -181,14 +181,14 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
       catch (Exception e)
       {
-         e.printStackTrace();  // todo: fix me
          persister.closeSession(false);
+         throw new RegistrationException(e);
       }
 
       return consumerSPI;
    }
 
-   protected RegistrationSPI internalSaveChangesTo(Registration registration)
+   protected RegistrationSPI internalSaveChangesTo(Registration registration) throws RegistrationException
    {
       RegistrationSPI registrationSPI = super.internalSaveChangesTo(registration);
 
@@ -201,15 +201,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
       catch (Exception e)
       {
-         e.printStackTrace(); //todo: fix me
          persister.closeSession(false);
+         throw new RegistrationException(e);
       }
 
       return registrationSPI;
    }
 
    @Override
-   protected ConsumerGroupSPI internalRemoveConsumerGroup(String name)
+   protected ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException
    {
       try
       {
@@ -225,7 +225,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
-   protected ConsumerGroupSPI internalCreateConsumerGroup(String name)
+   protected ConsumerGroupSPI internalCreateConsumerGroup(String name) throws RegistrationException
    {
       ConsumerGroupSPI group = super.internalCreateConsumerGroup(name);
 
@@ -240,8 +240,8 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
       catch (Exception e)
       {
-         e.printStackTrace();  // todo: fix me
          persister.closeSession(false);
+         throw new RegistrationException(e);
       }
 
       return group;

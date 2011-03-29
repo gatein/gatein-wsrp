@@ -38,6 +38,7 @@ import org.gatein.pc.api.state.PropertyMap;
 import org.gatein.pc.portlet.PortletInvokerInterceptor;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationDestructionListener;
+import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPolicy;
@@ -149,7 +150,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
             PortletContext responseContext = wsrpIC.getPortletContext();
             if (wsrpIC.wasModified() && !responseContext.getId().equals(portletContext.getId()))
             {
-               registration.addPortletContext(responseContext);
+               try
+               {
+                  registration.addPortletContext(responseContext);
+               }
+               catch (RegistrationException e)
+               {
+                  throw new PortletInvokerException("Couldn't add portlet context '" + responseContext + "' to registration '" + registration.getRegistrationHandle() + "'", e);
+               }
             }
          }
 
@@ -183,7 +191,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
          checkOperationIsAllowed(portletContext, registration, "createClone");
 
          PortletContext clonedPortletContext = super.createClone(stateType, portletContext);
-         registration.addPortletContext(clonedPortletContext);
+         try
+         {
+            registration.addPortletContext(clonedPortletContext);
+         }
+         catch (RegistrationException e)
+         {
+            throw new PortletInvokerException("Couldn't add portlet context '" + clonedPortletContext + "' to registration '" + registration.getRegistrationHandle() + "'", e);
+         }
 
          return clonedPortletContext;
       }
@@ -216,7 +231,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
             // only remove the portlet context if there are no failures or it's not part of the failed clones
             if (noFailures || !cloneFailures.contains(new DestroyCloneFailure(portletContext.getId())))
             {
-               registration.removePortletContext(portletContext);
+               try
+               {
+                  registration.removePortletContext(portletContext);
+               }
+               catch (RegistrationException e)
+               {
+                  throw new PortletInvokerException("Couldn't remove portlet context '" + portletContext + "' to registration '" + registration.getRegistrationHandle() + "'", e);
+               }
             }
          }
       }
@@ -250,7 +272,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
          if (!portletContext.getId().equals(updatedPortletContext.getId()))
          {
-            registration.addPortletContext(updatedPortletContext);
+            try
+            {
+               registration.addPortletContext(updatedPortletContext);
+            }
+            catch (RegistrationException e)
+            {
+               throw new PortletInvokerException("Couldn't add portlet context '" + updatedPortletContext + "' to registration '" + registration.getRegistrationHandle() + "'", e);
+            }
          }
 
          return updatedPortletContext;
@@ -275,7 +304,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
          if (!newPortletContext.getId().equals(originalPortletContext.getId()))
          {
-            registration.addPortletContext(newPortletContext);
+            try
+            {
+               registration.addPortletContext(newPortletContext);
+            }
+            catch (RegistrationException e)
+            {
+               throw new PortletInvokerException("Couldn't add portlet context '" + newPortletContext + "' to registration '" + registration.getRegistrationHandle() + "'", e);
+            }
          }
 
          return newPortletContext;

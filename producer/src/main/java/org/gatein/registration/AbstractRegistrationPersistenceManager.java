@@ -48,7 +48,7 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       return consumer;
    }
 
-   public void saveChangesTo(Consumer consumer)
+   public void saveChangesTo(Consumer consumer) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "Consumer");
 
@@ -60,7 +60,7 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       internalSaveChangesTo(consumer);
    }
 
-   public void saveChangesTo(Registration registration)
+   public void saveChangesTo(Registration registration) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
@@ -164,27 +164,27 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
 
    // internal methods: extension points for subclasses
 
-   protected abstract void internalAddRegistration(RegistrationSPI registration);
+   protected abstract void internalAddRegistration(RegistrationSPI registration) throws RegistrationException;
 
-   protected abstract RegistrationSPI internalRemoveRegistration(String registrationId);
+   protected abstract RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException;
 
-   protected abstract RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties);
+   protected abstract RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException;
 
-   protected abstract void internalAddConsumer(ConsumerSPI consumer);
+   protected abstract void internalAddConsumer(ConsumerSPI consumer) throws RegistrationException;
 
-   protected abstract ConsumerSPI internalRemoveConsumer(String consumerId);
+   protected abstract ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException;
 
-   protected abstract ConsumerSPI internalCreateConsumer(String consumerId, String consumerName);
+   protected abstract ConsumerSPI internalCreateConsumer(String consumerId, String consumerName) throws RegistrationException;
 
-   protected abstract ConsumerSPI internalSaveChangesTo(Consumer consumer);
+   protected abstract ConsumerSPI internalSaveChangesTo(Consumer consumer) throws RegistrationException;
 
-   protected abstract RegistrationSPI internalSaveChangesTo(Registration registration);
+   protected abstract RegistrationSPI internalSaveChangesTo(Registration registration) throws RegistrationException;
 
-   protected abstract void internalAddConsumerGroup(ConsumerGroupSPI group);
+   protected abstract void internalAddConsumerGroup(ConsumerGroupSPI group) throws RegistrationException;
 
-   protected abstract ConsumerGroupSPI internalRemoveConsumerGroup(String name);
+   protected abstract ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException;
 
-   protected abstract ConsumerGroupSPI internalCreateConsumerGroup(String name);
+   protected abstract ConsumerGroupSPI internalCreateConsumerGroup(String name) throws RegistrationException;
 
    protected abstract ConsumerSPI getConsumerSPIById(String consumerId) throws RegistrationException;
 }

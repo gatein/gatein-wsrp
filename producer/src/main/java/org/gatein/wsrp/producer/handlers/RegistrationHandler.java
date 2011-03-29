@@ -111,7 +111,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       return registrationContext;
    }
 
-   private void updateRegistrationInformation(Registration registration, RegistrationData registrationData)
+   private void updateRegistrationInformation(Registration registration, RegistrationData registrationData) throws RegistrationException
    {
       registration.setStatus(RegistrationStatus.VALID);
       Consumer consumer = registration.getConsumer();

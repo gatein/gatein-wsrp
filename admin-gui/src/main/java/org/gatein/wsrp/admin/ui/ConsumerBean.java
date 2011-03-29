@@ -642,11 +642,23 @@ public class ConsumerBean extends ManagedBean
             }
          }
 
-         beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
+         // only display success message if we have imported at least one portlet successfully
+         if (importCount > 0)
+         {
+            beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
+         }
+
          SortedMap<QName, List<String>> errorCodesToFailedPortletHandlesMapping = info.getErrorCodesToFailedPortletHandlesMapping();
          if (!errorCodesToFailedPortletHandlesMapping.isEmpty())
          {
-            beanContext.createErrorMessage(FAILED_PORTLETS, errorCodesToFailedPortletHandlesMapping);
+            for (Map.Entry<QName, List<String>> entry : errorCodesToFailedPortletHandlesMapping.entrySet())
+            {
+               QName errorCode = entry.getKey();
+               for (String handle : entry.getValue())
+               {
+                  beanContext.createErrorMessage(FAILED_PORTLETS, handle + " (cause: " + errorCode + ")");
+               }
+            }
          }
 
          return ConsumerManagerBean.CONSUMERS;
@@ -656,7 +668,6 @@ public class ConsumerBean extends ManagedBean
          beanContext.createErrorMessageFrom(e);
          return null;
       }
-
    }
 
    public String deleteExport()
@@ -704,12 +715,12 @@ public class ConsumerBean extends ManagedBean
    {
       return consumer.getMigrationService().isAvailableExportInfosEmpty();
    }
-   
+
    public boolean isWssEnabled()
    {
       return consumer.getProducerInfo().getEndpointConfigurationInfo().getWSSEnabled();
    }
-   
+
    public void setWssEnabled(boolean enable)
    {
       consumer.getProducerInfo().getEndpointConfigurationInfo().setWSSEnabled(enable);

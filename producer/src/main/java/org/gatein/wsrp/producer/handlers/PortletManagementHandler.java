@@ -862,7 +862,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                else // default error message.
                {
                   errorCode = ErrorCodes.Codes.OPERATIONFAILED;
-                  reason = "Error preparing portlet for export";
+                  reason = "Error importing portlet.";
                }
 
                if (!failedPortletsMap.containsKey(errorCode.name()))

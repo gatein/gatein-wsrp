@@ -26,6 +26,7 @@ package org.gatein.registration.impl;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
@@ -84,13 +85,13 @@ public class RegistrationImpl implements RegistrationSPI
       return consumer;
    }
 
-   public void addPortletContext(PortletContext portletContext)
+   public void addPortletContext(PortletContext portletContext) throws RegistrationException
    {
       portletContexts.add(portletContext);
       manager.getPersistenceManager().saveChangesTo(this);
    }
 
-   public void removePortletContext(PortletContext portletContext)
+   public void removePortletContext(PortletContext portletContext) throws RegistrationException
    {
       portletContexts.remove(portletContext);
       manager.getPersistenceManager().saveChangesTo(this);

@@ -158,7 +158,7 @@ public class RegistrationTestCase extends TestCase
       assertTrue(!registration.hasEqualProperties(registrationProperties));
    }
 
-   public void testPortletContextOperations()
+   public void testPortletContextOperations() throws RegistrationException
    {
       PortletContext foo = PortletContext.createPortletContext("foo");
 
