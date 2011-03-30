@@ -281,7 +281,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       return consumer;
    }
 
-   private Object getConsumerOrRegistration(String registrationHandle, boolean getConsumer)
+   private Object getConsumerOrRegistration(String registrationHandle, boolean getConsumer) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationHandle, "registration handle", null);
 
@@ -296,7 +296,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       }
    }
 
-   public Collection<? extends ConsumerGroup> getConsumerGroups()
+   public Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException
    {
       return persistenceManager.getConsumerGroups();
    }
@@ -319,7 +319,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       removeConsumerGroup(getConsumerGroup(name));
    }
 
-   public Collection<? extends Consumer> getConsumers()
+   public Collection<? extends Consumer> getConsumers() throws RegistrationException
    {
       return persistenceManager.getConsumers();
    }
@@ -353,19 +353,37 @@ public class RegistrationManagerImpl implements RegistrationManager
          log.debug("Registration properties have changed, existing registrations will be invalidated...");
       }
 
-      Collection registrations = persistenceManager.getRegistrations();
-      for (Object registration : registrations)
+      try
       {
-         Registration reg = (Registration)registration;
+         Collection registrations = persistenceManager.getRegistrations();
+         for (Object registration : registrations)
+         {
+            Registration reg = (Registration)registration;
 
-         // pending instead of invalid as technically, the registration is not yet invalid
-         reg.setStatus(RegistrationStatus.PENDING);
+            // pending instead of invalid as technically, the registration is not yet invalid
+            reg.setStatus(RegistrationStatus.PENDING);
 
-         // make changes persistent
-         Consumer consumer = reg.getConsumer();
-         persistenceManager.saveChangesTo(consumer);
-
-//         reg.clearAssociatedState(); //todo: do we need to clear the associated state? If we do, should we wait until current operations are done?
+            // make changes persistent
+            Consumer consumer = reg.getConsumer();
+            try
+            {
+               persistenceManager.saveChangesTo(consumer);
+            }
+            catch (RegistrationException e)
+            {
+               if (log.isDebugEnabled())
+               {
+                  log.debug("Couldn't persist changes to Consumer '" + consumer.getId() + "'", e);
+               }
+            }
+         }
+      }
+      catch (RegistrationException e)
+      {
+         if (log.isDebugEnabled())
+         {
+            log.debug("Couldn't retrieve registrations...", e);
+         }
       }
    }
 
@@ -384,6 +402,13 @@ public class RegistrationManagerImpl implements RegistrationManager
    // GTNWSRP-72
    public void portletContextsHaveChanged(Registration registration)
    {
-      persistenceManager.saveChangesTo(registration);
+      try
+      {
+         persistenceManager.saveChangesTo(registration);
+      }
+      catch (RegistrationException e)
+      {
+         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      }
    }
 }

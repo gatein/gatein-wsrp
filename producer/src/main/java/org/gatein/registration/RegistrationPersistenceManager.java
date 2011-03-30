@@ -47,14 +47,14 @@ public interface RegistrationPersistenceManager
     *
     * @param consumer
     */
-   void saveChangesTo(Consumer consumer);
+   void saveChangesTo(Consumer consumer) throws RegistrationException;
    
    /**
     * Saves changes made to the specified registration.
     *
     * @param registration
     */
-   void saveChangesTo(Registration registration);
+   void saveChangesTo(Registration registration) throws RegistrationException;
 
    /**
     * Retrieves the ConsumerGroup identified by the specified name.
@@ -92,13 +92,13 @@ public interface RegistrationPersistenceManager
 
    Registration addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException;
 
-   Collection<? extends ConsumerGroup> getConsumerGroups();
+   Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException;
 
-   Registration getRegistration(String registrationId);
+   Registration getRegistration(String registrationId) throws RegistrationException;
 
    Consumer addConsumerToGroupNamed(String consumerId, String groupName) throws RegistrationException;
 
-   Collection<? extends Consumer> getConsumers();
+   Collection<? extends Consumer> getConsumers() throws RegistrationException;
 
-   Collection<? extends Registration> getRegistrations();
+   Collection<? extends Registration> getRegistrations() throws RegistrationException;
 }

@@ -89,19 +89,19 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    }
 
    @Override
-   protected void internalAddRegistration(RegistrationSPI registration)
+   protected void internalAddRegistration(RegistrationSPI registration) throws RegistrationException
    {
       registrations.put(registration.getPersistentKey(), registration);
    }
 
    @Override
-   protected RegistrationSPI internalRemoveRegistration(String registrationId)
+   protected RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException
    {
       return registrations.remove(registrationId);
    }
 
    @Override
-   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties)
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
    {
       return newRegistrationSPI(consumer, registrationProperties, "" + lastRegistrationId++);
    }
@@ -112,19 +112,19 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    }
 
    @Override
-   protected void internalAddConsumer(ConsumerSPI consumer)
+   protected void internalAddConsumer(ConsumerSPI consumer) throws RegistrationException
    {
       consumers.put(consumer.getId(), consumer);
    }
 
    @Override
-   protected ConsumerSPI internalRemoveConsumer(String consumerId)
+   protected ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException
    {
       return consumers.remove(consumerId);
    }
 
    @Override
-   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName)
+   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName) throws RegistrationException
    {
       ConsumerSPI consumerSPI = newConsumerSPI(consumerId, consumerName);
       consumerSPI.setPersistentKey(consumerId);
@@ -137,19 +137,19 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    }
 
    @Override
-   protected void internalAddConsumerGroup(ConsumerGroupSPI group)
+   protected void internalAddConsumerGroup(ConsumerGroupSPI group) throws RegistrationException
    {
       groups.put(group.getName(), group);
    }
 
    @Override
-   protected ConsumerGroupSPI internalRemoveConsumerGroup(String name)
+   protected ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException
    {
       return groups.remove(name);
    }
 
    @Override
-   protected ConsumerGroupSPI internalCreateConsumerGroup(String name)
+   protected ConsumerGroupSPI internalCreateConsumerGroup(String name) throws RegistrationException
    {
       ConsumerGroupSPI groupSPI = newConsumerGroupSPI(name);
       groupSPI.setPersistentKey(name);
@@ -168,13 +168,13 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    }
 
    @Override
-   protected ConsumerSPI internalSaveChangesTo(Consumer consumer)
+   protected ConsumerSPI internalSaveChangesTo(Consumer consumer) throws RegistrationException
    {
       return (ConsumerSPI)consumer; // nothing to do here, left up to subclasses to implement update in persistent store
    }
    
    @Override
-   protected RegistrationSPI internalSaveChangesTo(Registration registration)
+   protected RegistrationSPI internalSaveChangesTo(Registration registration) throws RegistrationException
    {
       return (RegistrationSPI)registration; // nothing to do here, left up to subclasses to implement update in persistent store
    }

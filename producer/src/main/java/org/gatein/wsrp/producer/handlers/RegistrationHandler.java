@@ -145,7 +145,14 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       capabilities.setSupportedUserScopes(registrationData.getConsumerUserScopes());
       capabilities.setSupportsGetMethod(registrationData.isMethodGetSupported());
 
-      producer.getRegistrationManager().getPersistenceManager().saveChangesTo(consumer);
+      try
+      {
+         producer.getRegistrationManager().getPersistenceManager().saveChangesTo(consumer);
+      }
+      catch (RegistrationException e)
+      {
+         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      }
    }
 
    public List<Extension> deregister(RegistrationContext deregister)
