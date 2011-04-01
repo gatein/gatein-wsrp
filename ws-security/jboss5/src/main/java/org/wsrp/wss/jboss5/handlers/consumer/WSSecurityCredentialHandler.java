@@ -22,16 +22,17 @@
  ******************************************************************************/
 package org.wsrp.wss.jboss5.handlers.consumer;
 
-import java.security.Principal;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.jboss.security.SecurityAssociation;
+import org.gatein.wci.security.Credentials;
+import org.gatein.wsrp.servlet.ServletAccess;
 import org.jboss.ws.core.CommonMessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,22 +75,25 @@ public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageConte
          log.debug("Attempting to convert security context to WS-Security header");
 
          CommonMessageContext ctx = (CommonMessageContext) soapMessageContext;
-
-         Principal principal = SecurityAssociation.getPrincipal();
-         Object credential = SecurityAssociation.getCredential();
-
-         if (principal == null)
+         
+         HttpServletRequest request = ServletAccess.getRequest();
+         if (request != null && request.getSession() != null)
          {
-
-            log.debug("No principal to put in WS-Security header");
-            return true;
-
+             Credentials credentials  = (Credentials)request.getSession().getAttribute(Credentials.CREDENTIALS);
+             if (credentials != null)
+             {
+                 ctx.put(BindingProvider.USERNAME_PROPERTY, credentials.getUsername());
+                 ctx.put(BindingProvider.PASSWORD_PROPERTY, credentials.getPassword());
+             }
+             else
+             {
+                 log.debug("Could not find credentials to put in WS-Security header");
+                 return true;
+             }
          }
          else
          {
-            //add the credentials to the context, this will then be picked up by the JBossWS Security Handler
-            ctx.put(BindingProvider.USERNAME_PROPERTY, principal.getName());
-            ctx.put(BindingProvider.PASSWORD_PROPERTY, credential);
+             log.debug("Could not get current HttpServletRequest, cannot login.");
          }
       }
       catch (Exception e)
