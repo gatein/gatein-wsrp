@@ -56,7 +56,7 @@ public class MimeResponseHandlerTestCase extends TestCase
    public static final String NAMESPACE = "NAMESPACE";
    public static final String PORTLETID = "PORTLETID";
    public static final MockWSRPConsumer CONSUMER = new MockWSRPConsumer("foo");
-   public static final PortletContext PORTLET_CONTEXT = PortletContext.createPortletContext(PORTLETID);
+   public static final PortletContext PORTLET_CONTEXT = PortletContext.createPortletContext(PORTLETID, false);
    public static final TestPortletInvocationContext CONTEXT = new TestPortletInvocationContext();
    public static final URLFormat FORMAT = new URLFormat(false, false, true, true);
 
@@ -110,25 +110,25 @@ public class MimeResponseHandlerTestCase extends TestCase
    {
       String markup;
       String expected;
-      
+
       String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
-      
+
       //test with &amp;
       markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";      
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
-      
+
       //test with &
       markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&mock:resourceID=" + resourceID + "'/>";     
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
-      
+
       //test with /x26
       markup = "<img src='wsrp_rewrite?wsrp-urlType=resource\\x26wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif\\x26wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar\\x26mock:resourceID=" + resourceID + "'/>";     
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar\\x26mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
    }
-   
+
    /*public void testResourceURLs()
    {
       String markup;

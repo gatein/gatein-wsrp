@@ -263,14 +263,14 @@ public class ProducerInfoTestCase extends TestCase
       // activate caching for this test so that we can simulate portlet deployment on the producer with a cached SD
       info.setExpirationCacheSeconds(1000);
 
-      org.gatein.pc.api.PortletContext portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test");
+      org.gatein.pc.api.PortletContext portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test", false);
       Portlet portlet = info.getPortlet(portletContext);
       assertNotNull(portlet);
       assertEquals(portletContext, portlet.getContext());
       assertEquals(1, behavior.getCallCount());
 
       // test2 is not in the service description, so it should be looked up via Portlet Management...
-      portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test2");
+      portletContext = org.gatein.pc.api.PortletContext.createPortletContext(TestPortletManagementBehavior.HANDLE_FOR_GET_DESCRIPTION, false);
       // add portlet management behavior
       TestPortletManagementBehavior pmBehavior = new TestPortletManagementBehavior();
       serviceFactory.getRegistry().setPortletManagementBehavior(pmBehavior);
@@ -282,8 +282,9 @@ public class ProducerInfoTestCase extends TestCase
       // try again, this time without a portlet management interface, the service description should be refreshed
       serviceFactory.getRegistry().setPortletManagementBehavior(null);
       // simulate a new portlet deployment since last time the SD was refreshed
-      behavior.addPortletDescription(behavior.createPortletDescription("test3", null));
-      portletContext = org.gatein.pc.api.PortletContext.createPortletContext("test3");
+      final String handle = "test3";
+      behavior.addPortletDescription(behavior.createPortletDescription(handle, null));
+      portletContext = org.gatein.pc.api.PortletContext.createPortletContext(handle, false);
       portlet = info.getPortlet(portletContext);
       assertEquals(2, behavior.getCallCount());
       assertNotNull(portlet);
@@ -462,11 +463,13 @@ public class ProducerInfoTestCase extends TestCase
    private static class TestPortletManagementBehavior extends PortletManagementBehavior
    {
 
+      public static final String HANDLE_FOR_GET_DESCRIPTION = "test2";
+
       @Override
       public void getPortletDescription(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "desiredLocales", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") List<String> desiredLocales, @WebParam(name = "portletDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<PortletDescription> portletDescription, @WebParam(name = "resourceList", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<ResourceList> resourceList, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
       {
          super.getPortletDescription(registrationContext, portletContext, userContext, desiredLocales, portletDescription, resourceList, extensions);
-         portletDescription.value = createPortletDescription("test2", null);
+         portletDescription.value = createPortletDescription(HANDLE_FOR_GET_DESCRIPTION, null);
       }
    }
 

@@ -82,10 +82,10 @@ public class ServiceDescriptionTestCase extends InteropServiceDescriptionTestCas
    public void testGetPortlet() throws Exception
    {
       //obtain one portlet
-      Portlet portlet = consumer.getPortlet(PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE));
+      Portlet portlet = consumer.getPortlet(PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false));
       checkPortlet(portlet, "", BasicMarkupBehavior.PORTLET_HANDLE);
 
-      portlet = consumer.getPortlet(PortletContext.createPortletContext(SessionMarkupBehavior.PORTLET_HANDLE));
+      portlet = consumer.getPortlet(PortletContext.createPortletContext(SessionMarkupBehavior.PORTLET_HANDLE, false));
       checkPortlet(portlet, "2", SessionMarkupBehavior.PORTLET_HANDLE);
    }
 

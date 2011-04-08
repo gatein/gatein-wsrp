@@ -1314,9 +1314,10 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       assertEquals(0, response.getCopiedPortlets().size());
       assertEquals(1, response.getFailedPortlets().size());
-      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext1));
-      assertTrue(response.getFailedPortlets().get(0).getPortletHandles().contains(fakePortletContext2));
-      assertTrue(response.getFailedPortlets().get(0).getErrorCode().getLocalPart().contains("InvalidHandle"));
+      final FailedPortlets failedPortlets = response.getFailedPortlets().get(0);
+      assertTrue(failedPortlets.getPortletHandles().contains(fakePortletContext1));
+      assertTrue(failedPortlets.getPortletHandles().contains(fakePortletContext2));
+      assertTrue(failedPortlets.getErrorCode().getLocalPart().contains("InvalidHandle"));
    }
 
    @Test

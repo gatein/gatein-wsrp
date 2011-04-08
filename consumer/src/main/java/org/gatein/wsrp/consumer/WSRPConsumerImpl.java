@@ -456,7 +456,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
             new Holder<Lifetime>(),
             new Holder<List<Extension>>()
          );
-         PortletContext newPortletContext = PortletContext.createPortletContext(handle.value, portletState.value);
+         PortletContext newPortletContext = PortletContext.createPortletContext(handle.value, portletState.value, false);
          portlet.setPortletContext(newPortletContext);
          return newPortletContext;
       }
@@ -933,7 +933,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
                for (ImportedPortlet importedPortlet : importedPortlets)
                {
                   org.oasis.wsrp.v2.PortletContext portletContext = importedPortlet.getNewPortletContext();
-                  PortletContext apiPC = PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState());
+                  PortletContext apiPC = PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState(), false);
                   // we need to reference the resulting PortletContext so that it can then be used properly
                   importIdToPortletContext.put(importedPortlet.getImportID(), FederatingPortletInvokerService.reference(apiPC, getProducerId()));
                }

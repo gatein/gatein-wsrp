@@ -160,18 +160,18 @@ public class RegistrationTestCase extends TestCase
 
    public void testPortletContextOperations() throws RegistrationException
    {
-      PortletContext foo = PortletContext.createPortletContext("foo");
+      PortletContext foo = PortletContext.createPortletContext("webapp", "foo");
 
       registration.addPortletContext(foo);
       assertTrue(registration.knows(foo));
-      assertTrue(registration.knows("foo"));
+      assertTrue(registration.knows(foo.getId()));
       Set<PortletContext> knownPortletContexts = registration.getKnownPortletContexts();
       assertEquals(1, knownPortletContexts.size());
       assertTrue(knownPortletContexts.contains(foo));
 
       registration.removePortletContext(foo);
       assertFalse(registration.knows(foo));
-      assertFalse(registration.knows("foo"));
+      assertFalse(registration.knows(foo.getId()));
       knownPortletContexts = registration.getKnownPortletContexts();
       assertTrue(knownPortletContexts.isEmpty());
    }

@@ -57,7 +57,7 @@ import java.util.List;
  */
 public class MimeResponseProcessorTestCase extends TestCase
 {
-   private static final String PORTLET_HANDLE = "portletHandle";
+   private static final String PORTLET_HANDLE = "/app.portletHandle";
 
    public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired
    {

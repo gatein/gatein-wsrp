@@ -48,7 +48,7 @@ public class RegistrationCheckingPortletInvokerTestCase extends TestCase
       invoker.setRegistrationManager(registrationManager);
 
       PortletInvoker next = mock(PortletInvoker.class);
-      PortletContext portletContext = PortletContext.createPortletContext("foo");
+      PortletContext portletContext = PortletContext.createPortletContext("app", "portlet");
       Portlet portlet = mock(Portlet.class);
       when(next.getPortlet(portletContext)).thenReturn(portlet);
 

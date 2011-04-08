@@ -251,7 +251,7 @@ public class WSRPUtils
 
       PortletContext context;
       byte[] state = portletContext.getPortletState();
-      context = PortletContext.createPortletContext(handle, state);
+      context = PortletContext.createPortletContext(handle, state, false);
 
       return context;
    }
@@ -261,7 +261,7 @@ public class WSRPUtils
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", "PortletContext");
 
       PortletContext context;
-      context = PortletContext.createPortletContext(portletHandle, state);
+      context = PortletContext.createPortletContext(portletHandle, state, false);
 
       return context;
    }

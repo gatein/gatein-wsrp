@@ -23,8 +23,9 @@
 
 package org.gatein.wsrp.admin.ui;
 
-import org.apache.log4j.Logger;
 import org.gatein.common.util.ParameterValidation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -39,7 +40,7 @@ import java.util.ResourceBundle;
  */
 public abstract class BeanContext
 {
-   protected final static Logger log = Logger.getLogger(BeanContext.class);
+   protected final static Logger log = LoggerFactory.getLogger(BeanContext.class);
 
    public static final String STATUS = "status";
    private static final String DEFAULT_RESOURCE_NAME = "Resource";

@@ -55,7 +55,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
 
    public void testClone() throws Exception
    {
-      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false);
       PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
       ExtendedAssert.assertNotNull(clone);
       ExtendedAssert.assertFalse(original.equals(clone));
@@ -75,7 +75,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
 
    public void testGetSetProperties() throws Exception
    {
-      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false);
       PropertyMap props = consumer.getProperties(original);
       checkProperties(props, BasicPortletManagementBehavior.PROPERTY_VALUE);
 
@@ -99,7 +99,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
 
    public void testSetResetSameProperty() throws PortletInvokerException
    {
-      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false);
       PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
 
       try
@@ -131,7 +131,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
       BehaviorRegistry behaviorRegistry = producer.getBehaviorRegistry();
       behaviorRegistry.setPortletManagementBehavior(new DestroyClonesPortletManagementBehavior(behaviorRegistry));
 
-      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false);
       PortletContext clone = consumer.createClone(PortletStateType.OPAQUE, original);
       ExtendedAssert.assertNotNull(clone);
       Portlet portlet = consumer.getPortlet(clone);
@@ -153,7 +153,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
 
       // re-create clone and try again with an added invalid portlet context
       clone = consumer.createClone(PortletStateType.OPAQUE, original);
-      PortletContext invalidContext = PortletContext.createPortletContext("invalid");
+      PortletContext invalidContext = PortletContext.createPortletContext("invalid", false);
       clones.add(invalidContext);
       result = consumer.destroyClones(clones);
       ExtendedAssert.assertEquals(1, result.size());
@@ -171,7 +171,7 @@ public class PortletManagementTestCase extends V2ConsumerBaseTest
 
    public void testInvalidSetProperties() throws Exception
    {
-      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE);
+      PortletContext original = PortletContext.createPortletContext(BasicMarkupBehavior.PORTLET_HANDLE, false);
       try
       {
          consumer.setProperties(original, null);

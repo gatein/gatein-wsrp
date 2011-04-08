@@ -666,7 +666,7 @@ public class ProducerInfo
             log.debug("Portlet '" + portletHandle + "' will store persistent state for each user.");
          }
 
-         wsrpPortlet = new WSRPPortlet(PortletContext.createPortletContext(portletHandle), info);
+         wsrpPortlet = new WSRPPortlet(PortletContext.createPortletContext(portletHandle, false), info);
 
          // add the portlet to the appropriate group if needed
          String portletGroupId = portletDescription.getGroupID();

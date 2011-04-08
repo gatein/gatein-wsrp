@@ -292,7 +292,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       }
 
       RenderInvocation render = new RenderInvocation(invocationContext);
-      render.setTarget(PortletContext.createPortletContext(portletHandle));
+      render.setTarget(PortletContext.createPortletContext(portletHandle, false));
       render.setMode(mode);
       render.setWindowState(state);
       if (navigationalState != null)
@@ -318,7 +318,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       action.setInstanceContext(new AbstractInstanceContext(portletHandle));
       action.setSecurityContext(new AbstractSecurityContext(MockHttpServletRequest.createMockRequest(null)));
       action.setUserContext(new MockUserContext());
-      action.setTarget(PortletContext.createPortletContext(portletHandle));
+      action.setTarget(PortletContext.createPortletContext(portletHandle, false));
 
       RequestedMarkupBehavior.setRequestedMarkupBehavior(portletHandle);
 

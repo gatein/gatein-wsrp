@@ -26,6 +26,7 @@ package org.gatein.wsrp.producer.handlers;
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.sun.tools.corba.se.idl.InvalidArgument;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
@@ -389,7 +390,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
                ErrorCodes.Codes errorCode;
                String reason;
-               if (e instanceof NoSuchPortletException || e instanceof InvalidHandle)
+               final String message = e.getLocalizedMessage();
+               if (e instanceof NoSuchPortletException || e instanceof InvalidHandle
+                  || (e instanceof IllegalArgumentException && message != null && message.contains(org.gatein.pc.api.PortletContext.INVALID_PORTLET_CONTEXT)))
                {
                   errorCode = ErrorCodes.Codes.INVALIDHANDLE;
                   reason = "The specified portlet handle is invalid";

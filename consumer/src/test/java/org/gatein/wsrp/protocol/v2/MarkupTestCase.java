@@ -225,7 +225,8 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       PortletInvocationResponse response = consumer.invoke(render);
 
       String resourceID = WSRPResourceURL.encodeResource(null, new URL("http://localhost:8080/test-resource-portlet/gif/logo.gif"), false);
-      String expectedResult = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";;
+      String expectedResult = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";
+      ;
 
       //NOTE: the value we get back is from the TestPortletInvocationContext, not what we would normally receive
       checkRenderResult(response, expectedResult);
@@ -295,7 +296,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       }
 
       RenderInvocation render = new RenderInvocation(invocationContext);
-      render.setTarget(PortletContext.createPortletContext(portletHandle));
+      render.setTarget(PortletContext.createPortletContext(portletHandle, false));
       render.setMode(mode);
       render.setWindowState(state);
       if (navigationalState != null)
@@ -321,7 +322,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       action.setInstanceContext(new AbstractInstanceContext(portletHandle));
       action.setSecurityContext(new AbstractSecurityContext(MockHttpServletRequest.createMockRequest(null)));
       action.setUserContext(new MockUserContext());
-      action.setTarget(PortletContext.createPortletContext(portletHandle));
+      action.setTarget(PortletContext.createPortletContext(portletHandle, false));
 
       RequestedMarkupBehavior.setRequestedMarkupBehavior(portletHandle);
 
