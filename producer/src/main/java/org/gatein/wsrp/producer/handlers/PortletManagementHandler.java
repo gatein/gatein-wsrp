@@ -26,7 +26,6 @@ package org.gatein.wsrp.producer.handlers;
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.sun.tools.corba.se.idl.InvalidArgument;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
