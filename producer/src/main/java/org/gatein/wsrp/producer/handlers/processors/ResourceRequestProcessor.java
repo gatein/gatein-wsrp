@@ -43,6 +43,7 @@ import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
@@ -56,7 +57,7 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, Re
 {
    private final GetResource getResource;
 
-   public ResourceRequestProcessor(ProducerHelper producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, ModifyRegistrationRequired
+   public ResourceRequestProcessor(ProducerHelper producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, ModifyRegistrationRequired, UnsupportedLocale
    {
       super(producer);
       this.getResource = getResource;

@@ -44,6 +44,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
@@ -59,7 +60,7 @@ public class MimeResponseProcessorTestCase extends TestCase
 {
    private static final String PORTLET_HANDLE = "/app.portletHandle";
 
-   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired
+   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale
    {
       String namespace = "namespace";
       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(MockHttpSession.createMockSession()), MockHttpServletResponse.createMockResponse());
@@ -72,7 +73,7 @@ public class MimeResponseProcessorTestCase extends TestCase
       assertEquals("namespace", processor.invocation.getWindowContext().getNamespace());
    }
 
-   public void testShouldProperlyHandleWildCardsInRequestedMimeTypes() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration
+   public void testShouldProperlyHandleWildCardsInRequestedMimeTypes() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale
    {
       List<String> mimeTypes = new ArrayList<String>(1);
       mimeTypes.add("*/*");
@@ -122,7 +123,7 @@ public class MimeResponseProcessorTestCase extends TestCase
       }
    }
 
-   public void testShouldReturnFirstMimeTypeMatching() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration
+   public void testShouldReturnFirstMimeTypeMatching() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale
    {
       List<String> mimeTypes = new ArrayList<String>(2);
       mimeTypes.add("text/xml");
@@ -176,11 +177,6 @@ public class MimeResponseProcessorTestCase extends TestCase
 
       public PortletDescription getPortletDescription(org.oasis.wsrp.v2.PortletContext portletContext, List<String> locales, Registration registration) throws InvalidHandle, OperationFailed
       {
-         return null;  //To change body of implemented methods use File | Settings | File Templates.
-      }
-
-      public PortletDescription getPortletDescription(Portlet portlet, List<String> locales)
-      {
          List<String> modeNames = new ArrayList<String>(1);
          modeNames.add(WSRPConstants.VIEW_MODE);
 
@@ -194,9 +190,15 @@ public class MimeResponseProcessorTestCase extends TestCase
          return WSRPTypeFactory.createPortletDescription(PORTLET_HANDLE, markupTypes);
       }
 
+      public PortletDescription getPortletDescription(Portlet portlet, List<String> locales)
+      {
+         throw new UnsupportedOperationException();
+      }
+
       public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed
       {
          return null;  //To change body of implemented methods use File | Settings | File Templates.
       }
+
    }
 }

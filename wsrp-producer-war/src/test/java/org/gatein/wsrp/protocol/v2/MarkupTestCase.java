@@ -65,6 +65,7 @@ import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.StateChange;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
 
@@ -249,7 +250,6 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    }
 
    // fix-me: add more tests
-
    @Test
    public void testGetMarkupSession() throws Exception
    {
@@ -436,10 +436,9 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       try
       {
          producer.getMarkup(getMarkup);
-         //fail("Should have thrown an UnsupportetLocaleFault"); // ideally cf http://jira.jboss.com/jira/browse/JBPORTAL-857
-         ExtendedAssert.fail("Should have thrown an exception"); // right now
+         ExtendedAssert.fail("Should have thrown an exception");
       }
-      catch (Exception expected)
+      catch (UnsupportedLocale expected)
       {
          // expected
       }
@@ -468,7 +467,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       producer.usingStrictModeChangedTo(false);
 
       // markup should be properly generated
-      checkMarkupResponse(producer.getMarkup(getMarkup), "English (United States)");
+      checkMarkupResponse(producer.getMarkup(getMarkup), Locale.US.getDisplayName());
       undeploy(getLocalesPortletArchive);
    }
 
@@ -503,6 +502,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       try
       {
          List<String> locales = getMarkup.getMarkupParams().getLocales();
+         locales.clear();
          locales.add("en");
          locales.add("fr");
          MarkupResponse response = producer.getMarkup(getMarkup);
@@ -661,12 +661,6 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          e.printStackTrace();
          throw new Exception(e);
       }
-   }
-
-   private NamedString createNamedString(String name, String value)
-   {
-      NamedString namedString = WSRPTypeFactory.createNamedString(name, value);
-      return namedString;
    }
 
    @Test
@@ -1111,6 +1105,12 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       assertNull(sessionContext);
 
       return markupContext;
+   }
+
+   private NamedString createNamedString(String name, String value)
+   {
+      NamedString namedString = WSRPTypeFactory.createNamedString(name, value);
+      return namedString;
    }
 
    protected String getMostUsedPortletWARFileName()

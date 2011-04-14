@@ -34,6 +34,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
@@ -46,7 +47,7 @@ public class ProcessorFactory
 {
    public static RequestProcessor getProcessorFor(ProducerHelper producer, Object request)
       throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType,
-      UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired
+      UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale
    {
       if (request instanceof GetMarkup)
       {
