@@ -41,6 +41,7 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
@@ -55,7 +56,7 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, Markup
    private final GetMarkup getMarkup;
 
    public RenderRequestProcessor(ProducerHelper producer, GetMarkup getMarkup) throws UnsupportedMimeType,
-      UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters, InvalidRegistration, OperationFailed, ModifyRegistrationRequired
+      UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters, InvalidRegistration, OperationFailed, ModifyRegistrationRequired, UnsupportedLocale
    {
       super(producer);
       this.getMarkup = getMarkup;

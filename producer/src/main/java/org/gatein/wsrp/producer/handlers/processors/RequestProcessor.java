@@ -42,6 +42,7 @@ import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.Utils;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
@@ -59,6 +60,7 @@ import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionParams;
+import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
@@ -98,7 +100,7 @@ public abstract class RequestProcessor<Response>
    }
 
    void prepareInvocation() throws InvalidRegistration, OperationFailed, InvalidHandle,
-      UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters, ModifyRegistrationRequired
+      UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters, ModifyRegistrationRequired, UnsupportedLocale
    {
       Registration registration = producer.getRegistrationOrFailIfInvalid(getRegistrationContext());
 
@@ -117,6 +119,21 @@ public abstract class RequestProcessor<Response>
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", getContextName());
       org.gatein.pc.api.PortletContext portletContext = WSRPUtils.convertToPortalPortletContext(wsrpPC);
 
+      // check locales
+      final List<String> desiredLocales = params.getLocales();
+      for (String locale : desiredLocales)
+      {
+         try
+         {
+            WSRPUtils.getLocale(locale);
+         }
+         catch (IllegalArgumentException e)
+         {
+            throw WSRP2ExceptionFactory.throwWSException(UnsupportedLocale.class, e.getLocalizedMessage(), null);
+         }
+      }
+
+
       // retrieve the portlet
       try
       {
@@ -129,8 +146,7 @@ public abstract class RequestProcessor<Response>
       }
 
       // get portlet description for the desired portlet...
-      final List<String> desiredLocales = params.getLocales();
-      portletDescription = producer.getPortletDescription(portlet, desiredLocales);
+      portletDescription = producer.getPortletDescription(wsrpPC, null, registration);
       if (Boolean.TRUE.equals(portletDescription.isUsesMethodGet()))
       {
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Portlets using GET method in forms are not currently supported.", null);
@@ -263,49 +279,24 @@ public abstract class RequestProcessor<Response>
       }
 
       // use user-desired locales
-      List<String> locales = params.getLocales();
+      List<String> desiredLocales = new ArrayList<String>(params.getLocales());
       List<String> supportedLocales = new ArrayList<String>(markupType.getLocales());
-      if (supportedLocales != null)
+      desiredLocales.retainAll(supportedLocales);
+
+      if (desiredLocales.isEmpty())
       {
-         // reset markup type locales
-         markupType.getLocales().clear();
-         boolean found = false;
-
-         // find the best match
-         for (String locale : locales)
-         {
-            for (String supportedLocale : supportedLocales)
-            {
-               if (locale.equals(supportedLocale))
-               {
-                  markupType.getLocales().add(locale);
-                  found = true;
-                  break;
-               }
-            }
-
-            if (found)
-            {
-               break;
-            }
-         }
-
-         // if no best match was found, use whatever the user gave us
-         if (!found)
-         {
-            markupType.getLocales().addAll(locales);
-         }
+         desiredLocales = params.getLocales();
       }
-      else
-      {
-         markupType.getLocales().addAll(locales);
-      }
+
+      // copy MarkupType as this is one shared instance
+      MarkupType markupTypeCopy = WSRPTypeFactory.createMarkupType(markupType.getMimeType(), markupType.getModes(), markupType.getWindowStates(), desiredLocales);
+      markupTypeCopy.getExtensions().addAll(markupType.getExtensions());
 
       // get the mode
       String mode;
       try
       {
-         mode = getMatchingOrFailFrom(markupType.getModes(), params.getMode(), PORTLET_MODE);
+         mode = getMatchingOrFailFrom(markupTypeCopy.getModes(), params.getMode(), PORTLET_MODE);
       }
       catch (IllegalArgumentException e)
       {
@@ -316,7 +307,7 @@ public abstract class RequestProcessor<Response>
       String windowState;
       try
       {
-         windowState = getMatchingOrFailFrom(markupType.getWindowStates(), params.getWindowState(), WINDOW_STATE);
+         windowState = getMatchingOrFailFrom(markupTypeCopy.getWindowStates(), params.getWindowState(), WINDOW_STATE);
       }
       catch (IllegalArgumentException e)
       {
@@ -326,7 +317,7 @@ public abstract class RequestProcessor<Response>
       // get the character set
       String characterSet = getMatchingOrDefaultFrom(Collections.<String>emptyList(), params.getMarkupCharacterSets(), WSRPConstants.DEFAULT_CHARACTER_SET);
 
-      return new MarkupRequest(markupType, mode, windowState, characterSet, portlet);
+      return new MarkupRequest(markupTypeCopy, mode, windowState, characterSet, portlet);
    }
 
    /**
