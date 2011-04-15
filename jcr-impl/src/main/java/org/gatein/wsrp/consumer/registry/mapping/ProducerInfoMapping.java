@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer.registry.mapping;
 
+import org.chromattic.api.annotations.DefaultValue;
 import org.chromattic.api.annotations.Id;
 import org.chromattic.api.annotations.MappedBy;
 import org.chromattic.api.annotations.OneToOne;
@@ -63,7 +64,8 @@ public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo>
 
    public abstract void setExpirationCacheSeconds(Integer expiration);
 
-   @Property(name = "active", defaultValue = "false")
+   @Property(name = "active")
+   @DefaultValue("false")
    public abstract boolean getActive();
 
    public abstract void setActive(boolean active);

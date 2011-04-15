@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer.registry.mapping;
 
+import org.chromattic.api.annotations.DefaultValue;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
@@ -46,11 +47,12 @@ public abstract class EndpointInfoMapping
 
    public abstract void setWSTimeoutMilliseconds(Integer expiration);
 
-   @Property(name = "enablewss", defaultValue = "false")
+   @Property(name = "enablewss")
+   @DefaultValue("false")
    public abstract boolean getWSSEnabled();
-   
+
    public abstract void setWSSEnabled(boolean enable);
-   
+
    public void initFrom(EndpointConfigurationInfo info)
    {
       setWSDLURL(info.getWsdlDefinitionURL());
