@@ -78,26 +78,26 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       jar.addClass(WSRPProducerBaseTest.class);
       return jar;
    }
-   
+
    @Before
    public void setUp() throws Exception
    {
       if (System.getProperty("test.deployables.dir") != null)
       {
-       super.setUp();
-       //hack to get around having to have a httpservletrequest when accessing the producer services
-       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+         super.setUp();
+         //hack to get around having to have a httpservletrequest when accessing the producer services
+         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
       }
    }
-     
+
    @After
    public void tearDown() throws Exception
    {
-       if (System.getProperty("test.deployables.dir") != null)
-       {
-          super.tearDown();
-       }
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.tearDown();
+      }
    }
 
    @Test
@@ -115,11 +115,11 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       // No registration properties
       ExtendedAssert.assertNull(sd.getRegistrationPropertyDescription());
    }
-   
+
    /**
-    * Test to make sure that when switching from required to not-required (and vise-versa) that
-    * the change properly persists to the service description.
-    * 
+    * Test to make sure that when switching from required to not-required (and vise-versa) that the change properly
+    * persists to the service description.
+    *
     * @throws Throwable
     */
    @Test
@@ -128,20 +128,20 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
       V1GetServiceDescription gs = getNoRegistrationServiceDescriptionRequest();
       V1ServiceDescription sd = producer.getServiceDescription(gs);
-      
+
       // registration is not required
       ExtendedAssert.assertFalse(sd.isRequiresRegistration());
-      
+
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
       gs = getNoRegistrationServiceDescriptionRequest();
       sd = producer.getServiceDescription(gs);
-      
+
       ExtendedAssert.assertTrue(sd.isRequiresRegistration());
-      
+
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
       gs = getNoRegistrationServiceDescriptionRequest();
       sd = producer.getServiceDescription(gs);
-      
+
       ExtendedAssert.assertFalse(sd.isRequiresRegistration());
    }
 
@@ -228,5 +228,11 @@ public class ServiceDescriptionTestCase extends V1ProducerBaseTest
       ExtendedAssert.assertNotNull(propertyDescriptions);
       ExtendedAssert.assertEquals(1, propertyDescriptions.size());
       assertEquals(V2ToV1Converter.toV1PropertyDescription(WSRPUtils.convertToPropertyDescription(regProp)), propertyDescriptions.get(0));
+   }
+
+   @Override
+   protected boolean removeCurrent(String archiveName)
+   {
+      return true;
    }
 }

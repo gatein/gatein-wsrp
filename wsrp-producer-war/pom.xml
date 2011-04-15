@@ -22,7 +22,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
@@ -336,27 +337,27 @@
       </dependency>
 
       <dependency>
-         <groupId>org.jboss.arquillian</groupId>
-         <artifactId>arquillian-api</artifactId>
-         <version>1.0.0.Alpha2</version>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.8.1</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>4.6</version>
+         <groupId>org.jboss.arquillian</groupId>
+         <artifactId>arquillian-api</artifactId>
+         <version>${version.arquillian}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian</groupId>
          <artifactId>arquillian-junit</artifactId>
-         <version>1.0.0.Alpha2</version>
+         <version>${version.arquillian}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.container</groupId>
          <artifactId>arquillian-jbossas-remote-51</artifactId>
-         <version>1.0.0.Alpha2</version>
+         <version>${version.arquillian}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -424,6 +425,12 @@
          <groupId>org.jboss.jbossas</groupId>
          <artifactId>jboss-server-manager</artifactId>
          <version>1.0.3.GA</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-core</artifactId>
+         <version>1.8.5</version>
          <scope>test</scope>
       </dependency>
    </dependencies>

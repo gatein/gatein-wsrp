@@ -24,14 +24,28 @@
 package org.gatein.wsrp.producer;
 
 import junit.framework.TestCase;
+import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.PortletContext;
+import org.gatein.pc.portlet.container.managed.LifeCycleStatus;
+import org.gatein.pc.portlet.container.managed.ManagedObjectLifeCycleEvent;
+import org.gatein.pc.portlet.container.managed.ManagedPortletApplication;
+import org.gatein.pc.portlet.container.managed.ManagedPortletContainer;
 import org.gatein.registration.RegistrationException;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
+import org.mockito.Mockito;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
@@ -39,12 +53,17 @@ import java.net.URLConnection;
  */
 public abstract class WSRPProducerBaseTest extends TestCase
 {
+   protected Map<String, List<String>> war2Handles = new HashMap<String, List<String>>(7);
+   protected String currentlyDeployedArchiveName;
+
    protected WSRPProducerBaseTest(String name) throws Exception
    {
       super(name);
    }
 
    protected abstract WSRPProducer getProducer();
+
+   protected abstract ProducerHelper getProducerHelper();
 
    public void deploy(String warFileName) throws Exception
    {
@@ -62,6 +81,60 @@ public abstract class WSRPProducerBaseTest extends TestCase
          BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
          reader.readLine();
          reader.close();
+
+         WSRPProducer producer = getProducer();
+         Set<Portlet> portlets = producer.getPortletInvoker().getPortlets();
+         for (Portlet portlet : portlets)
+         {
+            // trigger management events so that the service description is properly updated
+            org.gatein.pc.api.PortletContext context = portlet.getContext();
+            if (!war2Handles.containsKey(getWarName(context.getId())))
+            {
+               ManagedPortletApplication portletApplication = Mockito.mock(ManagedPortletApplication.class);
+               PortletContext.PortletContextComponents components = context.getComponents();
+               Mockito.stub(portletApplication.getId()).toReturn(components.getApplicationName());
+
+               ManagedPortletContainer portletContainer = Mockito.mock(ManagedPortletContainer.class);
+               Mockito.stub(portletContainer.getManagedPortletApplication()).toReturn(portletApplication);
+               Mockito.stub(portletContainer.getId()).toReturn(components.getPortletName());
+               Mockito.stub(portletContainer.getInfo()).toReturn(portlet.getInfo());
+
+               ManagedObjectLifeCycleEvent lifeCycleEvent = Mockito.mock(ManagedObjectLifeCycleEvent.class);
+               Mockito.stub(lifeCycleEvent.getManagedObject()).toReturn(portletContainer);
+               Mockito.stub(lifeCycleEvent.getStatus()).toReturn(LifeCycleStatus.STARTED);
+
+               producer.onEvent(lifeCycleEvent);
+            }
+         }
+
+         currentlyDeployedArchiveName = warFileName;
+
+         if (!war2Handles.containsKey(warFileName))
+         {
+            Collection<String> portletHandles = getPortletHandles();
+            if (portletHandles != null)
+            {
+               for (String handle : portletHandles)
+               {
+                  String warName = getWarName(handle);
+                  if (warName.equals(warFileName))
+                  {
+                     List<String> handles = war2Handles.get(warName);
+                     if (handles == null)
+                     {
+                        handles = new ArrayList<String>(3);
+                        war2Handles.put(warName, handles);
+                     }
+
+                     handles.add(handle);
+                  }
+               }
+            }
+            else
+            {
+               throw new IllegalArgumentException(warFileName + " didn't contain any portlets...");
+            }
+         }
       }
       else
       {
@@ -74,6 +147,48 @@ public abstract class WSRPProducerBaseTest extends TestCase
       String undeployURLPrefix = System.getProperty("jboss.undeploy.url.prefix");
       if (undeployURLPrefix != null)
       {
+         currentlyDeployedArchiveName = null;
+
+         List<String> handles = war2Handles.get(warFileName);
+         WSRPProducer producer = getProducer();
+         if (handles != null)
+         {
+            for (String handle : handles)
+            {
+               // trigger management events so that the service description is properly updated
+               PortletContext context = PortletContext.createPortletContext(handle);
+
+               try
+               {
+                  Portlet portlet = producer.getPortletInvoker().getPortlet(context);
+                  ManagedPortletApplication portletApplication = Mockito.mock(ManagedPortletApplication.class);
+                  PortletContext.PortletContextComponents components = context.getComponents();
+                  Mockito.stub(portletApplication.getId()).toReturn(components.getApplicationName());
+
+                  ManagedPortletContainer portletContainer = Mockito.mock(ManagedPortletContainer.class);
+                  Mockito.stub(portletContainer.getManagedPortletApplication()).toReturn(portletApplication);
+                  Mockito.stub(portletContainer.getId()).toReturn(components.getPortletName());
+                  Mockito.stub(portletContainer.getInfo()).toReturn(portlet.getInfo());
+
+                  ManagedObjectLifeCycleEvent lifeCycleEvent = Mockito.mock(ManagedObjectLifeCycleEvent.class);
+                  Mockito.stub(lifeCycleEvent.getManagedObject()).toReturn(portletContainer);
+                  Mockito.stub(lifeCycleEvent.getStatus()).toReturn(LifeCycleStatus.STOPPED);
+
+                  producer.onEvent(lifeCycleEvent);
+               }
+               catch (Exception e)
+               {
+                  // do nothing the portlet is already undeployed
+               }
+            }
+         }
+
+         // only remove the mapping if we're not undeploying the most used portlet (optimization, as it avoids parsing the SD)
+         if (removeCurrent(warFileName))
+         {
+            war2Handles.remove(warFileName);
+         }
+
          File archiveDirectory = getDirectory("test.deployables.dir");
          File archiveFile = getArchive(warFileName, archiveDirectory);
 
@@ -91,6 +206,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
          throw new Exception("Could not find the jboss.undeploy.url.prefix system property.");
       }
    }
+
+   protected abstract boolean removeCurrent(String archiveName);
 
    protected void resetRegistrationInfo() throws RegistrationException
    {
@@ -150,6 +267,7 @@ public abstract class WSRPProducerBaseTest extends TestCase
       super.setUp();
 
       resetRegistrationInfo();
+      getProducerHelper().reset();
    }
 
    public void tearDown() throws Exception
@@ -157,4 +275,12 @@ public abstract class WSRPProducerBaseTest extends TestCase
       resetRegistrationInfo();
       super.tearDown();
    }
+
+   protected String getWarName(String handle)
+   {
+      org.gatein.pc.api.PortletContext context = org.gatein.pc.api.PortletContext.createPortletContext(handle);
+      return context.getComponents().getApplicationName() + ".war";
+   }
+
+   protected abstract Collection<String> getPortletHandles() throws Exception;
 }

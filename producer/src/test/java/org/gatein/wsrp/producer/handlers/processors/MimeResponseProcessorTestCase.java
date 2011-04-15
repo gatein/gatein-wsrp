@@ -200,5 +200,10 @@ public class MimeResponseProcessorTestCase extends TestCase
          return null;  //To change body of implemented methods use File | Settings | File Templates.
       }
 
+      public void reset()
+      {
+         //To change body of implemented methods use File | Settings | File Templates.
+      }
+
    }
 }

@@ -75,7 +75,6 @@ import org.oasis.wsrp.v2.ServiceDescription;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -93,10 +92,19 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
    private static final CookieProtocol BEA_8_CONSUMER_FIX = CookieProtocol.PER_USER;
    private ServiceDescriptionInfo serviceDescription;
 
+   private static final List<String> OPTIONS = new ArrayList<String>(5);
+
+   static
+   {
+      OPTIONS.add(WSRP2Constants.OPTIONS_EVENTS);
+      OPTIONS.add(WSRP2Constants.OPTIONS_IMPORT);
+      OPTIONS.add(WSRP2Constants.OPTIONS_EXPORT);
+   }
+
    public ServiceDescriptionHandler(WSRPProducerImpl producer)
    {
       super(producer);
-      serviceDescription = new ServiceDescriptionInfo(producer);
+      reset();
    }
 
    public ServiceDescription getServiceDescription(GetServiceDescription gs)
@@ -126,20 +134,6 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          // if we allow sending portlet descriptions even when not registered
          boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
             && requirements.isRegistrationRequiredForFullDescription());
-         if (needsPortletDescriptions)
-         {
-            Set<Portlet> portlets;
-            try
-            {
-               portlets = producer.getRemotablePortlets();
-            }
-            catch (PortletInvokerException e)
-            {
-               log.warn("Could not retrieve portlets. Reason:\n\t" + e.getLocalizedMessage());
-               portlets = Collections.emptySet();
-            }
-            serviceDescription.updatePortletDescriptions(portlets, gs.getDesiredLocales(), registration);
-         }
 
          return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions, gs.getPortletHandles());
       }
@@ -149,190 +143,19 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       }
    }
 
+   /**
+    * Creates a PortletDescription based on the user desired locales (ordered according to user preferences) for the
+    * specified component.
+    *
+    * @param portletContext the PortletContext of the portlet for which a PortletDescription is needed
+    * @param desiredLocales the user desired locales (ordered according to user preferences) to use for the description
+    * @return a PortletDescription describing the specified portlet
+    */
    public PortletDescription getPortletDescription(PortletContext portletContext, List<String> desiredLocales, Registration registration) throws InvalidHandle, OperationFailed
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "portlet context");
-      Portlet portlet;
-      try
-      {
-         portlet = producer.getPortletWith(WSRPUtils.convertToPortalPortletContext(portletContext), registration);
-         return getPortletDescription(portlet, desiredLocales);
-      }
-      catch (PortletInvokerException e)
-      {
-         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not retrieve portlet '" + portletContext + "'", e);
-      }
-   }
 
-   /**
-    * Creates a PortletDescription based on the user desired locales (ordered according to user preferences) for the
-    * specified component.
-    *
-    * @param portlet
-    * @param desiredLocales the user desired locales (ordered according to user preferences) to use for the description
-    * @return a PortletDescription describing the specified portlet
-    */
-   public static PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales)
-   {
-      return getPortletDescription(portlet, desiredLocales, null);
-   }
-
-   /**
-    * Creates a PortletDescription based on the user desired locales (ordered according to user preferences) for the
-    * specified component.
-    *
-    * @param portlet
-    * @param desiredLocales the user desired locales (ordered according to user preferences) to use for the description
-    * @return a PortletDescription describing the specified portlet
-    */
-   static PortletDescription getPortletDescription(Portlet portlet, List<String> desiredLocales, ServiceDescriptionInfo sdi)
-   {
-      return getPortletDescription(portlet.getContext(), portlet.getInfo(), desiredLocales, sdi);
-   }
-
-   private static PortletDescription getPortletDescription(org.gatein.pc.api.PortletContext context, PortletInfo info, List<String> desiredLocales, ServiceDescriptionInfo sdi)
-   {
-      String handle = context.getId();
-      if (log.isDebugEnabled())
-      {
-         log.debug("Constructing portlet description for: " + handle);
-      }
-
-      CapabilitiesInfo capInfo = info.getCapabilities();
-      Collection<MediaType> allMediaTypes = capInfo.getMediaTypes();
-      List<MarkupType> markupTypes = new ArrayList<MarkupType>(allMediaTypes.size());
-      for (MediaType mediaType : allMediaTypes)
-      {
-         MarkupType markupType = WSRPTypeFactory.createMarkupType(mediaType.getValue(),
-            getModeNamesFrom(capInfo.getModes(mediaType)), getWindowStateNamesFrom(capInfo.getWindowStates(mediaType)),
-            getLocaleNamesFrom(capInfo.getLocales(mediaType)));
-         markupTypes.add(markupType);
-      }
-
-      PortletDescription desc = WSRPTypeFactory.createPortletDescription(handle, markupTypes);
-
-      // group ID
-      desc.setGroupID(info.getApplicationName());
-
-      MetaInfo metaInfo = info.getMeta();
-
-      // description
-      desc.setDescription(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.DESCRIPTION), desiredLocales));
-
-      // short title
-      desc.setShortTitle(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.SHORT_TITLE), desiredLocales));
-
-      // title
-      desc.setTitle(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.TITLE), desiredLocales));
-
-      // display name
-      desc.setDisplayName(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.DISPLAY_NAME), desiredLocales));
-
-      // keywords
-      // metaInfo contains comma-separated keywords: we need to extract them into a list
-      org.oasis.wsrp.v2.LocalizedString concatenatedKeywords =
-         Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.KEYWORDS), desiredLocales);
-      if (concatenatedKeywords != null)
-      {
-         String commaSeparatedKeywords = concatenatedKeywords.getValue();
-         if (commaSeparatedKeywords != null && commaSeparatedKeywords.length() > 0)
-         {
-            String lang = concatenatedKeywords.getLang();
-            String[] keywordArray = commaSeparatedKeywords.split(",");
-            for (String keyword : keywordArray)
-            {
-               // todo: fix resource name
-               desc.getKeywords().add(WSRPTypeFactory.createLocalizedString(lang, concatenatedKeywords.getResourceName(), keyword.trim()));
-            }
-         }
-      }
-
-      // events
-      EventingInfo eventsInfo = info.getEventing();
-      if (eventsInfo != null)
-      {
-         Map<QName, ? extends EventInfo> producedEvents = eventsInfo.getProducedEvents();
-         if (ParameterValidation.existsAndIsNotEmpty(producedEvents))
-         {
-            List<QName> publishedEvents = desc.getPublishedEvents();
-            for (Map.Entry<QName, ? extends EventInfo> entry : producedEvents.entrySet())
-            {
-               publishedEvents.add(entry.getKey());
-
-               // record event info in ServiceDescriptionInfo
-               if (sdi != null)
-               {
-                  sdi.addEventInfo(entry.getValue(), desiredLocales);
-               }
-            }
-         }
-         Map<QName, ? extends EventInfo> consumedEvents = eventsInfo.getConsumedEvents();
-         if (ParameterValidation.existsAndIsNotEmpty(consumedEvents))
-         {
-            List<QName> handledEvents = desc.getHandledEvents();
-            for (Map.Entry<QName, ? extends EventInfo> entry : consumedEvents.entrySet())
-            {
-               handledEvents.add(entry.getKey());
-
-               // record event info in ServiceDescriptionInfo
-               if (sdi != null)
-               {
-                  sdi.addEventInfo(entry.getValue(), desiredLocales);
-               }
-            }
-         }
-      }
-
-      // public parameters
-      NavigationInfo navigationInfo = info.getNavigation();
-      if (navigationInfo != null)
-      {
-         Collection<? extends ParameterInfo> parameterInfos = navigationInfo.getPublicParameters();
-         if (ParameterValidation.existsAndIsNotEmpty(parameterInfos))
-         {
-            List<ParameterDescription> publicValueDescriptions = desc.getNavigationalPublicValueDescriptions();
-            for (ParameterInfo parameterInfo : parameterInfos)
-            {
-               String id = parameterInfo.getId();
-               ParameterDescription paramDesc = WSRPTypeFactory.createParameterDescription(id);
-               paramDesc.setDescription(Utils.convertToWSRPLocalizedString(parameterInfo.getDescription(), desiredLocales));
-               paramDesc.setLabel(WSRPTypeFactory.createLocalizedString(id));
-               List<QName> names = paramDesc.getNames();
-               names.add(parameterInfo.getName());
-               Collection<QName> aliases = parameterInfo.getAliases();
-               if (ParameterValidation.existsAndIsNotEmpty(aliases))
-               {
-                  names.addAll(aliases);
-               }
-
-               publicValueDescriptions.add(paramDesc);
-            }
-         }
-      }
-
-      // security
-      SecurityInfo secInfo = info.getSecurity();
-      if (secInfo.containsTransportGuarantee(TransportGuarantee.INTEGRAL)
-         || secInfo.containsTransportGuarantee(TransportGuarantee.CONFIDENTIAL))
-      {
-         desc.setOnlySecure(true);
-      }
-
-      /* todo:
-      * [O] ID	portletID
-      * [O] string	userCategories[]
-      * [O] string	userProfileItems[]
-      * [O] string	portletManagedModes[]
-      * [O] boolean	usesMethodGet
-      * [O] boolean	defaultMarkupSecure
-      * [O] boolean	userContextStoredInSession
-      * [O] boolean	templatesStoredInSession
-      * [O] boolean	hasUserSpecificState
-      * [O] boolean	doesUrlTemplateProcessing
-      * [O] boolean	mayReturnPortletState
-      * [O] Extension	extensions[]
-      */
-      return desc;
+      return serviceDescription.getPortletDescription(portletContext, desiredLocales, registration);
    }
 
    public void onEvent(ManagedObjectRegistryEvent event)
@@ -347,22 +170,20 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             ManagedPortletContainer portletContainer = (ManagedPortletContainer)managedObject;
             String applicationId = portletContainer.getManagedPortletApplication().getId();
             String containerId = portletContainer.getId();
-            // need PC 2.2.0-Beta06 API support
-//            org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
 
-            // todo: GTNWSRP-45: implement refreshing of ServiceDescriptionInfo
+            org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
+
             if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
             {
                ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
                LifeCycleStatus status = lifeCycleEvent.getStatus();
                if (LifeCycleStatus.STARTED.equals(status))
                {
-                  // todo: add portlet description for newly started portlet container
-//                  getPortletDescription(pc, portletContainer.getInfo(), )
+                  serviceDescription.addPortletDescription(pc, portletContainer.getInfo());
                }
                else
                {
-                  // todo: remore portlet description for stopped portlet container
+                  serviceDescription.removePortletDescription(pc);
                }
             }
          }
@@ -404,50 +225,35 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       return result;
    }
 
-   private static class ServiceDescriptionInfo
+   public void reset()
    {
-      /** Empty service description: no registration properties, no offered portlets */
-      private ServiceDescription noRegistrationNoPortletsServiceDescription;
-      /** No registration properties, offered portles */
-      private ServiceDescription noRegistrationPortletsServiceDescription;
-      /** Registration properties, no offered portlets */
-      private ServiceDescription registrationNoPortletsServiceDescription;
-      /** Registration properties, offered portlets */
-      private ServiceDescription registrationPortletsServiceDescription;
+      serviceDescription = new ServiceDescriptionInfo();
+   }
 
+   private class ServiceDescriptionInfo
+   {
       private long lastGenerated;
       private Map<QName, EventDescription> eventDescriptions;
+      private Map<QName, Integer> eventReferenceCount;
+      private Map<String, PortletDescription> portletDescriptions;
+      private ModelDescription registrationProperties;
+      private boolean initialized = false;
+      private boolean requireRegistrations;
 
-      private static final List<String> OPTIONS = new ArrayList<String>(5);
-
-      static
+      private ServiceDescriptionInfo()
       {
-         OPTIONS.add(WSRP2Constants.OPTIONS_EVENTS);
-         OPTIONS.add(WSRP2Constants.OPTIONS_IMPORT);
-         OPTIONS.add(WSRP2Constants.OPTIONS_EXPORT);
+         reset();
       }
 
-      private ServiceDescriptionInfo(WSRPProducerImpl producer)
+      void reset()
       {
-         noRegistrationNoPortletsServiceDescription = WSRPTypeFactory.createServiceDescription(false);
-         noRegistrationNoPortletsServiceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
-         noRegistrationNoPortletsServiceDescription.getLocales().addAll(producer.getSupportedLocales());
-         noRegistrationNoPortletsServiceDescription.getSupportedOptions().addAll(OPTIONS);
-
-         noRegistrationPortletsServiceDescription = WSRPTypeFactory.createServiceDescription(false);
-         noRegistrationPortletsServiceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
-         noRegistrationPortletsServiceDescription.getLocales().addAll(producer.getSupportedLocales());
-         noRegistrationPortletsServiceDescription.getSupportedOptions().addAll(OPTIONS);
-
-         registrationNoPortletsServiceDescription = WSRPTypeFactory.createServiceDescription(false);
-         registrationNoPortletsServiceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
-         registrationNoPortletsServiceDescription.getLocales().addAll(producer.getSupportedLocales());
-         registrationNoPortletsServiceDescription.getSupportedOptions().addAll(OPTIONS);
-
-         registrationPortletsServiceDescription = WSRPTypeFactory.createServiceDescription(false);
-         registrationPortletsServiceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
-         registrationPortletsServiceDescription.getLocales().addAll(producer.getSupportedLocales());
-         registrationPortletsServiceDescription.getSupportedOptions().addAll(OPTIONS);
+         lastGenerated = 0;
+         eventDescriptions = new HashMap<QName, EventDescription>(37);
+         eventReferenceCount = new HashMap<QName, Integer>(37);
+         portletDescriptions = new HashMap<String, PortletDescription>(37);
+         registrationProperties = null;
+         initialized = false;
+         requireRegistrations = false;
       }
 
       private void updateRegistrationProperties(ProducerRegistrationRequirements requirements)
@@ -462,123 +268,95 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 
             // do not create a ModelDescription if there is no registration properties
             Map<QName, RegistrationPropertyDescription> info = requirements.getRegistrationProperties();
-            ModelDescription registrationProperties = null;
             if (ParameterValidation.existsAndIsNotEmpty(info))
             {
                registrationProperties = Utils.convertRegistrationPropertiesToModelDescription(info);
             }
-            registrationNoPortletsServiceDescription.setRegistrationPropertyDescription(registrationProperties);
-            registrationPortletsServiceDescription.setRegistrationPropertyDescription(registrationProperties);
+            else
+            {
+               registrationProperties = null;
+            }
 
             // update need to register
-            noRegistrationNoPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
-            noRegistrationPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
-            registrationNoPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
-            registrationPortletsServiceDescription.setRequiresRegistration(requirements.isRegistrationRequired());
+            requireRegistrations = requirements.isRegistrationRequired();
 
             lastGenerated = System.nanoTime();
          }
       }
 
-      private void updatePortletDescriptions(Set<Portlet> portlets, List<String> desiredLocales, Registration registration)
+      private void updatePortletDescriptions()
       {
-         if (ParameterValidation.existsAndIsNotEmpty(portlets))
+         try
          {
-            Collection<PortletDescription> offeredPortletDescriptions = new ArrayList<PortletDescription>(portlets.size());
-
-            // reset event descriptions as they will be repopulated when we build the portlet descriptions
-            eventDescriptions = new HashMap<QName, EventDescription>(portlets.size());
-
-            for (Portlet portlet : portlets)
+            Set<Portlet> portlets = producer.getRemotablePortlets();
+            if (ParameterValidation.existsAndIsNotEmpty(portlets))
             {
-               PortletDescription desc = getPortletDescription(portlet, desiredLocales, this);
-               offeredPortletDescriptions.add(desc);
+               for (Portlet portlet : portlets)
+               {
+                  addPortletDescription(portlet.getContext(), portlet.getInfo());
+               }
             }
 
-            // events
-            Collection<EventDescription> events = eventDescriptions.values();
-            List<EventDescription> eventDescriptions = registrationPortletsServiceDescription.getEventDescriptions();
-            eventDescriptions.clear();
-            eventDescriptions.addAll(events);
-
-            eventDescriptions = registrationNoPortletsServiceDescription.getEventDescriptions();
-            eventDescriptions.clear();
-            eventDescriptions.addAll(events);
-
-            eventDescriptions = noRegistrationPortletsServiceDescription.getEventDescriptions();
-            eventDescriptions.clear();
-            eventDescriptions.addAll(events);
-
-            eventDescriptions = noRegistrationNoPortletsServiceDescription.getEventDescriptions();
-            eventDescriptions.clear();
-            eventDescriptions.addAll(events);
-
-            // portlets
-            List<PortletDescription> offeredPortlets = registrationPortletsServiceDescription.getOfferedPortlets();
-            offeredPortlets.clear();
-            offeredPortlets.addAll(offeredPortletDescriptions);
-
-            offeredPortlets = noRegistrationPortletsServiceDescription.getOfferedPortlets();
-            offeredPortlets.clear();
-            offeredPortlets.addAll(offeredPortletDescriptions);
+            initialized = true;
+         }
+         catch (PortletInvokerException e)
+         {
+            log.warn("Couldn't get remotable portlets", e);
          }
       }
 
       private ServiceDescription getServiceDescription(boolean needsRegistrationProperties, boolean needsPortletDescriptions, List<String> portletHandles)
       {
-         ServiceDescription serviceDescription;
-         if (needsRegistrationProperties)
-         {
-            serviceDescription = needsPortletDescriptions ? registrationPortletsServiceDescription : registrationNoPortletsServiceDescription;
-         }
-         else
-         {
-            serviceDescription = needsPortletDescriptions ? noRegistrationPortletsServiceDescription : noRegistrationNoPortletsServiceDescription;
-         }
+         initIfNeeded();
 
-         // if we have a list of portlet handles, filter the list of offered portlets
-         if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
+         ModelDescription registrationProperties = needsRegistrationProperties ? this.registrationProperties : null;
+
+         ServiceDescription serviceDescription = WSRPTypeFactory.createServiceDescription(false);
+         serviceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
+         serviceDescription.getLocales().addAll(producer.getSupportedLocales());
+         serviceDescription.getSupportedOptions().addAll(OPTIONS);
+         serviceDescription.setRegistrationPropertyDescription(registrationProperties);
+         serviceDescription.setRequiresRegistration(requireRegistrations);
+
+         Collection<PortletDescription> portlets;
+         if (needsPortletDescriptions)
          {
-            List<PortletDescription> offeredPortlets = serviceDescription.getOfferedPortlets();
-            List<PortletDescription> filteredPortlets = new ArrayList<PortletDescription>(offeredPortlets.size());
-            for (String handle : portletHandles)
+            // if we have a list of portlet handles, filter the list of offered portlets
+            if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
             {
-               for (PortletDescription description : offeredPortlets)
+               portlets = new ArrayList<PortletDescription>(portletHandles.size());
+               for (String handle : portletHandles)
                {
-                  if (description.getPortletHandle().equals(handle))
+                  PortletDescription description = portletDescriptions.get(handle);
+                  if (description != null)
                   {
-                     filteredPortlets.add(description);
-                     break; // no need to continue looping over portlets for this particular handle
+                     portlets.add(description);
                   }
                }
             }
-
-            // shallow-clone the existing service description since we're not modifying it apart from the offered portlets list
-            ServiceDescription filtered = WSRPTypeFactory.createServiceDescription(serviceDescription.isRequiresRegistration());
-            filtered.setExportDescription(serviceDescription.getExportDescription());
-            filtered.setMayReturnRegistrationState(serviceDescription.isMayReturnRegistrationState());
-            filtered.setRegistrationPropertyDescription(serviceDescription.getRegistrationPropertyDescription());
-            filtered.setRequiresInitCookie(serviceDescription.getRequiresInitCookie());
-            filtered.setResourceList(serviceDescription.getResourceList());
-            filtered.setSchemaType(serviceDescription.getSchemaType());
-            filtered.getCustomModeDescriptions().addAll(serviceDescription.getCustomModeDescriptions());
-            filtered.getCustomWindowStateDescriptions().addAll(serviceDescription.getCustomWindowStateDescriptions());
-            filtered.getEventDescriptions().addAll(serviceDescription.getEventDescriptions());
-            filtered.getExtensionDescriptions().addAll(serviceDescription.getExtensionDescriptions());
-            filtered.getExtensions().addAll(serviceDescription.getExtensions());
-            filtered.getLocales().addAll(serviceDescription.getLocales());
-            filtered.getSupportedOptions().addAll(serviceDescription.getSupportedOptions());
-
-            // add filtered portlets
-            filtered.getOfferedPortlets().addAll(filteredPortlets);
-
-            return filtered;
+            else
+            {
+               portlets = portletDescriptions.values();
+            }
+            serviceDescription.getOfferedPortlets().addAll(portlets);
          }
+
+         // events
+         Collection<EventDescription> events = eventDescriptions.values();
+         serviceDescription.getEventDescriptions().addAll(events);
 
          return serviceDescription;
       }
 
-      public void addEventInfo(EventInfo info, List<String> desiredLocales)
+      private void initIfNeeded()
+      {
+         if (!initialized)
+         {
+            updatePortletDescriptions();
+         }
+      }
+
+      private void addEventInfo(EventInfo info, List<String> desiredLocales)
       {
          QName name = info.getName();
          if (!eventDescriptions.containsKey(name))
@@ -593,6 +371,239 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             }
             // todo: deal with type info...
             eventDescriptions.put(name, desc);
+            eventReferenceCount.put(name, 1);
+         }
+         else
+         {
+            Integer current = eventReferenceCount.get(name);
+            eventReferenceCount.put(name, current + 1); // increase reference count
+         }
+      }
+
+      private void removeEvent(QName name)
+      {
+         Integer current = eventReferenceCount.get(name);
+         if (current != null)
+         {
+            if (current == 1)
+            {
+               eventDescriptions.remove(name);
+               eventReferenceCount.remove(name);
+            }
+            else
+            {
+               eventReferenceCount.put(name, current - 1);
+            }
+         }
+      }
+
+      private void addPortletDescription(org.gatein.pc.api.PortletContext context, PortletInfo info)
+      {
+         List<String> locales = producer.getSupportedLocales();
+
+         String handle = context.getId();
+         PortletDescription desc = createPortletDescription(info, locales, handle);
+
+         portletDescriptions.put(handle, desc);
+      }
+
+      private PortletDescription createPortletDescription(PortletInfo info, List<String> locales, String handle)
+      {
+         if (log.isDebugEnabled())
+         {
+            log.debug("Constructing portlet description for: " + handle);
+         }
+
+         CapabilitiesInfo capInfo = info.getCapabilities();
+         Collection<MediaType> allMediaTypes = capInfo.getMediaTypes();
+         List<MarkupType> markupTypes = new ArrayList<MarkupType>(allMediaTypes.size());
+         for (MediaType mediaType : allMediaTypes)
+         {
+            MarkupType markupType = WSRPTypeFactory.createMarkupType(mediaType.getValue(),
+               getModeNamesFrom(capInfo.getModes(mediaType)), getWindowStateNamesFrom(capInfo.getWindowStates(mediaType)),
+               getLocaleNamesFrom(capInfo.getLocales(mediaType)));
+            markupTypes.add(markupType);
+         }
+
+         PortletDescription desc = WSRPTypeFactory.createPortletDescription(handle, markupTypes);
+
+         // group ID
+         desc.setGroupID(info.getApplicationName());
+
+         MetaInfo metaInfo = info.getMeta();
+
+         // description
+         desc.setDescription(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.DESCRIPTION), locales));
+
+         // short title
+         desc.setShortTitle(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.SHORT_TITLE), locales));
+
+         // title
+         desc.setTitle(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.TITLE), locales));
+
+         // display name
+         desc.setDisplayName(Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.DISPLAY_NAME), locales));
+
+         // keywords
+         // metaInfo contains comma-separated keywords: we need to extract them into a list
+         org.oasis.wsrp.v2.LocalizedString concatenatedKeywords =
+            Utils.convertToWSRPLocalizedString(metaInfo.getMetaValue(MetaInfo.KEYWORDS), locales);
+         if (concatenatedKeywords != null)
+         {
+            String commaSeparatedKeywords = concatenatedKeywords.getValue();
+            if (commaSeparatedKeywords != null && commaSeparatedKeywords.length() > 0)
+            {
+               String lang = concatenatedKeywords.getLang();
+               String[] keywordArray = commaSeparatedKeywords.split(",");
+               for (String keyword : keywordArray)
+               {
+                  // todo: fix resource name
+                  desc.getKeywords().add(WSRPTypeFactory.createLocalizedString(lang, concatenatedKeywords.getResourceName(), keyword.trim()));
+               }
+            }
+         }
+
+         // events
+         EventingInfo eventsInfo = info.getEventing();
+         if (eventsInfo != null)
+         {
+            Map<QName, ? extends EventInfo> producedEvents = eventsInfo.getProducedEvents();
+            if (ParameterValidation.existsAndIsNotEmpty(producedEvents))
+            {
+               List<QName> publishedEvents = desc.getPublishedEvents();
+               for (Map.Entry<QName, ? extends EventInfo> entry : producedEvents.entrySet())
+               {
+                  publishedEvents.add(entry.getKey());
+                  addEventInfo(entry.getValue(), locales);
+               }
+            }
+            Map<QName, ? extends EventInfo> consumedEvents = eventsInfo.getConsumedEvents();
+            if (ParameterValidation.existsAndIsNotEmpty(consumedEvents))
+            {
+               List<QName> handledEvents = desc.getHandledEvents();
+               for (Map.Entry<QName, ? extends EventInfo> entry : consumedEvents.entrySet())
+               {
+                  handledEvents.add(entry.getKey());
+                  addEventInfo(entry.getValue(), locales);
+               }
+            }
+         }
+
+         // public parameters
+         NavigationInfo navigationInfo = info.getNavigation();
+         if (navigationInfo != null)
+         {
+            Collection<? extends ParameterInfo> parameterInfos = navigationInfo.getPublicParameters();
+            if (ParameterValidation.existsAndIsNotEmpty(parameterInfos))
+            {
+               List<ParameterDescription> publicValueDescriptions = desc.getNavigationalPublicValueDescriptions();
+               for (ParameterInfo parameterInfo : parameterInfos)
+               {
+                  String id = parameterInfo.getId();
+                  ParameterDescription paramDesc = WSRPTypeFactory.createParameterDescription(id);
+                  paramDesc.setDescription(Utils.convertToWSRPLocalizedString(parameterInfo.getDescription(), locales));
+                  paramDesc.setLabel(WSRPTypeFactory.createLocalizedString(id));
+                  List<QName> names = paramDesc.getNames();
+                  names.add(parameterInfo.getName());
+                  Collection<QName> aliases = parameterInfo.getAliases();
+                  if (ParameterValidation.existsAndIsNotEmpty(aliases))
+                  {
+                     names.addAll(aliases);
+                  }
+
+                  publicValueDescriptions.add(paramDesc);
+               }
+            }
+         }
+
+         // security
+         SecurityInfo secInfo = info.getSecurity();
+         if (secInfo.containsTransportGuarantee(TransportGuarantee.INTEGRAL)
+            || secInfo.containsTransportGuarantee(TransportGuarantee.CONFIDENTIAL))
+         {
+            desc.setOnlySecure(true);
+         }
+
+         /* todo:
+         *[O]ID portletID
+         *[O]string userCategories[]
+         *[O]string userProfileItems[]
+         *[O]string portletManagedModes[]
+         *[O]boolean usesMethodGet
+         *[O]boolean defaultMarkupSecure
+         *[O]boolean userContextStoredInSession
+         *[O]boolean templatesStoredInSession
+         *[O]boolean hasUserSpecificState
+         *[O]boolean doesUrlTemplateProcessing
+         *[O]boolean mayReturnPortletState
+         *[O]Extension extensions[]
+         */
+         return desc;
+      }
+
+      /**
+       * TODO: Adapt to desired locales
+       *
+       * @param context
+       * @param desiredLocales
+       * @param registration
+       * @return
+       */
+      public PortletDescription getPortletDescription(PortletContext context, List<String> desiredLocales, Registration registration)
+      {
+         initIfNeeded();
+
+         org.gatein.pc.api.PortletContext pcContext = WSRPUtils.convertToPortalPortletContext(context);
+         if (producer.getRegistrationManager().getPolicy().allowAccessTo(pcContext, registration, "getPortletDescription"))
+         {
+            PortletDescription description = portletDescriptions.get(context.getPortletHandle());
+
+            if (description == null)
+            {
+               // check if we asked for the description of a clone
+               if (registration.knows(pcContext))
+               {
+                  try
+                  {
+                     // retrieve initial context from portlet info and get description from it
+                     Portlet portlet = producer.getPortletWith(pcContext, registration);
+                     PortletInfo info = portlet.getInfo();
+                     org.gatein.pc.api.PortletContext original = org.gatein.pc.api.PortletContext.createPortletContext(info.getApplicationName(), info.getName());
+                     return portletDescriptions.get(original.getId());
+                  }
+                  catch (Exception e)
+                  {
+                     log.debug("Couldn't retrieve portlet " + pcContext, e);
+                     return null;
+                  }
+               }
+            }
+            return description;
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public void removePortletDescription(org.gatein.pc.api.PortletContext pc)
+      {
+         String handle = WSRPUtils.convertToWSRPPortletContext(pc).getPortletHandle();
+
+         PortletDescription description = portletDescriptions.get(handle);
+         if (description != null)
+         {
+            // deal with events
+            for (QName event : description.getHandledEvents())
+            {
+               removeEvent(event);
+            }
+            for (QName event : description.getPublishedEvents())
+            {
+               removeEvent(event);
+            }
+
+            portletDescriptions.remove(handle);
          }
       }
    }

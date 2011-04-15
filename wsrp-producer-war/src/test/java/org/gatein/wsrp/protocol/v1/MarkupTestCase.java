@@ -130,25 +130,25 @@ public class MarkupTestCase extends NeedPortletHandleTest
       V1GetMarkup getMarkup = createMarkupRequest();
       getMarkup.getRuntimeContext().setNamespacePrefix(null);
       getMarkup.getRuntimeContext().setPortletInstanceKey(null);
-      
+
       assertNull(getMarkup.getRuntimeContext().getNamespacePrefix());
       assertNull(getMarkup.getRuntimeContext().getPortletInstanceKey());
-      
+
       V1MarkupResponse response = producer.getMarkup(getMarkup);
-      
+
       checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
-      
+
       getMarkup.getRuntimeContext().setNamespacePrefix("");
       getMarkup.getRuntimeContext().setPortletInstanceKey("");
-      
+
       assertSame("", getMarkup.getRuntimeContext().getNamespacePrefix());
       assertSame("", getMarkup.getRuntimeContext().getPortletInstanceKey());
-      
+
       response = producer.getMarkup(getMarkup);
-      
+
       checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
    }
-   
+
    @Test
    public void testInvalidGetMarkup() throws Exception
    {
@@ -671,14 +671,6 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
-   private V1NamedString createNamedString(String name, String value)
-   {
-      V1NamedString namedString = new V1NamedString();
-      namedString.setName(name);
-      namedString.setValue(value);
-      return namedString;
-   }
-
    @Test
    public void testGetMarkupWithResource() throws Exception
    {
@@ -821,6 +813,14 @@ public class MarkupTestCase extends NeedPortletHandleTest
       {
          ExtendedAssert.fail(e.getMessage());
       }
+   }
+
+   private V1NamedString createNamedString(String name, String value)
+   {
+      V1NamedString namedString = new V1NamedString();
+      namedString.setName(name);
+      namedString.setValue(value);
+      return namedString;
    }
 
    private String checkPBIAndGetNavigationalState(String symbol) throws Exception

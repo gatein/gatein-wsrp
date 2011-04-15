@@ -80,29 +80,35 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       jar.addClass(WSRPProducerBaseTest.class);
       return jar;
    }
-   
+
+   @Override
+   protected boolean removeCurrent(String archiveName)
+   {
+      return true;
+   }
+
    @Before
    public void setUp() throws Exception
    {
       if (System.getProperty("test.deployables.dir") != null)
       {
-       super.setUp();
-       //hack to get around having to have a httpservletrequest when accessing the producer services
-       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+         super.setUp();
+         //hack to get around having to have a httpservletrequest when accessing the producer services
+         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
       }
    }
-   
-   
+
+
    @After
    public void tearDown() throws Exception
    {
-       if (System.getProperty("test.deployables.dir") != null)
-       {
-          super.tearDown();
-       }
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.tearDown();
+      }
    }
-   
+
    /**
     * R355: The portal MUST pass a name for itself that uniquely identifies it.
     *
@@ -151,23 +157,23 @@ public class RegistrationTestCase extends V1ProducerBaseTest
    {
       try
       {
-      // check that a registration handle was created
-      V1RegistrationContext rc = registerConsumer();
-      String registrationHandle = rc.getRegistrationHandle();
-      assertNotNull(registrationHandle);
+         // check that a registration handle was created
+         V1RegistrationContext rc = registerConsumer();
+         String registrationHandle = rc.getRegistrationHandle();
+         assertNotNull(registrationHandle);
 
-      // check that a registration was created with that handle
-      RegistrationManager registrationManager = producer.getRegistrationManager();
-      Registration registration = registrationManager.getRegistration(registrationHandle);
-      assertNotNull(registration);
+         // check that a registration was created with that handle
+         RegistrationManager registrationManager = producer.getRegistrationManager();
+         Registration registration = registrationManager.getRegistration(registrationHandle);
+         assertNotNull(registration);
 
-      // check that the registration was persisted...
-      String key = registration.getPersistentKey();
-      assertNotNull(key);
+         // check that the registration was persisted...
+         String key = registration.getPersistentKey();
+         assertNotNull(key);
 
-      // ... and that the handle was created by the policy based on the registration key
-      String expectedHandle = registrationManager.getPolicy().createRegistrationHandleFor(key);
-      assertEquals(expectedHandle, registrationHandle);
+         // ... and that the handle was created by the policy based on the registration key
+         String expectedHandle = registrationManager.getPolicy().createRegistrationHandleFor(key);
+         assertEquals(expectedHandle, registrationHandle);
       }
       catch (Exception e)
       {

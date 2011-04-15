@@ -47,4 +47,6 @@ public interface ProducerHelper
    PortletDescription getPortletDescription(PortletContext portletContext, List<String> locales, Registration registration) throws InvalidHandle, OperationFailed;
 
    Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired;
+
+   void reset();
 }

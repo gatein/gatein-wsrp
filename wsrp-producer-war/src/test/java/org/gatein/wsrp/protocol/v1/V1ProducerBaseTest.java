@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
@@ -32,6 +34,7 @@ import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
 import org.gatein.wsrp.producer.v1.WSRP1Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
@@ -53,6 +56,7 @@ import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,6 +68,13 @@ import java.util.List;
 public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 {
    private static final String CONSUMER = "test-consumer";
+   private static final Function<V1PortletDescription, String> PORTLET_DESCRIPTION_TO_HANDLE = new Function<V1PortletDescription, String>()
+   {
+      public String apply(V1PortletDescription from)
+      {
+         return from.getPortletHandle();
+      }
+   };
    protected WSRP1Producer producer = ProducerHolder.getV1Producer();
 
 
@@ -79,6 +90,12 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 
    @Override
    protected WSRPProducer getProducer()
+   {
+      return producer;
+   }
+
+   @Override
+   protected ProducerHelper getProducerHelper()
    {
       return producer;
    }
@@ -269,23 +286,74 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
 //      ExtendedAssert.assertTrue(cause instanceof SOAPFaultException);
 //      ExtendedAssert.assertEquals(errorCode, ((SOAPFaultException)cause).getFault().getLocalPart());
    }
-   
-   
+
+
    protected V1GetMarkup createDefaultMarkupRequest(String handle)
    {
       V1PortletContext portletContext = WSRP1TypeFactory.createPortletContext(handle);
       return WSRP1TypeFactory.createMarkupRequest(portletContext, createDefaultRuntimeContext(), WSRP1TypeFactory.createDefaultMarkupParams());
    }
-   
+
    protected V1PerformBlockingInteraction createDefaultPerformBlockingInteraction(String handle)
    {
       V1PortletContext portletContext = WSRP1TypeFactory.createPortletContext(handle);
       return WSRP1TypeFactory.createPerformBlockingInteraction(portletContext, createDefaultRuntimeContext(), WSRP1TypeFactory.createDefaultMarkupParams(),
-            WSRP1TypeFactory.createDefaultInteractionParams());
+         WSRP1TypeFactory.createDefaultInteractionParams());
    }
-   
+
    protected V1RuntimeContext createDefaultRuntimeContext()
    {
       return WSRP1TypeFactory.createRuntimeContext(WSRPConstants.NONE_USER_AUTHENTICATION, "foo", "bar");
+   }
+
+   /**
+    * Each time we deploy a new archive, check to see if the service description has changed and add any new portlet
+    * handles found.
+    *
+    * @param archiveName
+    * @throws Exception
+    */
+   /*public void deploy(String archiveName) throws Exception
+   {
+      super.deploy(archiveName);
+      currentlyDeployedArchiveName = archiveName;
+
+      if (!war2Handles.containsKey(archiveName))
+      {
+         V1GetServiceDescription getServiceDescription = WSRP1TypeFactory.createGetServiceDescription();
+         V1ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
+         List<V1PortletDescription> offered = serviceDescription.getOfferedPortlets();
+         if (offered != null)
+         {
+            for (V1PortletDescription portletDescription : offered)
+            {
+               String handle = portletDescription.getPortletHandle();
+               String warName = getWarName(handle);
+               if (warName.equals(archiveName))
+               {
+                  List<String> handles = war2Handles.get(warName);
+                  if (handles == null)
+                  {
+                     handles = new ArrayList<String>(3);
+                     war2Handles.put(warName, handles);
+                  }
+
+                  handles.add(handle);
+               }
+            }
+         }
+         else
+         {
+            throw new IllegalArgumentException(archiveName + " didn't contain any portlets...");
+         }
+      }
+   }*/
+   @Override
+   protected Collection<String> getPortletHandles() throws Exception
+   {
+      V1GetServiceDescription getServiceDescription = WSRP1TypeFactory.createGetServiceDescription();
+      V1ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
+      List<V1PortletDescription> offered = serviceDescription.getOfferedPortlets();
+      return Collections2.transform(offered, PORTLET_DESCRIPTION_TO_HANDLE);
    }
 }

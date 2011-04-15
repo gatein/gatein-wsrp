@@ -24,13 +24,18 @@
 package org.gatein.wsrp.producer.v1;
 
 import org.gatein.exports.ExportManager;
+import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
+import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
+import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
+import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
+import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
@@ -88,6 +93,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
@@ -101,13 +107,34 @@ import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 
+import java.util.List;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1PortletManagementInterface,
-   V1RegistrationInterface, V1ServiceDescriptionInterface
+   V1RegistrationInterface, V1ServiceDescriptionInterface, ProducerHelper
 {
+   public Portlet getPortletWith(org.gatein.pc.api.PortletContext portletContext, Registration registration) throws InvalidHandle, PortletInvokerException
+   {
+      return ((ProducerHelper)producer).getPortletWith(portletContext, registration);
+   }
+
+   public PortletDescription getPortletDescription(PortletContext portletContext, List<String> locales, Registration registration) throws InvalidHandle, OperationFailed
+   {
+      return ((ProducerHelper)producer).getPortletDescription(portletContext, locales, registration);
+   }
+
+   public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
+   {
+      return ((ProducerHelper)producer).getRegistrationOrFailIfInvalid(registrationContext);
+   }
+
+   public void reset()
+   {
+      ((ProducerHelper)producer).reset();
+   }
 
    // On-demand class holder Singleton pattern (multi-thread safe)
 

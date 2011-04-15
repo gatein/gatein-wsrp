@@ -24,22 +24,15 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.oasis.wsrp.v1.V1GetMarkup;
-import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1InvalidRegistrationFault;
 import org.oasis.wsrp.v1.V1MarkupResponse;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1OperationFailedFault;
-import org.oasis.wsrp.v1.V1PortletDescription;
-import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -49,8 +42,6 @@ import java.util.Map;
 public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
 {
    private String mostUsedPortletWARFileName;
-   private String currentlyDeployedArchiveName;
-   private Map<String, List<String>> war2Handles = new HashMap<String, List<String>>(7);
 
 
    public NeedPortletHandleTest(String portletWARFileName)
@@ -96,69 +87,9 @@ public abstract class NeedPortletHandleTest extends V1ProducerBaseTest
       return war2Handles.get(currentlyDeployedArchiveName);
    }
 
-   /**
-    * Each time we deploy a new archive, check to see if the service description has changed and add any new portlet
-    * handles found.
-    *
-    * @param archiveName
-    * @throws Exception
-    */
-   public void deploy(String archiveName) throws Exception
+   protected boolean removeCurrent(String archiveName)
    {
-      super.deploy(archiveName);
-      currentlyDeployedArchiveName = archiveName;
-
-      if (!war2Handles.containsKey(archiveName))
-      {
-         V1GetServiceDescription getServiceDescription = WSRP1TypeFactory.createGetServiceDescription();
-         V1ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
-         List<V1PortletDescription> offered = serviceDescription.getOfferedPortlets();
-         if (offered != null)
-         {
-            for (V1PortletDescription portletDescription : offered)
-            {
-               String handle = portletDescription.getPortletHandle();
-               String warName = handle.substring(1, handle.indexOf('.')) + ".war";
-               if (warName.equals(archiveName))
-               {
-                  List<String> handles = war2Handles.get(warName);
-                  if (handles == null)
-                  {
-                     handles = new ArrayList<String>(3);
-                     war2Handles.put(warName, handles);
-                  }
-
-                  handles.add(handle);
-               }
-            }
-         }
-         else
-         {
-            throw new IllegalArgumentException(archiveName + " didn't contain any portlets...");
-         }
-      }
-   }
-
-   public void undeploy(String archiveName) throws Exception
-   {
-      try
-      {
-         super.undeploy(archiveName);
-      }
-      catch (Exception e)
-      {
-         // if an exception occurred the portlet is still probably deployed, so just exit
-         e.printStackTrace();
-         return;
-      }
-
-      currentlyDeployedArchiveName = null;
-
-      // only remove the mapping if we're not undeploying the most used portlet (optimization, as it avoids parsing the SD)
-      if (!mostUsedPortletWARFileName.equals(archiveName))
-      {
-         war2Handles.remove(archiveName);
-      }
+      return !mostUsedPortletWARFileName.equals(archiveName);
    }
 
    public void setUp() throws Exception

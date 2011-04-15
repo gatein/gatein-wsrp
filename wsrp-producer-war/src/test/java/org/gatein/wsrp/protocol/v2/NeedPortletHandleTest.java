@@ -40,6 +40,7 @@ import org.oasis.wsrp.v2.StateChange;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +52,6 @@ import java.util.Map;
 public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
 {
    private String mostUsedPortletWARFileName;
-   private String currentlyDeployedArchiveName;
-   private Map<String, List<String>> war2Handles = new HashMap<String, List<String>>(7);
 
 
    public NeedPortletHandleTest(String portletWARFileName)
@@ -98,69 +97,10 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
       return war2Handles.get(currentlyDeployedArchiveName);
    }
 
-   /**
-    * Each time we deploy a new archive, check to see if the service description has changed and add any new portlet
-    * handles found.
-    *
-    * @param archiveName
-    * @throws Exception
-    */
-   public void deploy(String archiveName) throws Exception
+   @Override
+   protected boolean removeCurrent(String archiveName)
    {
-      super.deploy(archiveName);
-      currentlyDeployedArchiveName = archiveName;
-
-      if (!war2Handles.containsKey(archiveName))
-      {
-         GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription(null, null);
-         ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
-         List<PortletDescription> offered = serviceDescription.getOfferedPortlets();
-         if (offered != null)
-         {
-            for (PortletDescription portletDescription : offered)
-            {
-               String handle = portletDescription.getPortletHandle();
-               String warName = handle.substring(1, handle.indexOf('.')) + ".war";
-               if (warName.equals(archiveName))
-               {
-                  List<String> handles = war2Handles.get(warName);
-                  if (handles == null)
-                  {
-                     handles = new ArrayList<String>(3);
-                     war2Handles.put(warName, handles);
-                  }
-
-                  handles.add(handle);
-               }
-            }
-         }
-         else
-         {
-            throw new IllegalArgumentException(archiveName + " didn't contain any portlets...");
-         }
-      }
-   }
-
-   public void undeploy(String archiveName) throws Exception
-   {
-      try
-      {
-         super.undeploy(archiveName);
-      }
-      catch (Exception e)
-      {
-         // if an exception occurred the portlet is still probably deployed, so just exit
-         e.printStackTrace();
-         return;
-      }
-
-      currentlyDeployedArchiveName = null;
-
-      // only remove the mapping if we're not undeploying the most used portlet (optimization, as it avoids parsing the SD)
-      if (!mostUsedPortletWARFileName.equals(archiveName))
-      {
-         war2Handles.remove(archiveName);
-      }
+      return !mostUsedPortletWARFileName.equals(archiveName);
    }
 
    public void setUp() throws Exception

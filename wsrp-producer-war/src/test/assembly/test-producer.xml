@@ -64,6 +64,10 @@
 
             <include>com.google.collections:google-collections</include>
 
+            <!-- mockito and related dependencies -->
+            <include>org.mockito:mockito-core</include>
+            <include>org.objenesis:objenesis</include>
+
          </includes>
       </dependencySet>
    </dependencySets>

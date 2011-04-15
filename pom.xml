@@ -59,6 +59,8 @@
       <version.javax.xml.soap.saaj>1.3</version.javax.xml.soap.saaj>
       <version.google-collections>1.0</version.google-collections>
       <version.chromattic>1.1.0-beta2</version.chromattic>
+      <version.arquillian>1.0.0.Alpha2</version.arquillian>
+      <version.mockito>1.8.5</version.mockito>
    </properties>
 
    <dependencyManagement>

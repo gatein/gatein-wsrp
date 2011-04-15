@@ -77,6 +77,12 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
       return jar;
    }
 
+   @Override
+   protected boolean removeCurrent(String archiveName)
+   {
+      return true;
+   }
+
    @Before
    public void setUp() throws Exception
    {
@@ -107,9 +113,10 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
 
       gsd.getPortletHandles().clear();
 
-      assertEquals(original, producer.getServiceDescription(gsd));
+      assertEquals(original.getOfferedPortlets(), producer.getServiceDescription(gsd).getOfferedPortlets());
    }
 
+   @Test
    public void testServiceDescriptionFilterInexistentFilter() throws Exception
    {
       GetServiceDescription gsd = getNoRegistrationServiceDescriptionRequest();
@@ -122,7 +129,7 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
          deploy("test-session-portlet.war");
 
          ServiceDescription sd = producer.getServiceDescription(gsd);
-         assertEquals(3, sd.getOfferedPortlets().size());
+         assertEquals(0, sd.getOfferedPortlets().size());
       }
       finally
       {

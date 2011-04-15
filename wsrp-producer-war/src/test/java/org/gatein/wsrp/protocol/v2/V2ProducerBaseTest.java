@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.protocol.v2;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
@@ -32,19 +34,32 @@ import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
+import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.oasis.wsrp.v2.GetServiceDescription;
+import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class V2ProducerBaseTest extends WSRPProducerBaseTest
+public abstract class V2ProducerBaseTest extends WSRPProducerBaseTest
 {
+   private static final Function<PortletDescription, String> PORTLET_DESCRIPTION_TO_HANDLE = new Function<PortletDescription, String>()
+   {
+      public String apply(PortletDescription from)
+      {
+         return from.getPortletHandle();
+      }
+   };
+
    protected WSRP2Producer producer = ProducerHolder.getProducer(true);
 
    private static final String CONSUMER = "test-consumer";
@@ -63,6 +78,21 @@ public class V2ProducerBaseTest extends WSRPProducerBaseTest
    protected WSRPProducer getProducer()
    {
       return producer;
+   }
+
+   @Override
+   protected ProducerHelper getProducerHelper()
+   {
+      return (ProducerHelper)producer;
+   }
+
+   @Override
+   protected Collection<String> getPortletHandles() throws Exception
+   {
+      GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription(null, null);
+      ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
+      List<PortletDescription> offered = serviceDescription.getOfferedPortlets();
+      return Collections2.transform(offered, PORTLET_DESCRIPTION_TO_HANDLE);
    }
 
    protected GetServiceDescription getNoRegistrationServiceDescriptionRequest()

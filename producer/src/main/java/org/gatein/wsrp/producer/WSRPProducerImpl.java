@@ -492,17 +492,17 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
       return serviceDescriptionHandler.getPortletDescription(portletContext, locales, registration);
    }
 
-   public PortletDescription getPortletDescription(Portlet portlet, List<String> locales)
-   {
-      return serviceDescriptionHandler.getPortletDescription(portlet, locales);
-   }
-
    public Registration getRegistrationOrFailIfInvalid(RegistrationContext registrationContext) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
    {
       Registration registration = registrationHandler.getRegistrationFrom(registrationContext);
       registrationHandler.isRegistrationValid(registration, true);
 
       return registration;
+   }
+
+   public void reset()
+   {
+      serviceDescriptionHandler.reset();
    }
 
    private Boolean remotableByDefault;
