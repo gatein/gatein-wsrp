@@ -43,12 +43,6 @@
       <param-value>Mojarra-1.2</param-value>
    </context-param>
 
-   <!-- Tell JBoss AS 6 to use JBoss EL engine instead of default -->
-   <!--<context-param>
-      <param-name>com.sun.faces.expressionFactory</param-name>
-      <param-value>org.jboss.el.ExpressionFactoryImpl</param-value>
-   </context-param>-->
-
    <!-- Facelet configuration -->
    <context-param>
       <param-name>facelets.DEVELOPMENT</param-name>
