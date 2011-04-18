@@ -56,7 +56,7 @@
       <version.javax.mail>1.4.1</version.javax.mail>
       <version.javax.xml.ws>2.1</version.javax.xml.ws>
       <version.javax.xml.soap.saaj>1.3</version.javax.xml.soap.saaj>
-      <version.google-collections>1.0</version.google-collections>
+      <com.google.guava.version>r09</com.google.guava.version>
    </properties>
 
    <dependencyManagement>
@@ -156,9 +156,9 @@
          </dependency>
 
          <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>${version.google-collections}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com.google.guava.version}</version>
          </dependency>
 
          <!--
