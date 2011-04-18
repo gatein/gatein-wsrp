@@ -247,4 +247,9 @@ public class EndpointConfigurationInfo
    {
       serviceFactory.enableWSS(enable);
    }
+   
+   public boolean isWSSAvailable()
+   {
+      return serviceFactory.isWSSAvailable();
+   }
 }

@@ -720,6 +720,11 @@ public class ConsumerBean extends ManagedBean
    {
       return consumer.getProducerInfo().getEndpointConfigurationInfo().getWSSEnabled();
    }
+   
+   public boolean isWssAvailable()
+   {
+      return consumer.getProducerInfo().getEndpointConfigurationInfo().isWSSAvailable();
+   }
 
    public void setWssEnabled(boolean enable)
    {

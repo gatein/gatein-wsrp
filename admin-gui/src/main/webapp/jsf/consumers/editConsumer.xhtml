@@ -64,6 +64,7 @@
       <h:message styleClass="portlet-msg-error" for="wsdl"/>
    </td>
 </tr>
+<c:if test="#{consumer.wssAvailable}">
 <tr>
    <th>#{i18n.edit_enable_ws_security}</th>
    <td>
@@ -71,6 +72,7 @@
      <h:message styleClass="portlet-msg-error" for="wsdl"/>
    </td>
 </tr>
+</c:if>
 <c:if test="#{consumer.localInfoPresent}">
    <tr>
       <th>#{i18n.edit_consumer_registration}</th>

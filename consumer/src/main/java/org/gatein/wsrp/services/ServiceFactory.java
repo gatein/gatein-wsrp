@@ -94,4 +94,5 @@ public interface ServiceFactory
    
    void enableWSS(boolean enable);
    boolean isWSSEnabled();
+   boolean isWSSAvailable();
 }

@@ -38,5 +38,6 @@
    <modules>
       <module>wss</module>
       <module>jboss5</module>
+      <module>wsrp-producer-jb5wss-producer-war</module>
    </modules>
 </project>

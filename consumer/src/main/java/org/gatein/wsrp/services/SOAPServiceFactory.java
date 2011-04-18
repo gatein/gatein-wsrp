@@ -519,6 +519,19 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       return this.wssEnabled;
    }
    
+   public boolean isWSSAvailable()
+   {
+      WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
+      if (wssFactory != null && wssFactory.getHandlers() != null && !wssFactory.getHandlers().isEmpty())
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+   
    protected void addWSSHandlers(List<Handler> handlerChain)
    {
       if (wssEnabled)
