@@ -126,7 +126,7 @@
          <id>integration-tests-enabled</id>
          <activation>
             <property>
-               <name>!maven.test.skip</name>
+               <name>!skipTests</name>
             </property>
          </activation>
          <build>
@@ -480,7 +480,7 @@
                      <goal>test</goal>
                   </goals>
                   <configuration>
-                     <skip>${maven.test.skip}</skip>
+                     <skip>${skipTests}</skip>
                      <includes>
                         <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
                         <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
