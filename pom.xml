@@ -110,6 +110,12 @@
             <artifactId>wsrp-wss</artifactId>
             <version>${project.version}</version>
          </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-producer</artifactId>
+            <type>war</type>
+            <version>${project.version}</version>
+         </dependency>
 
          <dependency>
             <groupId>org.gatein.common</groupId>
