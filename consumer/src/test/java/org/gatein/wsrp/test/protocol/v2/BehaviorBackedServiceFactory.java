@@ -237,13 +237,15 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
 
    public void enableWSS(boolean enable)
    {
-      // FIXME enableWSS
-      
    }
 
    public boolean isWSSEnabled()
    {
-      // FIXME isWSSEnabled
+      return false;
+   }
+
+   public boolean isWSSAvailable()
+   {
       return false;
    }
 }
