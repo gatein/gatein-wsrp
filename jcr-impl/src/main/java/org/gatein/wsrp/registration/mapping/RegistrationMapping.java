@@ -117,6 +117,10 @@ public abstract class RegistrationMapping
                throw new IllegalArgumentException("Cannot handle PortletContext state: " + context.getState());
             }
          }
+         else
+         {
+            contextMapping.initFrom(id, null);
+         }
       }
 
       Map<QName, Object> properties = registration.getProperties();
@@ -149,7 +153,7 @@ public abstract class RegistrationMapping
       for (PortletContextMapping pcm : pcms)
       {
          PortletContext pc = PortletContext.createPortletContext(pcm.getId(), IOTools.safeGetBytes(pcm.getState()));
-         reg.addPortletContext(pc);
+         reg.addPortletContext(pc, false); // no need to save since we're loading from persistence :)
       }
 
       return reg;

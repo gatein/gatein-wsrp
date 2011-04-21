@@ -27,7 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
-import org.gatein.registration.RegistrationManager;
+import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
@@ -53,16 +53,17 @@ public class RegistrationImpl implements RegistrationSPI
    private Map<QName, Object> properties;
    private String registrationHandle;
    private Set<PortletContext> portletContexts;
-   private transient RegistrationManager manager;
+   private transient RegistrationPersistenceManager manager;
 
 
-   RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties)
+   RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties, RegistrationPersistenceManager manager)
    {
       this.key = key;
       this.consumer = consumer;
       this.status = status;
       this.properties = new HashMap<QName, Object>(properties);
       portletContexts = new HashSet<PortletContext>();
+      this.manager = manager;
    }
 
    public String getPersistentKey()
@@ -87,20 +88,27 @@ public class RegistrationImpl implements RegistrationSPI
 
    public void addPortletContext(PortletContext portletContext) throws RegistrationException
    {
+      addPortletContext(portletContext, true);
+   }
+
+   public void addPortletContext(PortletContext portletContext, boolean needsSaving) throws RegistrationException
+   {
       portletContexts.add(portletContext);
-      manager.getPersistenceManager().saveChangesTo(this);
+      if (needsSaving)
+      {
+         manager.saveChangesTo(this);
+      }
    }
 
    public void removePortletContext(PortletContext portletContext) throws RegistrationException
    {
-      portletContexts.remove(portletContext);
-      manager.getPersistenceManager().saveChangesTo(this);
+      removePortletContext(portletContext, true);
    }
 
-   public void setManager(RegistrationManager manager)
+   public void removePortletContext(PortletContext portletContext, boolean needsSaving) throws RegistrationException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(manager, "RegistrationManager");
-      this.manager = manager;
+      portletContexts.remove(portletContext);
+      manager.saveChangesTo(this);
    }
 
    public Map<QName, Object> getProperties()

@@ -38,7 +38,9 @@ public interface RegistrationSPI extends Registration
 
    void addPortletContext(PortletContext portletContext) throws RegistrationException;
 
+   void addPortletContext(PortletContext portletContext, boolean needsSaving) throws RegistrationException;
+
    void removePortletContext(PortletContext portletContext) throws RegistrationException;
 
-   void setManager(RegistrationManager manager);
+   void removePortletContext(PortletContext portletContext, boolean needsSaving) throws RegistrationException;
 }

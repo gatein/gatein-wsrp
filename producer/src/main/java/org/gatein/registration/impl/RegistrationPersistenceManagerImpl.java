@@ -108,7 +108,7 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
 
    public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map<QName, Object> registrationProperties, String registrationKey)
    {
-      return new RegistrationImpl(registrationKey, consumer, RegistrationStatus.PENDING, registrationProperties);
+      return new RegistrationImpl(registrationKey, consumer, RegistrationStatus.PENDING, registrationProperties, this);
    }
 
    @Override

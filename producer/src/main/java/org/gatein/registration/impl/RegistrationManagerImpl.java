@@ -125,8 +125,6 @@ public class RegistrationManagerImpl implements RegistrationManager
       String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
       registration.setRegistrationHandle(handle);
 
-      registration.setManager(this);
-
       return registration;
    }
 
