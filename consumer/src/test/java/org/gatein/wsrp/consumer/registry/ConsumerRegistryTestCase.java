@@ -41,7 +41,7 @@ import java.util.Collections;
  */
 public class ConsumerRegistryTestCase extends TestCase
 {
-   private ConsumerRegistry registry;
+   protected ConsumerRegistry registry;
 
    @Override
    protected void setUp() throws Exception

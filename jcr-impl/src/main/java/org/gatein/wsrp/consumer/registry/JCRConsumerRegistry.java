@@ -50,6 +50,7 @@ import java.util.Map;
 public class JCRConsumerRegistry extends AbstractConsumerRegistry implements StoresByPathManager<ProducerInfo>
 {
    private ChromatticPersister persister;
+   private boolean loadFromXMLIfNeeded;
    private static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
@@ -63,7 +64,13 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
    public JCRConsumerRegistry(ChromatticPersister persister) throws Exception
    {
+      this(persister, true);
+   }
+
+   protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded)
+   {
       this.persister = persister;
+      this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
    }
 
    @Override
@@ -163,25 +170,27 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          producerInfosMapping = session.insert(ProducerInfosMapping.class, ProducerInfosMapping.NODE_NAME);
 
-         List<ProducerInfoMapping> infos = producerInfosMapping.getProducerInfos();
-
-         // Load from XML
-         XMLConsumerRegistry fromXML = new XMLConsumerRegistry();
-         fromXML.reloadConsumers();
-
-         // Save to JCR
-         List<WSRPConsumer> consumers = fromXML.getConfiguredConsumers();
-         for (WSRPConsumer consumer : consumers)
+         if (loadFromXMLIfNeeded)
          {
-            ProducerInfo info = consumer.getProducerInfo();
+            // Load from XML
+            XMLConsumerRegistry fromXML = new XMLConsumerRegistry();
+            fromXML.reloadConsumers();
 
-            ProducerInfoMapping pim = producerInfosMapping.createProducerInfo(info.getId());
+            // Save to JCR
+            List<ProducerInfoMapping> infos = producerInfosMapping.getProducerInfos();
+            List<WSRPConsumer> consumers = fromXML.getConfiguredConsumers();
+            for (WSRPConsumer consumer : consumers)
+            {
+               ProducerInfo info = consumer.getProducerInfo();
 
-            // need to add to parent first to attach newly created ProducerInfoMapping
-            infos.add(pim);
+               ProducerInfoMapping pim = producerInfosMapping.createProducerInfo(info.getId());
 
-            // init it from ProducerInfo
-            pim.initFrom(info);
+               // need to add to parent first to attach newly created ProducerInfoMapping
+               infos.add(pim);
+
+               // init it from ProducerInfo
+               pim.initFrom(info);
+            }
          }
       }
 

@@ -87,6 +87,12 @@
          </dependency>
          <dependency>
             <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-consumer</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
             <artifactId>wsrp-producer-lib</artifactId>
             <version>${project.version}</version>
          </dependency>
@@ -193,6 +199,20 @@
             <artifactId>chromattic.apt</artifactId>
             <version>${org.chromattic.version}</version>
             <scope>compile</scope>
+         </dependency>
+
+         <!-- For JCR tests-->
+         <dependency>
+            <groupId>org.chromattic</groupId>
+            <artifactId>chromattic.core</artifactId>
+            <version>${org.chromattic.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.chromattic</groupId>
+            <artifactId>chromattic.exo</artifactId>
+            <version>${org.chromattic.version}</version>
+            <scope>test</scope>
          </dependency>
 
          <!--
