@@ -172,6 +172,59 @@ public class Utils
    public static org.oasis.wsrp.v2.LocalizedString convertToWSRPLocalizedString(org.gatein.common.i18n.LocalizedString localizedString,
                                                                                 List<String> desiredLocales)
    {
+      org.gatein.common.i18n.LocalizedString.Value match = getPreferredOrBestMatchFor(localizedString, desiredLocales);
+      if (match != null)
+      {
+
+         Locale locale = match.getLocale();
+         String value = match.getString();
+         String language = WSRPUtils.toString(locale);
+         return WSRPTypeFactory.createLocalizedString(language, null, value);
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static org.oasis.wsrp.v2.LocalizedString convertToWSRPLocalizedString(org.gatein.common.i18n.LocalizedString localizedString, Locale locale)
+   {
+      if (localizedString == null)
+      {
+         return null;
+      }
+
+      if (locale == null)
+      {
+         locale = Locale.getDefault();
+      }
+
+      String value = localizedString.getString(locale, true);
+      if (value != null)
+      {
+         return WSRPTypeFactory.createLocalizedString(WSRPUtils.toString(locale), null, value);
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   public static Locale getPreferredOrBestLocaleFor(org.gatein.common.i18n.LocalizedString localizedString, List<String> desiredLocales)
+   {
+      org.gatein.common.i18n.LocalizedString.Value match = getPreferredOrBestMatchFor(localizedString, desiredLocales);
+      if (match != null)
+      {
+         return match.getLocale();
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   private static org.gatein.common.i18n.LocalizedString.Value getPreferredOrBestMatchFor(org.gatein.common.i18n.LocalizedString localizedString, List<String> desiredLocales)
+   {
       if (localizedString == null)
       {
          return null;
@@ -183,16 +236,7 @@ public class Utils
       }
 
       // todo: rewrite getPreferredOrBestLocalizedMappingFor to take a List as argument
-      org.gatein.common.i18n.LocalizedString.Value bestMapping =
-         localizedString.getPreferredOrBestLocalizedMappingFor(desiredLocales.toArray(new String[desiredLocales.size()]));
-      if (bestMapping != null)
-      {
-         Locale locale = bestMapping.getLocale();
-         String value = bestMapping.getString();
-         String language = WSRPUtils.toString(locale);
-         return WSRPTypeFactory.createLocalizedString(language, null, value);
-      }
-      return null;
+      return localizedString.getPreferredOrBestLocalizedMappingFor(desiredLocales.toArray(new String[desiredLocales.size()]));
    }
 
    public static void throwOperationFaultOnSessionOperation() throws OperationFailed

@@ -173,7 +173,6 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          UserContext userContext = getPortletPropertyDescription.getUserContext();
          checkUserAuthorization(userContext);
 
-         List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
          Portlet portlet = getPortletFrom(portletContext, registration);
          PortletInfo info = portlet.getInfo();
          PreferencesInfo prefsInfo = info.getPreferences();
@@ -194,6 +193,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                {
                   //todo: check what we should use key
                   //todo: right now we only support String properties
+                  List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
                   PropertyDescription desc = WSRPTypeFactory.createPropertyDescription(prefInfo.getKey(), WSRPConstants.XSD_STRING);
                   desc.setLabel(Utils.convertToWSRPLocalizedString(prefInfo.getDisplayName(), desiredLocales));
                   desc.setHint(Utils.convertToWSRPLocalizedString(prefInfo.getDescription(), desiredLocales));
