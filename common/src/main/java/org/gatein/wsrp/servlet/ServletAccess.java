@@ -91,7 +91,8 @@ public class ServletAccess implements InvocationHandler
 
    public static HttpServletResponse getResponse()
    {
-      return local.get().resp;
+      Invocation invocation = local.get();
+      return invocation != null ? invocation.resp : null;
    }
 
    private static class Invocation
