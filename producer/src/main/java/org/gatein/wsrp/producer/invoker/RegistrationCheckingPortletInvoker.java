@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.producer.invoker;
 
+import org.gatein.common.logging.Logger;
+import org.gatein.common.logging.LoggerFactory;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
@@ -59,6 +61,7 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 {
    /** Registration Manager */
    private RegistrationManager registrationManager;
+   private static final Logger log = LoggerFactory.getLogger(RegistrationCheckingPortletInvoker.class);
 
    public void setRegistrationManager(RegistrationManager registrationManager)
    {
@@ -345,8 +348,12 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
          {
             failures = super.destroyClones(portletContexts);
          }
-         catch (PortletInvokerException e)
+         catch (Exception e)
          {
+            if (log.isDebugEnabled())
+            {
+               log.debug("Couldn't destroy clones", e);
+            }
             return Vote.negativeVote("Couldn't destroy clones: " + failures);
          }
       }
