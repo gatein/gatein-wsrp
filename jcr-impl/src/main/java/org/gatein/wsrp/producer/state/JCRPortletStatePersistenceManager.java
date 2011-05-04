@@ -146,7 +146,6 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
       else
       {
          getContexts(session).getPortletStateContexts().remove(pscm);
-         session.remove(pscm);
          result = pscm.toPortletStateContext();
       }
 
