@@ -98,6 +98,12 @@
          </dependency>
          <dependency>
             <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-producer-lib</artifactId>
+            <type>test-jar</type>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
             <artifactId>wsrp-wsrp1-ws</artifactId>
             <version>${project.version}</version>
          </dependency>
