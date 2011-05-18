@@ -44,7 +44,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
    /** . */
    private Map<QName, Object> registrationProperties;
 
-   public abstract RegistrationPersistenceManager getManager();
+   public abstract RegistrationPersistenceManager getManager() throws Exception;
 
    public void startInteraction()
    {
@@ -80,7 +80,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       stopInteraction();
    }
 
-   public void testCreateConsumer() throws RegistrationException
+   public void testCreateConsumer() throws Exception
    {
       startInteraction();
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
@@ -95,7 +95,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       stopInteraction();
    }
 
-   public void testCreateGroup() throws RegistrationException
+   public void testCreateGroup() throws Exception
    {
       startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");

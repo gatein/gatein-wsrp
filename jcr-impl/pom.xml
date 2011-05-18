@@ -22,7 +22,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
       <artifactId>wsrp-parent</artifactId>
       <groupId>org.gatein.wsrp</groupId>
@@ -87,6 +88,12 @@
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-consumer</artifactId>
+         <type>test-jar</type>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-producer-lib</artifactId>
          <type>test-jar</type>
          <scope>test</scope>
       </dependency>
