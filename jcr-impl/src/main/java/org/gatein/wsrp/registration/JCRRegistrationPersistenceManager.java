@@ -214,7 +214,14 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       try
       {
          ConsumerGroup group = getConsumerGroup(name);
-         remove(group.getPersistentKey(), ConsumerGroupMapping.class);
+         if (group == null)
+         {
+            return super.internalRemoveConsumerGroup(name);
+         }
+         else
+         {
+            remove(group.getPersistentKey(), ConsumerGroupMapping.class);
+         }
       }
       catch (RegistrationException e)
       {
