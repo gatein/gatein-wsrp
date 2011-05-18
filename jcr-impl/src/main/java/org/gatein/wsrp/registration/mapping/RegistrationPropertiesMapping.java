@@ -25,13 +25,11 @@ package org.gatein.wsrp.registration.mapping;
 
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Properties;
-import org.gatein.common.util.Tools;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -41,9 +39,6 @@ import java.util.Set;
 public abstract class RegistrationPropertiesMapping
 {
    public static final String NODE_NAME = "wsrp:registrationproperties";
-
-   /** Need to ignore JCR properties for now until scoping mechanism exists on @Properties */
-   private static final Set<String> propertiesBlackList = Tools.toSet("jcr:uuid", "jcr:primaryType");
 
    @Properties
    public abstract Map<String, String> getProperties();
@@ -57,11 +52,7 @@ public abstract class RegistrationPropertiesMapping
          for (Map.Entry<String, String> entry : propMap.entrySet())
          {
             String key = entry.getKey();
-            // ignore JCR-specific properties
-            if (!propertiesBlackList.contains(key))
-            {
-               properties.put(QName.valueOf(key), entry.getValue());
-            }
+            properties.put(QName.valueOf(key), entry.getValue());
          }
 
          return properties;
