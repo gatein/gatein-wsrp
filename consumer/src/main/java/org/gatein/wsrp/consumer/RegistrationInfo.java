@@ -331,7 +331,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       else
       {
          // todo: deal with language more appropriately
-         prop = new RegistrationProperty(name, value, WSRPUtils.toString(Locale.getDefault()), this);
+         prop = new RegistrationProperty(name, value, WSRPConstants.DEFAULT_LOCALE, this);
          getOrCreateRegistrationPropertiesMap(false).put(name, prop);
       }
 

@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.registration.LocalizedString;
@@ -232,7 +233,7 @@ public class Utils
 
       if (desiredLocales == null || desiredLocales.isEmpty())
       {
-         desiredLocales = Collections.singletonList(WSRPUtils.toString(Locale.getDefault()));
+         desiredLocales = Collections.singletonList(WSRPConstants.DEFAULT_LOCALE);
       }
 
       // todo: rewrite getPreferredOrBestLocalizedMappingFor to take a List as argument

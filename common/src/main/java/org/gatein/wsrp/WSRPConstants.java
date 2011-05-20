@@ -212,13 +212,13 @@ public final class WSRPConstants
    }
 
    // init default locale at loading time as it is slow
-   private static String defaultLocale = WSRPUtils.toString(Locale.getDefault());
+   public static String DEFAULT_LOCALE = WSRPUtils.toString(Locale.getDefault());
 
    public static List<String> getDefaultLocales()
    {
       // return copy to prevent modifications by client code
       ArrayList<String> locales = new ArrayList<String>(2);
-      locales.add(defaultLocale);
+      locales.add(DEFAULT_LOCALE);
       locales.add("en");
       return locales;
    }

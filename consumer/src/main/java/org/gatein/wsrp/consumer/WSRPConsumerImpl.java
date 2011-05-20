@@ -432,7 +432,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
             case PropertyChange.PREF_UPDATE:
                // todo: deal with language more appropriately
                updates.add(WSRPTypeFactory.createProperty(change.getKey(),
-                  WSRPUtils.toString(Locale.getDefault()), change.getValue().get(0)));
+                  WSRPConstants.DEFAULT_LOCALE, change.getValue().get(0)));
                break;
 
             default:
