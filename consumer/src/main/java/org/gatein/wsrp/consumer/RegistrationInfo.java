@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,6 +66,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    private transient Boolean requiresRegistration;
    private transient Boolean consistentWithProducerExpectations;
    private transient RegistrationData registrationData;
+   private transient boolean regenerateRegistrationData;
    private transient boolean modifiedSinceLastRefresh;
    private transient boolean modifyRegistrationNeeded;
    private transient ProducerInfo parent;
@@ -233,7 +233,8 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    }
 
    /**
-    * Determines whether it has been determined after querying the associated Producer that it does <strong>NOT</strong>
+    * Determines whether it has been determined after querying the associated Producer that it does
+    * <strong>NOT</strong>
     * require registration.
     *
     * @return <code>true</code> if and only if the associated Producer has been queried and does NOT mandate
@@ -262,23 +263,28 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 
    public RegistrationData getRegistrationData()
    {
-      registrationData = WSRPTypeFactory.createDefaultRegistrationData();
-      registrationData.setConsumerName(persistentConsumerName);
-      List<Property> properties = new ArrayList<Property>();
-      Map regProps = getRegistrationProperties(false);
-      if (!regProps.isEmpty())
+      if (registrationData == null || regenerateRegistrationData)
       {
-         for (Object o : regProps.values())
+         registrationData = WSRPTypeFactory.createDefaultRegistrationData();
+         registrationData.setConsumerName(persistentConsumerName);
+         List<Property> properties = new ArrayList<Property>();
+         Map regProps = getRegistrationProperties(false);
+         if (!regProps.isEmpty())
          {
-            RegistrationProperty prop = (RegistrationProperty)o;
-            String value = prop.getValue();
-            if (value != null && !prop.isDeterminedInvalid())
+            for (Object o : regProps.values())
             {
-               properties.add(WSRPTypeFactory.createProperty(prop.getName(), prop.getLang(), prop.getValue()));
+               RegistrationProperty prop = (RegistrationProperty)o;
+               String value = prop.getValue();
+               if (value != null && !prop.isDeterminedInvalid())
+               {
+                  properties.add(WSRPTypeFactory.createProperty(prop.getName(), prop.getLang(), prop.getValue()));
+               }
             }
+
+            registrationData.getRegistrationProperties().addAll(properties);
          }
 
-         registrationData.getRegistrationProperties().addAll(properties);
+         regenerateRegistrationData = false;
       }
 
       return registrationData;
@@ -395,6 +401,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    public void setRegistrationProperties(Map registrationProperties)
    {
       this.persistentRegistrationProperties = registrationProperties;
+      regenerateRegistrationData = true;
    }
 
    Set<QName> getRegistrationPropertyNames()
@@ -733,6 +740,8 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       {
          setModifyRegistrationNeeded(true);
       }
+
+      regenerateRegistrationData = true;
    }
 
    private void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)
