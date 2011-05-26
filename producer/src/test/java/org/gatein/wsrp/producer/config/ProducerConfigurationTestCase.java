@@ -31,15 +31,10 @@ import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
-import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationFactory;
 import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationProvider;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.jboss.xb.binding.JBossXBException;
-import org.jboss.xb.binding.ObjectModelFactory;
 import org.jboss.xb.binding.ObjectModelProvider;
-import org.jboss.xb.binding.Unmarshaller;
-import org.jboss.xb.binding.UnmarshallerFactory;
 import org.jboss.xb.binding.XercesXsMarshaller;
 import org.jboss.xb.binding.sunday.unmarshalling.DefaultSchemaResolver;
 import org.xml.sax.SAXException;
@@ -64,10 +59,8 @@ import java.util.Map;
  * @version $Revision: 10408 $
  * @since 2.6
  */
-public class ProducerConfigurationTestCase extends TestCase
+public abstract class ProducerConfigurationTestCase extends TestCase
 {
-   private Unmarshaller unmarshaller;
-   private ObjectModelFactory factory;
 
    private static DefaultSchemaResolver RESOLVER;
 
@@ -77,13 +70,6 @@ public class ProducerConfigurationTestCase extends TestCase
       RESOLVER.setCacheResolvedSchemas(true);
       RESOLVER.addSchemaLocation("http://www.w3.org/XML/1998/namespace", "xsd/xml.xsd");
       RESOLVER.addSchemaLocation("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "xsd/gatein_wsrp_producer_1_0.xsd");
-   }
-
-   protected void setUp() throws Exception
-   {
-      unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-      factory = new ProducerConfigurationFactory();
-      unmarshaller.setEntityResolver(new org.gatein.wsrp.producer.config.TestEntityResolver());
    }
 
    public void testCustomPolicyUnmarshalling() throws Exception
@@ -203,13 +189,13 @@ public class ProducerConfigurationTestCase extends TestCase
       }
    }
 
-   public void testUseStrictMode() throws IOException, JBossXBException
+   public void testUseStrictMode() throws Exception
    {
       ProducerConfiguration producerConfiguration = getProducerConfiguration("strict-mode.xml");
       assertFalse(producerConfiguration.isUsingStrictMode());
    }
 
-   public void testChangeListeners() throws IOException, JBossXBException
+   public void testChangeListeners() throws Exception
    {
       ProducerConfiguration producerConfiguration = getProducerConfiguration("minimal.xml");
       assertTrue(producerConfiguration.isUsingStrictMode());
@@ -227,7 +213,7 @@ public class ProducerConfigurationTestCase extends TestCase
       assertTrue(listener.called);
    }
 
-   public void testSaveAndReload() throws IOException, ParserConfigurationException, SAXException, JBossXBException
+   public void testSaveAndReload() throws Exception
    {
       ProducerConfiguration configuration = new ProducerConfigurationImpl();
       configuration.setUsingStrictMode(false);
@@ -255,7 +241,7 @@ public class ProducerConfigurationTestCase extends TestCase
 
       writeConfigToFile(configuration, tmp);
 
-      configuration = getProducerConfiguration(tmp.toURL());
+      configuration = getProducerConfiguration(tmp.toURI().toURL());
 
       assertFalse(configuration.isUsingStrictMode());
 
@@ -315,7 +301,7 @@ public class ProducerConfigurationTestCase extends TestCase
       configFile.close();
    }
 
-   private ProducerConfiguration getProducerConfiguration(String fileName) throws JBossXBException, IOException
+   protected ProducerConfiguration getProducerConfiguration(String fileName) throws Exception
    {
       URL location = Thread.currentThread().getContextClassLoader().getResource(fileName);
       assertNotNull(location);
@@ -324,13 +310,7 @@ public class ProducerConfigurationTestCase extends TestCase
       return getProducerConfiguration(location);
    }
 
-   private ProducerConfiguration getProducerConfiguration(URL location) throws JBossXBException, IOException
-   {
-      Object o = unmarshaller.unmarshal(location.openStream(), factory, null);
-      assertNotNull(o);
-      assertTrue(o instanceof ProducerConfiguration);
-      return (ProducerConfiguration)o;
-   }
+   protected abstract ProducerConfiguration getProducerConfiguration(URL location) throws Exception;
 
    private void checkRegistrationProperty(ProducerRegistrationRequirements requirements, int index)
    {

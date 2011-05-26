@@ -81,13 +81,16 @@ public abstract class RegistrationRequirementsMapping
       setRegistrationRequired(registrationRequirements.isRegistrationRequired());
       setRegistrationRequiredForFullDescription(registrationRequirements.isRegistrationRequiredForFullDescription());
       RegistrationPolicy policy = registrationRequirements.getPolicy();
-      setPolicyClassName(policy.getClassName());
-
-      RegistrationPolicy unwrap = RegistrationPolicyWrapper.unwrap(policy);
-      if (unwrap instanceof DefaultRegistrationPolicy)
+      if (policy != null)
       {
-         DefaultRegistrationPolicy drp = (DefaultRegistrationPolicy)unwrap;
-         setValidatorClassName(drp.getValidator().getClass().getName());
+         setPolicyClassName(policy.getClassName());
+
+         RegistrationPolicy unwrap = RegistrationPolicyWrapper.unwrap(policy);
+         if (unwrap instanceof DefaultRegistrationPolicy)
+         {
+            DefaultRegistrationPolicy drp = (DefaultRegistrationPolicy)unwrap;
+            setValidatorClassName(drp.getValidator().getClass().getName());
+         }
       }
 
       // first clear persisted properties
