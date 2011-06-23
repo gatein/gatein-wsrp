@@ -56,7 +56,7 @@ public class JCRProducerConfigurationServiceTestCase extends ProducerConfigurati
    @Override
    protected ProducerConfiguration getProducerConfiguration(URL location) throws Exception
    {
-      service.setDefaultConfigurationIS(location.openStream());
+      service.setConfigurationIS(location.openStream());
       service.loadConfiguration();
       return service.getConfiguration();
    }

@@ -62,13 +62,8 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
       this.persister = persister;
    }
 
-   /**
-    * todo: remove
-    *
-    * @param is
-    * @deprecated this should be removed when a better initialization of default is setup
-    */
-   public void setDefaultConfigurationIS(InputStream is)
+   /** @param is  */
+   public void setConfigurationIS(InputStream is)
    {
       this.defaultConfigurationIS = is;
    }

@@ -37,6 +37,7 @@ import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    private static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
+   private InputStream configurationIS;
 
    static
    {
@@ -71,6 +73,12 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    {
       this.persister = persister;
       this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
+   }
+
+   /** @param is  */
+   public void setConfigurationIS(InputStream is)
+   {
+      this.configurationIS = is;
    }
 
    @Override
@@ -173,7 +181,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          if (loadFromXMLIfNeeded)
          {
             // Load from XML
-            XMLConsumerRegistry fromXML = new XMLConsumerRegistry();
+            XMLConsumerRegistry fromXML = new XMLConsumerRegistry(configurationIS);
             fromXML.reloadConsumers();
 
             // Save to JCR
