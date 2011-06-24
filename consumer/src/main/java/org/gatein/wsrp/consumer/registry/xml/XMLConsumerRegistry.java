@@ -50,8 +50,14 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
 
    /** . */
    private static final String defaultWSRPLocation = "conf/wsrp-consumers-config.xml";
+   private InputStream configurationIS;
 
    private EntityResolver entityResolver;
+
+   public XMLConsumerRegistry(InputStream configurationInputStream)
+   {
+      configurationIS = configurationInputStream;
+   }
 
    public EntityResolver getEntityResolver()
    {
@@ -65,50 +71,50 @@ public class XMLConsumerRegistry extends AbstractConsumerRegistry
 
    public void reloadConsumers()
    {
-      URL defaultWSRPURL = Thread.currentThread().getContextClassLoader().getResource(defaultWSRPLocation);
-      if (defaultWSRPURL != null)
+
+      if (configurationIS == null)
       {
-         InputStream inputStream;
+         URL defaultWSRPURL = Thread.currentThread().getContextClassLoader().getResource(defaultWSRPLocation);
          try
          {
-            inputStream = defaultWSRPURL.openStream();
+            configurationIS = defaultWSRPURL.openStream();
          }
          catch (IOException e)
          {
             throw new RuntimeException("Couldn't open default XML WSRP Consumer configuration file", e);
          }
+      }
 
-         Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-         ObjectModelFactory factory = new XMLWSRPConsumerFactory(this);
-         if (entityResolver == null)
-         {
-            log.debug("Could not obtain entity resolver for XMLConsumerRegistry");
-            entityResolver = new NullEntityResolver();
-         }
+      Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
+      ObjectModelFactory factory = new XMLWSRPConsumerFactory(this);
+      if (entityResolver == null)
+      {
+         log.debug("Could not obtain entity resolver for XMLConsumerRegistry");
+         entityResolver = new NullEntityResolver();
+      }
+      try
+      {
+         unmarshaller.setEntityResolver(entityResolver);
+         initConsumers((SortedMap<String, WSRPConsumer>)unmarshaller.unmarshal(configurationIS, factory, null));
+      }
+      catch (JBossXBException e)
+      {
+         throw new RuntimeException("Couldn't set unmarshall WSRP Consumers configuration", e);
+      }
+
+      for (WSRPConsumer consumer : getConsumers())
+      {
+
+         ProducerInfo producerInfo = consumer.getProducerInfo();
          try
          {
-            unmarshaller.setEntityResolver(entityResolver);
-            initConsumers((SortedMap<String, WSRPConsumer>)unmarshaller.unmarshal(inputStream, factory, null));
+            // try to activate the consumer
+            activateConsumer(consumer);
          }
-         catch (JBossXBException e)
+         catch (Exception e)
          {
-            throw new RuntimeException("Couldn't set unmarshall WSRP Consumers configuration", e);
-         }
-
-         for (WSRPConsumer consumer : getConsumers())
-         {
-
-            ProducerInfo producerInfo = consumer.getProducerInfo();
-            try
-            {
-               // try to activate the consumer 
-               activateConsumer(consumer);
-            }
-            catch (Exception e)
-            {
-               producerInfo.setActive(false);
-               updateProducerInfo(producerInfo);
-            }
+            producerInfo.setActive(false);
+            updateProducerInfo(producerInfo);
          }
       }
    }
