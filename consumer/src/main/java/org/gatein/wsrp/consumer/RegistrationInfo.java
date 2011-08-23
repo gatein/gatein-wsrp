@@ -70,7 +70,6 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    private transient boolean modifiedSinceLastRefresh;
    private transient boolean modifyRegistrationNeeded;
    private transient ProducerInfo parent;
-   private transient RegistrationContext registrationContext;
 
    /**
     * Marker string to identify a RegistrationInfo created for a producer that might not require registration as a work
