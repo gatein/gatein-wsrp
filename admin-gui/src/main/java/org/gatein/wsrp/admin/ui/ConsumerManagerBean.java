@@ -311,7 +311,7 @@ public class ConsumerManagerBean extends ManagedBean
          }
          return result;
       }
-      catch (PortletInvokerException e)
+      catch (Exception e)
       {
          beanContext.createErrorMessageFrom(e);
          return null;
