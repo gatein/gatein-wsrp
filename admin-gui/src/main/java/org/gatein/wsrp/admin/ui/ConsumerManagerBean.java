@@ -24,7 +24,6 @@
 package org.gatein.wsrp.admin.ui;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
@@ -311,7 +310,7 @@ public class ConsumerManagerBean extends ManagedBean
          }
          return result;
       }
-      catch (PortletInvokerException e)
+      catch (Exception e)
       {
          beanContext.createErrorMessageFrom(e);
          return null;
