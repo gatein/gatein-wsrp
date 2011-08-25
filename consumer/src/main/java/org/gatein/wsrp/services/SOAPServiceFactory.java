@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -58,7 +58,6 @@ import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -100,8 +99,47 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean failed;
    private boolean available;
    private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
-   
+
    private boolean wssEnabled;
+
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      SOAPServiceFactory that = (SOAPServiceFactory)o;
+
+      if (msBeforeTimeOut != that.msBeforeTimeOut)
+      {
+         return false;
+      }
+      if (wssEnabled != that.wssEnabled)
+      {
+         return false;
+      }
+      if (wsdlDefinitionURL != null ? !wsdlDefinitionURL.equals(that.wsdlDefinitionURL) : that.wsdlDefinitionURL != null)
+      {
+         return false;
+      }
+
+      return true;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = wsdlDefinitionURL != null ? wsdlDefinitionURL.hashCode() : 0;
+      result = 31 * result + msBeforeTimeOut;
+      result = 31 * result + (wssEnabled ? 1 : 0);
+      return result;
+   }
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -138,7 +176,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          {
             handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
          }
-         
+
          addWSSHandlers(handlerChain);
       }
       else
@@ -146,7 +184,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          // otherwise, create a handler chain and add our handler to it
          handlerChain = new ArrayList<Handler>(1);
          handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
-         
+
          addWSSHandlers(handlerChain);
       }
       binding.setHandlerChain(handlerChain);
@@ -518,7 +556,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       return this.wssEnabled;
    }
-   
+
    public boolean isWSSAvailable()
    {
       WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
@@ -531,7 +569,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          return false;
       }
    }
-   
+
    protected void addWSSHandlers(List<Handler> handlerChain)
    {
       if (wssEnabled)

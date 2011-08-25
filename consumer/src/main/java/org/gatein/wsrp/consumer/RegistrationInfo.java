@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +77,50 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
     * around https://jira.jboss.org/jira/browse/JBPORTAL-2284
     */
    private static final String UNDETERMINED_REGISTRATION = "__JBP__UNDETERMINED__REGISTRATION__";
+
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      RegistrationInfo that = (RegistrationInfo)o;
+
+      if (persistentConsumerName != null ? !persistentConsumerName.equals(that.persistentConsumerName) : that.persistentConsumerName != null)
+      {
+         return false;
+      }
+      if (persistentRegistrationHandle != null ? !persistentRegistrationHandle.equals(that.persistentRegistrationHandle) : that.persistentRegistrationHandle != null)
+      {
+         return false;
+      }
+      if (persistentRegistrationProperties != null ? !persistentRegistrationProperties.equals(that.persistentRegistrationProperties) : that.persistentRegistrationProperties != null)
+      {
+         return false;
+      }
+      if (!Arrays.equals(persistentRegistrationState, that.persistentRegistrationState))
+      {
+         return false;
+      }
+
+      return true;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = persistentConsumerName != null ? persistentConsumerName.hashCode() : 0;
+      result = 31 * result + (persistentRegistrationHandle != null ? persistentRegistrationHandle.hashCode() : 0);
+      result = 31 * result + (persistentRegistrationState != null ? Arrays.hashCode(persistentRegistrationState) : 0);
+      result = 31 * result + (persistentRegistrationProperties != null ? persistentRegistrationProperties.hashCode() : 0);
+      return result;
+   }
 
    public RegistrationInfo(ProducerInfo producerInfo)
    {

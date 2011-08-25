@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -53,6 +53,30 @@ public class EndpointConfigurationInfo
    public EndpointConfigurationInfo()
    {
       serviceFactory = new SOAPServiceFactory();
+   }
+
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      EndpointConfigurationInfo that = (EndpointConfigurationInfo)o;
+
+      return serviceFactory.equals(that.serviceFactory);
+
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return serviceFactory.hashCode();
    }
 
    public EndpointConfigurationInfo(ServiceFactory serviceFactory)
@@ -237,17 +261,17 @@ public class EndpointConfigurationInfo
    {
       return serviceFactory.getWSRPVersion();
    }
-   
+
    public boolean getWSSEnabled()
    {
       return serviceFactory.isWSSEnabled();
    }
-   
+
    public void setWSSEnabled(boolean enable)
    {
       serviceFactory.enableWSS(enable);
    }
-   
+
    public boolean isWSSAvailable()
    {
       return serviceFactory.isWSSAvailable();

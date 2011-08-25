@@ -42,6 +42,7 @@ import org.gatein.wsrp.registration.mapping.RegistrationMapping;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertiesMapping;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,6 @@ import java.util.Map;
 public class JCRRegistrationPersistenceManager extends RegistrationPersistenceManagerImpl
 {
    private ChromatticPersister persister;
-   private ConsumersAndGroupsMapping mappings;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
 
@@ -70,31 +70,140 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       this.persister = persister;
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       if (mappings == null)
       {
          mappings = session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       }
       persister.save(); // needed right now as the session must still be open to iterate over nodes
 
-      for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
+      initLocalCaches(mappings);
+
+      persister.closeSession(false);
+   }
+
+   public Collection<ConsumerSPI> getConsumers() throws RegistrationException
+   {
+      initLocalConsumerCache();
+
+      return super.getConsumers();
+   }
+
+   public Collection<RegistrationSPI> getRegistrations() throws RegistrationException
+   {
+      initLocalConsumerCache();
+
+      return super.getRegistrations();
+   }
+
+   public Collection<ConsumerGroupSPI> getConsumerGroups() throws RegistrationException
+   {
+      initLocalConsumerGroupCache();
+
+      return super.getConsumerGroups();
+   }
+
+   public Registration getRegistration(String registrationId) throws RegistrationException
+   {
+      Registration registration = super.getRegistration(registrationId);
+      // if we didn't find it in local cache, reload from JCR and check again;
+      if (registration == null)
       {
-         internalAddConsumerGroup(cgm.toConsumerGroup(this));
+         initLocalConsumerCache();
+         return super.getRegistration(registrationId);
+      }
+      else
+      {
+         return registration;
+      }
+   }
+
+   public ConsumerGroup getConsumerGroup(String name) throws RegistrationException
+   {
+      ConsumerGroup consumerGroup = super.getConsumerGroup(name);
+      // if we didn't find it in local cache, reload from JCR and check again;
+      if (consumerGroup == null)
+      {
+         initLocalConsumerGroupCache();
+         return super.getConsumerGroup(name);
+      }
+      else
+      {
+         return consumerGroup;
+      }
+   }
+
+   public Consumer getConsumerById(String consumerId) throws RegistrationException
+   {
+      Consumer consumer = super.getConsumerById(consumerId);
+      // if we didn't find it in local cache, reload from JCR and check again;
+      if (consumer == null)
+      {
+         initLocalConsumerCache();
+         return super.getConsumerById(consumerId);
+      }
+      else
+      {
+         return consumer;
+      }
+   }
+
+   private void initLocalCaches(ConsumersAndGroupsMapping mappings) throws RegistrationException
+   {
+      initLocalCache(mappings, false);
+
+      initLocalCache(mappings, true);
+   }
+
+   private void initLocalCache(ConsumersAndGroupsMapping mappings, final boolean loadConsumers) throws RegistrationException
+   {
+      // if we already have mappings, no need to get them from JCR
+      ChromatticSession session = null;
+      if (mappings == null)
+      {
+         session = persister.getSession();
+         mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       }
 
-      for (ConsumerMapping cm : mappings.getConsumers())
+      if (loadConsumers)
       {
-         ConsumerSPI consumer = cm.toConsumer(this);
-         internalAddConsumer(consumer);
-
-         // get the registrations and add them to local map.
-         for (Registration registration : consumer.getRegistrations())
+         // load consumers and registrations
+         for (ConsumerMapping cm : mappings.getConsumers())
          {
-            internalAddRegistration((RegistrationSPI)registration);
+            ConsumerSPI consumer = cm.toConsumer(this);
+            internalAddConsumer(consumer);
+
+            // get the registrations and add them to local map.
+            for (Registration registration : consumer.getRegistrations())
+            {
+               internalAddRegistration((RegistrationSPI)registration);
+            }
+         }
+      }
+      else
+      {
+         // load consumer groups
+         for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
+         {
+            internalAddConsumerGroup(cgm.toConsumerGroup(this));
          }
       }
 
-      persister.closeSession(false);
+      // if session is not null, we need to close it
+      if (session != null)
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   private void initLocalConsumerCache() throws RegistrationException
+   {
+      initLocalCache(null, true);
+   }
+
+   private void initLocalConsumerGroupCache() throws RegistrationException
+   {
+      initLocalCache(null, false);
    }
 
    @Override
@@ -110,7 +219,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties) throws RegistrationException
    {
       ChromatticSession session = persister.getSession();
-      RegistrationSPI registration = null;
+      RegistrationSPI registration;
       try
       {
          ConsumerMapping cm = session.findById(ConsumerMapping.class, consumer.getPersistentKey());
@@ -149,7 +258,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerSPI consumer = super.internalCreateConsumer(consumerId, consumerName);
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
          ConsumerMapping cm = mappings.createConsumer(consumerId);
@@ -237,7 +346,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerGroupSPI group = super.internalCreateConsumerGroup(name);
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
          ConsumerGroupMapping cgm = mappings.createConsumerGroup(name);

@@ -169,6 +169,22 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return new MappingToProducerInfoIterator(mappings.iterator());
    }
 
+   @Override
+   protected ProducerInfo loadProducerInfo(String id)
+   {
+      ChromatticSession session = persister.getSession();
+      ProducerInfoMapping pim = session.findByPath(ProducerInfoMapping.class, getPathFor(id));
+
+      if (pim != null)
+      {
+         return pim.toModel(null);
+      }
+      else
+      {
+         return null;
+      }
+   }
+
    private ProducerInfosMapping getProducerInfosMapping(ChromatticSession session)
    {
       ProducerInfosMapping producerInfosMapping = session.findByPath(ProducerInfosMapping.class, PRODUCER_INFOS_PATH);
@@ -212,7 +228,12 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
    private static String getPathFor(ProducerInfo info)
    {
-      return PRODUCER_INFOS_PATH + "/" + info.getId();
+      return getPathFor(info.getId());
+   }
+
+   private static String getPathFor(final String producerInfoId)
+   {
+      return PRODUCER_INFOS_PATH + "/" + producerInfoId;
    }
 
    private static ProducerInfoMapping toProducerInfoMapping(ProducerInfo producerInfo, ChromatticSession session)

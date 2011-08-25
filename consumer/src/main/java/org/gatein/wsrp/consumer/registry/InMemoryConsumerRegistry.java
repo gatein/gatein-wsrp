@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -23,11 +23,17 @@
 
 package org.gatein.wsrp.consumer.registry;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
+import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 /**
@@ -36,10 +42,39 @@ import java.util.UUID;
  */
 public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
 {
+   private SortedMap<String, WSRPConsumer> consumers;
+   private Map<String, String> keysToIds;
+
    public InMemoryConsumerRegistry()
    {
+      initConsumers(null);
       setFederatingPortletInvoker(new FederatingPortletInvokerService());
       setMigrationService(new InMemoryMigrationService());
+   }
+
+   @Override
+   protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   {
+      WSRPConsumer consumer = super.createConsumerFrom(producerInfo);
+
+      String id = consumer.getProducerId();
+      consumers.put(id, consumer);
+      ProducerInfo info = consumer.getProducerInfo();
+      keysToIds.put(info.getKey(), id);
+
+      return consumer;
+   }
+
+   @Override
+   public String updateProducerInfo(ProducerInfo producerInfo)
+   {
+      String oldId = super.updateProducerInfo(producerInfo);
+      if (oldId != null)
+      {
+         keysToIds.put(producerInfo.getKey(), producerInfo.getId());
+         consumers.remove(oldId);
+      }
+      return oldId;
    }
 
    @Override
@@ -52,19 +87,72 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    @Override
    protected void delete(ProducerInfo info)
    {
-      // nothing to do here
+      String key = info.getKey();
+      String removed = keysToIds.remove(key);
+      if (removed != null)
+      {
+         consumers.remove(removed);
+      }
    }
 
    @Override
    protected String update(ProducerInfo producerInfo)
    {
       String key = producerInfo.getKey();
-      return getKeyMappings().get(key);
+      String oldId = keysToIds.get(key);
+      if (oldId.equals(producerInfo.getId()))
+      {
+         return null;
+      }
+      else
+      {
+         return oldId;
+      }
+   }
+
+   @Override
+   public void reloadConsumers()
+   {
+      // do nothing
    }
 
    @Override
    protected Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
-      return new ProducerInfoIterator(getConsumers().iterator());
+      return new ProducerInfoIterator(consumers.values().iterator());
+   }
+
+   @Override
+   protected ProducerInfo loadProducerInfo(String id)
+   {
+      if (keysToIds.containsValue(id))
+      {
+         return consumers.get(id).getProducerInfo();
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   @Override
+   public void stop() throws Exception
+   {
+      super.stop();
+      consumers.clear();
+      keysToIds.clear();
+      consumers = null;
+      keysToIds = null;
+   }
+
+   protected void initConsumers(SortedMap<String, WSRPConsumer> consumers)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(consumers))
+      {
+         consumers = new TreeMap<String, WSRPConsumer>();
+      }
+      this.consumers = consumers;
+      int size = consumers.size();
+      keysToIds = size == 0 ? new HashMap<String, String>() : new HashMap<String, String>(size);
    }
 }

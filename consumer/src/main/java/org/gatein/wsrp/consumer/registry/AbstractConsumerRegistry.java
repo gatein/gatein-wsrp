@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -38,14 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -57,9 +51,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    /** Gives access to the Portal's portlet invokers */
    private FederatingPortletInvoker federatingPortletInvoker;
 
-   private SortedMap<String, WSRPConsumer> consumers;
-   private Map<String, String> keysToIds;
-
    private SessionEventBroadcaster sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
    private MigrationService migrationService;
 
@@ -67,11 +58,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
 
    private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
-
-   protected AbstractConsumerRegistry()
-   {
-      initConsumers(null);
-   }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
    {
@@ -105,7 +91,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
       ProducerInfo info = new ProducerInfo();
       info.setId(id);
-      info.setRegistry(this);
       info.setExpirationCacheSeconds(expirationCacheSeconds);
       info.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
 
@@ -140,8 +125,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          }
 
          deactivateConsumer(consumer);
-         remove(consumer);
-
          delete(info);
       }
       else
@@ -168,9 +151,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       this.federatingPortletInvoker = federatingPortletInvoker;
    }
 
-   public ProducerInfo getProducerInfoByKey(String key)
+   /*protected ProducerInfo getProducerInfoByKey(String key)
    {
-      String id = keysToIds.get(key);
+      String id = getIdForKey(key);
       if (id != null)
       {
          return getConsumer(id).getProducerInfo();
@@ -179,24 +162,30 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       {
          return null;
       }
-   }
+   }*/
 
-   private WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   /*protected String getIdForKey(String key)
    {
-      WSRPConsumer consumer = newConsumer(producerInfo);
-      add(consumer);
+      // try local cache first
+      String id = keysToIds.get(key);
 
-      return consumer;
-   }
+      // if it's not in the local cache, reload from persistence and check again
+      if(id == null)
+      {
+         reloadConsumers();
+         return keysToIds.get(key);
+      }
+      else
+      {
+         return id;
+      }
+   }*/
 
-   /**
-    * Extracted for testing purposes...
-    *
-    * @param producerInfo
-    * @return
-    */
-   protected WSRPConsumer newConsumer(ProducerInfo producerInfo)
+   protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
+      // make sure we set the registry after loading from DB since registry is not persisted.
+      producerInfo.setRegistry(this);
+
       return new WSRPConsumerImpl(producerInfo, migrationService);
    }
 
@@ -253,7 +242,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       }
    }
 
-   public void updateProducerInfo(ProducerInfo producerInfo)
+   public String updateProducerInfo(ProducerInfo producerInfo)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
 
@@ -262,7 +251,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       // if we updated and oldId is not null, we need to update the local information
       if (oldId != null)
       {
-         remove(getConsumer(oldId));
          WSRPConsumer consumer = createConsumerFrom(producerInfo);
 
          // update the federating portlet invoker:
@@ -273,6 +261,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
             federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
          }
       }
+
+      return oldId;
    }
 
    public void start() throws Exception
@@ -282,9 +272,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void reloadConsumers()
    {
-      // load the configured consumers
-      initConsumers(null);
-
       Iterator<ProducerInfo> producerInfos = getProducerInfosFromStorage();
 
       // load the configured producers
@@ -292,9 +279,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       while (producerInfos.hasNext())
       {
          producerInfo = producerInfos.next();
-
-         // need to set the registry after loading from DB since registry is not persisted.
-         producerInfo.setRegistry(this);
 
          createConsumerFrom(producerInfo);
       }
@@ -322,19 +306,26 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
             // ignore and continue
          }
       }
-
-      clearConsumers();
    }
 
    public List<WSRPConsumer> getConfiguredConsumers()
    {
-      return new ArrayList<WSRPConsumer>(getConsumers());
+      return getConsumers(true);
    }
 
    public WSRPConsumer getConsumer(String id)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "consumer id", null);
-      return consumers.get(id);
+
+      ProducerInfo info = loadProducerInfo(id);
+      if (info != null)
+      {
+         return createConsumerFrom(info);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public void registerOrDeregisterConsumerWith(String id, boolean register)
@@ -432,36 +423,20 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    protected abstract Iterator<ProducerInfo> getProducerInfosFromStorage();
 
-   // internal management methods
+   protected abstract ProducerInfo loadProducerInfo(String id);
 
-   protected void add(WSRPConsumer consumer)
+   protected List<WSRPConsumer> getConsumers(boolean startConsumers)
    {
-      String id = consumer.getProducerId();
-      consumers.put(id, consumer);
-      ProducerInfo info = consumer.getProducerInfo();
-      keysToIds.put(info.getKey(), id);
-   }
-
-   protected WSRPConsumer remove(WSRPConsumer consumer)
-   {
-      String id = keysToIds.remove(consumer.getProducerInfo().getKey());
-      return consumers.remove(id);
-   }
-
-   protected Collection<WSRPConsumer> getConsumers()
-   {
-      return getConsumers(true);
-   }
-
-   protected Collection<WSRPConsumer> getConsumers(boolean startConsumers)
-   {
-      Collection<WSRPConsumer> consumerz = consumers.values();
-
-      if (startConsumers)
+      Iterator<ProducerInfo> infos = getProducerInfosFromStorage();
+      List<WSRPConsumer> consumers = new ArrayList<WSRPConsumer>();
+      while (infos.hasNext())
       {
-         for (WSRPConsumer consumer : consumerz)
+         ProducerInfo info = infos.next();
+         WSRPConsumer consumer = createConsumerFrom(info);
+         consumers.add(consumer);
+         if (startConsumers)
          {
-            if (consumer.getProducerInfo().isActive() && !consumer.isActive())
+            if (info.isActive() && !consumer.isActive())
             {
                try
                {
@@ -470,36 +445,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
                catch (Exception e)
                {
                   log.info("Couldn't activate consumer " + consumer.getProducerId());
-                  consumer.getProducerInfo().setActiveAndSave(false);
+                  info.setActiveAndSave(false);
                }
             }
          }
       }
-      return consumerz;
-   }
 
-   protected Map<String, String> getKeyMappings()
-   {
-      return Collections.unmodifiableMap(keysToIds);
-   }
-
-   protected void initConsumers(SortedMap<String, WSRPConsumer> consumers)
-   {
-      if (!ParameterValidation.existsAndIsNotEmpty(consumers))
-      {
-         consumers = new TreeMap<String, WSRPConsumer>();
-      }
-      this.consumers = consumers;
-      int size = consumers.size();
-      keysToIds = size == 0 ? new HashMap<String, String>() : new HashMap<String, String>(size);
-   }
-
-   private void clearConsumers()
-   {
-      consumers.clear();
-      keysToIds.clear();
-      consumers = null;
-      keysToIds = null;
+      return consumers;
    }
 
    protected class ProducerInfoIterator implements Iterator<ProducerInfo>

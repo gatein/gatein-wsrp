@@ -95,7 +95,11 @@ public abstract void setAvailable(boolean available);*/
    public ProducerInfo toModel(ProducerInfo initial)
    {
       // todo: should probably use a ProducerInfo implementation backed by mapping at some point
-      ProducerInfo info = new ProducerInfo();
+      ProducerInfo info = initial;
+      if (initial == null)
+      {
+         info = new ProducerInfo();
+      }
 
       // basic properties
       info.setKey(getKey());

@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -29,8 +29,7 @@ import org.gatein.wsrp.jcr.BaseChromatticPersister;
 
 /**
  * This is essentially the same class as org.gatein.wsrp.state.consumer.ConsumerRegistryTestCase in WSRP consumer
- * module
- * tests.
+ * module tests.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$

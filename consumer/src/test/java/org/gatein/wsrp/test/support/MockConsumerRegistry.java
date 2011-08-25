@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -53,7 +53,8 @@ public class MockConsumerRegistry implements ConsumerRegistry
 
    /**
     * Creates a ConsumerRegistry containing 2 consumers with id '{@link #CONSUMER1}' and '{@link #CONSUMER2}'
-    * respectively. CONSUMER2 is active and has a service description URL set to {@link #MOCK_SERVICE_DESCRIPTION} and a
+    * respectively. CONSUMER2 is active and has a service description URL set to {@link #MOCK_SERVICE_DESCRIPTION} and
+    * a
     * markup URL set to {@link #MOCK_MARKUP}
     */
    public MockConsumerRegistry()
@@ -97,9 +98,9 @@ public class MockConsumerRegistry implements ConsumerRegistry
       // do nothing
    }
 
-   public void updateProducerInfo(ProducerInfo producerInfo)
+   public String updateProducerInfo(ProducerInfo producerInfo)
    {
-      // do nothing
+      return null;
    }
 
    public void deactivateConsumerWith(String id) throws ConsumerException
