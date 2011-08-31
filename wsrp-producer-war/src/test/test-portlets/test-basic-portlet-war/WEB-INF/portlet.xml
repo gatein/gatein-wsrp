@@ -50,15 +50,15 @@
             <value>prefValue2</value>
          </preference>
       </portlet-preferences>
+      <supported-processing-event>
+         <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
+      </supported-processing-event>
       <supported-publishing-event>
          <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
       </supported-publishing-event>
       <supported-publishing-event>
          <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
       </supported-publishing-event>
-      <supported-processing-event>
-         <qname xmlns:jbp='urn:jboss:portal:samples:event'>jbp:ZipEvent</qname>
-      </supported-processing-event>
       <supported-public-render-parameter>zipcode</supported-public-render-parameter>
       <supported-public-render-parameter>foo</supported-public-render-parameter>
    </portlet>
@@ -69,9 +69,9 @@
    </event-definition>
    <event-definition>
       <qname xmlns:gtn='urn:jboss:gatein'>gtn:foo</qname>
-      <value-type>java.lang.String</value-type>
       <alias xmlns:gtn='urn:jboss:gatein'>gtn:bar</alias>
       <alias xmlns:gtn='urn:jboss:gatein'>gtn:baz</alias>
+      <value-type>java.lang.String</value-type>
    </event-definition>
 
    <public-render-parameter>
@@ -79,9 +79,9 @@
       <qname xmlns:g='urn:jboss:portal:simple:google'>g:zipcode</qname>
    </public-render-parameter>
    <public-render-parameter>
+      <description>Foo param</description>
       <identifier>foo</identifier>
       <qname xmlns:gtn='urn:jboss:gatein'>gtn:fooparam</qname>
-      <description>Foo param</description>
       <alias xmlns:gtn='urn:jboss:gatein'>gtn:barparam</alias>
       <alias xmlns:gtn='urn:jboss:gatein'>gtn:bazparam</alias>
    </public-render-parameter>

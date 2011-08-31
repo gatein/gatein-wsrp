@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -23,7 +23,7 @@
   -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
-   <bean name="PortletApplicationDeployer" class="org.gatein.pc.mc.PortletApplicationDeployer">
+   <bean name="PortletApplicationDeployer" class="org.gatein.pc.portlet.impl.deployment.PortletApplicationDeployer">
       <alias>PortletApplicationRegistry</alias>
       <property name="servletContainerFactory">
          <inject bean="ServletContainerFactory"/>
