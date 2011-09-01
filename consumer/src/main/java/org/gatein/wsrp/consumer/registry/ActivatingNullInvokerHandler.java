@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,7 +27,10 @@ import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.federation.FederatedPortletInvoker;
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.pc.federation.NullInvokerHandler;
+import org.gatein.pc.federation.impl.FederatedPortletInvokerService;
 import org.gatein.wsrp.WSRPConsumer;
+
+import java.util.Collection;
 
 /**
  * Attempts to activate a WSRP consumer named like the missing invoker that trigger the invocation of this
@@ -41,7 +44,7 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
 {
    private transient ConsumerRegistry consumerRegistry;
 
-   public FederatedPortletInvoker resolvePortletInvokerFor(String compoundPortletId, String invokerId, FederatingPortletInvoker callingInvoker) throws NoSuchPortletException
+   public FederatedPortletInvoker resolvePortletInvokerFor(String invokerId, FederatingPortletInvoker callingInvoker, String compoundPortletId) throws NoSuchPortletException
    {
       FederatingPortletInvoker registryInvoker = consumerRegistry.getFederatingPortletInvoker();
       if (registryInvoker != callingInvoker)
@@ -50,14 +53,19 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
             + registryInvoker + ") than the specified one (" + callingInvoker + ")");
       }
 
-      FederatedPortletInvoker federated;
-
       WSRPConsumer consumer = consumerRegistry.getConsumer(invokerId);
 
       // if there's no consumer with that invoker id, then there's nothing much we can do
       if (consumer == null)
       {
-         throw new NoSuchPortletException(compoundPortletId);
+         if (compoundPortletId != null)
+         {
+            throw new NoSuchPortletException(compoundPortletId);
+         }
+         else
+         {
+            return null;
+         }
       }
       else
       {
@@ -66,12 +74,19 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
          {
             consumerRegistry.activateConsumerWith(invokerId);
 
-            federated = callingInvoker.getFederatedInvoker(invokerId);
+            return new FederatedPortletInvokerService(callingInvoker, invokerId, consumer);
          }
       }
+   }
 
-      //
-      return federated;
+   public boolean knows(String invoker)
+   {
+      return consumerRegistry.containsConsumer(invoker);
+   }
+
+   public Collection<String> getKnownInvokerIds()
+   {
+      return consumerRegistry.getConfiguredConsumersIds();
    }
 
    public void setConsumerRegistry(ConsumerRegistry consumerRegistry)

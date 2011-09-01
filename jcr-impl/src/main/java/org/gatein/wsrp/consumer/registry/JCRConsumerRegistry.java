@@ -37,8 +37,16 @@ import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +60,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 {
    private ChromatticPersister persister;
    private boolean loadFromXMLIfNeeded;
+   private final String rootNodePath;
    private static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
@@ -69,10 +78,29 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       this(persister, true);
    }
 
+   /**
+    * for tests
+    *
+    * @param persister
+    * @param loadFromXMLIfNeeded
+    */
    protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded)
+   {
+      this(persister, loadFromXMLIfNeeded, "/");
+   }
+
+   /**
+    * for tests
+    *
+    * @param persister
+    * @param loadFromXMLIfNeeded
+    * @param rootNodePath
+    */
+   protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded, String rootNodePath)
    {
       this.persister = persister;
       this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
+      this.rootNodePath = rootNodePath.endsWith("/") ? rootNodePath : rootNodePath + "/";
    }
 
    /** @param is  */
@@ -173,15 +201,81 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    protected ProducerInfo loadProducerInfo(String id)
    {
       ChromatticSession session = persister.getSession();
-      ProducerInfoMapping pim = session.findByPath(ProducerInfoMapping.class, getPathFor(id));
+      try
+      {
+         ProducerInfoMapping pim = session.findByPath(ProducerInfoMapping.class, getPathFor(id));
 
-      if (pim != null)
-      {
-         return pim.toModel(null);
+         if (pim != null)
+         {
+            return pim.toModel(null);
+         }
+         else
+         {
+            return null;
+         }
       }
-      else
+      finally
       {
-         return null;
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   public boolean containsConsumer(String id)
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         return session.getJCRSession().itemExists(rootNodePath + getPathFor(id));
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         final Session jcrSession = session.getJCRSession();
+
+         final Query query = jcrSession.getWorkspace().getQueryManager().createQuery("select producerid from wsrp:producerinfo", Query.SQL);
+         final QueryResult queryResult = query.execute();
+         final RowIterator rows = queryResult.getRows();
+
+         final long size = rows.getSize();
+         if (size == 0)
+         {
+            return Collections.emptyList();
+         }
+         else
+         {
+            List<String> ids = new ArrayList<String>(size != -1 ? (int)size : 7);
+
+            while (rows.hasNext())
+            {
+               final Row row = rows.nextRow();
+               final Value rowValue = row.getValue("producerid");
+               ids.add(rowValue.getString());
+            }
+
+            return ids;
+         }
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
    }
 

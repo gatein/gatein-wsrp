@@ -44,7 +44,8 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
    @Override
    protected void setUp() throws Exception
    {
-      String workspaceName = "/wsrp-jcr-test" + Math.round(Math.abs(100000 * Math.random()));
+      final long random = Math.round(Math.abs(100000 * Math.random()));
+      String workspaceName = "/wsrp-jcr-test" + random;
       BaseChromatticPersister persister = new BaseChromatticPersister(workspaceName)
       {
          @Override
@@ -56,7 +57,7 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
          }
       };
       persister.initializeBuilderFor(JCRConsumerRegistry.mappingClasses);
-      registry = new JCRConsumerRegistry(persister, false);
+      registry = new JCRConsumerRegistry(persister, false, workspaceName);
       registry.setFederatingPortletInvoker(new FederatingPortletInvokerService());
    }
 

@@ -34,6 +34,7 @@ import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ import java.util.Map;
  */
 public class MockConsumerRegistry implements ConsumerRegistry
 {
-   private Map consumers = new HashMap(3);
+   private Map<String, WSRPConsumer> consumers = new HashMap(3);
    public static final String MOCK_SERVICE_DESCRIPTION = "mock-service-description";
    public static final String MOCK_MARKUP = "mock-markup";
    public static final String CONSUMER1 = "inDB";
@@ -69,7 +70,7 @@ public class MockConsumerRegistry implements ConsumerRegistry
 
    public WSRPConsumer getConsumer(String id)
    {
-      return (WSRPConsumer)consumers.get(id);
+      return consumers.get(id);
    }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
@@ -161,5 +162,15 @@ public class MockConsumerRegistry implements ConsumerRegistry
    public void setMigrationService(MigrationService migrationService)
    {
       //To change body of implemented methods use File | Settings | File Templates.
+   }
+
+   public boolean containsConsumer(String id)
+   {
+      return consumers.containsKey(id);
+   }
+
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      return consumers.keySet();
    }
 }

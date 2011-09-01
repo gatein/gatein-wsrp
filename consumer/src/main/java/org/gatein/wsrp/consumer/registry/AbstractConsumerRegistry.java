@@ -37,7 +37,9 @@ import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -151,36 +153,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       this.federatingPortletInvoker = federatingPortletInvoker;
    }
 
-   /*protected ProducerInfo getProducerInfoByKey(String key)
-   {
-      String id = getIdForKey(key);
-      if (id != null)
-      {
-         return getConsumer(id).getProducerInfo();
-      }
-      else
-      {
-         return null;
-      }
-   }*/
-
-   /*protected String getIdForKey(String key)
-   {
-      // try local cache first
-      String id = keysToIds.get(key);
-
-      // if it's not in the local cache, reload from persistence and check again
-      if(id == null)
-      {
-         reloadConsumers();
-         return keysToIds.get(key);
-      }
-      else
-      {
-         return id;
-      }
-   }*/
-
    protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
       // make sure we set the registry after loading from DB since registry is not persisted.
@@ -200,18 +172,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "WSRPConsumer");
       String id = consumer.getProducerId();
 
-      if (federatingPortletInvoker.getFederatedInvoker(id) == null)
+      if (!federatingPortletInvoker.isResolved(id))
       {
          startOrStopConsumer(consumer, true);
-      }
-      else
-      {
-         // todo: fix-me federated portlet invoker gets desynchronized...
-         if (!consumer.isActive())
-         {
-            federatingPortletInvoker.unregisterInvoker(id);
-            startOrStopConsumer(consumer, true);
-         }
       }
    }
 
@@ -227,18 +190,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       String id = consumer.getProducerId();
 
       // only process if there is a registered Consumer with the specified id
-      if (federatingPortletInvoker.getFederatedInvoker(id) != null)
+      if (federatingPortletInvoker.isResolved(id))
       {
          startOrStopConsumer(consumer, false);
-      }
-      else
-      {
-         // todo: fix-me federated portlet invoker gets desynchronized...
-         if (consumer.isActive())
-         {
-            federatingPortletInvoker.registerInvoker(id, consumer);
-            startOrStopConsumer(consumer, false);
-         }
       }
    }
 
@@ -253,9 +207,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       {
          WSRPConsumer consumer = createConsumerFrom(producerInfo);
 
-         // update the federating portlet invoker:
-         FederatedPortletInvoker invoker = federatingPortletInvoker.getFederatedInvoker(oldId);
-         if (invoker != null)
+         // update the federating portlet invoker if needed
+         if (federatingPortletInvoker.isResolved(oldId))
          {
             federatingPortletInvoker.unregisterInvoker(oldId);
             federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
@@ -292,7 +245,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          // unregister it. We have changed how consumers are registered (active consumers are not automatically
          // registered anymore), we also need to check if the consumer is known by the federating portlet invoker... 
          String producerId = consumer.getProducerId();
-         if (consumer.getProducerInfo().isActive() && federatingPortletInvoker.getFederatedInvoker(producerId) != null)
+         if (consumer.getProducerInfo().isActive() && federatingPortletInvoker.isResolved(producerId))
          {
             federatingPortletInvoker.unregisterInvoker(producerId);
          }
@@ -326,6 +279,49 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       {
          return null;
       }
+   }
+
+   public boolean containsConsumer(String id)
+   {
+      return getConsumer(id) != null;
+   }
+
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      return new AbstractCollection<String>()
+      {
+         final private List<WSRPConsumer> consumers = getConsumers(false);
+
+         @Override
+         public Iterator<String> iterator()
+         {
+            return new Iterator<String>()
+            {
+               private Iterator<WSRPConsumer> consumerIterator = consumers.iterator();
+
+               public boolean hasNext()
+               {
+                  return consumerIterator.hasNext();
+               }
+
+               public String next()
+               {
+                  return consumerIterator.next().getProducerId();
+               }
+
+               public void remove()
+               {
+                  throw new UnsupportedOperationException();
+               }
+            };
+         }
+
+         @Override
+         public int size()
+         {
+            return consumers.size();
+         }
+      };
    }
 
    public void registerOrDeregisterConsumerWith(String id, boolean register)

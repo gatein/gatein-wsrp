@@ -64,6 +64,7 @@ public class ConsumerRegistryTestCase extends TestCase
       RegistrationInfo regInfo = info.getRegistrationInfo();
       assertTrue(regInfo.isUndetermined());
       assertEquals(registry, info.getRegistry());
+      assertTrue(registry.containsConsumer(id));
 
       WSRPConsumer fromRegistry = registry.getConsumer(id);
       assertNotNull(fromRegistry);
@@ -83,6 +84,11 @@ public class ConsumerRegistryTestCase extends TestCase
       assertNotNull(consumers);
       assertEquals(1, consumers.size());
       assertTrue(consumers.contains(consumer));
+
+      final Collection<String> ids = registry.getConfiguredConsumersIds();
+      assertNotNull(ids);
+      assertEquals(1, ids.size());
+      assertTrue(ids.contains(id));
    }
 
    public void testGetConsumer()
@@ -112,9 +118,11 @@ public class ConsumerRegistryTestCase extends TestCase
 
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       assertEquals(consumer, registry.getConsumer(id));
+      assertTrue(registry.containsConsumer(id));
 
       registry.destroyConsumer(id);
 
+      assertFalse(registry.containsConsumer(id));
       assertNull(registry.getConsumer(id));
    }
 
@@ -130,8 +138,11 @@ public class ConsumerRegistryTestCase extends TestCase
       registry.updateProducerInfo(info);
 
       assertNull(registry.getConsumer(id));
+      assertFalse(registry.containsConsumer(id));
+
       assertEquals(info, consumer.getProducerInfo());
       assertEquals(consumer, registry.getConsumer("bar"));
+      assertTrue(registry.containsConsumer("bar"));
    }
 
    public void testStoppingShouldntStartConsumers() throws Exception
