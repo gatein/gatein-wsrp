@@ -622,6 +622,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       {
          log.debug("Using default registration data for producer '" + producerId + "'");
          registrationData = WSRPTypeFactory.createDefaultRegistrationData();
+         registrationData.setConsumerName(getConsumerName());
          result.setStatus(RefreshResult.Status.SUCCESS);
       }
    }

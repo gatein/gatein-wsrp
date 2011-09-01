@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,7 +24,6 @@
 package org.gatein.wsrp.admin.ui;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
@@ -311,7 +310,7 @@ public class ConsumerManagerBean extends ManagedBean
          }
          return result;
       }
-      catch (PortletInvokerException e)
+      catch (Exception e)
       {
          beanContext.createErrorMessageFrom(e);
          return null;
