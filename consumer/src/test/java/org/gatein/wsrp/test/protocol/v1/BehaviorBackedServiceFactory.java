@@ -248,7 +248,6 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
       return false;
    }
 
-   @Override
    public boolean isWSSAvailable()
    {
       return false;
