@@ -89,6 +89,8 @@ public class ConsumerRegistryTestCase extends TestCase
       assertNotNull(ids);
       assertEquals(1, ids.size());
       assertTrue(ids.contains(id));
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
    }
 
    public void testGetConsumer()
@@ -119,11 +121,13 @@ public class ConsumerRegistryTestCase extends TestCase
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       assertEquals(consumer, registry.getConsumer(id));
       assertTrue(registry.containsConsumer(id));
+      assertEquals(1, registry.getConfiguredConsumerNumber());
 
       registry.destroyConsumer(id);
 
       assertFalse(registry.containsConsumer(id));
       assertNull(registry.getConsumer(id));
+      assertEquals(0, registry.getConfiguredConsumerNumber());
    }
 
    public void testUpdateProducerInfo()
@@ -143,6 +147,7 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(info, consumer.getProducerInfo());
       assertEquals(consumer, registry.getConsumer("bar"));
       assertTrue(registry.containsConsumer("bar"));
+      assertEquals(1, registry.getConfiguredConsumerNumber());
    }
 
    public void testStoppingShouldntStartConsumers() throws Exception

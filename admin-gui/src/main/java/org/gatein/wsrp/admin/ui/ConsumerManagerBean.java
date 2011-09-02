@@ -93,7 +93,7 @@ public class ConsumerManagerBean extends ManagedBean
 
    public boolean isConsumersEmpty()
    {
-      return getRegistry().getConfiguredConsumers().isEmpty();
+      return getRegistry().getConfiguredConsumerNumber() == 0;
    }
 
    public List<WSRPConsumer> getConsumers()

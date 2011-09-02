@@ -40,8 +40,10 @@ import org.slf4j.LoggerFactory;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -60,6 +62,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
 
    private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
+
+   private ConsumerCache consumers = new InMemoryConsumerCache();
+
+   public void setConsumerCache(ConsumerCache consumers)
+   {
+      this.consumers = consumers;
+   }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
    {
@@ -127,7 +136,11 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          }
 
          deactivateConsumer(consumer);
+
          delete(info);
+
+         // remove from cache
+         consumers.removeConsumer(id);
       }
       else
       {
@@ -158,7 +171,12 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       // make sure we set the registry after loading from DB since registry is not persisted.
       producerInfo.setRegistry(this);
 
-      return new WSRPConsumerImpl(producerInfo, migrationService);
+      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo, migrationService);
+
+      // cache consumer
+      consumers.putConsumer(producerInfo.getId(), consumer);
+
+      return consumer;
    }
 
    public void activateConsumerWith(String id) throws ConsumerException
@@ -213,6 +231,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
             federatingPortletInvoker.unregisterInvoker(oldId);
             federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
          }
+
+         // update cache
+         consumers.removeConsumer(oldId);
+         consumers.putConsumer(producerInfo.getId(), consumer);
       }
 
       return oldId;
@@ -225,6 +247,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void reloadConsumers()
    {
+      consumers.clear();
+
       Iterator<ProducerInfo> producerInfos = getProducerInfosFromStorage();
 
       // load the configured producers
@@ -270,15 +294,25 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "consumer id", null);
 
-      ProducerInfo info = loadProducerInfo(id);
-      if (info != null)
+      // try cache first
+      WSRPConsumer consumer = consumers.getConsumer(id);
+      if (consumer != null)
       {
-         return createConsumerFrom(info);
+         return consumer;
       }
       else
       {
-         return null;
+         ProducerInfo info = loadProducerInfo(id);
+         if (info != null)
+         {
+            return createConsumerFrom(info);
+         }
+         else
+         {
+            return null;
+         }
       }
+
    }
 
    public boolean containsConsumer(String id)
@@ -322,6 +356,11 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
             return consumers.size();
          }
       };
+   }
+
+   public int getConfiguredConsumerNumber()
+   {
+      return getConfiguredConsumersIds().size();
    }
 
    public void registerOrDeregisterConsumerWith(String id, boolean register)
@@ -423,15 +462,12 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    protected List<WSRPConsumer> getConsumers(boolean startConsumers)
    {
-      Iterator<ProducerInfo> infos = getProducerInfosFromStorage();
-      List<WSRPConsumer> consumers = new ArrayList<WSRPConsumer>();
-      while (infos.hasNext())
+      final Collection<WSRPConsumer> consumerz = consumers.getConsumers();
+      for (WSRPConsumer consumer : consumerz)
       {
-         ProducerInfo info = infos.next();
-         WSRPConsumer consumer = createConsumerFrom(info);
-         consumers.add(consumer);
          if (startConsumers)
          {
+            final ProducerInfo info = consumer.getProducerInfo();
             if (info.isActive() && !consumer.isActive())
             {
                try
@@ -447,7 +483,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          }
       }
 
-      return consumers;
+      return new ArrayList<WSRPConsumer>(consumerz);
    }
 
    protected class ProducerInfoIterator implements Iterator<ProducerInfo>
@@ -472,6 +508,36 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       public void remove()
       {
          throw new UnsupportedOperationException("remove not supported on this iterator implementation");
+      }
+   }
+
+   protected class InMemoryConsumerCache implements ConsumerCache
+   {
+      private Map<String, WSRPConsumer> consumers = new HashMap<String, WSRPConsumer>(11);
+
+      public Collection<WSRPConsumer> getConsumers()
+      {
+         return consumers.values();
+      }
+
+      public WSRPConsumer getConsumer(String id)
+      {
+         return consumers.get(id);
+      }
+
+      public WSRPConsumer removeConsumer(String id)
+      {
+         return consumers.remove(id);
+      }
+
+      public void putConsumer(String id, WSRPConsumer consumer)
+      {
+         consumers.put(id, consumer);
+      }
+
+      public void clear()
+      {
+         consumers.clear();
       }
    }
 }

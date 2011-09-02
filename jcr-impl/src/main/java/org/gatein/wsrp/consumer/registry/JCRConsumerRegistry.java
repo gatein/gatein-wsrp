@@ -61,7 +61,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    private ChromatticPersister persister;
    private boolean loadFromXMLIfNeeded;
    private final String rootNodePath;
-   private static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
+   static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
    private InputStream configurationIS;
@@ -244,11 +244,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       ChromatticSession session = persister.getSession();
       try
       {
-         final Session jcrSession = session.getJCRSession();
-
-         final Query query = jcrSession.getWorkspace().getQueryManager().createQuery("select producerid from wsrp:producerinfo", Query.SQL);
-         final QueryResult queryResult = query.execute();
-         final RowIterator rows = queryResult.getRows();
+         final RowIterator rows = getProducerInfoIds(session);
 
          final long size = rows.getSize();
          if (size == 0)
@@ -268,6 +264,35 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
             return ids;
          }
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   private RowIterator getProducerInfoIds(ChromatticSession session) throws RepositoryException
+   {
+      final Session jcrSession = session.getJCRSession();
+
+      final Query query = jcrSession.getWorkspace().getQueryManager().createQuery("select producerid from wsrp:producerinfo", Query.SQL);
+      final QueryResult queryResult = query.execute();
+      return queryResult.getRows();
+   }
+
+   @Override
+   public int getConfiguredConsumerNumber()
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         final RowIterator ids = getProducerInfoIds(session);
+
+         return (int)ids.getSize();
       }
       catch (RepositoryException e)
       {
@@ -341,6 +366,16 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       pim.initFrom(producerInfo);
 
       return pim;
+   }
+
+   /**
+    * For tests
+    *
+    * @return
+    */
+   ChromatticPersister getPersister()
+   {
+      return persister;
    }
 
    private static class MappingToProducerInfoIterator implements Iterator<ProducerInfo>

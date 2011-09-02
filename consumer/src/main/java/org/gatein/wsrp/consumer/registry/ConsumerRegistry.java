@@ -90,4 +90,6 @@ public interface ConsumerRegistry
    boolean containsConsumer(String id);
 
    Collection<String> getConfiguredConsumersIds();
+
+   int getConfiguredConsumerNumber();
 }

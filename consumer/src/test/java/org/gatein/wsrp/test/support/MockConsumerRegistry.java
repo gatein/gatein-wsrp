@@ -173,4 +173,9 @@ public class MockConsumerRegistry implements ConsumerRegistry
    {
       return consumers.keySet();
    }
+
+   public int getConfiguredConsumerNumber()
+   {
+      return consumers.size();
+   }
 }
