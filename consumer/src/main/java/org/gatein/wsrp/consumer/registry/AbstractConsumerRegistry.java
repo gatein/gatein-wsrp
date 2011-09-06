@@ -33,7 +33,11 @@ import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.handlers.session.InMemorySessionRegistry;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
+import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +54,14 @@ import java.util.Map;
  * @version $Revision: 12693 $
  * @since 2.6
  */
-public abstract class AbstractConsumerRegistry implements ConsumerRegistry
+public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 {
    /** Gives access to the Portal's portlet invokers */
    private FederatingPortletInvoker federatingPortletInvoker;
 
    private SessionEventBroadcaster sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
-   private MigrationService migrationService;
+   private MigrationService migrationService = new InMemoryMigrationService();
+   private SessionRegistry sessionRegistry = new InMemorySessionRegistry();
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
@@ -67,7 +72,25 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void setConsumerCache(ConsumerCache consumers)
    {
+      if (consumers == null)
+      {
+         consumers = new InMemoryConsumerCache();
+      }
       this.consumers = consumers;
+   }
+
+   public void setSessionRegistry(SessionRegistry sessionRegistry)
+   {
+      if (sessionRegistry == null)
+      {
+         sessionRegistry = new InMemorySessionRegistry();
+      }
+      this.sessionRegistry = sessionRegistry;
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      return sessionRegistry;
    }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
@@ -77,6 +100,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster)
    {
+      if (sessionEventBroadcaster == null)
+      {
+         sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
+      }
       this.sessionEventBroadcaster = sessionEventBroadcaster;
    }
 
@@ -87,6 +114,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void setMigrationService(MigrationService migrationService)
    {
+      if (migrationService == null)
+      {
+         migrationService = new InMemoryMigrationService();
+      }
       this.migrationService = migrationService;
    }
 
@@ -100,7 +131,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       }
 
 
-      ProducerInfo info = new ProducerInfo();
+      ProducerInfo info = new ProducerInfo(this);
       info.setId(id);
       info.setExpirationCacheSeconds(expirationCacheSeconds);
       info.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
@@ -169,9 +200,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
    protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
       // make sure we set the registry after loading from DB since registry is not persisted.
-      producerInfo.setRegistry(this);
+//      producerInfo.setRegistry(this);
 
-      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo, migrationService);
+      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo);
 
       // cache consumer
       consumers.putConsumer(producerInfo.getId(), consumer);

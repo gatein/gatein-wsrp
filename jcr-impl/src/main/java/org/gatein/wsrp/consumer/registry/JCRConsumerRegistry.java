@@ -194,7 +194,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
       persister.closeSession(true);
 
-      return new MappingToProducerInfoIterator(mappings.iterator());
+      return new MappingToProducerInfoIterator(mappings.iterator(), this);
    }
 
    @Override
@@ -207,7 +207,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
          if (pim != null)
          {
-            return pim.toModel(null);
+            return pim.toModel(null, this);
          }
          else
          {
@@ -381,10 +381,12 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    private static class MappingToProducerInfoIterator implements Iterator<ProducerInfo>
    {
       private Iterator<ProducerInfoMapping> mappings;
+      private final JCRConsumerRegistry registry;
 
-      public MappingToProducerInfoIterator(Iterator<ProducerInfoMapping> infoMappingIterator)
+      public MappingToProducerInfoIterator(Iterator<ProducerInfoMapping> infoMappingIterator, JCRConsumerRegistry jcrConsumerRegistry)
       {
          this.mappings = infoMappingIterator;
+         this.registry = jcrConsumerRegistry;
       }
 
       public boolean hasNext()
@@ -394,7 +396,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
       public ProducerInfo next()
       {
-         return mappings.next().toModel(null);
+         return mappings.next().toModel(null, registry);
       }
 
       public void remove()

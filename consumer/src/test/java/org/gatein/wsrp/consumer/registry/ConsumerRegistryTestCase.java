@@ -165,16 +165,16 @@ public class ConsumerRegistryTestCase extends TestCase
       WSRPConsumer consumer = Mockito.spy(original);
 
       // force re-init of registry from "persistence" to ensure that the spy registry actually uses our spy consumer
-      ConsumerRegistry registrySpy = Mockito.spy(registry);
+      AbstractConsumerRegistry registrySpy = Mockito.spy(registry);
       Mockito.doReturn(consumer).when(registrySpy).getConsumer("foo");
-      Mockito.doReturn(Collections.singletonList(consumer)).when((AbstractConsumerRegistry)registrySpy).getConsumers(false);
+      Mockito.doReturn(Collections.singletonList(consumer)).when(registrySpy).getConsumers(false);
 
       WSRPConsumer foo = registrySpy.getConsumer("foo");
       assertTrue(foo.getProducerInfo().isActive());
       assertEquals(consumer, foo);
 
       // start consumer and check that it's properly added to the FederatingPortletInvoker
-      ((AbstractConsumerRegistry)registrySpy).activateConsumer(foo);
+      registrySpy.activateConsumer(foo);
       assertEquals(consumer, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
 
       // stop the consumer and then the registry and check that consumer.start has only been called once

@@ -21,15 +21,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.jcr.mapping;
+package org.gatein.wsrp.consumer.spi;
 
-/**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
- */
-public interface BaseMapping<T, R>
+import org.gatein.pc.federation.FederatingPortletInvoker;
+import org.gatein.wsrp.api.session.SessionEventBroadcaster;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
+import org.gatein.wsrp.consumer.migration.MigrationService;
+import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+
+/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+public interface ConsumerRegistrySPI extends ConsumerRegistry
 {
-   void initFrom(T model);
+   void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster);
 
-   T toModel(T initial, R registry);
+   void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
+
+   MigrationService getMigrationService();
+
+   void setMigrationService(MigrationService migrationService);
+
+   SessionRegistry getSessionRegistry();
+
+   void setSessionRegistry(SessionRegistry sessionRegistry);
+
+   void start() throws Exception;
+
+   void stop() throws Exception;
 }

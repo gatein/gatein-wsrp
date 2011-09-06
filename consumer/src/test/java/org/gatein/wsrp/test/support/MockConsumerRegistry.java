@@ -30,8 +30,11 @@ import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.handlers.session.InMemorySessionRegistry;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
+import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
-import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,13 +47,15 @@ import java.util.Map;
  * @version $Revision: 12693 $
  * @since 2.6
  */
-public class MockConsumerRegistry implements ConsumerRegistry
+public class MockConsumerRegistry implements ConsumerRegistrySPI
 {
    private Map<String, WSRPConsumer> consumers = new HashMap(3);
    public static final String MOCK_SERVICE_DESCRIPTION = "mock-service-description";
    public static final String MOCK_MARKUP = "mock-markup";
    public static final String CONSUMER1 = "inDB";
    public static final String CONSUMER2 = "inDB2";
+   private InMemorySessionRegistry sessionRegistry = new InMemorySessionRegistry();
+   private InMemoryMigrationService migrationService = new InMemoryMigrationService();
 
    /**
     * Creates a ConsumerRegistry containing 2 consumers with id '{@link #CONSUMER1}' and '{@link #CONSUMER2}'
@@ -156,12 +161,22 @@ public class MockConsumerRegistry implements ConsumerRegistry
 
    public MigrationService getMigrationService()
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return migrationService;
    }
 
    public void setMigrationService(MigrationService migrationService)
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      throw new UnsupportedOperationException();
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      return sessionRegistry;
+   }
+
+   public void setSessionRegistry(SessionRegistry sessionRegistry)
+   {
+      throw new UnsupportedOperationException();
    }
 
    public boolean containsConsumer(String id)

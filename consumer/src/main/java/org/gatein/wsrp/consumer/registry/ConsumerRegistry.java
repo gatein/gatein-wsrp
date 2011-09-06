@@ -25,10 +25,8 @@ package org.gatein.wsrp.consumer.registry;
 
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.gatein.wsrp.consumer.migration.MigrationService;
 
 import java.util.Collection;
 import java.util.List;
@@ -74,18 +72,6 @@ public interface ConsumerRegistry
    void destroyConsumer(String id) throws ConsumerException;
 
    void reloadConsumers();
-
-   void start() throws Exception;
-
-   void stop() throws Exception;
-
-   void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster);
-
-   void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
-
-   MigrationService getMigrationService();
-
-   void setMigrationService(MigrationService migrationService);
 
    boolean containsConsumer(String id);
 

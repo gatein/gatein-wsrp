@@ -28,6 +28,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.services.MarkupService;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -65,4 +66,6 @@ public interface WSRPConsumerSPI extends WSRPConsumer
    boolean supportsUserScope(String userScope);
 
    WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException;
+
+   SessionRegistry getSessionRegistry();
 }

@@ -83,7 +83,7 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
       List<ExportInfo> exportInfos = new ArrayList<ExportInfo>(exportInfoMappings.size());
       for (ExportInfoMapping eim : exportInfoMappings)
       {
-         exportInfos.add(eim.toModel(null));
+         exportInfos.add(eim.toModel(null, null));
       }
 
       persister.closeSession(false);
@@ -115,7 +115,7 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
       {
          if (eim != null)
          {
-            return eim.toModel(null);
+            return eim.toModel(null, null);
          }
          else
          {

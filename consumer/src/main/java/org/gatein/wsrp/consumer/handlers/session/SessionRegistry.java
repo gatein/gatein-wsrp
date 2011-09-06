@@ -21,15 +21,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.jcr.mapping;
+package org.gatein.wsrp.consumer.handlers.session;
 
-/**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
- */
-public interface BaseMapping<T, R>
+import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+
+import java.util.Set;
+
+/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+public interface SessionRegistry
 {
-   void initFrom(T model);
+   Set<ProducerSessionInformation> getAll();
 
-   T toModel(T initial, R registry);
+   ProducerSessionInformation get(String sessionId);
+
+   ProducerSessionInformation remove(String sessionId);
+
+   void put(String sessionId, ProducerSessionInformation sessionInformation);
 }

@@ -39,6 +39,7 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RefreshResult;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
@@ -65,7 +66,7 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
 
    public MockWSRPConsumer(String id)
    {
-      producerInfo = new ProducerInfo();
+      producerInfo = new ProducerInfo(null);
       producerInfo.setId(id);
       producerInfo.setEndpointConfigurationInfo(new MockEndpointConfigurationInfo());
    }
@@ -101,6 +102,16 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
    }
 
    public WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException
+   {
+      throw new NotYetImplemented();
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      throw new NotYetImplemented();
+   }
+
+   public void setSessionRegistry(SessionRegistry sessionInfos)
    {
       throw new NotYetImplemented();
    }

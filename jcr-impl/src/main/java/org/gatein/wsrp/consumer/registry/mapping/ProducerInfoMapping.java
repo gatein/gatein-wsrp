@@ -33,6 +33,7 @@ import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
 
 /**
@@ -40,7 +41,7 @@ import org.gatein.wsrp.jcr.mapping.BaseMapping;
  * @version $Revision$
  */
 @PrimaryType(name = ProducerInfoMapping.NODE_NAME)
-public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo>
+public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo, ConsumerRegistrySPI>
 {
    public static final String NODE_NAME = "wsrp:producerinfo";
 
@@ -92,13 +93,13 @@ public abstract void setAvailable(boolean available);*/
       rim.initFrom(regInfo);
    }
 
-   public ProducerInfo toModel(ProducerInfo initial)
+   public ProducerInfo toModel(ProducerInfo initial, ConsumerRegistrySPI registry)
    {
       // todo: should probably use a ProducerInfo implementation backed by mapping at some point
       ProducerInfo info = initial;
       if (initial == null)
       {
-         info = new ProducerInfo();
+         info = new ProducerInfo(registry);
       }
 
       // basic properties

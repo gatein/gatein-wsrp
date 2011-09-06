@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -68,7 +68,7 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
    protected TestWSRPProducer producer = new TestWSRPProducerImpl();
 
    /** . */
-   protected WSRPConsumerImpl consumer = new WSRPConsumerImpl();
+   protected WSRPConsumerImpl consumer = new WSRPConsumerImpl(new ProducerInfo(new MockConsumerRegistry()));
 
    private boolean strict = true;
 
@@ -87,9 +87,6 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
       setPortletManagementBehavior(null);
       setRegistrationBehavior(null);
       registerAdditionalMarkupBehaviors(registry);
-
-      // use a fresh ConsumerRegistry
-      producerInfo.setRegistry(new MockConsumerRegistry());
 
       // use a fresh endpoint using a behavior-backed service factory
       producerInfo.setEndpointConfigurationInfo(new EndpointConfigurationInfo(new BehaviorBackedServiceFactory(registry)));

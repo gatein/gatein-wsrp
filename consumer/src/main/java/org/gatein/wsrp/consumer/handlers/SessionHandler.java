@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -45,11 +45,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages session informations on behalf of a consumer.
@@ -65,9 +63,6 @@ public class SessionHandler implements SessionEventListener
 
    /** The prefix used to isolate WSRP-related session information in the actual session object. */
    private static final String SESSION_ID_PREFIX = "org.gatein.wsrp.session.";
-
-   /** session id -> ProducerSessionInformation */
-   private Map<String, ProducerSessionInformation> sessionInfos = new ConcurrentHashMap<String, ProducerSessionInformation>(); // todo: thread-safe?
 
    /**
     * Constructs a new SessionHandler.
@@ -316,7 +311,7 @@ public class SessionHandler implements SessionEventListener
    {
       List<String> idsToRelease = new ArrayList<String>();
 
-      Set<ProducerSessionInformation> uniqueInfos = new HashSet<ProducerSessionInformation>(sessionInfos.values());
+      Set<ProducerSessionInformation> uniqueInfos = consumer.getSessionRegistry().getAll();
 
       for (ProducerSessionInformation info : uniqueInfos)
       {
@@ -339,7 +334,7 @@ public class SessionHandler implements SessionEventListener
 
          for (String sessionId : sessionIds)
          {
-            ProducerSessionInformation info = sessionInfos.get(sessionId);
+            ProducerSessionInformation info = consumer.getSessionRegistry().get(sessionId);
             sessionId = info.removeSession(sessionId);
             if (sessionId != null)
             {
@@ -383,7 +378,7 @@ public class SessionHandler implements SessionEventListener
     */
    void removeSessionId(String id)
    {
-      sessionInfos.remove(id);
+      consumer.getSessionRegistry().remove(id);
    }
 
    /**
@@ -395,7 +390,7 @@ public class SessionHandler implements SessionEventListener
     */
    void addSessionMapping(String sessionID, ProducerSessionInformation producerSessionInformation)
    {
-      sessionInfos.put(sessionID, producerSessionInformation);
+      consumer.getSessionRegistry().put(sessionID, producerSessionInformation);
    }
 
    // End ProducerSessionInformation callbacks
