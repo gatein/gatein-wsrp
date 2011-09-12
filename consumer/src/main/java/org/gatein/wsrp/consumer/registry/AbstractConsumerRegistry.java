@@ -68,7 +68,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
-   private ConsumerCache consumers = new InMemoryConsumerCache();
+   protected ConsumerCache consumers = new InMemoryConsumerCache();
 
    public void setConsumerCache(ConsumerCache consumers)
    {
@@ -197,7 +197,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       this.federatingPortletInvoker = federatingPortletInvoker;
    }
 
-   protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
       // make sure we set the registry after loading from DB since registry is not persisted.
 //      producerInfo.setRegistry(this);
@@ -325,25 +325,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "consumer id", null);
 
-      // try cache first
-      WSRPConsumer consumer = consumers.getConsumer(id);
-      if (consumer != null)
-      {
-         return consumer;
-      }
-      else
-      {
-         ProducerInfo info = loadProducerInfo(id);
-         if (info != null)
-         {
-            return createConsumerFrom(info);
-         }
-         else
-         {
-            return null;
-         }
-      }
-
+      return consumers.getConsumer(id);
    }
 
    public boolean containsConsumer(String id)
@@ -474,22 +456,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
    {
       return RELEASE_SESSIONS_LISTENER + id;
    }
-
-   protected abstract void save(ProducerInfo info, String messageOnError) throws ConsumerException;
-
-   protected abstract void delete(ProducerInfo info) throws ConsumerException;
-
-   /**
-    * Persists the changes made to ProducerInfo.
-    *
-    * @param producerInfo
-    * @return the previous value of the ProducerInfo's id if it has changed, <code>null</code> otherwise
-    */
-   protected abstract String update(ProducerInfo producerInfo);
-
-   protected abstract Iterator<ProducerInfo> getProducerInfosFromStorage();
-
-   protected abstract ProducerInfo loadProducerInfo(String id);
 
    protected List<WSRPConsumer> getConsumers(boolean startConsumers)
    {

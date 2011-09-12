@@ -39,6 +39,7 @@ import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -144,6 +145,31 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
       //To change body of implemented methods use File | Settings | File Templates.
    }
 
+   public void save(ProducerInfo info, String messageOnError) throws ConsumerException
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void delete(ProducerInfo info) throws ConsumerException
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public String update(ProducerInfo producerInfo)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public ProducerInfo loadProducerInfo(String id)
+   {
+      throw new UnsupportedOperationException();
+   }
+
    public void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
    {
       //To change body of implemented methods use File | Settings | File Templates.
@@ -192,5 +218,10 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
    public int getConfiguredConsumerNumber()
    {
       return consumers.size();
+   }
+
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   {
+      throw new UnsupportedOperationException();
    }
 }

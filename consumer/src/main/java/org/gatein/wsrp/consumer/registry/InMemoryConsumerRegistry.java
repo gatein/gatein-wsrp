@@ -53,7 +53,7 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    }
 
    @Override
-   protected WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
       WSRPConsumer consumer = super.createConsumerFrom(producerInfo);
 
@@ -77,15 +77,13 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       return oldId;
    }
 
-   @Override
-   protected void save(ProducerInfo info, String messageOnError)
+   public void save(ProducerInfo info, String messageOnError)
    {
       // generate a UUID for ProducerInfo
       info.setKey(UUID.randomUUID().toString());
    }
 
-   @Override
-   protected void delete(ProducerInfo info)
+   public void delete(ProducerInfo info)
    {
       String key = info.getKey();
       String removed = keysToIds.remove(key);
@@ -95,8 +93,7 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       }
    }
 
-   @Override
-   protected String update(ProducerInfo producerInfo)
+   public String update(ProducerInfo producerInfo)
    {
       String key = producerInfo.getKey();
       String oldId = keysToIds.get(key);
@@ -116,14 +113,12 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       // do nothing
    }
 
-   @Override
-   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       return new ProducerInfoIterator(consumers.values().iterator());
    }
 
-   @Override
-   protected ProducerInfo loadProducerInfo(String id)
+   public ProducerInfo loadProducerInfo(String id)
    {
       if (keysToIds.containsValue(id))
       {

@@ -109,8 +109,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       this.configurationIS = is;
    }
 
-   @Override
-   protected void save(ProducerInfo info, String messageOnError)
+   public void save(ProducerInfo info, String messageOnError)
    {
 
       try
@@ -132,8 +131,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
-   @Override
-   protected void delete(ProducerInfo info)
+   public void delete(ProducerInfo info)
    {
       if (!persister.delete(info, this))
       {
@@ -141,8 +139,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
-   @Override
-   protected String update(ProducerInfo producerInfo)
+   public String update(ProducerInfo producerInfo)
    {
       String key = producerInfo.getKey();
       if (key == null)
@@ -184,8 +181,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return idUnchanged ? null : oldId;
    }
 
-   @Override
-   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       ChromatticSession session = persister.getSession();
       ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
@@ -197,8 +193,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return new MappingToProducerInfoIterator(mappings.iterator(), this);
    }
 
-   @Override
-   protected ProducerInfo loadProducerInfo(String id)
+   public ProducerInfo loadProducerInfo(String id)
    {
       ChromatticSession session = persister.getSession();
       try

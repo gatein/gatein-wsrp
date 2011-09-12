@@ -98,24 +98,21 @@ public class XMLConsumerRegistry extends InMemoryConsumerRegistry
       }
       catch (JBossXBException e)
       {
-         throw new RuntimeException("Couldn't set unmarshall WSRP Consumers configuration", e);
+         throw new RuntimeException("Couldn't unmarshall WSRP Consumers configuration", e);
       }
    }
 
-   @Override
-   protected void save(ProducerInfo info, String messageOnError)
+   public void save(ProducerInfo info, String messageOnError)
    {
       // do nothing
    }
 
-   @Override
-   protected void delete(ProducerInfo info)
+   public void delete(ProducerInfo info)
    {
       // do nothing
    }
 
-   @Override
-   protected String update(ProducerInfo producerInfo)
+   public String update(ProducerInfo producerInfo)
    {
       return null;
    }

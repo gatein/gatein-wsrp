@@ -24,10 +24,15 @@
 package org.gatein.wsrp.consumer.spi;
 
 import org.gatein.pc.federation.FederatingPortletInvoker;
+import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.session.SessionEventBroadcaster;
+import org.gatein.wsrp.consumer.ConsumerException;
+import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+
+import java.util.Iterator;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public interface ConsumerRegistrySPI extends ConsumerRegistry
@@ -47,4 +52,22 @@ public interface ConsumerRegistrySPI extends ConsumerRegistry
    void start() throws Exception;
 
    void stop() throws Exception;
+
+   void save(ProducerInfo info, String messageOnError) throws ConsumerException;
+
+   void delete(ProducerInfo info) throws ConsumerException;
+
+   /**
+    * Persists the changes made to ProducerInfo.
+    *
+    * @param producerInfo
+    * @return the previous value of the ProducerInfo's id if it has changed, <code>null</code> otherwise
+    */
+   String update(ProducerInfo producerInfo);
+
+   Iterator<ProducerInfo> getProducerInfosFromStorage();
+
+   ProducerInfo loadProducerInfo(String id);
+
+   WSRPConsumer createConsumerFrom(ProducerInfo producerInfo);
 }
