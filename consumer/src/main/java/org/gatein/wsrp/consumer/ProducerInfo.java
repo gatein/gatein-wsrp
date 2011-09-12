@@ -105,6 +105,16 @@ public class ProducerInfo
    /** The activated status of the associated Consumer */
    private boolean persistentActive;
 
+   // GTNWSRP-239: information that's currently transient but should probably be persistent
+   /**
+    * GTNWSRP-239: whether or not this ProducerInfo requires ModifyRegistration to be called, currently persisted via
+    * mixin
+    */
+   private boolean isModifyRegistrationRequired;
+
+   /** GTNWSRP-239: last modification epoch: currently persistent via mixin */
+   private long lastModified;
+
    // Transient information
 
    /** The Cookie handling policy required by the Producer */
@@ -121,8 +131,6 @@ public class ProducerInfo
 
    /** Time at which the cache expires */
    private long expirationTimeMillis;
-
-   private boolean isModifyRegistrationRequired;
 
    private final ConsumerRegistrySPI registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
@@ -1276,5 +1284,15 @@ public class ProducerInfo
       {
          return eventDescriptions.get(name);
       }
+   }
+
+   public long getLastModified()
+   {
+      return lastModified;
+   }
+
+   public void setLastModified(long lastModified)
+   {
+      this.lastModified = lastModified;
    }
 }

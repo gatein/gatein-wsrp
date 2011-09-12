@@ -32,6 +32,7 @@ import org.gatein.wsrp.consumer.migration.mapping.ExportInfosMapping;
 import org.gatein.wsrp.consumer.migration.mapping.ExportedStateMapping;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -187,6 +188,11 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
    public String getChildPath(ExportInfo exportInfo)
    {
       return getPathFor(exportInfo.getExportTime());
+   }
+
+   public LastModified lastModifiedToUpdateOnDelete(ChromatticSession session)
+   {
+      return null;
    }
 
    private String getPathFor(final long exportTime)
