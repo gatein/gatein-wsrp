@@ -32,6 +32,7 @@ import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -40,9 +41,9 @@ import java.util.Map;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerManagerBean extends ManagedBean
+public class ConsumerManagerBean extends ManagedBean implements Serializable
 {
-   private ConsumerRegistry registry;
+   private transient ConsumerRegistry registry;
    private String selectedId;
 
    private static final String NO_CONSUMER = "bean_consumermanager_no_consumer";

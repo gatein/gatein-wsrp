@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -66,12 +66,14 @@ import java.util.SortedMap;
 public class ConsumerBean extends ManagedBean
 {
    public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
-   private WSRPConsumer consumer;
-   private ConsumerRegistry registry;
-   private ConsumerManagerBean manager;
+   private transient WSRPConsumer consumer;
+   private transient ConsumerRegistry registry;
+   private transient ConsumerManagerBean manager;
    private boolean modified;
    private String wsdl;
+   private String id;
 
+   private static final String NULL_ID_CONSUMER = "bean_consumer_null_id";
    private static final String CANNOT_FIND_CONSUMER = "bean_consumer_cannot_find_consumer";
    private static final String CANNOT_UPDATE_CONSUMER = "bean_consumer_cannot_update_consumer";
    private static final String CANNOT_REFRESH_CONSUMER = "bean_consumer_cannot_refresh_consumer";
@@ -107,12 +109,12 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isRefreshNeeded()
    {
-      return consumer.isRefreshNeeded();
+      return getConsumer().isRefreshNeeded();
    }
 
    public String getId()
    {
-      return consumer.getProducerId();
+      return getConsumer().getProducerId();
    }
 
    public void setId(String id)
@@ -136,23 +138,46 @@ public class ConsumerBean extends ManagedBean
 
                // we're not using modifyIfNeeded here to avoid double equality check, so we need to set modified manually
                modified = true;
+
+               this.id = id;
             }
          }
       }
       else
       {
          // initialization scenario
+         resolveConsumer(id);
+      }
+   }
+
+   private void resolveConsumer(String id)
+   {
+      // if we don't have an id, try to get it from the ConsumerManagerBean
+      if (id == null)
+      {
+         id = manager.getSelectedId();
+      }
+
+      // if it's still null, output an error
+      if (id == null)
+      {
+         beanContext.createErrorMessage(NULL_ID_CONSUMER);
+      }
+      else
+      {
          consumer = getRegistry().getConsumer(id);
          if (consumer != null)
          {
             EndpointConfigurationInfo endpoint = getProducerInfo().getEndpointConfigurationInfo();
             wsdl = endpoint.getWsdlDefinitionURL();
+            this.id = id;
          }
          else
          {
             beanContext.createErrorMessage(CANNOT_FIND_CONSUMER, id);
          }
       }
+
    }
 
    public Integer getCache()
@@ -200,7 +225,7 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isActive()
    {
-      return consumer.isActive();
+      return getConsumer().isActive();
    }
 
    public boolean isRegistered()
@@ -264,7 +289,7 @@ public class ConsumerBean extends ManagedBean
 
    public ProducerInfo getProducerInfo()
    {
-      return consumer.getProducerInfo();
+      return getConsumer().getProducerInfo();
    }
 
    public boolean isLocalInfoPresent()
@@ -327,7 +352,7 @@ public class ConsumerBean extends ManagedBean
 
    private String internalUpdate(boolean showMessage)
    {
-      if (consumer != null)
+      if (getConsumer() != null)
       {
          if (isModified())
          {
@@ -366,6 +391,7 @@ public class ConsumerBean extends ManagedBean
 
    public String refreshConsumer()
    {
+      final WSRPConsumer consumer = getConsumer();
       if (consumer != null)
       {
          if (isModified())
@@ -396,7 +422,7 @@ public class ConsumerBean extends ManagedBean
 
    public String modifyRegistration()
    {
-      if (consumer != null)
+      if (getConsumer() != null)
       {
          ProducerInfo info = getProducerInfo();
          if (isModified())
@@ -461,7 +487,7 @@ public class ConsumerBean extends ManagedBean
 
    public String eraseLocalRegistration()
    {
-      if (consumer != null)
+      if (getConsumer() != null)
       {
          getProducerInfo().eraseRegistrationInfo();
          return ConsumerManagerBean.CONFIGURE_CONSUMER;
@@ -516,6 +542,7 @@ public class ConsumerBean extends ManagedBean
       {
          if (portletHandles == null)
          {
+            final WSRPConsumer consumer = getConsumer();
             Collection<Portlet> portlets = consumer.getProducerInfo().getPortletMap().values();
             List<SelectablePortletHandle> selectableHandles = Collections.emptyList();
             if (ParameterValidation.existsAndIsNotEmpty(portlets))
@@ -555,6 +582,7 @@ public class ConsumerBean extends ManagedBean
 
    public String exportPortlets()
    {
+      final WSRPConsumer consumer = getConsumer();
       if (consumer != null)
       {
          List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)portletHandles.getWrappedData();
@@ -593,7 +621,7 @@ public class ConsumerBean extends ManagedBean
       if (existingExports == null)
       {
          Locale locale = beanContext.getLocale();
-         MigrationService migrationService = consumer.getMigrationService();
+         MigrationService migrationService = getConsumer().getMigrationService();
          List<ExportInfo> availableExportInfos = migrationService.getAvailableExportInfos();
          List<ExportInfoDisplay> exportDisplays = new ArrayList<ExportInfoDisplay>(availableExportInfos.size());
          for (ExportInfo exportInfo : availableExportInfos)
@@ -627,6 +655,8 @@ public class ConsumerBean extends ManagedBean
                portletsToImport.add(exportedPortlet);
             }
          }
+
+         final WSRPConsumer consumer = getConsumer();
          ImportInfo info = consumer.importPortlets(currentExport.getExport(), WSRPUtils.transform(portletsToImport, SELECTABLE_TO_HANDLE));
 
          ConsumerStructureProvider structureProvider = consumer.getMigrationService().getStructureProvider();
@@ -673,6 +703,7 @@ public class ConsumerBean extends ManagedBean
    public String deleteExport()
    {
       ExportInfo export = currentExport.getExport();
+      final WSRPConsumer consumer = getConsumer();
       if (consumer.getMigrationService().remove(export) == export)
       {
          // release the export on the producer
@@ -708,27 +739,43 @@ public class ConsumerBean extends ManagedBean
 
    public boolean isSupportsExport()
    {
-      return isActive() && consumer.isSupportsExport();
+      return isActive() && getConsumer().isSupportsExport();
    }
 
    public boolean isAvailableExportInfosEmpty()
    {
-      return consumer.getMigrationService().isAvailableExportInfosEmpty();
+      return getConsumer().getMigrationService().isAvailableExportInfosEmpty();
    }
 
    public boolean isWssEnabled()
    {
-      return consumer.getProducerInfo().getEndpointConfigurationInfo().getWSSEnabled();
+      return getProducerInfo().getEndpointConfigurationInfo().getWSSEnabled();
    }
-   
+
    public boolean isWssAvailable()
    {
-      return consumer.getProducerInfo().getEndpointConfigurationInfo().isWSSAvailable();
+      return getProducerInfo().getEndpointConfigurationInfo().isWSSAvailable();
    }
 
    public void setWssEnabled(boolean enable)
    {
-      consumer.getProducerInfo().getEndpointConfigurationInfo().setWSSEnabled(enable);
+      getProducerInfo().getEndpointConfigurationInfo().setWSSEnabled(enable);
+   }
+
+   public WSRPConsumer getConsumer()
+   {
+      if (consumer == null)
+      {
+         // try to resolve it
+         resolveConsumer(id);
+      }
+
+      return consumer;
+   }
+
+   public void setConsumer(WSRPConsumer consumer)
+   {
+      this.consumer = consumer;
    }
 
    public static class SelectablePortletHandle implements Comparable<SelectablePortletHandle>
