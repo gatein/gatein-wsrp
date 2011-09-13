@@ -26,6 +26,11 @@ package org.gatein.wsrp.consumer.registry;
 import org.chromattic.api.ChromatticBuilder;
 import org.gatein.pc.federation.impl.FederatingPortletInvokerService;
 import org.gatein.wsrp.jcr.BaseChromatticPersister;
+import org.gatein.wsrp.jcr.ChromatticPersister;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Session;
 
 /**
  * This is essentially the same class as org.gatein.wsrp.state.consumer.ConsumerRegistryTestCase in WSRP consumer
@@ -37,6 +42,9 @@ import org.gatein.wsrp.jcr.BaseChromatticPersister;
  */
 public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
 {
+
+   private String workspaceName;
+
    /**
     * Incremented for each test so that we can append it to the workspace name and work with a "clean" DB for each
     * test.
@@ -45,7 +53,8 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
    @Override
    protected void setUp() throws Exception
    {
-      String workspaceName = "/wsrp-jcr-test" + Math.round(Math.abs(100000 * Math.random()));
+      final long random = Math.round(Math.abs(100000 * Math.random()));
+      workspaceName = "/wsrp-jcr-test" + random;
       BaseChromatticPersister persister = new BaseChromatticPersister(workspaceName)
       {
          @Override
@@ -57,8 +66,25 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
          }
       };
       persister.initializeBuilderFor(JCRConsumerRegistry.mappingClasses);
-      registry = new JCRConsumerRegistry(persister, false);
+      registry = new JCRConsumerRegistry(persister, false, workspaceName);
       registry.setFederatingPortletInvoker(new FederatingPortletInvokerService());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      // remove node containing consumer informations so that we can start with a clean state
+      final ChromatticPersister persister = ((JCRConsumerRegistry)registry).getPersister();
+      final Session session = persister.getSession().getJCRSession();
+      final Node rootNode = session.getRootNode();
+      final NodeIterator nodes = rootNode.getNodes();
+      while (nodes.hasNext())
+      {
+         nodes.nextNode().remove();
+      }
+
+      // then save
+      persister.closeSession(true);
    }
 
    @Override

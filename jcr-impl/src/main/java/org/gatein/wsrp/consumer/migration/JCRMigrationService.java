@@ -32,6 +32,7 @@ import org.gatein.wsrp.consumer.migration.mapping.ExportInfosMapping;
 import org.gatein.wsrp.consumer.migration.mapping.ExportedStateMapping;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +84,7 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
       List<ExportInfo> exportInfos = new ArrayList<ExportInfo>(exportInfoMappings.size());
       for (ExportInfoMapping eim : exportInfoMappings)
       {
-         exportInfos.add(eim.toModel(null));
+         exportInfos.add(eim.toModel(null, null));
       }
 
       persister.closeSession(false);
@@ -115,7 +116,7 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
       {
          if (eim != null)
          {
-            return eim.toModel(null);
+            return eim.toModel(null, null);
          }
          else
          {
@@ -187,6 +188,11 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
    public String getChildPath(ExportInfo exportInfo)
    {
       return getPathFor(exportInfo.getExportTime());
+   }
+
+   public LastModified lastModifiedToUpdateOnDelete(ChromatticSession session)
+   {
+      return null;
    }
 
    private String getPathFor(final long exportTime)

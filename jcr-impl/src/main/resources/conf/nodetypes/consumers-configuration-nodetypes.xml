@@ -26,6 +26,24 @@
 <nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
            xmlns:jcr="http://www.jcp.org/jcr/1.0">
 
+   <nodeType name="wsrp:lastmodified" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+      <propertyDefinitions>
+         <propertyDefinition name="wsrp:time" requiredType="long" autoCreated="false" mandatory="false"
+                             onParentVersion="COPY" protected="false" multiple="false">
+            <valueConstraints/>
+         </propertyDefinition>
+      </propertyDefinitions>
+   </nodeType>
+
+   <nodeType name="wsrp:modifyregistrationrequired" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+      <propertyDefinitions>
+         <propertyDefinition name="wsrp:ismodifyregistrationrequired" requiredType="boolean" autoCreated="false"
+                             mandatory="false" onParentVersion="COPY" protected="false" multiple="false">
+            <valueConstraints/>
+         </propertyDefinition>
+      </propertyDefinitions>
+   </nodeType>
+
    <nodeType name="wsrp:producerinfos" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
       <supertypes>
          <supertype>nt:base</supertype>

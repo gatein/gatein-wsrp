@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,6 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 
@@ -35,9 +36,9 @@ import java.util.regex.Pattern;
  * @version $Revision: 13413 $
  * @since 2.6
  */
-public abstract class ManagedBean
+public abstract class ManagedBean implements Serializable
 {
-   protected Logger log = LoggerFactory.getLogger(getClass());
+   protected transient Logger log = LoggerFactory.getLogger(getClass());
 
    protected BeanContext beanContext;
 
@@ -47,7 +48,7 @@ public abstract class ManagedBean
    public static final String INVALID_PATH = "INVALID_PATH_ERROR";
    public static final String DUPLICATE = "DUPLICATE_ERROR";
 
-   public static interface PropertyValidator
+   public static interface PropertyValidator extends Serializable
    {
       boolean checkForDuplicates();
 

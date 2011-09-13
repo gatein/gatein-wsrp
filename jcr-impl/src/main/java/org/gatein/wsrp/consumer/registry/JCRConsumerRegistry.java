@@ -35,10 +35,21 @@ import org.gatein.wsrp.consumer.registry.mapping.RegistrationPropertyMapping;
 import org.gatein.wsrp.consumer.registry.xml.XMLConsumerRegistry;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
+import org.gatein.wsrp.jcr.mapping.mixins.BaseMixin;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -52,16 +63,19 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 {
    private ChromatticPersister persister;
    private boolean loadFromXMLIfNeeded;
-   private static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
+   private final String rootNodePath;
+   static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
    private InputStream configurationIS;
+   private long lastModified;
+//   private Map<String, ProducerInfo> infoCache;
 
    static
    {
       Collections.addAll(mappingClasses, ProducerInfosMapping.class, ProducerInfoMapping.class,
          EndpointInfoMapping.class, RegistrationInfoMapping.class, RegistrationPropertyMapping.class,
-         RegistrationPropertyDescriptionMapping.class);
+         RegistrationPropertyDescriptionMapping.class, LastModified.class, ModifyRegistrationRequired.class);
    }
 
    public JCRConsumerRegistry(ChromatticPersister persister) throws Exception
@@ -69,10 +83,29 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       this(persister, true);
    }
 
+   /**
+    * for tests
+    *
+    * @param persister
+    * @param loadFromXMLIfNeeded
+    */
    protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded)
+   {
+      this(persister, loadFromXMLIfNeeded, "/");
+   }
+
+   /**
+    * for tests
+    *
+    * @param persister
+    * @param loadFromXMLIfNeeded
+    * @param rootNodePath
+    */
+   protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded, String rootNodePath)
    {
       this.persister = persister;
       this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
+      this.rootNodePath = rootNodePath.endsWith("/") ? rootNodePath : rootNodePath + "/";
    }
 
    /** @param is  */
@@ -81,8 +114,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       this.configurationIS = is;
    }
 
-   @Override
-   protected void save(ProducerInfo info, String messageOnError)
+   public void save(ProducerInfo info, String messageOnError)
    {
 
       try
@@ -95,6 +127,17 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          info.setKey(key);
          pim.initFrom(info);
 
+         // update cache
+         final long now = System.currentTimeMillis();
+         lastModified = now;
+//         getRefreshedInfoCache(session).put(info.getId(), info);
+
+         // GTNWSRP-239
+         getMixin(pims, session, LastModified.class).setLastModified(now);
+         getMixin(pim, session, LastModified.class).setLastModified(now);
+         getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(info.isModifyRegistrationRequired());
+         info.setLastModified(now);
+
          persister.closeSession(true);
       }
       catch (Exception e)
@@ -104,8 +147,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
-   @Override
-   protected void delete(ProducerInfo info)
+   public void delete(ProducerInfo info)
    {
       if (!persister.delete(info, this))
       {
@@ -113,8 +155,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
-   @Override
-   protected String update(ProducerInfo producerInfo)
+   public String update(ProducerInfo producerInfo)
    {
       String key = producerInfo.getKey();
       if (key == null)
@@ -142,12 +183,26 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
          idUnchanged = oldId.equals(newId);
 
+         final long now = System.currentTimeMillis();
          if (!idUnchanged)
          {
             ProducerInfosMapping pims = getProducerInfosMapping(session);
             Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
             nameToProducerInfoMap.put(pim.getId(), pim);
+
+            // update cache
+            /*getRefreshedInfoCache(session).remove(oldId);
+            getRefreshedInfoCache(session).put(newId, producerInfo);*/
+
+            // GTNWSRP-239
+            getMixin(pims, session, LastModified.class).setLastModified(now);
+            lastModified = now;
          }
+
+         // GTNWSRP-239
+         getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(producerInfo.isModifyRegistrationRequired());
+         getMixin(pim, session, LastModified.class).setLastModified(now);
+         producerInfo.setLastModified(now);
 
          persister.closeSession(true);
       }
@@ -156,17 +211,195 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return idUnchanged ? null : oldId;
    }
 
-   @Override
-   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       ChromatticSession session = persister.getSession();
+      final Iterator<ProducerInfo> iterator = new ProducerInfoIterator(getRefreshedInfoCache(session).getConsumers().iterator());
+      persister.closeSession(false);
+      return iterator;
+   }
+
+   /*private Map<String, ProducerInfo> getRefreshedInfoCache(ChromatticSession session)
+   {
       ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
 
-      List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
+      // check if we need to refresh the local cache
+      if (lastModified < getMixin(producerInfosMapping, session, LastModified.class).getLastModified())
+      {
+         List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
 
-      persister.closeSession(true);
 
-      return new MappingToProducerInfoIterator(mappings.iterator());
+         for (ProducerInfoMapping mapping : mappings)
+         {
+            infoCache.put(mapping.getId(), mapping.toModel(null, this));
+         }
+
+         lastModified = System.currentTimeMillis();
+      }
+
+      return infoCache;
+   }*/
+
+   private ConsumerCache getRefreshedInfoCache(ChromatticSession session)
+   {
+      ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
+
+      // check if we need to refresh the local cache
+      if (lastModified < getMixin(producerInfosMapping, session, LastModified.class).getLastModified())
+      {
+         List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
+
+         for (ProducerInfoMapping pim : mappings)
+         {
+            if (lastModified < getMixin(pim, session, LastModified.class).getLastModified())
+            {
+               consumers.putConsumer(pim.getId(), createConsumerFrom(pim.toModel(null, this)));
+            }
+         }
+
+         lastModified = System.currentTimeMillis();
+      }
+
+      return consumers;
+   }
+
+   public ProducerInfo loadProducerInfo(String id)
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         ProducerInfoMapping pim = session.findByPath(ProducerInfoMapping.class, getPathFor(id));
+
+         if (pim != null)
+         {
+            WSRPConsumer consumer = getRefreshedInfoCache(session).getConsumer(id);
+
+            if (consumer == null)
+            {
+               return null;
+            }
+            else
+            {
+               return consumer.getProducerInfo();
+               /*ProducerInfo producerInfo = consumer.getProducerInfo();
+               if(producerInfo == null || producerInfo.getLastModified() < getMixin(pim, session, LastModified.class).getLastModified())
+               {
+                  producerInfo = pim.toModel(producerInfo, this);
+                  getRefreshedInfoCache(session).put(id, producerInfo);
+                  return producerInfo;
+               }
+               else
+               {
+                  return  producerInfo;
+               }*/
+            }
+
+         }
+         else
+         {
+            return null;
+         }
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   private <M extends BaseMixin> M getMixin(Object objectToCheck, ChromatticSession session, Class<M> type)
+   {
+      M mixin = session.getEmbedded(objectToCheck, type);
+      if (mixin == null)
+      {
+         mixin = session.create(type);
+         session.setEmbedded(objectToCheck, type, mixin);
+         mixin.initializeValue();
+      }
+      return mixin;
+   }
+
+   @Override
+   public boolean containsConsumer(String id)
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         return session.getJCRSession().itemExists(rootNodePath + getPathFor(id));
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         final RowIterator rows = getProducerInfoIds(session);
+
+         final long size = rows.getSize();
+         if (size == 0)
+         {
+            return Collections.emptyList();
+         }
+         else
+         {
+            List<String> ids = new ArrayList<String>(size != -1 ? (int)size : 7);
+
+            while (rows.hasNext())
+            {
+               final Row row = rows.nextRow();
+               final Value rowValue = row.getValue("producerid");
+               ids.add(rowValue.getString());
+            }
+
+            return ids;
+         }
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   private RowIterator getProducerInfoIds(ChromatticSession session) throws RepositoryException
+   {
+      final Session jcrSession = session.getJCRSession();
+
+      final Query query = jcrSession.getWorkspace().getQueryManager().createQuery("select producerid from wsrp:producerinfo", Query.SQL);
+      final QueryResult queryResult = query.execute();
+      return queryResult.getRows();
+   }
+
+   @Override
+   public int getConfiguredConsumerNumber()
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         final RowIterator ids = getProducerInfoIds(session);
+
+         return (int)ids.getSize();
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    private ProducerInfosMapping getProducerInfosMapping(ChromatticSession session)
@@ -186,8 +419,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
             // Save to JCR
             List<ProducerInfoMapping> infos = producerInfosMapping.getProducerInfos();
-            List<WSRPConsumer> consumers = fromXML.getConfiguredConsumers();
-            for (WSRPConsumer consumer : consumers)
+            List<WSRPConsumer> xmlConsumers = fromXML.getConfiguredConsumers();
+            for (WSRPConsumer consumer : xmlConsumers)
             {
                ProducerInfo info = consumer.getProducerInfo();
 
@@ -198,7 +431,16 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
                // init it from ProducerInfo
                pim.initFrom(info);
+
+               // update ProducerInfo with the persistence key
+               info.setKey(pim.getKey());
+
+               consumers.putConsumer(info.getId(), consumer);
             }
+
+            lastModified = System.currentTimeMillis();
+            getMixin(producerInfosMapping, session, LastModified.class).setLastModified(lastModified);
+            session.save();
          }
       }
 
@@ -210,9 +452,28 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return getPathFor(needsComputedPath);
    }
 
+   public LastModified lastModifiedToUpdateOnDelete(ChromatticSession session)
+   {
+      final ProducerInfosMapping pims = session.findByPath(ProducerInfosMapping.class, PRODUCER_INFOS_PATH);
+      if (pims != null)
+      {
+         // GTNWSRP-239
+         return getMixin(pims, session, LastModified.class);
+      }
+      else
+      {
+         return null;
+      }
+   }
+
    private static String getPathFor(ProducerInfo info)
    {
-      return PRODUCER_INFOS_PATH + "/" + info.getId();
+      return getPathFor(info.getId());
+   }
+
+   private static String getPathFor(final String producerInfoId)
+   {
+      return PRODUCER_INFOS_PATH + "/" + producerInfoId;
    }
 
    private static ProducerInfoMapping toProducerInfoMapping(ProducerInfo producerInfo, ChromatticSession session)
@@ -228,13 +489,25 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       return pim;
    }
 
+   /**
+    * For tests
+    *
+    * @return
+    */
+   ChromatticPersister getPersister()
+   {
+      return persister;
+   }
+
    private static class MappingToProducerInfoIterator implements Iterator<ProducerInfo>
    {
       private Iterator<ProducerInfoMapping> mappings;
+      private final JCRConsumerRegistry registry;
 
-      public MappingToProducerInfoIterator(Iterator<ProducerInfoMapping> infoMappingIterator)
+      public MappingToProducerInfoIterator(Iterator<ProducerInfoMapping> infoMappingIterator, JCRConsumerRegistry jcrConsumerRegistry)
       {
          this.mappings = infoMappingIterator;
+         this.registry = jcrConsumerRegistry;
       }
 
       public boolean hasNext()
@@ -244,7 +517,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
       public ProducerInfo next()
       {
-         return mappings.next().toModel(null);
+         return mappings.next().toModel(null, registry);
       }
 
       public void remove()

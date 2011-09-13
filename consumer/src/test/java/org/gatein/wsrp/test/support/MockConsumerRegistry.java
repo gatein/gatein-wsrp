@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -30,11 +30,16 @@ import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.consumer.handlers.session.InMemorySessionRegistry;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
+import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
-import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,17 +48,20 @@ import java.util.Map;
  * @version $Revision: 12693 $
  * @since 2.6
  */
-public class MockConsumerRegistry implements ConsumerRegistry
+public class MockConsumerRegistry implements ConsumerRegistrySPI
 {
-   private Map consumers = new HashMap(3);
+   private Map<String, WSRPConsumer> consumers = new HashMap(3);
    public static final String MOCK_SERVICE_DESCRIPTION = "mock-service-description";
    public static final String MOCK_MARKUP = "mock-markup";
    public static final String CONSUMER1 = "inDB";
    public static final String CONSUMER2 = "inDB2";
+   private InMemorySessionRegistry sessionRegistry = new InMemorySessionRegistry();
+   private InMemoryMigrationService migrationService = new InMemoryMigrationService();
 
    /**
     * Creates a ConsumerRegistry containing 2 consumers with id '{@link #CONSUMER1}' and '{@link #CONSUMER2}'
-    * respectively. CONSUMER2 is active and has a service description URL set to {@link #MOCK_SERVICE_DESCRIPTION} and a
+    * respectively. CONSUMER2 is active and has a service description URL set to {@link #MOCK_SERVICE_DESCRIPTION} and
+    * a
     * markup URL set to {@link #MOCK_MARKUP}
     */
    public MockConsumerRegistry()
@@ -68,7 +76,7 @@ public class MockConsumerRegistry implements ConsumerRegistry
 
    public WSRPConsumer getConsumer(String id)
    {
-      return (WSRPConsumer)consumers.get(id);
+      return consumers.get(id);
    }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
@@ -97,9 +105,9 @@ public class MockConsumerRegistry implements ConsumerRegistry
       // do nothing
    }
 
-   public void updateProducerInfo(ProducerInfo producerInfo)
+   public String updateProducerInfo(ProducerInfo producerInfo)
    {
-      // do nothing
+      return null;
    }
 
    public void deactivateConsumerWith(String id) throws ConsumerException
@@ -137,6 +145,31 @@ public class MockConsumerRegistry implements ConsumerRegistry
       //To change body of implemented methods use File | Settings | File Templates.
    }
 
+   public void save(ProducerInfo info, String messageOnError) throws ConsumerException
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void delete(ProducerInfo info) throws ConsumerException
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public String update(ProducerInfo producerInfo)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public ProducerInfo loadProducerInfo(String id)
+   {
+      throw new UnsupportedOperationException();
+   }
+
    public void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
    {
       //To change body of implemented methods use File | Settings | File Templates.
@@ -154,11 +187,41 @@ public class MockConsumerRegistry implements ConsumerRegistry
 
    public MigrationService getMigrationService()
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return migrationService;
    }
 
    public void setMigrationService(MigrationService migrationService)
    {
-      //To change body of implemented methods use File | Settings | File Templates.
+      throw new UnsupportedOperationException();
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      return sessionRegistry;
+   }
+
+   public void setSessionRegistry(SessionRegistry sessionRegistry)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public boolean containsConsumer(String id)
+   {
+      return consumers.containsKey(id);
+   }
+
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      return consumers.keySet();
+   }
+
+   public int getConfiguredConsumerNumber()
+   {
+      return consumers.size();
+   }
+
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   {
+      throw new UnsupportedOperationException();
    }
 }

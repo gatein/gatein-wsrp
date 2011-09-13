@@ -27,9 +27,9 @@ package org.gatein.wsrp.jcr.mapping;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public interface BaseMapping<T>
+public interface BaseMapping<T, R>
 {
    void initFrom(T model);
 
-   T toModel(T initial);
+   T toModel(T initial, R registry);
 }

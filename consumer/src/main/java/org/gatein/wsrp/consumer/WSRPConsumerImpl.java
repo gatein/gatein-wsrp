@@ -51,12 +51,13 @@ import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
 import org.gatein.wsrp.consumer.migration.ImportInfo;
-import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.services.MarkupService;
 import org.gatein.wsrp.services.PortletManagementService;
@@ -95,7 +96,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -114,8 +114,6 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    private final InvocationDispatcher dispatcher;
 
    private ProducerInfo producerInfo;
-
-   private transient MigrationService migrationService;
 
    /** A registration data element used to indicate when no registration was required by the producer */
    private final static RegistrationData REGISTRATION_NOT_NEEDED = WSRPTypeFactory.createDefaultRegistrationData();
@@ -143,20 +141,13 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    private Set supportedUserScopes = WSRP_DEFAULT_USER_SCOPE; // todo: make it possible to support different user scopes
    private transient boolean started;
 
-   public WSRPConsumerImpl()
-   {
-      this(new ProducerInfo(), new InMemoryMigrationService());
-   }
-
-   public WSRPConsumerImpl(ProducerInfo info, MigrationService migrationService)
+   public WSRPConsumerImpl(ProducerInfo info)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(info, "ProducerInfo");
 
       producerInfo = info;
       sessionHandler = new SessionHandler(this);
       dispatcher = new InvocationDispatcher(this);
-
-      this.migrationService = migrationService;
    }
 
    public ProducerInfo getProducerInfo()
@@ -836,7 +827,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
             }
 
             ExportInfo exportInfo = new ExportInfo(System.currentTimeMillis(), errorCodeToHandle, handleToState, exportContextHolder.value);
-            migrationService.add(exportInfo);
+            getConsumerRegistry().getMigrationService().add(exportInfo);
             return exportInfo;
          }
          catch (OperationNotSupported operationNotSupported)
@@ -894,6 +885,11 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       {
          throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
       }
+   }
+
+   private ConsumerRegistrySPI getConsumerRegistry()
+   {
+      return producerInfo.getRegistry();
    }
 
    public void releaseExport(ExportInfo exportInfo) throws PortletInvokerException
@@ -1023,11 +1019,16 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public MigrationService getMigrationService()
    {
-      return migrationService;
+      return getConsumerRegistry().getMigrationService();
    }
 
    public Version getWSRPVersion()
    {
       return producerInfo.getEndpointConfigurationInfo().getWSRPVersion();
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      return getConsumerRegistry().getSessionRegistry();
    }
 }

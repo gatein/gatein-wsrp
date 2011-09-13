@@ -21,24 +21,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.jcr;
+package org.gatein.wsrp.jcr.mapping.mixins;
 
-import org.chromattic.api.ChromatticSession;
-import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
-
-/**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
- */
-public interface StoresByPathManager<C>
+/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+public interface BaseMixin
 {
-   String getChildPath(C needsComputedPath);
-
-   /**
-    * // GTNWSRP-239
-    *
-    * @param session
-    * @return
-    */
-   LastModified lastModifiedToUpdateOnDelete(ChromatticSession session);
+   void initializeValue();
 }

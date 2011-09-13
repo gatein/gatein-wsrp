@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -41,7 +41,7 @@ import java.util.Collections;
  */
 public class ConsumerRegistryTestCase extends TestCase
 {
-   protected ConsumerRegistry registry;
+   protected AbstractConsumerRegistry registry;
 
    @Override
    protected void setUp() throws Exception
@@ -57,11 +57,14 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(id, consumer.getProducerId());
       ProducerInfo info = consumer.getProducerInfo();
       assertNotNull(info);
+      assertNotNull(info.getKey());
       assertEquals(consumer.getProducerId(), info.getId());
       EndpointConfigurationInfo endpoint = info.getEndpointConfigurationInfo();
       assertNotNull(endpoint);
       RegistrationInfo regInfo = info.getRegistrationInfo();
       assertTrue(regInfo.isUndetermined());
+      assertEquals(registry, info.getRegistry());
+      assertTrue(registry.containsConsumer(id));
 
       WSRPConsumer fromRegistry = registry.getConsumer(id);
       assertNotNull(fromRegistry);
@@ -71,6 +74,7 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(fromRegistry.getProducerId(), fromRegistryInfo.getId());
       assertNotNull(fromRegistryInfo.getEndpointConfigurationInfo());
       assertTrue(fromRegistryInfo.getRegistrationInfo().isUndetermined());
+      assertEquals(registry, fromRegistryInfo.getRegistry());
 
       assertEquals(info.getId(), fromRegistryInfo.getId());
       assertEquals(info.getEndpointConfigurationInfo(), fromRegistryInfo.getEndpointConfigurationInfo());
@@ -80,22 +84,18 @@ public class ConsumerRegistryTestCase extends TestCase
       assertNotNull(consumers);
       assertEquals(1, consumers.size());
       assertTrue(consumers.contains(consumer));
+
+      final Collection<String> ids = registry.getConfiguredConsumersIds();
+      assertNotNull(ids);
+      assertEquals(1, ids.size());
+      assertTrue(ids.contains(id));
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
    }
 
    public void testGetConsumer()
    {
       assertNull(registry.getConsumer("inexistent"));
-   }
-
-   public void testGetProducerInfoByKey()
-   {
-      WSRPConsumer consumer = registry.createConsumer("id", null, null);
-      ProducerInfo info = consumer.getProducerInfo();
-
-      String key = info.getKey();
-      assertNotNull(key);
-
-      assertEquals(info, registry.getProducerInfoByKey(key));
    }
 
    public void testDoubleRegistrationOfConsumerWithSameId()
@@ -120,13 +120,14 @@ public class ConsumerRegistryTestCase extends TestCase
 
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       assertEquals(consumer, registry.getConsumer(id));
-
-      String key = consumer.getProducerInfo().getKey();
+      assertTrue(registry.containsConsumer(id));
+      assertEquals(1, registry.getConfiguredConsumerNumber());
 
       registry.destroyConsumer(id);
 
+      assertFalse(registry.containsConsumer(id));
       assertNull(registry.getConsumer(id));
-      assertNull(registry.getProducerInfoByKey(key));
+      assertEquals(0, registry.getConfiguredConsumerNumber());
    }
 
    public void testUpdateProducerInfo()
@@ -135,16 +136,18 @@ public class ConsumerRegistryTestCase extends TestCase
       String id = "foo";
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       ProducerInfo info = consumer.getProducerInfo();
-      String key = info.getKey();
 
       // change the id on the consumer's producer info and save it
       info.setId("bar");
       registry.updateProducerInfo(info);
 
       assertNull(registry.getConsumer(id));
+      assertFalse(registry.containsConsumer(id));
+
       assertEquals(info, consumer.getProducerInfo());
-      assertEquals(info, registry.getProducerInfoByKey(key));
       assertEquals(consumer, registry.getConsumer("bar"));
+      assertTrue(registry.containsConsumer("bar"));
+      assertEquals(1, registry.getConfiguredConsumerNumber());
    }
 
    public void testStoppingShouldntStartConsumers() throws Exception
@@ -158,21 +161,20 @@ public class ConsumerRegistryTestCase extends TestCase
       Mockito.stub(info.getEndpointConfigurationInfo()).toReturn(endpoint);
 
       // create a consumer to spy from
-      WSRPConsumer original = ((AbstractConsumerRegistry)registry).newConsumer(info);
+      WSRPConsumer original = registry.createConsumerFrom(info);
       WSRPConsumer consumer = Mockito.spy(original);
 
       // force re-init of registry from "persistence" to ensure that the spy registry actually uses our spy consumer
-      ConsumerRegistry registrySpy = Mockito.spy(registry);
-      Mockito.doReturn(Collections.singletonList(info).iterator()).when((AbstractConsumerRegistry)registrySpy).getProducerInfosFromStorage();
-      Mockito.doReturn(consumer).when((AbstractConsumerRegistry)registrySpy).newConsumer(info);
-      registrySpy.reloadConsumers();
+      AbstractConsumerRegistry registrySpy = Mockito.spy(registry);
+      Mockito.doReturn(consumer).when(registrySpy).getConsumer("foo");
+      Mockito.doReturn(Collections.singletonList(consumer)).when(registrySpy).getConsumers(false);
 
       WSRPConsumer foo = registrySpy.getConsumer("foo");
       assertTrue(foo.getProducerInfo().isActive());
       assertEquals(consumer, foo);
 
       // start consumer and check that it's properly added to the FederatingPortletInvoker
-      ((AbstractConsumerRegistry)registrySpy).activateConsumer(foo);
+      registrySpy.activateConsumer(foo);
       assertEquals(consumer, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
 
       // stop the consumer and then the registry and check that consumer.start has only been called once

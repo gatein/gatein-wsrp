@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -38,7 +38,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.portlet.WSRPPortlet;
 import org.gatein.wsrp.consumer.portlet.info.WSRPEventInfo;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
-import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.servlet.UserAccess;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
@@ -105,6 +105,16 @@ public class ProducerInfo
    /** The activated status of the associated Consumer */
    private boolean persistentActive;
 
+   // GTNWSRP-239: information that's currently transient but should probably be persistent
+   /**
+    * GTNWSRP-239: whether or not this ProducerInfo requires ModifyRegistration to be called, currently persisted via
+    * mixin
+    */
+   private boolean isModifyRegistrationRequired;
+
+   /** GTNWSRP-239: last modification epoch: currently persistent via mixin */
+   private long lastModified;
+
    // Transient information
 
    /** The Cookie handling policy required by the Producer */
@@ -122,9 +132,7 @@ public class ProducerInfo
    /** Time at which the cache expires */
    private long expirationTimeMillis;
 
-   private boolean isModifyRegistrationRequired;
-
-   private ConsumerRegistry registry;
+   private final ConsumerRegistrySPI registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
 
    private transient RegistrationInfo expectedRegistrationInfo;
@@ -142,10 +150,11 @@ public class ProducerInfo
    protected org.oasis.wsrp.v1.ResourceList resourceList;*/
 
 
-   public ProducerInfo()
+   public ProducerInfo(ConsumerRegistrySPI consumerRegistry)
    {
       persistentEndpointInfo = new EndpointConfigurationInfo();
       persistentRegistrationInfo = RegistrationInfo.createUndeterminedRegistration(this);
+      this.registry = consumerRegistry;
    }
 
    @Override
@@ -193,14 +202,9 @@ public class ProducerInfo
       return sb.toString();
    }
 
-   public ConsumerRegistry getRegistry()
+   public ConsumerRegistrySPI getRegistry()
    {
       return registry;
-   }
-
-   public void setRegistry(ConsumerRegistry registry)
-   {
-      this.registry = registry;
    }
 
    public String getKey()
@@ -1280,5 +1284,15 @@ public class ProducerInfo
       {
          return eventDescriptions.get(name);
       }
+   }
+
+   public long getLastModified()
+   {
+      return lastModified;
+   }
+
+   public void setLastModified(long lastModified)
+   {
+      this.lastModified = lastModified;
    }
 }

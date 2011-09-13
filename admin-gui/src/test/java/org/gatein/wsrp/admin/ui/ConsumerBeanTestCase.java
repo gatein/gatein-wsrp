@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -52,9 +52,13 @@ public class ConsumerBeanTestCase extends TestCase
    protected void setUp() throws Exception
    {
       bean = new ConsumerBean();
+
       ConsumerRegistry registry = new TestInMemoryConsumerRegistry();
       registry.createConsumer(CONSUMER_ID, null, WSDL);
-      bean.setRegistry(registry);
+      ConsumerManagerBean managerBean = new ConsumerManagerBean();
+      managerBean.setRegistry(registry);
+      bean.setManager(managerBean);
+
       bean.setBeanContext(new TestBeanContext());
 
       // consumer associated with bean is null at this point so it should be loaded from the registry
@@ -155,6 +159,12 @@ public class ConsumerBeanTestCase extends TestCase
       }
 
       public Map<String, Object> getSessionMap()
+      {
+         throw new NotYetImplemented();
+      }
+
+      @Override
+      public <T> T findBean(String name, Class<T> type)
       {
          throw new NotYetImplemented();
       }

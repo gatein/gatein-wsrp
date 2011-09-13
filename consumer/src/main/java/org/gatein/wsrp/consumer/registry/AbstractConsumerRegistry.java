@@ -33,44 +33,64 @@ import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.handlers.session.InMemorySessionRegistry;
+import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
+import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 import org.gatein.wsrp.consumer.migration.MigrationService;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12693 $
  * @since 2.6
  */
-public abstract class AbstractConsumerRegistry implements ConsumerRegistry
+public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 {
    /** Gives access to the Portal's portlet invokers */
    private FederatingPortletInvoker federatingPortletInvoker;
 
-   private SortedMap<String, WSRPConsumer> consumers;
-   private Map<String, String> keysToIds;
-
    private SessionEventBroadcaster sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
-   private MigrationService migrationService;
+   private MigrationService migrationService = new InMemoryMigrationService();
+   private SessionRegistry sessionRegistry = new InMemorySessionRegistry();
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
 
    private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
-   protected AbstractConsumerRegistry()
+   protected ConsumerCache consumers = new InMemoryConsumerCache();
+
+   public void setConsumerCache(ConsumerCache consumers)
    {
-      initConsumers(null);
+      if (consumers == null)
+      {
+         consumers = new InMemoryConsumerCache();
+      }
+      this.consumers = consumers;
+   }
+
+   public void setSessionRegistry(SessionRegistry sessionRegistry)
+   {
+      if (sessionRegistry == null)
+      {
+         sessionRegistry = new InMemorySessionRegistry();
+      }
+      this.sessionRegistry = sessionRegistry;
+   }
+
+   public SessionRegistry getSessionRegistry()
+   {
+      return sessionRegistry;
    }
 
    public FederatingPortletInvoker getFederatingPortletInvoker()
@@ -80,6 +100,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster)
    {
+      if (sessionEventBroadcaster == null)
+      {
+         sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
+      }
       this.sessionEventBroadcaster = sessionEventBroadcaster;
    }
 
@@ -90,6 +114,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void setMigrationService(MigrationService migrationService)
    {
+      if (migrationService == null)
+      {
+         migrationService = new InMemoryMigrationService();
+      }
       this.migrationService = migrationService;
    }
 
@@ -103,9 +131,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       }
 
 
-      ProducerInfo info = new ProducerInfo();
+      ProducerInfo info = new ProducerInfo(this);
       info.setId(id);
-      info.setRegistry(this);
       info.setExpirationCacheSeconds(expirationCacheSeconds);
       info.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
 
@@ -140,9 +167,11 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          }
 
          deactivateConsumer(consumer);
-         remove(consumer);
 
          delete(info);
+
+         // remove from cache
+         consumers.removeConsumer(id);
       }
       else
       {
@@ -168,36 +197,17 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       this.federatingPortletInvoker = federatingPortletInvoker;
    }
 
-   public ProducerInfo getProducerInfoByKey(String key)
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
    {
-      String id = keysToIds.get(key);
-      if (id != null)
-      {
-         return getConsumer(id).getProducerInfo();
-      }
-      else
-      {
-         return null;
-      }
-   }
+      // make sure we set the registry after loading from DB since registry is not persisted.
+//      producerInfo.setRegistry(this);
 
-   private WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
-   {
-      WSRPConsumer consumer = newConsumer(producerInfo);
-      add(consumer);
+      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo);
+
+      // cache consumer
+      consumers.putConsumer(producerInfo.getId(), consumer);
 
       return consumer;
-   }
-
-   /**
-    * Extracted for testing purposes...
-    *
-    * @param producerInfo
-    * @return
-    */
-   protected WSRPConsumer newConsumer(ProducerInfo producerInfo)
-   {
-      return new WSRPConsumerImpl(producerInfo, migrationService);
    }
 
    public void activateConsumerWith(String id) throws ConsumerException
@@ -211,18 +221,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "WSRPConsumer");
       String id = consumer.getProducerId();
 
-      if (federatingPortletInvoker.getFederatedInvoker(id) == null)
+      if (!federatingPortletInvoker.isResolved(id))
       {
          startOrStopConsumer(consumer, true);
-      }
-      else
-      {
-         // todo: fix-me federated portlet invoker gets desynchronized...
-         if (!consumer.isActive())
-         {
-            federatingPortletInvoker.unregisterInvoker(id);
-            startOrStopConsumer(consumer, true);
-         }
       }
    }
 
@@ -238,22 +239,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       String id = consumer.getProducerId();
 
       // only process if there is a registered Consumer with the specified id
-      if (federatingPortletInvoker.getFederatedInvoker(id) != null)
+      if (federatingPortletInvoker.isResolved(id))
       {
          startOrStopConsumer(consumer, false);
       }
-      else
-      {
-         // todo: fix-me federated portlet invoker gets desynchronized...
-         if (consumer.isActive())
-         {
-            federatingPortletInvoker.registerInvoker(id, consumer);
-            startOrStopConsumer(consumer, false);
-         }
-      }
    }
 
-   public void updateProducerInfo(ProducerInfo producerInfo)
+   public String updateProducerInfo(ProducerInfo producerInfo)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
 
@@ -262,17 +254,21 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       // if we updated and oldId is not null, we need to update the local information
       if (oldId != null)
       {
-         remove(getConsumer(oldId));
          WSRPConsumer consumer = createConsumerFrom(producerInfo);
 
-         // update the federating portlet invoker:
-         FederatedPortletInvoker invoker = federatingPortletInvoker.getFederatedInvoker(oldId);
-         if (invoker != null)
+         // update the federating portlet invoker if needed
+         if (federatingPortletInvoker.isResolved(oldId))
          {
             federatingPortletInvoker.unregisterInvoker(oldId);
             federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
          }
+
+         // update cache
+         consumers.removeConsumer(oldId);
+         consumers.putConsumer(producerInfo.getId(), consumer);
       }
+
+      return oldId;
    }
 
    public void start() throws Exception
@@ -282,8 +278,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
 
    public void reloadConsumers()
    {
-      // load the configured consumers
-      initConsumers(null);
+      consumers.clear();
 
       Iterator<ProducerInfo> producerInfos = getProducerInfosFromStorage();
 
@@ -292,9 +287,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       while (producerInfos.hasNext())
       {
          producerInfo = producerInfos.next();
-
-         // need to set the registry after loading from DB since registry is not persisted.
-         producerInfo.setRegistry(this);
 
          createConsumerFrom(producerInfo);
       }
@@ -308,7 +300,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
          // unregister it. We have changed how consumers are registered (active consumers are not automatically
          // registered anymore), we also need to check if the consumer is known by the federating portlet invoker... 
          String producerId = consumer.getProducerId();
-         if (consumer.getProducerInfo().isActive() && federatingPortletInvoker.getFederatedInvoker(producerId) != null)
+         if (consumer.getProducerInfo().isActive() && federatingPortletInvoker.isResolved(producerId))
          {
             federatingPortletInvoker.unregisterInvoker(producerId);
          }
@@ -322,19 +314,66 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
             // ignore and continue
          }
       }
-
-      clearConsumers();
    }
 
    public List<WSRPConsumer> getConfiguredConsumers()
    {
-      return new ArrayList<WSRPConsumer>(getConsumers());
+      return getConsumers(true);
    }
 
    public WSRPConsumer getConsumer(String id)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "consumer id", null);
-      return consumers.get(id);
+
+      return consumers.getConsumer(id);
+   }
+
+   public boolean containsConsumer(String id)
+   {
+      return getConsumer(id) != null;
+   }
+
+   public Collection<String> getConfiguredConsumersIds()
+   {
+      return new AbstractCollection<String>()
+      {
+         final private List<WSRPConsumer> consumers = getConsumers(false);
+
+         @Override
+         public Iterator<String> iterator()
+         {
+            return new Iterator<String>()
+            {
+               private Iterator<WSRPConsumer> consumerIterator = consumers.iterator();
+
+               public boolean hasNext()
+               {
+                  return consumerIterator.hasNext();
+               }
+
+               public String next()
+               {
+                  return consumerIterator.next().getProducerId();
+               }
+
+               public void remove()
+               {
+                  throw new UnsupportedOperationException();
+               }
+            };
+         }
+
+         @Override
+         public int size()
+         {
+            return consumers.size();
+         }
+      };
+   }
+
+   public int getConfiguredConsumerNumber()
+   {
+      return getConfiguredConsumersIds().size();
    }
 
    public void registerOrDeregisterConsumerWith(String id, boolean register)
@@ -418,50 +457,15 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       return RELEASE_SESSIONS_LISTENER + id;
    }
 
-   protected abstract void save(ProducerInfo info, String messageOnError) throws ConsumerException;
-
-   protected abstract void delete(ProducerInfo info) throws ConsumerException;
-
-   /**
-    * Persists the changes made to ProducerInfo.
-    *
-    * @param producerInfo
-    * @return the previous value of the ProducerInfo's id if it has changed, <code>null</code> otherwise
-    */
-   protected abstract String update(ProducerInfo producerInfo);
-
-   protected abstract Iterator<ProducerInfo> getProducerInfosFromStorage();
-
-   // internal management methods
-
-   protected void add(WSRPConsumer consumer)
+   protected List<WSRPConsumer> getConsumers(boolean startConsumers)
    {
-      String id = consumer.getProducerId();
-      consumers.put(id, consumer);
-      ProducerInfo info = consumer.getProducerInfo();
-      keysToIds.put(info.getKey(), id);
-   }
-
-   protected WSRPConsumer remove(WSRPConsumer consumer)
-   {
-      String id = keysToIds.remove(consumer.getProducerInfo().getKey());
-      return consumers.remove(id);
-   }
-
-   protected Collection<WSRPConsumer> getConsumers()
-   {
-      return getConsumers(true);
-   }
-
-   protected Collection<WSRPConsumer> getConsumers(boolean startConsumers)
-   {
-      Collection<WSRPConsumer> consumerz = consumers.values();
-
-      if (startConsumers)
+      final Collection<WSRPConsumer> consumerz = consumers.getConsumers();
+      for (WSRPConsumer consumer : consumerz)
       {
-         for (WSRPConsumer consumer : consumerz)
+         if (startConsumers)
          {
-            if (consumer.getProducerInfo().isActive() && !consumer.isActive())
+            final ProducerInfo info = consumer.getProducerInfo();
+            if (info.isActive() && !consumer.isActive())
             {
                try
                {
@@ -470,36 +474,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
                catch (Exception e)
                {
                   log.info("Couldn't activate consumer " + consumer.getProducerId());
-                  consumer.getProducerInfo().setActiveAndSave(false);
+                  info.setActiveAndSave(false);
                }
             }
          }
       }
-      return consumerz;
-   }
 
-   protected Map<String, String> getKeyMappings()
-   {
-      return Collections.unmodifiableMap(keysToIds);
-   }
-
-   protected void initConsumers(SortedMap<String, WSRPConsumer> consumers)
-   {
-      if (!ParameterValidation.existsAndIsNotEmpty(consumers))
-      {
-         consumers = new TreeMap<String, WSRPConsumer>();
-      }
-      this.consumers = consumers;
-      int size = consumers.size();
-      keysToIds = size == 0 ? new HashMap<String, String>() : new HashMap<String, String>(size);
-   }
-
-   private void clearConsumers()
-   {
-      consumers.clear();
-      keysToIds.clear();
-      consumers = null;
-      keysToIds = null;
+      return new ArrayList<WSRPConsumer>(consumerz);
    }
 
    protected class ProducerInfoIterator implements Iterator<ProducerInfo>
@@ -524,6 +505,36 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistry
       public void remove()
       {
          throw new UnsupportedOperationException("remove not supported on this iterator implementation");
+      }
+   }
+
+   protected class InMemoryConsumerCache implements ConsumerCache
+   {
+      private Map<String, WSRPConsumer> consumers = new HashMap<String, WSRPConsumer>(11);
+
+      public Collection<WSRPConsumer> getConsumers()
+      {
+         return consumers.values();
+      }
+
+      public WSRPConsumer getConsumer(String id)
+      {
+         return consumers.get(id);
+      }
+
+      public WSRPConsumer removeConsumer(String id)
+      {
+         return consumers.remove(id);
+      }
+
+      public void putConsumer(String id, WSRPConsumer consumer)
+      {
+         consumers.put(id, consumer);
+      }
+
+      public void clear()
+      {
+         consumers.clear();
       }
    }
 }

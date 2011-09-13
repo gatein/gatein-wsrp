@@ -21,24 +21,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.jcr;
+package org.gatein.wsrp.consumer.registry;
 
-import org.chromattic.api.ChromatticSession;
-import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.gatein.wsrp.WSRPConsumer;
 
-/**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
- */
-public interface StoresByPathManager<C>
+import java.util.Collection;
+
+/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+public interface ConsumerCache
 {
-   String getChildPath(C needsComputedPath);
+   Collection<WSRPConsumer> getConsumers();
 
-   /**
-    * // GTNWSRP-239
-    *
-    * @param session
-    * @return
-    */
-   LastModified lastModifiedToUpdateOnDelete(ChromatticSession session);
+   WSRPConsumer getConsumer(String id);
+
+   WSRPConsumer removeConsumer(String id);
+
+   void putConsumer(String id, WSRPConsumer consumer);
+
+   void clear();
 }

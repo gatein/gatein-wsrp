@@ -36,6 +36,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,18 +47,22 @@ import java.util.Map;
  * @version $Revision: 12854 $
  * @since 2.6.3
  */
-public class ProducerBean extends ManagedBean
+public class ProducerBean extends ManagedBean implements Serializable
 {
-   private ProducerConfigurationService configurationService;
+   private transient ProducerConfigurationService configurationService;
    private String policyClassName;
    private String validatorClassName;
    private static final String PROPERTY = "property";
    private static final String PRODUCER = "producer";
    private String selectedProp;
-   private LocalProducerConfiguration localProducerConfiguration;
+   private transient LocalProducerConfiguration localProducerConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
    {
+      if (configurationService == null)
+      {
+         configurationService = beanContext.findBean("ProducerConfigurationService", ProducerConfigurationService.class);
+      }
       return configurationService;
    }
 

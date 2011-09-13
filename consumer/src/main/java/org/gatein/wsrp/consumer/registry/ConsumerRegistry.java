@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -25,11 +25,10 @@ package org.gatein.wsrp.consumer.registry;
 
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
-import org.gatein.wsrp.consumer.migration.MigrationService;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -58,7 +57,13 @@ public interface ConsumerRegistry
     */
    void activateConsumerWith(String id) throws ConsumerException;
 
-   void updateProducerInfo(ProducerInfo producerInfo) throws ConsumerException;
+   /**
+    * Persists the changes made to ProducerInfo.
+    *
+    * @param producerInfo the ProducerInfo to persist
+    * @return the previous value of the ProducerInfo's id if it has changed, <code>null</code> otherwise
+    */
+   String updateProducerInfo(ProducerInfo producerInfo) throws ConsumerException;
 
    void deactivateConsumerWith(String id) throws ConsumerException;
 
@@ -68,17 +73,9 @@ public interface ConsumerRegistry
 
    void reloadConsumers();
 
-   void start() throws Exception;
+   boolean containsConsumer(String id);
 
-   void stop() throws Exception;
+   Collection<String> getConfiguredConsumersIds();
 
-   void setSessionEventBroadcaster(SessionEventBroadcaster sessionEventBroadcaster);
-
-   void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker);
-
-   ProducerInfo getProducerInfoByKey(String key);
-
-   MigrationService getMigrationService();
-
-   void setMigrationService(MigrationService migrationService);
+   int getConfiguredConsumerNumber();
 }

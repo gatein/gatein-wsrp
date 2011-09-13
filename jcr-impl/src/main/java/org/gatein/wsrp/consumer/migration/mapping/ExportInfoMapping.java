@@ -45,7 +45,7 @@ import java.util.TreeMap;
  * @version $Revision$
  */
 @PrimaryType(name = ExportInfoMapping.NODE_NAME)
-public abstract class ExportInfoMapping implements BaseMapping<ExportInfo>
+public abstract class ExportInfoMapping implements BaseMapping<ExportInfo, Object>
 {
    public static final String NODE_NAME = "wsrp:exportinfo";
 
@@ -122,7 +122,7 @@ public abstract class ExportInfoMapping implements BaseMapping<ExportInfo>
       }
    }
 
-   public ExportInfo toModel(ExportInfo initial)
+   public ExportInfo toModel(ExportInfo initial, Object registry)
    {
       List<ExportedStateMapping> exportedStates = getExportedStates();
       SortedMap<String, byte[]> states = new TreeMap<String, byte[]>();

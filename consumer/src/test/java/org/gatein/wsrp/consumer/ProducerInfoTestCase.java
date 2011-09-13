@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -72,15 +72,13 @@ public class ProducerInfoTestCase extends TestCase
 
    protected void setUp() throws Exception
    {
-      info = new ProducerInfo();
+      info = new ProducerInfo(new MockConsumerRegistry());
       info.setId("test");
       info.setKey("key");
 
       serviceFactory = new BehaviorBackedServiceFactory();
       EndpointConfigurationInfo eci = new EndpointConfigurationInfo(serviceFactory);
       info.setEndpointConfigurationInfo(eci);
-
-      info.setRegistry(new MockConsumerRegistry());
    }
 
    public void testSetRegistrationInfo()

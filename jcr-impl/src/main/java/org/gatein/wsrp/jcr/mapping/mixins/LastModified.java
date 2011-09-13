@@ -21,24 +21,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.jcr;
+package org.gatein.wsrp.jcr.mapping.mixins;
 
-import org.chromattic.api.ChromatticSession;
-import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.chromattic.api.annotations.MixinType;
+import org.chromattic.api.annotations.Property;
 
-/**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
- */
-public interface StoresByPathManager<C>
+/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+@MixinType(name = "wsrp:lastmodified")
+public abstract class LastModified implements BaseMixin
 {
-   String getChildPath(C needsComputedPath);
+   @Property(name = "wsrp:time")
+   public abstract long getLastModified();
 
-   /**
-    * // GTNWSRP-239
-    *
-    * @param session
-    * @return
-    */
-   LastModified lastModifiedToUpdateOnDelete(ChromatticSession session);
+   public abstract void setLastModified(long lastModified);
+
+   public void initializeValue()
+   {
+      setLastModified(System.currentTimeMillis());
+   }
 }

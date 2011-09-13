@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -42,7 +42,7 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
    private SessionFactory sessionFactory;
    private String sessionFactoryJNDIName;
 
-   protected void save(ProducerInfo info, String messageOnError)
+   public void save(ProducerInfo info, String messageOnError)
    {
       try
       {
@@ -55,7 +55,7 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
       }
    }
 
-   protected void delete(ProducerInfo info)
+   public void delete(ProducerInfo info)
    {
       Session session = sessionFactory.getCurrentSession();
 
@@ -79,7 +79,7 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
     * @return the id that was previously assigned to the specified ProducerInfo or <code>null</code> if the id hasn't
     *         been modified
     */
-   protected String update(ProducerInfo producerInfo)
+   public String update(ProducerInfo producerInfo)
    {
       String oldId;
       Session session = sessionFactory.getCurrentSession();
@@ -105,11 +105,18 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
       return oldId;
    }
 
-   protected Iterator<ProducerInfo> getProducerInfosFromStorage()
+   public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       Session session = sessionFactory.getCurrentSession();
 
       return session.createQuery("from ProducerInfo pi order by pi.persistentId").iterate();
+   }
+
+   public ProducerInfo loadProducerInfo(String id)
+   {
+      Session session = sessionFactory.getCurrentSession();
+      return (ProducerInfo)session.createQuery("from ProducerInfo pi where pi.persistentId = :id")
+         .setParameter("id", id).uniqueResult();
    }
 
    @Override
