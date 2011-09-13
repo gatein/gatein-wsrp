@@ -63,8 +63,25 @@ public class JSFBeanContext extends BeanContext implements Serializable
    public <T> T findBean(String name, Class<T> type)
    {
       final FacesContext facesContext = FacesContext.getCurrentInstance();
-      final Object candidate = facesContext.getApplication().evaluateExpressionGet(facesContext, "#{" + name + "}", type);
-      return checkObject(candidate, type, "Bean named '" + name + "' is not of type '" + type.getSimpleName() + "'");
+
+      // try to get the bean from the application map first
+      final Map<String, Object> applicationMap = facesContext.getExternalContext().getApplicationMap();
+      Object candidate = applicationMap.get(name);
+
+      if (candidate == null)
+      {
+         // try to get the bean from an EL expression
+         candidate = facesContext.getApplication().evaluateExpressionGet(facesContext, "#{" + name + "}", type);
+      }
+
+      if (candidate != null)
+      {
+         return checkObject(candidate, type, "Bean named '" + name + "' is not of type '" + type.getSimpleName() + "'");
+      }
+      else
+      {
+         return null;
+      }
    }
 
    public static Map<String, Object> getSessionMap(FacesContext facesContext)
