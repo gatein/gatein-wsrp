@@ -47,6 +47,7 @@ import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -63,11 +64,10 @@ import java.util.SortedMap;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerBean extends ManagedBean
+public class ConsumerBean extends ManagedBean implements Serializable
 {
    public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
    private transient WSRPConsumer consumer;
-   private transient ConsumerRegistry registry;
    private transient ConsumerManagerBean manager;
    private boolean modified;
    private String wsdl;
@@ -91,11 +91,6 @@ public class ConsumerBean extends ManagedBean
    private DataModel portletHandles;
    private DataModel existingExports;
    private ExportInfoDisplay currentExport;
-
-   public void setRegistry(ConsumerRegistry registry)
-   {
-      this.registry = registry;
-   }
 
    public void setManager(ConsumerManagerBean manager)
    {
@@ -155,7 +150,7 @@ public class ConsumerBean extends ManagedBean
       // if we don't have an id, try to get it from the ConsumerManagerBean
       if (id == null)
       {
-         id = manager.getSelectedId();
+         id = getManager().getSelectedId();
       }
 
       // if it's still null, output an error
@@ -406,7 +401,7 @@ public class ConsumerBean extends ManagedBean
          // if the registration is locally modified, bypass the refresh as it will not yield a proper result
          if (!isRegistrationLocallyModified())
          {
-            manager.refresh(consumer);
+            getManager().refresh(consumer);
          }
          else
          {
@@ -533,7 +528,7 @@ public class ConsumerBean extends ManagedBean
 
    public ConsumerRegistry getRegistry()
    {
-      return registry;
+      return getManager().getRegistry();
    }
 
    public DataModel getPortlets()
@@ -778,6 +773,15 @@ public class ConsumerBean extends ManagedBean
       this.consumer = consumer;
    }
 
+   public ConsumerManagerBean getManager()
+   {
+      if (manager == null)
+      {
+         manager = beanContext.getFromSession("consumersMgr", ConsumerManagerBean.class);
+      }
+      return manager;
+   }
+
    public static class SelectablePortletHandle implements Comparable<SelectablePortletHandle>
    {
       private String handle;
@@ -979,12 +983,12 @@ public class ConsumerBean extends ManagedBean
    public static class FailedPortletsDisplay
    {
       private QName errorCode;
-      private List<String> faiedPortlets;
+      private List<String> faliedPortlets;
 
       public FailedPortletsDisplay(QName errorCode, List<String> failedPortlets)
       {
          this.errorCode = errorCode;
-         this.faiedPortlets = failedPortlets;
+         this.faliedPortlets = failedPortlets;
       }
 
       public QName getErrorCode()
@@ -994,7 +998,7 @@ public class ConsumerBean extends ManagedBean
 
       public List<String> getFailedPortlets()
       {
-         return faiedPortlets;
+         return faliedPortlets;
       }
    }
 

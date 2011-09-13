@@ -48,13 +48,13 @@ import java.util.Map;
  */
 public class ProducerBean extends ManagedBean
 {
-   private ProducerConfigurationService configurationService;
+   private transient ProducerConfigurationService configurationService;
    private String policyClassName;
    private String validatorClassName;
    private static final String PROPERTY = "property";
    private static final String PRODUCER = "producer";
    private String selectedProp;
-   private LocalProducerConfiguration localProducerConfiguration;
+   private transient LocalProducerConfiguration localProducerConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
    {

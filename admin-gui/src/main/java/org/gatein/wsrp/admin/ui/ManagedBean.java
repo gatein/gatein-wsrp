@@ -27,6 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 
@@ -35,11 +36,11 @@ import java.util.regex.Pattern;
  * @version $Revision: 13413 $
  * @since 2.6
  */
-public abstract class ManagedBean
+public abstract class ManagedBean implements Serializable
 {
    protected transient Logger log = LoggerFactory.getLogger(getClass());
 
-   protected transient BeanContext beanContext;
+   protected BeanContext beanContext;
 
    private String cancelOutcome;
 
@@ -47,7 +48,7 @@ public abstract class ManagedBean
    public static final String INVALID_PATH = "INVALID_PATH_ERROR";
    public static final String DUPLICATE = "DUPLICATE_ERROR";
 
-   public static interface PropertyValidator
+   public static interface PropertyValidator extends Serializable
    {
       boolean checkForDuplicates();
 

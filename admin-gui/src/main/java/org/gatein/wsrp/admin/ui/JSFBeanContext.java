@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -32,6 +32,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.portlet.PortletRequest;
 import javax.servlet.http.HttpServletRequest;
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ import java.util.Map;
  * @version $Revision: 13413 $
  * @since 2.6
  */
-public class JSFBeanContext extends BeanContext
+public class JSFBeanContext extends BeanContext implements Serializable
 {
    public String getParameter(String key)
    {
@@ -56,6 +57,14 @@ public class JSFBeanContext extends BeanContext
    public Map<String, Object> getSessionMap()
    {
       return JSFBeanContext.getSessionMap(FacesContext.getCurrentInstance());
+   }
+
+   @Override
+   public <T> T findBean(String name, Class<T> type)
+   {
+      final FacesContext facesContext = FacesContext.getCurrentInstance();
+      final Object candidate = facesContext.getApplication().evaluateExpressionGet(facesContext, "#{" + name + "}", type);
+      return checkObject(candidate, type, "Bean named '" + name + "' is not of type '" + type.getSimpleName() + "'");
    }
 
    public static Map<String, Object> getSessionMap(FacesContext facesContext)

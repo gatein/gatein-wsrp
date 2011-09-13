@@ -93,11 +93,6 @@
          <value>#{beanContext}</value>
       </managed-property>
       <managed-property>
-         <property-name>registry</property-name>
-         <property-class>org.gatein.wsrp.consumer.registry.ConsumerRegistry</property-class>
-         <value>#{applicationScope.ConsumerRegistry}</value>
-      </managed-property>
-      <managed-property>
          <property-name>id</property-name>
          <value>#{sessionScope.consumerId}</value>
       </managed-property>

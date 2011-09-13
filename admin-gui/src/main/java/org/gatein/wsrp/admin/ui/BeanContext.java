@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,6 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +39,7 @@ import java.util.ResourceBundle;
  * @version $Revision: 13374 $
  * @since 2.6
  */
-public abstract class BeanContext
+public abstract class BeanContext implements Serializable
 {
    protected final static Logger log = LoggerFactory.getLogger(BeanContext.class);
 
@@ -192,7 +193,8 @@ public abstract class BeanContext
 
    /**
     * Removes the object identified by the specified name(s) from the session. For a JSF backed implementation, this
-    * will allow for the object/bean (defined as session-scoped in <code>faces-config.xml</code>) to be recreated by JSF
+    * will allow for the object/bean (defined as session-scoped in <code>faces-config.xml</code>) to be recreated by
+    * JSF
     * when needed.
     *
     * @param name       name of the object to be removed
@@ -257,7 +259,8 @@ public abstract class BeanContext
     * @param expectedClass expected class of the object
     * @param <T>           type of the object to be retrieved
     * @return the session object associated with the specified name
-    * @throws IllegalArgumentException if the value associated with the specified name is not <code>null</code> and does
+    * @throws IllegalArgumentException if the value associated with the specified name is not <code>null</code> and
+    *                                  does
     *                                  not match the specified expected class
     */
    public <T> T getFromSession(String name, Class<T> expectedClass)
@@ -275,12 +278,18 @@ public abstract class BeanContext
     *                      at runtime
     * @param <T>           the type of the object to be retrieved
     * @return the value associated with the specified name
-    * @throws IllegalArgumentException if the value associated with the specified name is not <code>null</code> and does
+    * @throws IllegalArgumentException if the value associated with the specified name is not <code>null</code> and
+    *                                  does
     *                                  not match the specified expected class
     */
    private <T> T getFromSession(String name, Class<T> expectedClass, Map<String, Object> sessionMap, String errorMessage)
    {
       Object result = sessionMap.get(name);
+      return checkObject(result, expectedClass, errorMessage);
+   }
+
+   protected <T> T checkObject(Object result, Class<T> expectedClass, String errorMessage)
+   {
       if (result != null && !expectedClass.isAssignableFrom(result.getClass()))
       {
          throw new IllegalArgumentException(errorMessage.replace(CURRENT_PLACEHOLDER, result.toString()));
@@ -288,4 +297,6 @@ public abstract class BeanContext
 
       return expectedClass.cast(result);
    }
+
+   public abstract <T> T findBean(String name, Class<T> type);
 }

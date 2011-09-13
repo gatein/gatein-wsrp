@@ -68,6 +68,12 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
 
    public ConsumerRegistry getRegistry()
    {
+      // if the registry is not set, get it from the application scope
+      if (registry == null)
+      {
+         registry = beanContext.findBean("ConsumerRegistry", ConsumerRegistry.class);
+      }
+
       return registry;
    }
 
