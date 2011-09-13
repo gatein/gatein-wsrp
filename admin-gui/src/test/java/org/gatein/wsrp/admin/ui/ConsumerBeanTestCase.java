@@ -52,8 +52,13 @@ public class ConsumerBeanTestCase extends TestCase
    protected void setUp() throws Exception
    {
       bean = new ConsumerBean();
+
       ConsumerRegistry registry = new TestInMemoryConsumerRegistry();
       registry.createConsumer(CONSUMER_ID, null, WSDL);
+      ConsumerManagerBean managerBean = new ConsumerManagerBean();
+      managerBean.setRegistry(registry);
+      bean.setManager(managerBean);
+
       bean.setBeanContext(new TestBeanContext());
 
       // consumer associated with bean is null at this point so it should be loaded from the registry
