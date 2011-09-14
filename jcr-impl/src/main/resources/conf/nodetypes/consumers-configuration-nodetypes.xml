@@ -96,6 +96,19 @@
       </childNodeDefinitions>
    </nodeType>
 
+   <nodeType name="wsrp:wssendpointinfo" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+      <supertypes>
+         <supertype>nt:base</supertype>
+         <supertype>mix:referenceable</supertype>
+      </supertypes>
+      <propertyDefinitions>
+         <propertyDefinition name="enablewss" requiredType="boolean" autoCreated="false" mandatory="false"
+                             onParentVersion="COPY" protected="false" multiple="false">
+            <valueConstraints/>
+         </propertyDefinition>
+      </propertyDefinitions>
+   </nodeType>
+
    <nodeType name="wsrp:endpointinfo" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
       <supertypes>
          <supertype>nt:base</supertype>
@@ -107,10 +120,6 @@
             <valueConstraints/>
          </propertyDefinition>
          <propertyDefinition name="timeout" requiredType="Integer" autoCreated="false" mandatory="false"
-                             onParentVersion="COPY" protected="false" multiple="false">
-            <valueConstraints/>
-         </propertyDefinition>
-         <propertyDefinition name="enablewss" requiredType="boolean" autoCreated="false" mandatory="false"
                              onParentVersion="COPY" protected="false" multiple="false">
             <valueConstraints/>
          </propertyDefinition>

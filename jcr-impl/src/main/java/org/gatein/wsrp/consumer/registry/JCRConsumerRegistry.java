@@ -38,6 +38,7 @@ import org.gatein.wsrp.jcr.StoresByPathManager;
 import org.gatein.wsrp.jcr.mapping.mixins.BaseMixin;
 import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
+import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
 import javax.jcr.RepositoryException;
@@ -75,7 +76,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    {
       Collections.addAll(mappingClasses, ProducerInfosMapping.class, ProducerInfoMapping.class,
          EndpointInfoMapping.class, RegistrationInfoMapping.class, RegistrationPropertyMapping.class,
-         RegistrationPropertyDescriptionMapping.class, LastModified.class, ModifyRegistrationRequired.class);
+         RegistrationPropertyDescriptionMapping.class, LastModified.class, ModifyRegistrationRequired.class, 
+         WSSEndpointEnabled.class);
    }
 
    public JCRConsumerRegistry(ChromatticPersister persister) throws Exception
@@ -137,6 +139,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          getMixin(pim, session, LastModified.class).setLastModified(now);
          getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(info.isModifyRegistrationRequired());
          info.setLastModified(now);
+         getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class).setWSSEnabled(info.getEndpointConfigurationInfo().getWSSEnabled());
+
 
          persister.closeSession(true);
       }
@@ -203,6 +207,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(producerInfo.isModifyRegistrationRequired());
          getMixin(pim, session, LastModified.class).setLastModified(now);
          producerInfo.setLastModified(now);
+         getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class).setWSSEnabled(producerInfo.getEndpointConfigurationInfo().getWSSEnabled());
 
          persister.closeSession(true);
       }
@@ -214,7 +219,30 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       ChromatticSession session = persister.getSession();
-      final Iterator<ProducerInfo> iterator = new ProducerInfoIterator(getRefreshedInfoCache(session).getConsumers().iterator());
+      
+      Collection<WSRPConsumer> consumers = getRefreshedInfoCache(session).getConsumers();
+      
+      // GTNWSRP-239
+      // Kindof crappy place to put this, but we need to be able to retrieve the mixin from the jcr so that it can be used to
+      // configure the ProducerInfo
+      Iterator<WSRPConsumer> consumersIterator = consumers.iterator();
+      while (consumersIterator.hasNext())
+      {
+         ProducerInfo pi =  consumersIterator.next().getProducerInfo();
+         String key = pi.getKey();
+         ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
+         if (pim == null)
+         {
+            throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
+         }
+         WSSEndpointEnabled wssee = getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class);
+         if (wssee != null)
+         {
+            pi.getEndpointConfigurationInfo().setWSSEnabled(wssee.getWSSEnabled());
+         }
+      }
+      
+      final Iterator<ProducerInfo> iterator = new ProducerInfoIterator(consumers.iterator());
       persister.closeSession(false);
       return iterator;
    }
