@@ -170,30 +170,30 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          if (managedObject instanceof ManagedPortletContainer)
          {
             ManagedPortletContainer portletContainer = (ManagedPortletContainer)managedObject;
-            final PortletInfo info = portletContainer.getInfo();
+            String applicationId = portletContainer.getManagedPortletApplication().getId();
+            String containerId = portletContainer.getId();
 
-            // only process portlet if it's remotable
-            if (isRemotable(info.getRuntimeOptionsInfo()))
+            org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
+
+            if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
             {
-               String applicationId = portletContainer.getManagedPortletApplication().getId();
-               String containerId = portletContainer.getId();
-
-               org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
-
-               if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
+               ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
+               LifeCycleStatus status = lifeCycleEvent.getStatus();
+               if (LifeCycleStatus.STARTED.equals(status))
                {
-                  ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
-                  LifeCycleStatus status = lifeCycleEvent.getStatus();
-                  if (LifeCycleStatus.STARTED.equals(status))
+                  final PortletInfo info = portletContainer.getInfo();
+                  // only add the portlet if it's remotable
+                  if (isRemotable(info.getRuntimeOptionsInfo()))
                   {
                      serviceDescription.addPortletDescription(pc, info);
                   }
-                  else
-                  {
-                     serviceDescription.removePortletDescription(pc);
-                  }
+               }
+               else
+               {
+                  serviceDescription.removePortletDescription(pc);
                }
             }
+
          }
       }
    }
