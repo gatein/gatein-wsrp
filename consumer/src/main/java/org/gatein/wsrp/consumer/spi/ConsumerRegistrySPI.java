@@ -70,4 +70,8 @@ public interface ConsumerRegistrySPI extends ConsumerRegistry
    ProducerInfo loadProducerInfo(String id);
 
    WSRPConsumer createConsumerFrom(ProducerInfo producerInfo);
+
+   void registerWithFederatingPortletInvoker(WSRPConsumer consumer);
+
+   void deregisterWithFederatingPortletInvoker(WSRPConsumer consumer);
 }

@@ -224,4 +224,14 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
    {
       throw new UnsupportedOperationException();
    }
+
+   public void registerWithFederatingPortletInvoker(WSRPConsumer consumer)
+   {
+      consumers.put(consumer.getProducerId(), consumer);
+   }
+
+   public void deregisterWithFederatingPortletInvoker(WSRPConsumer consumer)
+   {
+      consumers.remove(consumer.getProducerId());
+   }
 }

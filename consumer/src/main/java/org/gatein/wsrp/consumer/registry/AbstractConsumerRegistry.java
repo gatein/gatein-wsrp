@@ -24,9 +24,7 @@
 package org.gatein.wsrp.consumer.registry;
 
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.pc.federation.FederatedPortletInvoker;
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.session.SessionEventBroadcaster;
@@ -218,13 +216,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    protected void activateConsumer(WSRPConsumer consumer)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "WSRPConsumer");
-      String id = consumer.getProducerId();
-
-      if (!federatingPortletInvoker.isResolved(id))
-      {
-         startOrStopConsumer(consumer, true);
-      }
+      startOrStopConsumer(consumer, true, false);
    }
 
    public void deactivateConsumerWith(String id) throws ConsumerException
@@ -235,14 +227,17 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    protected void deactivateConsumer(WSRPConsumer consumer)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "Consumer");
-      String id = consumer.getProducerId();
+      startOrStopConsumer(consumer, false, false);
+   }
 
-      // only process if there is a registered Consumer with the specified id
-      if (federatingPortletInvoker.isResolved(id))
-      {
-         startOrStopConsumer(consumer, false);
-      }
+   public void registerWithFederatingPortletInvoker(WSRPConsumer consumer)
+   {
+      startOrStopConsumer(consumer, true, true);
+   }
+
+   public void deregisterWithFederatingPortletInvoker(WSRPConsumer consumer)
+   {
+      startOrStopConsumer(consumer, false, true);
    }
 
    public String updateProducerInfo(ProducerInfo producerInfo)
@@ -408,39 +403,39 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       }
    }
 
-   private void startOrStopConsumer(WSRPConsumer consumer, boolean start)
+   private void startOrStopConsumer(WSRPConsumer consumer, boolean start, boolean registerOrDeregisterOnly)
    {
+      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "WSRPConsumer");
       try
       {
          String id = consumer.getProducerId();
          if (start)
          {
-            consumer.activate();
-            federatingPortletInvoker.registerInvoker(id, consumer);
+            if (!registerOrDeregisterOnly)
+            {
+               consumer.activate();
+            }
+
+            if (!federatingPortletInvoker.isResolved(id))
+            {
+               federatingPortletInvoker.registerInvoker(id, consumer);
+            }
+
             sessionEventBroadcaster.registerListener(getListenerIdFrom(id), consumer);
          }
          else
          {
-            FederatedPortletInvoker fedInvoker = federatingPortletInvoker.getFederatedInvoker(id);
-            if (fedInvoker != null)
+            if (!registerOrDeregisterOnly)
             {
-               PortletInvoker invoker = fedInvoker.getPortletInvoker();
-               if (invoker instanceof WSRPConsumer)
-               {
-                  consumer = (WSRPConsumer)invoker;
-                  consumer.deactivate();
-                  federatingPortletInvoker.unregisterInvoker(id);
-                  sessionEventBroadcaster.unregisterListener(getListenerIdFrom(id));
-               }
-               else
-               {
-                  throw new IllegalArgumentException("PortletInvoker with id '" + id + "' is not a WSRPConsumer!");
-               }
+               consumer.deactivate();
             }
-            else
+
+            if (federatingPortletInvoker.isResolved(id))
             {
-               throw new IllegalArgumentException("There is no registered PortletInvoker with id '" + id + "'");
+               federatingPortletInvoker.unregisterInvoker(id);
             }
+
+            sessionEventBroadcaster.unregisterListener(getListenerIdFrom(id));
          }
       }
       catch (Exception e)

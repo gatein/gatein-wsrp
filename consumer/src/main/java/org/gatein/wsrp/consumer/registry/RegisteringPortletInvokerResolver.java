@@ -26,23 +26,26 @@ package org.gatein.wsrp.consumer.registry;
 import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.federation.FederatedPortletInvoker;
 import org.gatein.pc.federation.FederatingPortletInvoker;
-import org.gatein.pc.federation.NullInvokerHandler;
+import org.gatein.pc.federation.PortletInvokerResolver;
 import org.gatein.pc.federation.impl.FederatedPortletInvokerService;
 import org.gatein.wsrp.WSRPConsumer;
+import org.gatein.wsrp.consumer.ConsumerException;
+import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 
 import java.util.Collection;
 
 /**
  * Attempts to activate a WSRP consumer named like the missing invoker that trigger the invocation of this
- * NullInvokerHandler. This is in particularly helpful to activate configured consumers that haven't been started yet
+ * PortletInvokerResolver. This is in particularly helpful to activate configured consumers that haven't been started
+ * yet
  * when a portlet referencing them is accessed.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class ActivatingNullInvokerHandler implements NullInvokerHandler
+public class RegisteringPortletInvokerResolver implements PortletInvokerResolver
 {
-   private transient ConsumerRegistry consumerRegistry;
+   private transient ConsumerRegistrySPI consumerRegistry;
 
    public FederatedPortletInvoker resolvePortletInvokerFor(String invokerId, FederatingPortletInvoker callingInvoker, String compoundPortletId) throws NoSuchPortletException
    {
@@ -69,12 +72,18 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
       }
       else
       {
-         // activate the consumer which should register it with this FederatingPortletInvoker
+         // register it with the FederatingPortletInvoker
          synchronized (this)
          {
-            consumerRegistry.activateConsumerWith(invokerId);
-
-            return new FederatedPortletInvokerService(callingInvoker, invokerId, consumer);
+            try
+            {
+               consumerRegistry.registerWithFederatingPortletInvoker(consumer);
+               return new FederatedPortletInvokerService(callingInvoker, invokerId, consumer);
+            }
+            catch (ConsumerException e)
+            {
+               return null;
+            }
          }
       }
    }
@@ -89,7 +98,7 @@ public class ActivatingNullInvokerHandler implements NullInvokerHandler
       return consumerRegistry.getConfiguredConsumersIds();
    }
 
-   public void setConsumerRegistry(ConsumerRegistry consumerRegistry)
+   public void setConsumerRegistry(ConsumerRegistrySPI consumerRegistry)
    {
       this.consumerRegistry = consumerRegistry;
    }
