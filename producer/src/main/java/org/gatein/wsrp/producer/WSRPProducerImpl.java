@@ -520,9 +520,7 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
    private boolean isRemotable(Portlet portlet)
    {
       Map<String, RuntimeOptionInfo> runtimeOptions = portlet.getInfo().getRuntimeOptionsInfo();
-      RuntimeOptionInfo runtimeOptionInfo = runtimeOptions.get(RuntimeOptionInfo.REMOTABLE_RUNTIME_OPTION);
-
-      return runtimeOptionInfo != null && "true".equals(runtimeOptionInfo.getValues().get(0));
+      return serviceDescriptionHandler.isRemotable(runtimeOptions);
    }
 
    public List<String> getSupportedLocales()

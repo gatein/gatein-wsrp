@@ -36,6 +36,7 @@ import org.gatein.pc.api.info.ModeInfo;
 import org.gatein.pc.api.info.NavigationInfo;
 import org.gatein.pc.api.info.ParameterInfo;
 import org.gatein.pc.api.info.PortletInfo;
+import org.gatein.pc.api.info.RuntimeOptionInfo;
 import org.gatein.pc.api.info.SecurityInfo;
 import org.gatein.pc.api.info.WindowStateInfo;
 import org.gatein.pc.portlet.container.managed.LifeCycleStatus;
@@ -169,22 +170,28 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          if (managedObject instanceof ManagedPortletContainer)
          {
             ManagedPortletContainer portletContainer = (ManagedPortletContainer)managedObject;
-            String applicationId = portletContainer.getManagedPortletApplication().getId();
-            String containerId = portletContainer.getId();
+            final PortletInfo info = portletContainer.getInfo();
 
-            org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
-
-            if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
+            // only process portlet if it's remotable
+            if (isRemotable(info.getRuntimeOptionsInfo()))
             {
-               ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
-               LifeCycleStatus status = lifeCycleEvent.getStatus();
-               if (LifeCycleStatus.STARTED.equals(status))
+               String applicationId = portletContainer.getManagedPortletApplication().getId();
+               String containerId = portletContainer.getId();
+
+               org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
+
+               if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
                {
-                  serviceDescription.addPortletDescription(pc, portletContainer.getInfo());
-               }
-               else
-               {
-                  serviceDescription.removePortletDescription(pc);
+                  ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
+                  LifeCycleStatus status = lifeCycleEvent.getStatus();
+                  if (LifeCycleStatus.STARTED.equals(status))
+                  {
+                     serviceDescription.addPortletDescription(pc, info);
+                  }
+                  else
+                  {
+                     serviceDescription.removePortletDescription(pc);
+                  }
                }
             }
          }
@@ -229,6 +236,13 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
    public void reset()
    {
       serviceDescription = new ServiceDescriptionInfo();
+   }
+
+   public boolean isRemotable(Map<String, RuntimeOptionInfo> runtimeOptions)
+   {
+      RuntimeOptionInfo runtimeOptionInfo = runtimeOptions.get(RuntimeOptionInfo.REMOTABLE_RUNTIME_OPTION);
+
+      return runtimeOptionInfo != null && "true".equals(runtimeOptionInfo.getValues().get(0));
    }
 
    private class ServiceDescriptionInfo
