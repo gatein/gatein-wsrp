@@ -195,6 +195,7 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
          }
          catch (Exception e)
          {
+            selectedId = null;
             beanContext.createErrorMessageFrom(MESSAGE_TARGET, e);
             return null;
          }
