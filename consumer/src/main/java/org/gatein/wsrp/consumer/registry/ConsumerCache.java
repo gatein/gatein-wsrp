@@ -39,4 +39,8 @@ public interface ConsumerCache
    void putConsumer(String id, WSRPConsumer consumer);
 
    void clear();
+
+   boolean isInvalidated();
+
+   void setInvalidated(boolean invalidated);
 }

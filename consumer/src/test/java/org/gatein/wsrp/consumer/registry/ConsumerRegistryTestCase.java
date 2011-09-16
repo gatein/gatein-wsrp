@@ -185,4 +185,20 @@ public class ConsumerRegistryTestCase extends TestCase
       // check that consumer is not known by the FederatingPortletInvoker anymore
       assertEquals(null, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo"));
    }
+
+   public void testReloadConsumers()
+   {
+      WSRPConsumer consumer1 = registry.createConsumer("consumer1", null, null);
+      WSRPConsumer consumer2 = registry.createConsumer("consumer2", null, null);
+
+      assertEquals(2, registry.getConfiguredConsumersIds().size());
+      assertEquals(consumer1, registry.getConsumer(consumer1.getProducerId()));
+      assertEquals(consumer2, registry.getConsumer(consumer2.getProducerId()));
+
+      registry.reloadConsumers();
+
+      assertEquals(2, registry.getConfiguredConsumersIds().size());
+      assertEquals(consumer1, registry.getConsumer(consumer1.getProducerId()));
+      assertEquals(consumer2, registry.getConsumer(consumer2.getProducerId()));
+   }
 }

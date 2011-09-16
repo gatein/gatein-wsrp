@@ -503,9 +503,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       }
    }
 
-   protected class InMemoryConsumerCache implements ConsumerCache
+   protected static class InMemoryConsumerCache implements ConsumerCache
    {
       private Map<String, WSRPConsumer> consumers = new HashMap<String, WSRPConsumer>(11);
+      private boolean invalidated;
 
       public Collection<WSRPConsumer> getConsumers()
       {
@@ -530,6 +531,17 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       public void clear()
       {
          consumers.clear();
+         invalidated = true;
+      }
+
+      public boolean isInvalidated()
+      {
+         return invalidated;
+      }
+
+      public void setInvalidated(boolean invalidated)
+      {
+         this.invalidated = invalidated;
       }
    }
 }
