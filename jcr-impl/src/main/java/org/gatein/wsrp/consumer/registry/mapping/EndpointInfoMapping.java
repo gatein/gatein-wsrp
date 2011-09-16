@@ -23,10 +23,14 @@
 
 package org.gatein.wsrp.consumer.registry.mapping;
 
-import org.chromattic.api.annotations.DefaultValue;
+import org.chromattic.api.RelationshipType;
+import org.chromattic.api.annotations.Create;
+import org.chromattic.api.annotations.OneToOne;
+import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
+import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -47,16 +51,49 @@ public abstract class EndpointInfoMapping
 
    public abstract void setWSTimeoutMilliseconds(Integer expiration);
 
+   @OneToOne(type = RelationshipType.EMBEDDED)
+   @Owner
+   public abstract WSSEndpointEnabled getWSSEndpointEnabledMixin();
+
+   protected abstract void setWSSEndpointEnabledMixin(WSSEndpointEnabled mixin);
+
+   @Create
+   protected abstract WSSEndpointEnabled createWSSEndpointEnabledMixin();
+
+   public void setWSSEnabled(boolean wssEnabled)
+   {
+      getCreatedWSSEndpointEnabledMixin().setWSSEnabled(wssEnabled);
+   }
+
+   public boolean isWSSEnabled()
+   {
+      return getCreatedWSSEndpointEnabledMixin().getWSSEnabled();
+   }
+
    public void initFrom(EndpointConfigurationInfo info)
    {
       setWSDLURL(info.getWsdlDefinitionURL());
       setWSTimeoutMilliseconds(info.getWSOperationTimeOut());
+      setWSSEnabled(info.getWSSEnabled());
    }
 
    EndpointConfigurationInfo toEndpointConfigurationInfo(EndpointConfigurationInfo initial)
    {
       initial.setWsdlDefinitionURL(getWSDLURL());
       initial.setWSOperationTimeOut(getWSTimeoutMilliseconds());
+      initial.setWSSEnabled(isWSSEnabled());
       return initial;
+   }
+
+   private WSSEndpointEnabled getCreatedWSSEndpointEnabledMixin()
+   {
+      WSSEndpointEnabled wssEndpointEnabledMixin = getWSSEndpointEnabledMixin();
+      if (wssEndpointEnabledMixin == null)
+      {
+         wssEndpointEnabledMixin = createWSSEndpointEnabledMixin();
+         setWSSEndpointEnabledMixin(wssEndpointEnabledMixin);
+         wssEndpointEnabledMixin.initializeValue();
+      }
+      return wssEndpointEnabledMixin;
    }
 }

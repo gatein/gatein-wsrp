@@ -34,12 +34,11 @@ import org.chromattic.api.annotations.Property;
 public abstract class WSSEndpointEnabled implements BaseMixin
 {
    @Property(name = "enablewss")
-   @DefaultValue("false")  
+   @DefaultValue("false")
    public abstract boolean getWSSEnabled();
-   
+
    public abstract void setWSSEnabled(boolean enable);
-   
-   @Override
+
    public void initializeValue()
    {
       //set to false by default

@@ -35,7 +35,6 @@ import org.gatein.wsrp.consumer.registry.mapping.RegistrationPropertyMapping;
 import org.gatein.wsrp.consumer.registry.xml.XMLConsumerRegistry;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.StoresByPathManager;
-import org.gatein.wsrp.jcr.mapping.mixins.BaseMixin;
 import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
 import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
@@ -76,7 +75,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    {
       Collections.addAll(mappingClasses, ProducerInfosMapping.class, ProducerInfoMapping.class,
          EndpointInfoMapping.class, RegistrationInfoMapping.class, RegistrationPropertyMapping.class,
-         RegistrationPropertyDescriptionMapping.class, LastModified.class, ModifyRegistrationRequired.class, 
+         RegistrationPropertyDescriptionMapping.class, LastModified.class, ModifyRegistrationRequired.class,
          WSSEndpointEnabled.class);
    }
 
@@ -123,24 +122,18 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
-         ProducerInfosMapping pims = getProducerInfosMapping(session);
-         ProducerInfoMapping pim = pims.createProducerInfo(info.getId());
-         String key = session.persist(pims, pim, info.getId());
-         info.setKey(key);
-         pim.initFrom(info);
-
          // update cache
          final long now = System.currentTimeMillis();
          lastModified = now;
-//         getRefreshedInfoCache(session).put(info.getId(), info);
 
-         // GTNWSRP-239
-         getMixin(pims, session, LastModified.class).setLastModified(now);
-         getMixin(pim, session, LastModified.class).setLastModified(now);
-         getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(info.isModifyRegistrationRequired());
+         ProducerInfosMapping pims = getProducerInfosMapping(session);
+         pims.setLastModified(now);
+
+         ProducerInfoMapping pim = pims.createProducerInfo(info.getId());
+         String key = session.persist(pims, pim, info.getId());
+         info.setKey(key);
          info.setLastModified(now);
-         getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class).setWSSEnabled(info.getEndpointConfigurationInfo().getWSSEnabled());
-
+         pim.initFrom(info);
 
          persister.closeSession(true);
       }
@@ -176,6 +169,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
       synchronized (this)
       {
+         final long now = System.currentTimeMillis();
+
          ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
          if (pim == null)
          {
@@ -183,31 +178,20 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          }
          oldId = pim.getId();
          newId = producerInfo.getId();
+         producerInfo.setLastModified(now);
          pim.initFrom(producerInfo);
 
          idUnchanged = oldId.equals(newId);
 
-         final long now = System.currentTimeMillis();
          if (!idUnchanged)
          {
             ProducerInfosMapping pims = getProducerInfosMapping(session);
             Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
             nameToProducerInfoMap.put(pim.getId(), pim);
 
-            // update cache
-            /*getRefreshedInfoCache(session).remove(oldId);
-            getRefreshedInfoCache(session).put(newId, producerInfo);*/
-
-            // GTNWSRP-239
-            getMixin(pims, session, LastModified.class).setLastModified(now);
+            pims.setLastModified(now);
             lastModified = now;
          }
-
-         // GTNWSRP-239
-         getMixin(pim, session, ModifyRegistrationRequired.class).setModifyRegistrationRequired(producerInfo.isModifyRegistrationRequired());
-         getMixin(pim, session, LastModified.class).setLastModified(now);
-         producerInfo.setLastModified(now);
-         getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class).setWSSEnabled(producerInfo.getEndpointConfigurationInfo().getWSSEnabled());
 
          persister.closeSession(true);
       }
@@ -219,13 +203,13 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
       ChromatticSession session = persister.getSession();
-      
+
       Collection<WSRPConsumer> consumers = getRefreshedInfoCache(session).getConsumers();
-      
+
       // GTNWSRP-239
       // Kindof crappy place to put this, but we need to be able to retrieve the mixin from the jcr so that it can be used to
       // configure the ProducerInfo
-      Iterator<WSRPConsumer> consumersIterator = consumers.iterator();
+      /*Iterator<WSRPConsumer> consumersIterator = consumers.iterator();
       while (consumersIterator.hasNext())
       {
          ProducerInfo pi =  consumersIterator.next().getProducerInfo();
@@ -240,8 +224,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          {
             pi.getEndpointConfigurationInfo().setWSSEnabled(wssee.getWSSEnabled());
          }
-      }
-      
+      }*/
+
       final Iterator<ProducerInfo> iterator = new ProducerInfoIterator(consumers.iterator());
       persister.closeSession(false);
       return iterator;
@@ -273,13 +257,13 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
 
       // check if we need to refresh the local cache
-      if (lastModified < getMixin(producerInfosMapping, session, LastModified.class).getLastModified())
+      if (lastModified < producerInfosMapping.getLastModified())
       {
          List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
 
          for (ProducerInfoMapping pim : mappings)
          {
-            if (lastModified < getMixin(pim, session, LastModified.class).getLastModified())
+            if (lastModified < pim.getLastModified())
             {
                consumers.putConsumer(pim.getId(), createConsumerFrom(pim.toModel(null, this)));
             }
@@ -334,7 +318,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
-   private <M extends BaseMixin> M getMixin(Object objectToCheck, ChromatticSession session, Class<M> type)
+   /*private <M extends BaseMixin> M getMixin(Object objectToCheck, ChromatticSession session, Class<M> type)
    {
       M mixin = session.getEmbedded(objectToCheck, type);
       if (mixin == null)
@@ -344,7 +328,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          mixin.initializeValue();
       }
       return mixin;
-   }
+   }*/
 
    @Override
    public boolean containsConsumer(String id)
@@ -467,7 +451,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
             }
 
             lastModified = System.currentTimeMillis();
-            getMixin(producerInfosMapping, session, LastModified.class).setLastModified(lastModified);
+            producerInfosMapping.setLastModified(lastModified);
             session.save();
          }
       }
@@ -486,7 +470,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       if (pims != null)
       {
          // GTNWSRP-239
-         return getMixin(pims, session, LastModified.class);
+         return pims.getLastModifiedMixin();
       }
       else
       {

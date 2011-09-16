@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.consumer.registry.mapping;
 
+import org.chromattic.api.RelationshipType;
+import org.chromattic.api.annotations.Create;
 import org.chromattic.api.annotations.DefaultValue;
 import org.chromattic.api.annotations.Id;
 import org.chromattic.api.annotations.MappedBy;
@@ -35,6 +37,8 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -74,16 +78,56 @@ public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo, C
    @Id
    public abstract String getKey();
 
+   @OneToOne(type = RelationshipType.EMBEDDED)
+   @Owner
+   public abstract LastModified getLastModifiedMixin();
+
+   protected abstract void setLastModifiedMixin(LastModified lastModifiedMixin);
+
+   @Create
+   protected abstract LastModified createLastModifiedMixin();
+
+   @OneToOne(type = RelationshipType.EMBEDDED)
+   @Owner
+   public abstract ModifyRegistrationRequired getModifyRegistrationRequiredMixin();
+
+   protected abstract void setModifyRegistrationRequiredMixin(ModifyRegistrationRequired mmr);
+
+   @Create
+   protected abstract ModifyRegistrationRequired createModifyRegistrationRequiredMixin();
+
    /* @Property(name = "available")
 public abstract boolean getAvailable();
 
 public abstract void setAvailable(boolean available);*/
+
+   public void setModifyRegistrationRequired(boolean modifyRegistrationRequired)
+   {
+      getCreatedModifyRegistrationRequiredMixin().setModifyRegistrationRequired(modifyRegistrationRequired);
+   }
+
+   public boolean getModifyRegistrationRequired()
+   {
+      return getCreatedModifyRegistrationRequiredMixin().isModifyRegistrationRequired();
+   }
+
+   public void setLastModified(long lastModified)
+   {
+      getCreatedLastModifiedMixin().setLastModified(lastModified);
+   }
+
+   public long getLastModified()
+   {
+      return getCreatedLastModifiedMixin().getLastModified();
+   }
 
    public void initFrom(ProducerInfo producerInfo)
    {
       setActive(producerInfo.isActive());
       setExpirationCacheSeconds(producerInfo.getExpirationCacheSeconds());
       setId(producerInfo.getId());
+      setLastModified(producerInfo.getLastModified());
+      setModifyRegistrationRequired(producerInfo.isModifyRegistrationRequired());
 
       EndpointInfoMapping eim = getEndpointInfo();
       eim.initFrom(producerInfo.getEndpointConfigurationInfo());
@@ -107,6 +151,8 @@ public abstract void setAvailable(boolean available);*/
       info.setId(getId());
       info.setActive(getActive());
       info.setExpirationCacheSeconds(getExpirationCacheSeconds());
+      info.setLastModified(getLastModified());
+      info.setModifyRegistrationRequired(getModifyRegistrationRequired());
 
       // endpoint
       EndpointConfigurationInfo endInfo = getEndpointInfo().toEndpointConfigurationInfo(info.getEndpointConfigurationInfo());
@@ -117,5 +163,29 @@ public abstract void setAvailable(boolean available);*/
       info.setRegistrationInfo(regInfo);
 
       return info;
+   }
+
+   private LastModified getCreatedLastModifiedMixin()
+   {
+      LastModified lm = getLastModifiedMixin();
+      if (lm == null)
+      {
+         lm = createLastModifiedMixin();
+         setLastModifiedMixin(lm);
+         lm.initializeValue();
+      }
+      return lm;
+   }
+
+   private ModifyRegistrationRequired getCreatedModifyRegistrationRequiredMixin()
+   {
+      ModifyRegistrationRequired mmr = getModifyRegistrationRequiredMixin();
+      if (mmr == null)
+      {
+         mmr = createModifyRegistrationRequiredMixin();
+         setModifyRegistrationRequiredMixin(mmr);
+         mmr.initializeValue();
+      }
+      return mmr;
    }
 }
