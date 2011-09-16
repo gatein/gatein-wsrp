@@ -37,7 +37,7 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
-import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModifiedMixinHolder;
 import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
 
 /**
@@ -45,7 +45,7 @@ import org.gatein.wsrp.jcr.mapping.mixins.ModifyRegistrationRequired;
  * @version $Revision$
  */
 @PrimaryType(name = ProducerInfoMapping.NODE_NAME)
-public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo, ConsumerRegistrySPI>
+public abstract class ProducerInfoMapping extends LastModifiedMixinHolder implements BaseMapping<ProducerInfo, ConsumerRegistrySPI>
 {
    public static final String NODE_NAME = "wsrp:producerinfo";
 
@@ -80,15 +80,6 @@ public abstract class ProducerInfoMapping implements BaseMapping<ProducerInfo, C
 
    @OneToOne(type = RelationshipType.EMBEDDED)
    @Owner
-   public abstract LastModified getLastModifiedMixin();
-
-   protected abstract void setLastModifiedMixin(LastModified lastModifiedMixin);
-
-   @Create
-   protected abstract LastModified createLastModifiedMixin();
-
-   @OneToOne(type = RelationshipType.EMBEDDED)
-   @Owner
    public abstract ModifyRegistrationRequired getModifyRegistrationRequiredMixin();
 
    protected abstract void setModifyRegistrationRequiredMixin(ModifyRegistrationRequired mmr);
@@ -109,16 +100,6 @@ public abstract void setAvailable(boolean available);*/
    public boolean getModifyRegistrationRequired()
    {
       return getCreatedModifyRegistrationRequiredMixin().isModifyRegistrationRequired();
-   }
-
-   public void setLastModified(long lastModified)
-   {
-      getCreatedLastModifiedMixin().setLastModified(lastModified);
-   }
-
-   public long getLastModified()
-   {
-      return getCreatedLastModifiedMixin().getLastModified();
    }
 
    public void initFrom(ProducerInfo producerInfo)
@@ -163,18 +144,6 @@ public abstract void setAvailable(boolean available);*/
       info.setRegistrationInfo(regInfo);
 
       return info;
-   }
-
-   private LastModified getCreatedLastModifiedMixin()
-   {
-      LastModified lm = getLastModifiedMixin();
-      if (lm == null)
-      {
-         lm = createLastModifiedMixin();
-         setLastModifiedMixin(lm);
-         lm.initializeValue();
-      }
-      return lm;
    }
 
    private ModifyRegistrationRequired getCreatedModifyRegistrationRequiredMixin()

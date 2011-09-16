@@ -30,6 +30,7 @@ import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
+import org.gatein.wsrp.jcr.mapping.mixins.MixinHolder;
 import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
 
 /**
@@ -37,7 +38,7 @@ import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
  * @version $Revision$
  */
 @PrimaryType(name = EndpointInfoMapping.NODE_NAME)
-public abstract class EndpointInfoMapping
+public abstract class EndpointInfoMapping extends MixinHolder<WSSEndpointEnabled>
 {
    public static final String NODE_NAME = "wsrp:endpointinfo";
 
@@ -62,12 +63,12 @@ public abstract class EndpointInfoMapping
 
    public void setWSSEnabled(boolean wssEnabled)
    {
-      getCreatedWSSEndpointEnabledMixin().setWSSEnabled(wssEnabled);
+      getCreatedMixin().setWSSEnabled(wssEnabled);
    }
 
    public boolean isWSSEnabled()
    {
-      return getCreatedWSSEndpointEnabledMixin().getWSSEnabled();
+      return getCreatedMixin().getWSSEnabled();
    }
 
    public void initFrom(EndpointConfigurationInfo info)
@@ -85,15 +86,21 @@ public abstract class EndpointInfoMapping
       return initial;
    }
 
-   private WSSEndpointEnabled getCreatedWSSEndpointEnabledMixin()
+   @Override
+   public WSSEndpointEnabled getMixin()
    {
-      WSSEndpointEnabled wssEndpointEnabledMixin = getWSSEndpointEnabledMixin();
-      if (wssEndpointEnabledMixin == null)
-      {
-         wssEndpointEnabledMixin = createWSSEndpointEnabledMixin();
-         setWSSEndpointEnabledMixin(wssEndpointEnabledMixin);
-         wssEndpointEnabledMixin.initializeValue();
-      }
-      return wssEndpointEnabledMixin;
+      return getWSSEndpointEnabledMixin();
+   }
+
+   @Override
+   protected void setMixin(WSSEndpointEnabled mixin)
+   {
+      setWSSEndpointEnabledMixin(mixin);
+   }
+
+   @Override
+   protected WSSEndpointEnabled createMixin()
+   {
+      return createWSSEndpointEnabledMixin();
    }
 }

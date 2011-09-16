@@ -23,13 +23,10 @@
 
 package org.gatein.wsrp.consumer.registry.mapping;
 
-import org.chromattic.api.RelationshipType;
 import org.chromattic.api.annotations.Create;
 import org.chromattic.api.annotations.OneToMany;
-import org.chromattic.api.annotations.OneToOne;
-import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
-import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModifiedMixinHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +36,7 @@ import java.util.Map;
  * @version $Revision$
  */
 @PrimaryType(name = ProducerInfosMapping.NODE_NAME)
-public abstract class ProducerInfosMapping
+public abstract class ProducerInfosMapping extends LastModifiedMixinHolder
 {
    public static final String NODE_NAME = "wsrp:producerinfos";
 
@@ -51,37 +48,4 @@ public abstract class ProducerInfosMapping
 
    @Create
    public abstract ProducerInfoMapping createProducerInfo(String producerId);
-
-   @OneToOne(type = RelationshipType.EMBEDDED)
-   @Owner
-   public abstract LastModified getLastModifiedMixin();
-
-   protected abstract void setLastModifiedMixin(LastModified lastModifiedMixin);
-
-   @Create
-   protected abstract LastModified createLastModifiedMixin();
-
-   public void setLastModified(long lastModified)
-   {
-      getCreatedLastModifiedMixin().setLastModified(lastModified);
-   }
-
-   public long getLastModified()
-   {
-      return getCreatedLastModifiedMixin().getLastModified();
-   }
-
-   private LastModified getCreatedLastModifiedMixin()
-   {
-      LastModified lm = getLastModifiedMixin();
-      if (lm == null)
-      {
-         lm = createLastModifiedMixin();
-         setLastModifiedMixin(lm);
-         lm.initializeValue();
-      }
-      return lm;
-   }
-
-
 }
