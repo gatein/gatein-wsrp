@@ -257,19 +257,22 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
 
       // check if we need to refresh the local cache
-      if (lastModified < producerInfosMapping.getLastModified())
+      if (consumers.isInvalidated() || lastModified < producerInfosMapping.getLastModified())
       {
          List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
 
          for (ProducerInfoMapping pim : mappings)
          {
-            if (lastModified < pim.getLastModified())
+            String id = pim.getId();
+            // only recreate the consumer if it's not in the cache or it's been modified after we've been last modified
+            if (consumers.getConsumer(id) == null || lastModified < pim.getLastModified())
             {
-               consumers.putConsumer(pim.getId(), createConsumerFrom(pim.toModel(null, this)));
+               consumers.putConsumer(id, createConsumerFrom(pim.toModel(null, this)));
             }
          }
 
          lastModified = System.currentTimeMillis();
+         consumers.setInvalidated(false);
       }
 
       return consumers;
