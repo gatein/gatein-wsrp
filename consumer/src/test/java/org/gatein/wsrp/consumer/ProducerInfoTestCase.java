@@ -96,6 +96,13 @@ public class ProducerInfoTestCase extends TestCase
       assertEquals(info, regInfo2.getParent());
    }
 
+   public void testRefreshDidNotHappenIfFailure() throws PortletInvokerException
+   {
+      serviceFactory.setFailed(true);
+      final boolean refresh = info.refresh(false);
+      assertFalse(refresh);
+   }
+
    public void testSetNullRegistrationInfo()
    {
       try
