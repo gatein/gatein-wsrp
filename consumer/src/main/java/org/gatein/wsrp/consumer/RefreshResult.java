@@ -26,6 +26,7 @@ package org.gatein.wsrp.consumer;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import static org.gatein.wsrp.consumer.RefreshResult.Status.BYPASSED;
+import static org.gatein.wsrp.consumer.RefreshResult.Status.FAILURE;
 import static org.gatein.wsrp.consumer.RefreshResult.Status.SUCCESS;
 
 /**
@@ -77,7 +78,7 @@ public class RefreshResult
 
    public boolean didRefreshHappen()
    {
-      return !BYPASSED.equals(status);
+      return !BYPASSED.equals(status) && !FAILURE.equals(status);
    }
 
    public boolean hasIssues()

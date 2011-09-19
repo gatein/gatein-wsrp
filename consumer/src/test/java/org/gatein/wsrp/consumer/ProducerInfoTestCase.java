@@ -443,6 +443,13 @@ public class ProducerInfoTestCase extends TestCase
       assertFalse(invalid);
    }
 
+   public void testRefreshDidNotHappenIfFailure() throws PortletInvokerException
+   {
+      serviceFactory.setFailed(true);
+      final boolean refresh = info.refresh(false);
+      assertFalse(refresh);
+   }
+
    public void testGetInfoForEvent()
    {
       assertNull(info.getInfoForEvent(null));
