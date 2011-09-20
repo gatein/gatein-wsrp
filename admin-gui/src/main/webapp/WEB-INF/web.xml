@@ -84,7 +84,7 @@
       <location>/faces/jsf/error.xhtml</location>
    </error-page>
 
-   <distributable/>
+   <!--<distributable/>-->
 </web-app>
 
 
