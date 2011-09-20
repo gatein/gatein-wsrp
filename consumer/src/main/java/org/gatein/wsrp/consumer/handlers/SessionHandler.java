@@ -401,7 +401,7 @@ public class SessionHandler implements SessionEventListener
    {
       if (SessionEvent.SessionEventType.SESSION_DESTROYED.equals(event.getType()))
       {
-         String id = event.getSession().getId();
+         String id = getRealId(event.getSession().getId());
 
          // check if the session being destroyed is the one associated with this thread
          ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
@@ -422,6 +422,29 @@ public class SessionHandler implements SessionEventListener
          }
       }
    }
+
+   /**
+    * Copied from org.jboss.web.tomcat.service.session.Util.
+    * <p/>
+    * Returns a session id with any trailing jvmRoute removed.
+    *
+    * @param sessionId the raw session id
+    * @return <code>sessionId</code> with the final '.' and any
+    *         characters thereafter removed.
+    */
+   public static String getRealId(String sessionId)
+   {
+      int index = sessionId.lastIndexOf(".");
+      if (index > 0)
+      {
+         return sessionId.substring(0, index);
+      }
+      else
+      {
+         return sessionId;
+      }
+   }
+
 
    /**
     * @param originalHandle

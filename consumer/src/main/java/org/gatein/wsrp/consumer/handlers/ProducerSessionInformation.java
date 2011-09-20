@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -91,7 +91,26 @@ public class ProducerSessionInformation implements Serializable
     */
    public void setParentSessionId(String parentSessionId)
    {
-      if (this.parentSessionId != null && !this.parentSessionId.equals(parentSessionId))
+      boolean error = false;
+
+      if (parentSessionId != null)
+      {
+         parentSessionId = SessionHandler.getRealId(parentSessionId);
+
+         if (this.parentSessionId != null && !parentSessionId.equals(this.parentSessionId))
+         {
+            error = true;
+         }
+      }
+      else
+      {
+         if (this.parentSessionId != null)
+         {
+            error = true;
+         }
+      }
+
+      if (error)
       {
          throw new IllegalStateException("Cannot modify Parent Session id once it has been set!");
       }
@@ -224,7 +243,8 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * Retrieves the session id for the portlet with the specified handle. Note that this will "touch" the session, hence
+    * Retrieves the session id for the portlet with the specified handle. Note that this will "touch" the session,
+    * hence
     * resetting the time since the last use of the session.
     *
     * @param portletHandle the handle of the portlet for which the session id is to be retrieved
