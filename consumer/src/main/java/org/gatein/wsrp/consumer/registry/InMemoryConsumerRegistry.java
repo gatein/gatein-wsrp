@@ -140,6 +140,18 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       keysToIds = null;
    }
 
+   @Override
+   protected ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified)
+   {
+      return null;
+   }
+
+   @Override
+   protected boolean producerInfosGotModifiedSince(long lastModified)
+   {
+      return false;
+   }
+
    protected void initConsumers(SortedMap<String, WSRPConsumer> consumers)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(consumers))

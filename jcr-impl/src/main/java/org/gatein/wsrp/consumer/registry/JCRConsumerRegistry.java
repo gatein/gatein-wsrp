@@ -69,7 +69,6 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
    private InputStream configurationIS;
    private long lastModified;
-//   private Map<String, ProducerInfo> infoCache;
 
    static
    {
@@ -167,34 +166,31 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
       ChromatticSession session = persister.getSession();
 
-      synchronized (this)
+      final long now = System.currentTimeMillis();
+
+      ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
+      if (pim == null)
       {
-         final long now = System.currentTimeMillis();
-
-         ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
-         if (pim == null)
-         {
-            throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
-         }
-         oldId = pim.getId();
-         newId = producerInfo.getId();
-         producerInfo.setLastModified(now);
-         pim.initFrom(producerInfo);
-
-         idUnchanged = oldId.equals(newId);
-
-         if (!idUnchanged)
-         {
-            ProducerInfosMapping pims = getProducerInfosMapping(session);
-            Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
-            nameToProducerInfoMap.put(pim.getId(), pim);
-
-            pims.setLastModified(now);
-            lastModified = now;
-         }
-
-         persister.closeSession(true);
+         throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
       }
+      oldId = pim.getId();
+      newId = producerInfo.getId();
+      producerInfo.setLastModified(now);
+      pim.initFrom(producerInfo);
+
+      idUnchanged = oldId.equals(newId);
+
+      if (!idUnchanged)
+      {
+         ProducerInfosMapping pims = getProducerInfosMapping(session);
+         Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
+         nameToProducerInfoMap.put(pim.getId(), pim);
+
+         pims.setLastModified(now);
+         lastModified = now;
+      }
+
+      persister.closeSession(true);
 
       // if the consumer's id has changed, return the old one so that state can be updated
       return idUnchanged ? null : oldId;
@@ -204,111 +200,32 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    {
       ChromatticSession session = persister.getSession();
 
-      Collection<WSRPConsumer> consumers = getRefreshedInfoCache(session).getConsumers();
-
-      // GTNWSRP-239
-      // Kindof crappy place to put this, but we need to be able to retrieve the mixin from the jcr so that it can be used to
-      // configure the ProducerInfo
-      /*Iterator<WSRPConsumer> consumersIterator = consumers.iterator();
-      while (consumersIterator.hasNext())
+      try
       {
-         ProducerInfo pi =  consumersIterator.next().getProducerInfo();
-         String key = pi.getKey();
-         ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
-         if (pim == null)
+         List<ProducerInfoMapping> pims = getProducerInfosMapping(session).getProducerInfos();
+         List<ProducerInfo> infos = new ArrayList<ProducerInfo>(pims.size());
+         for (ProducerInfoMapping pim : pims)
          {
-            throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
-         }
-         WSSEndpointEnabled wssee = getMixin(pim.getEndpointInfo(), session, WSSEndpointEnabled.class);
-         if (wssee != null)
-         {
-            pi.getEndpointConfigurationInfo().setWSSEnabled(wssee.getWSSEnabled());
-         }
-      }*/
-
-      final Iterator<ProducerInfo> iterator = new ProducerInfoIterator(consumers.iterator());
-      persister.closeSession(false);
-      return iterator;
-   }
-
-   /*private Map<String, ProducerInfo> getRefreshedInfoCache(ChromatticSession session)
-   {
-      ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
-
-      // check if we need to refresh the local cache
-      if (lastModified < getMixin(producerInfosMapping, session, LastModified.class).getLastModified())
-      {
-         List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
-
-
-         for (ProducerInfoMapping mapping : mappings)
-         {
-            infoCache.put(mapping.getId(), mapping.toModel(null, this));
+            infos.add(pim.toModel(null, this));
          }
 
-         lastModified = System.currentTimeMillis();
+         return infos.iterator();
       }
-
-      return infoCache;
-   }*/
-
-   private ConsumerCache getRefreshedInfoCache(ChromatticSession session)
-   {
-      ProducerInfosMapping producerInfosMapping = getProducerInfosMapping(session);
-
-      // check if we need to refresh the local cache
-      if (consumers.isInvalidated() || lastModified < producerInfosMapping.getLastModified())
+      finally
       {
-         List<ProducerInfoMapping> mappings = producerInfosMapping.getProducerInfos();
-
-         for (ProducerInfoMapping pim : mappings)
-         {
-            String id = pim.getId();
-            // only recreate the consumer if it's not in the cache or it's been modified after we've been last modified
-            if (consumers.getConsumer(id) == null || lastModified < pim.getLastModified())
-            {
-               consumers.putConsumer(id, createConsumerFrom(pim.toModel(null, this)));
-            }
-         }
-
-         lastModified = System.currentTimeMillis();
-         consumers.setInvalidated(false);
+         persister.closeSession(false);
       }
-
-      return consumers;
    }
 
    public ProducerInfo loadProducerInfo(String id)
    {
-      ChromatticSession session = persister.getSession();
       try
       {
-         ProducerInfoMapping pim = session.findByPath(ProducerInfoMapping.class, getPathFor(id));
-
+         ChromatticSession session = persister.getSession();
+         ProducerInfoMapping pim = getProducerInfoMapping(id, session);
          if (pim != null)
          {
-            WSRPConsumer consumer = getRefreshedInfoCache(session).getConsumer(id);
-
-            if (consumer == null)
-            {
-               return null;
-            }
-            else
-            {
-               return consumer.getProducerInfo();
-               /*ProducerInfo producerInfo = consumer.getProducerInfo();
-               if(producerInfo == null || producerInfo.getLastModified() < getMixin(pim, session, LastModified.class).getLastModified())
-               {
-                  producerInfo = pim.toModel(producerInfo, this);
-                  getRefreshedInfoCache(session).put(id, producerInfo);
-                  return producerInfo;
-               }
-               else
-               {
-                  return  producerInfo;
-               }*/
-            }
-
+            return pim.toModel(null, this);
          }
          else
          {
@@ -319,19 +236,13 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          persister.closeSession(false);
       }
+
    }
 
-   /*private <M extends BaseMixin> M getMixin(Object objectToCheck, ChromatticSession session, Class<M> type)
+   private ProducerInfoMapping getProducerInfoMapping(String id, ChromatticSession session)
    {
-      M mixin = session.getEmbedded(objectToCheck, type);
-      if (mixin == null)
-      {
-         mixin = session.create(type);
-         session.setEmbedded(objectToCheck, type, mixin);
-         mixin.initializeValue();
-      }
-      return mixin;
-   }*/
+      return session.findByPath(ProducerInfoMapping.class, getPathFor(id));
+   }
 
    @Override
    public boolean containsConsumer(String id)
@@ -410,6 +321,41 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       catch (RepositoryException e)
       {
          throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   protected ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified)
+   {
+      try
+      {
+         ChromatticSession session = persister.getSession();
+         ProducerInfoMapping pim = getProducerInfoMapping(id, session);
+         if (lastModified < pim.getLastModified())
+         {
+            return pim.toModel(null, this);
+         }
+         else
+         {
+            return null;
+         }
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   protected boolean producerInfosGotModifiedSince(long lastModified)
+   {
+      try
+      {
+         return lastModified < getProducerInfosMapping(persister.getSession()).getLastModified();
       }
       finally
       {
@@ -512,32 +458,5 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    ChromatticPersister getPersister()
    {
       return persister;
-   }
-
-   private static class MappingToProducerInfoIterator implements Iterator<ProducerInfo>
-   {
-      private Iterator<ProducerInfoMapping> mappings;
-      private final JCRConsumerRegistry registry;
-
-      public MappingToProducerInfoIterator(Iterator<ProducerInfoMapping> infoMappingIterator, JCRConsumerRegistry jcrConsumerRegistry)
-      {
-         this.mappings = infoMappingIterator;
-         this.registry = jcrConsumerRegistry;
-      }
-
-      public boolean hasNext()
-      {
-         return mappings.hasNext();
-      }
-
-      public ProducerInfo next()
-      {
-         return mappings.next().toModel(null, registry);
-      }
-
-      public void remove()
-      {
-         throw new UnsupportedOperationException("Remove not supported!");
-      }
    }
 }

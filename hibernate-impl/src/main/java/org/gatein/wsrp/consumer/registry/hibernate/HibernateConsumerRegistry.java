@@ -133,4 +133,16 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
       sessionFactory = null;
       super.stop();
    }
+
+   @Override
+   protected ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   protected boolean producerInfosGotModifiedSince(long lastModified)
+   {
+      throw new UnsupportedOperationException();
+   }
 }

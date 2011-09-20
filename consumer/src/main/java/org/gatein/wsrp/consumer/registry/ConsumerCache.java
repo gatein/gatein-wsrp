@@ -43,4 +43,8 @@ public interface ConsumerCache
    boolean isInvalidated();
 
    void setInvalidated(boolean invalidated);
+
+   long getLastModified();
+
+   void initFromStorage();
 }
