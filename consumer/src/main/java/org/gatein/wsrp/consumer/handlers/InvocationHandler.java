@@ -392,7 +392,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          StateString navigationalState = invocation.getNavigationalState();
          Map<String, String[]> publicNavigationalState = invocation.getPublicNavigationalState();
 
-         // it is possible to get additonal public navigational state from the invocation attributes if the producer used templates:
+         // it is possible to get additional public navigational state from the invocation attributes if the producer used templates:
          String publicNS = (String)invocation.getAttribute(WSRP2RewritingConstants.NAVIGATIONAL_VALUES);
          if (!ParameterValidation.isNullOrEmpty(publicNS))
          {
