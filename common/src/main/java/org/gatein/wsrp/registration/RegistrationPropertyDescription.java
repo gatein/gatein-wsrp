@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -160,7 +160,7 @@ public class RegistrationPropertyDescription implements PropertyDescription
 
    public void setName(QName name)
    {
-      if (valueWillBeUpdated(this.name, name))
+      if (ParameterValidation.isOldAndNewDifferent(this.name, name))
       {
          QName oldName = this.name;
          this.name = name;
@@ -322,6 +322,11 @@ public class RegistrationPropertyDescription implements PropertyDescription
       this.valueChangeListener = listener;
    }
 
+   public ValueChangeListener getValueChangeListener()
+   {
+      return valueChangeListener;
+   }
+
    private void notifyParentOfChangeIfNeeded(Object oldValue, Object newValue)
    {
       if (valueChangeListener != null)
@@ -332,18 +337,13 @@ public class RegistrationPropertyDescription implements PropertyDescription
 
    public Object modifyIfNeeded(Object oldValue, Object newValue)
    {
-      if (valueWillBeUpdated(oldValue, newValue))
+      if (ParameterValidation.isOldAndNewDifferent(oldValue, newValue))
       {
          notifyParentOfChangeIfNeeded(oldValue, newValue);
          oldValue = newValue;
       }
 
       return oldValue;
-   }
-
-   private boolean valueWillBeUpdated(Object oldValue, Object newValue)
-   {
-      return (oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null);
    }
 
    /**
