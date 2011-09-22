@@ -44,7 +44,7 @@ public abstract class BeanContext implements Serializable
    protected final static Logger log = LoggerFactory.getLogger(BeanContext.class);
 
    public static final String STATUS = "status";
-   private static final String DEFAULT_RESOURCE_NAME = "locale.portlet.Resource";
+   static final String DEFAULT_RESOURCE_NAME = "locale.portlet.Resource";
    private static final String UNEXPECTED_ERROR = "bean_support_unexpected_error";
    private static final String CAUSE = "bean_support_cause";
    private static final String CURRENT_PLACEHOLDER = "###";

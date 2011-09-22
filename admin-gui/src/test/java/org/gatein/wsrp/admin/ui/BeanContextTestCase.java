@@ -34,12 +34,22 @@ import java.util.Map;
  */
 public class BeanContextTestCase extends TestCase
 {
-   public void testMessageFormatting()
+
+   public void testDefaultMessageFormatting()
    {
       assertEquals("foo value", BeanContext.getLocalizedMessage("foo", Locale.getDefault()));
-      assertEquals("foo value", BeanContext.getLocalizedMessage("foo", Locale.getDefault(), "Resource", "blah"));
-      assertEquals("param value: foo", BeanContext.getLocalizedMessage("1param", Locale.getDefault(), "Resource", "foo"));
-      assertEquals("param1 value: foo param2 value: bar", BeanContext.getLocalizedMessage("2params", Locale.getDefault(), "Resource", "foo", "bar"));
+      assertEquals("foo value", BeanContext.getLocalizedMessage("foo", Locale.getDefault(), BeanContext.DEFAULT_RESOURCE_NAME, "blah"));
+      assertEquals("param value: foo", BeanContext.getLocalizedMessage("1param", Locale.getDefault(), BeanContext.DEFAULT_RESOURCE_NAME, "foo"));
+      assertEquals("param1 value: foo param2 value: bar", BeanContext.getLocalizedMessage("2params", Locale.getDefault(), BeanContext.DEFAULT_RESOURCE_NAME, "foo", "bar"));
+   }
+
+   public void testMessageFormatting()
+   {
+      String resourceName = "Other";
+      assertEquals("other foo value", BeanContext.getLocalizedMessage("foo", Locale.getDefault(), resourceName));
+      assertEquals("other foo value", BeanContext.getLocalizedMessage("foo", Locale.getDefault(), resourceName, "blah"));
+      assertEquals("other param value: foo", BeanContext.getLocalizedMessage("1param", Locale.getDefault(), resourceName, "foo"));
+      assertEquals("other param1 value: foo param2 value: bar", BeanContext.getLocalizedMessage("2params", Locale.getDefault(), resourceName, "foo", "bar"));
    }
 
    public void testErrorMessage()
