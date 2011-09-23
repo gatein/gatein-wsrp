@@ -132,9 +132,7 @@
                         <h:commandLink id="confirm-delete" action="confirmPropDeletion"
                                        value="#{i18n.producer_config_reg_prop_remove}"
                                        styleClass="actionDelete"
-                                       actionListener="#{producer.selectProperty}">
-                           <f:param name="propName" value="#{property.nameAsString}"/>
-                        </h:commandLink>
+                                       actionListener="#{producer.selectProperty}"/>
                      </h:column>
                   </h:dataTable>
                </f:subview>

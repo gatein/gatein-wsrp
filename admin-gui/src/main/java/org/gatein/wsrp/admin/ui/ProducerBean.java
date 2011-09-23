@@ -32,10 +32,13 @@ import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
+import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -250,7 +253,26 @@ public class ProducerBean extends ManagedBean implements Serializable
 
    public void selectProperty(ActionEvent event)
    {
-      selectedProp = beanContext.getParameter("propName");
+      // Retrieve parent table from event
+      HtmlDataTable table = getParentDataTable((UIComponent)event.getSource());
+
+      // Get selected prop
+      RegistrationPropertyDescription prop = (RegistrationPropertyDescription)table.getRowData();
+
+      selectedProp = prop.getNameAsString();
+   }
+
+   private HtmlDataTable getParentDataTable(UIComponent component)
+   {
+      if (component == null)
+      {
+         return null;
+      }
+      if (component instanceof HtmlDataTable)
+      {
+         return (HtmlDataTable)component;
+      }
+      return getParentDataTable(component.getParent());
    }
 
    protected String getObjectTypeName()
@@ -295,7 +317,7 @@ public class ProducerBean extends ManagedBean implements Serializable
       {
          this.registrationRequirements = new ProducerRegistrationRequirementsImpl(registrationRequirements);
 
-         Map descriptions = registrationRequirements.getRegistrationProperties();
+         Map<QName, RegistrationPropertyDescription> descriptions = registrationRequirements.getRegistrationProperties();
          registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
          Collections.sort(registrationProperties);
 
