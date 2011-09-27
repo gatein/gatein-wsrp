@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -331,6 +331,10 @@
 
 .wsrp-consumers-ui .registration-prop-table .descColumn {
    width: 20%;
+}
+
+.wsrp-consumers-ui .registration-prop-table input[type="text"] {
+   width: 95%;
 }
 
 .wsrp-consumers-ui .portlet-section-buttonrow {
