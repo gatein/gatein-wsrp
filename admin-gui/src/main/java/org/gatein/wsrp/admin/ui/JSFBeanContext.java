@@ -70,8 +70,14 @@ public class JSFBeanContext extends BeanContext implements Serializable
 
       if (candidate == null)
       {
-         // try to get the bean from an EL expression
-         candidate = facesContext.getApplication().evaluateExpressionGet(facesContext, "#{" + name + "}", type);
+         // try the session map
+         candidate = getFromSession(name, type);
+
+         if (candidate == null)
+         {
+            // try to get the bean from an EL expression
+            candidate = facesContext.getApplication().evaluateExpressionGet(facesContext, "#{" + name + "}", type);
+         }
       }
 
       if (candidate != null)

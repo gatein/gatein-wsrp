@@ -260,8 +260,7 @@ public abstract class BeanContext implements Serializable
     * @param <T>           type of the object to be retrieved
     * @return the session object associated with the specified name
     * @throws IllegalArgumentException if the value associated with the specified name is not <code>null</code> and
-    *                                  does
-    *                                  not match the specified expected class
+    *                                  does not match the specified expected class
     */
    public <T> T getFromSession(String name, Class<T> expectedClass)
    {

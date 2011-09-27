@@ -777,7 +777,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
    {
       if (manager == null)
       {
-         manager = beanContext.getFromSession("consumersMgr", ConsumerManagerBean.class);
+         manager = beanContext.findBean("consumersMgr", ConsumerManagerBean.class);
       }
       return manager;
    }
