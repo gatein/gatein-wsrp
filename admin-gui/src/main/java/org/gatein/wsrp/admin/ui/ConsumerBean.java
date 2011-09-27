@@ -92,6 +92,12 @@ public class ConsumerBean extends ManagedBean implements Serializable
    private DataModel existingExports;
    private ExportInfoDisplay currentExport;
 
+   private static void bypassAndRedisplay()
+   {
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
+
    public void setManager(ConsumerManagerBean manager)
    {
       this.manager = manager;
@@ -157,6 +163,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
       if (id == null)
       {
          beanContext.createErrorMessage(NULL_ID_CONSUMER);
+         bypassAndRedisplay();
       }
       else
       {
@@ -170,6 +177,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
          else
          {
             beanContext.createErrorMessage(CANNOT_FIND_CONSUMER, id);
+            bypassAndRedisplay();
          }
       }
 
@@ -850,16 +858,14 @@ public class ConsumerBean extends ManagedBean implements Serializable
             }
          }
 
-         // bypass the rest of the life cycle and re-display page
-         FacesContext.getCurrentInstance().renderResponse();
+         bypassAndRedisplay();
       }
 
       public void selectCurrentWindow(ValueChangeEvent event)
       {
          window = (String)event.getNewValue();
 
-         // bypass the rest of the life cycle and re-display page
-         FacesContext.getCurrentInstance().renderResponse();
+         bypassAndRedisplay();
       }
 
       public List<SelectItem> getPages()
@@ -887,8 +893,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
       {
          selected = (Boolean)event.getNewValue();
 
-         // bypass the rest of the life cycle and re-display page
-         FacesContext.getCurrentInstance().renderResponse();
+         bypassAndRedisplay();
       }
 
       public int compareTo(SelectablePortletHandle o)
