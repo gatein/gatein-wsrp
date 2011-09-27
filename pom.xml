@@ -52,15 +52,11 @@
       <org.gatein.wci.version>2.1.0-Beta01</org.gatein.wci.version>
 
       <jsf.version>1.2_12</jsf.version>
-      <servlet.version>2.5</servlet.version>
-      <apache.commons-fileupload.version>1.2.1</apache.commons-fileupload.version>
-      <javax.mail.version>1.4.1</javax.mail.version>
       <javax.xml.ws.version>2.1</javax.xml.ws.version>
       <javax.xml.soap.saaj.version>1.3</javax.xml.soap.saaj.version>
-      <org.chromattic.version>1.1.0-beta5</org.chromattic.version>
+      <org.chromattic.version>1.1.0-beta7</org.chromattic.version>
       <org.jboss.arquillian.version>1.0.0.Alpha2</org.jboss.arquillian.version>
       <org.mockito.version>1.8.5</org.mockito.version>
-      <com.google.guava.version>r09</com.google.guava.version>
    </properties>
 
    <dependencyManagement>
@@ -69,7 +65,7 @@
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.1.0-Beta03</version>
+            <version>1.1.0-Beta06</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
@@ -159,24 +155,6 @@
          </dependency>
 
          <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet.version}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${apache.commons-fileupload.version}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>${javax.mail.version}</version>
-         </dependency>
-
-         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <version>${javax.xml.ws.version}</version>
@@ -186,12 +164,6 @@
             <groupId>javax.xml.soap</groupId>
             <artifactId>saaj-api</artifactId>
             <version>${javax.xml.soap.saaj.version}</version>
-         </dependency>
-
-         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${com.google.guava.version}</version>
          </dependency>
 
          <dependency>
