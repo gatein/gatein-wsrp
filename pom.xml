@@ -177,6 +177,13 @@
             <artifactId>chromattic.apt</artifactId>
             <version>${org.chromattic.version}</version>
             <scope>compile</scope>
+            <!-- GTNPORTAL-2095: temporary exclusion for missing dependency -->
+            <exclusions>
+               <exclusion>
+                  <groupId>com.google.code.javaparser</groupId>
+                  <artifactId>javaparser</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
 
          <!-- For JCR tests-->
