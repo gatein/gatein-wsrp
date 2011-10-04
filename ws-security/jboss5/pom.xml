@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-wss-parent</artifactId>
-      <version>2.1.0-Beta07</version>
+      <version>2.1.0-Beta07-EPP520</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <artifactId>wsrp-wss-jboss5</artifactId>
