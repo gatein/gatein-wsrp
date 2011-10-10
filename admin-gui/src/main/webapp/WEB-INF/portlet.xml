@@ -52,8 +52,8 @@
       </portlet-info>
    </portlet>
 
-   <container-runtime-option>
+   <!--<container-runtime-option>
       <name>org.gatein.pc.remotable</name>
       <value>true</value>
-   </container-runtime-option>
+   </container-runtime-option>-->
 </portlet-app>
