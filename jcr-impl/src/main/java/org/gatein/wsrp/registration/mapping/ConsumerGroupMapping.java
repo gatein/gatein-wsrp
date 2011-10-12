@@ -94,6 +94,7 @@ public abstract class ConsumerGroupMapping
    public ConsumerGroupSPI toConsumerGroup(JCRRegistrationPersistenceManager persistenceManager) throws RegistrationException
    {
       ConsumerGroupSPI group = persistenceManager.newConsumerGroupSPI(getName());
+      group.setPersistentKey(getPersistentKey());
       RegistrationStatus status = getStatus();
       if (status == null)
       {
