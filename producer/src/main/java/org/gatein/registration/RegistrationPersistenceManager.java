@@ -103,4 +103,6 @@ public interface RegistrationPersistenceManager
    Collection<? extends Consumer> getConsumers() throws RegistrationException;
 
    Collection<? extends Registration> getRegistrations() throws RegistrationException;
+
+   boolean isConsumerExisting(String consumerId) throws RegistrationException;
 }

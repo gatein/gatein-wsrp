@@ -62,6 +62,8 @@ public interface RegistrationManager extends RegistrationPropertyChangeListener,
 
    Consumer getConsumerByIdentity(String identity) throws RegistrationException;
 
+   boolean isConsumerExisting(String consumerId) throws RegistrationException;
+
    Consumer getConsumerFor(String registrationHandle) throws RegistrationException;
 
    Registration getRegistration(String registrationHandle) throws RegistrationException;

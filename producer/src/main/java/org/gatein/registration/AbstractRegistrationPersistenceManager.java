@@ -162,6 +162,11 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       return consumer;
    }
 
+   public boolean isConsumerExisting(String consumerId) throws RegistrationException
+   {
+      return getConsumerById(consumerId) != null;
+   }
+
    // internal methods: extension points for subclasses
 
    protected abstract void internalAddRegistration(RegistrationSPI registration) throws RegistrationException;

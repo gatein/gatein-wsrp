@@ -197,8 +197,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    /** Rejects registration if a Consumer with the specified name already exists. */
    public void validateConsumerName(String consumerName, final RegistrationManager manager) throws IllegalArgumentException, RegistrationException
    {
-      Consumer consumer = manager.getConsumerByIdentity(getConsumerIdFrom(consumerName, Collections.<QName, Object>emptyMap()));
-      if (consumer != null)
+      if (manager.isConsumerExisting(getConsumerIdFrom(consumerName, Collections.<QName, Object>emptyMap())))
       {
          throw new DuplicateRegistrationException("A Consumer named '" + consumerName + "' has already been registered.");
       }
@@ -231,7 +230,8 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
    }
 
    /**
-    * Instructs this policy to use the specified RegistrationPropertyValidator. There shouldn't be any need to call this
+    * Instructs this policy to use the specified RegistrationPropertyValidator. There shouldn't be any need to call
+    * this
     * method manually, as the validator is configured via the WSRP Producer xml configuration file.
     *
     * @param validator

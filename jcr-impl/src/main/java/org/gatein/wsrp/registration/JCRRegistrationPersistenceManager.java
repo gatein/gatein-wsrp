@@ -41,6 +41,7 @@ import org.gatein.wsrp.registration.mapping.ConsumersAndGroupsMapping;
 import org.gatein.wsrp.registration.mapping.RegistrationMapping;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertiesMapping;
 
+import javax.jcr.RepositoryException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,7 @@ import java.util.Map;
 public class JCRRegistrationPersistenceManager extends RegistrationPersistenceManagerImpl
 {
    private ChromatticPersister persister;
-   private ConsumersAndGroupsMapping mappings;
+   private final String rootNodePath;
 
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
 
@@ -63,14 +64,20 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
          RegistrationMapping.class, ConsumerCapabilitiesMapping.class, RegistrationPropertiesMapping.class);
    }
 
-
    public JCRRegistrationPersistenceManager(ChromatticPersister persister) throws Exception
    {
+      this(persister, "/");
+   }
+
+   protected JCRRegistrationPersistenceManager(ChromatticPersister persister, String rootNodePath) throws Exception
+   {
       ParameterValidation.throwIllegalArgExceptionIfNull(persister, "ChromatticPersister");
+
+      this.rootNodePath = rootNodePath.endsWith("/") ? rootNodePath : rootNodePath + "/";
       this.persister = persister;
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       if (mappings == null)
       {
          mappings = session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
@@ -110,7 +117,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties) throws RegistrationException
    {
       ChromatticSession session = persister.getSession();
-      RegistrationSPI registration = null;
+      RegistrationSPI registration;
       try
       {
          ConsumerMapping cm = session.findById(ConsumerMapping.class, consumer.getPersistentKey());
@@ -149,7 +156,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerSPI consumer = super.internalCreateConsumer(consumerId, consumerName);
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
          ConsumerMapping cm = mappings.createConsumer(consumerId);
@@ -237,7 +244,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerGroupSPI group = super.internalCreateConsumerGroup(name);
 
       ChromatticSession session = persister.getSession();
-      mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
          ConsumerGroupMapping cgm = mappings.createConsumerGroup(name);
@@ -253,5 +260,22 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
 
       return group;
+   }
+
+   public boolean isConsumerExisting(String consumerId) throws RegistrationException
+   {
+      ChromatticSession session = persister.getSession();
+      try
+      {
+         return session.getJCRSession().itemExists(rootNodePath + ConsumersAndGroupsMapping.NODE_NAME + "/" + consumerId);
+      }
+      catch (RepositoryException e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 }

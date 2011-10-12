@@ -235,6 +235,13 @@ public class RegistrationManagerImpl implements RegistrationManager
       return persistenceManager.getConsumerById(identity);
    }
 
+   public boolean isConsumerExisting(String consumerId) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "consumer id", null);
+
+      return persistenceManager.isConsumerExisting(consumerId);
+   }
+
    public Consumer getConsumerFor(String registrationHandle) throws RegistrationException
    {
       return (Consumer)getConsumerOrRegistration(registrationHandle, true);
