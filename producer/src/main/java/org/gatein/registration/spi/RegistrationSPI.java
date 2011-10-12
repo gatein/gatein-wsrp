@@ -26,7 +26,6 @@ package org.gatein.registration.spi;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
-import org.gatein.registration.RegistrationManager;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -43,4 +42,6 @@ public interface RegistrationSPI extends Registration
    void removePortletContext(PortletContext portletContext) throws RegistrationException;
 
    void removePortletContext(PortletContext portletContext, boolean needsSaving) throws RegistrationException;
+
+   void setPersistentKey(String key);
 }

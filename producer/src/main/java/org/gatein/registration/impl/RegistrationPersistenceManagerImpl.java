@@ -102,12 +102,14 @@ public class RegistrationPersistenceManagerImpl extends AbstractRegistrationPers
    @Override
    protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
    {
-      return newRegistrationSPI(consumer, registrationProperties, "" + lastRegistrationId++);
+      RegistrationSPI registrationSPI = newRegistrationSPI(consumer, registrationProperties);
+      registrationSPI.setPersistentKey("" + lastRegistrationId++);
+      return registrationSPI;
    }
 
-   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map<QName, Object> registrationProperties, String registrationKey)
+   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map<QName, Object> registrationProperties)
    {
-      return new RegistrationImpl(registrationKey, consumer, RegistrationStatus.PENDING, registrationProperties, this);
+      return new RegistrationImpl(consumer, RegistrationStatus.PENDING, registrationProperties, this);
    }
 
    @Override

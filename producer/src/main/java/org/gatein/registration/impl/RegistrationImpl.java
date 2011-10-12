@@ -47,7 +47,7 @@ import java.util.Set;
 public class RegistrationImpl implements RegistrationSPI
 {
 
-   private final String key;
+   private String key;
    private ConsumerSPI consumer;
    private RegistrationStatus status;
    private Map<QName, Object> properties;
@@ -56,9 +56,8 @@ public class RegistrationImpl implements RegistrationSPI
    private transient RegistrationPersistenceManager manager;
 
 
-   RegistrationImpl(String key, ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties, RegistrationPersistenceManager manager)
+   RegistrationImpl(ConsumerSPI consumer, RegistrationStatus status, Map<QName, Object> properties, RegistrationPersistenceManager manager)
    {
-      this.key = key;
       this.consumer = consumer;
       this.status = status;
       this.properties = new HashMap<QName, Object>(properties);
@@ -69,6 +68,11 @@ public class RegistrationImpl implements RegistrationSPI
    public String getPersistentKey()
    {
       return key;
+   }
+
+   public void setPersistentKey(String key)
+   {
+      this.key = key;
    }
 
    public void setRegistrationHandle(String handle)

@@ -145,9 +145,10 @@ public abstract class RegistrationMapping
          props = rpm.toPropMap();
       }
 
-      RegistrationSPI reg = persistenceManager.newRegistrationSPI(consumer, props, getPersistentKey());
+      RegistrationSPI reg = persistenceManager.newRegistrationSPI(consumer, props);
       reg.setStatus(getStatus());
       reg.setRegistrationHandle(getRegistrationHandle());
+      reg.setPersistentKey(getPersistentKey());
 
       Collection<PortletContextMapping> pcms = getPortletContexts();
       for (PortletContextMapping pcm : pcms)

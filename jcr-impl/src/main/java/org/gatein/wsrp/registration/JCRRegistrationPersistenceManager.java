@@ -42,6 +42,7 @@ import org.gatein.wsrp.registration.mapping.RegistrationMapping;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertiesMapping;
 
 import javax.jcr.RepositoryException;
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -114,16 +115,16 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
-   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map registrationProperties) throws RegistrationException
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
    {
+      RegistrationSPI registration = super.internalCreateRegistration(consumer, registrationProperties);
       ChromatticSession session = persister.getSession();
-      RegistrationSPI registration;
       try
       {
          ConsumerMapping cm = session.findById(ConsumerMapping.class, consumer.getPersistentKey());
          RegistrationMapping rm = cm.createAndAddRegistrationMappingFrom(null);
-         registration = newRegistrationSPI(consumer, registrationProperties, rm.getPersistentKey());
          rm.initFrom(registration);
+         registration.setPersistentKey(rm.getPersistentKey());
          persister.closeSession(true);
       }
       catch (Exception e)
