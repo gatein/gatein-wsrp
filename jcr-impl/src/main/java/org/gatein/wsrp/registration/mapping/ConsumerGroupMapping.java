@@ -32,10 +32,11 @@ import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
-import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerGroupSPI;
+import org.gatein.registration.spi.ConsumerSPI;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
 import java.util.Collection;
@@ -45,7 +46,7 @@ import java.util.Collection;
  * @version $Revision$
  */
 @PrimaryType(name = ConsumerGroupMapping.NODE_NAME)
-public abstract class ConsumerGroupMapping
+public abstract class ConsumerGroupMapping implements BaseMapping<ConsumerGroupSPI, JCRRegistrationPersistenceManager>
 {
    public static final String NODE_NAME = "wsrp:consumergroup";
 
@@ -69,7 +70,7 @@ public abstract class ConsumerGroupMapping
    @FindById
    public abstract ConsumerMapping findConsumerById(String id);
 
-   public void initFrom(ConsumerGroup group)
+   public void initFrom(ConsumerGroupSPI group)
    {
       setName(group.getName());
       setStatus(group.getStatus());
@@ -82,7 +83,7 @@ public abstract class ConsumerGroupMapping
             ConsumerMapping cm = findConsumerById(id);
             ParameterValidation.throwIllegalArgExceptionIfNull(cm, "ConsumerMapping (no such mapping with id: " + id + ")");
             getConsumers().add(cm);
-            cm.initFrom(consumer);
+            cm.initFrom((ConsumerSPI)consumer);
          }
       }
       catch (RegistrationException e)
@@ -91,9 +92,9 @@ public abstract class ConsumerGroupMapping
       }
    }
 
-   public ConsumerGroupSPI toConsumerGroup(JCRRegistrationPersistenceManager persistenceManager) throws RegistrationException
+   public ConsumerGroupSPI toModel(ConsumerGroupSPI initial, JCRRegistrationPersistenceManager persistenceManager)
    {
-      ConsumerGroupSPI group = persistenceManager.newConsumerGroupSPI(getName());
+      ConsumerGroupSPI group = (initial != null ? initial : persistenceManager.newConsumerGroupSPI(getName()));
       group.setPersistentKey(getPersistentKey());
       RegistrationStatus status = getStatus();
       if (status == null)
@@ -102,16 +103,24 @@ public abstract class ConsumerGroupMapping
       }
       group.setStatus(status);
 
-      for (ConsumerMapping cm : getConsumers())
+      try
       {
-         Consumer consumer = persistenceManager.getConsumerById(cm.getPersistentKey());
-         if (consumer == null)
+         for (ConsumerMapping cm : getConsumers())
          {
-            consumer = cm.toConsumer(persistenceManager);
+            Consumer consumer = persistenceManager.getConsumerById(cm.getPersistentKey());
+            if (consumer == null)
+            {
+               consumer = cm.toModel((ConsumerSPI)consumer, persistenceManager);
+            }
+
+            group.addConsumer(consumer);
          }
 
-         group.addConsumer(consumer);
+         return group;
       }
-      return group;
+      catch (RegistrationException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 }

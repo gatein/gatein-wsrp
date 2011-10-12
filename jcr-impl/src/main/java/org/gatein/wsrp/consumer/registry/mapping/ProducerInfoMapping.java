@@ -136,11 +136,11 @@ public abstract void setAvailable(boolean available);*/
       info.setModifyRegistrationRequired(getModifyRegistrationRequired());
 
       // endpoint
-      EndpointConfigurationInfo endInfo = getEndpointInfo().toEndpointConfigurationInfo(info.getEndpointConfigurationInfo());
+      EndpointConfigurationInfo endInfo = getEndpointInfo().toModel(info.getEndpointConfigurationInfo(), info);
       info.setEndpointConfigurationInfo(endInfo);
 
       // registration
-      RegistrationInfo regInfo = getRegistrationInfo().toRegistrationInfo(info.getRegistrationInfo());
+      RegistrationInfo regInfo = getRegistrationInfo().toModel(info.getRegistrationInfo(), info);
       info.setRegistrationInfo(regInfo);
 
       return info;

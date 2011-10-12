@@ -89,12 +89,12 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
 
          for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
          {
-            internalAddConsumerGroup(cgm.toConsumerGroup(this));
+            internalAddConsumerGroup(cgm.toModel(newConsumerGroupSPI(cgm.getName()), this));
          }
 
          for (ConsumerMapping cm : mappings.getConsumers())
          {
-            ConsumerSPI consumer = cm.toConsumer(this);
+            ConsumerSPI consumer = cm.toModel(newConsumerSPI(cm.getId(), cm.getName()), this);
             internalAddConsumer(consumer);
 
             // get the registrations and add them to local map.
@@ -149,11 +149,21 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       return super.internalRemoveConsumer(consumerId);
    }
 
-   private void remove(String id, Class clazz)
+   private <T> T remove(String id, Class<T> clazz)
    {
       ChromatticSession session = persister.getSession();
-      session.remove(session.findById(clazz, id));
-      persister.closeSession(true);
+      try
+      {
+         T toRemove = session.findById(clazz, id);
+         session.remove(toRemove);
+         persister.closeSession(true);
+         return toRemove;
+      }
+      catch (Exception e)
+      {
+         persister.closeSession(false);
+         throw new RuntimeException(e);
+      }
    }
 
    @Override
@@ -189,7 +199,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       try
       {
          ConsumerMapping cm = session.findById(ConsumerMapping.class, consumer.getPersistentKey());
-         cm.initFrom(consumer);
+         cm.initFrom(consumerSPI);
          persister.closeSession(true);
       }
       catch (Exception e)
@@ -209,7 +219,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       try
       {
          RegistrationMapping cm = session.findById(RegistrationMapping.class, registration.getPersistentKey());
-         cm.initFrom(registration);
+         cm.initFrom(registrationSPI);
          persister.closeSession(true);
       }
       catch (Exception e)

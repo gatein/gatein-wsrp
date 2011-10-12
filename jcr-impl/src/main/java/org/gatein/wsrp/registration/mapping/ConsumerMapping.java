@@ -34,11 +34,12 @@ import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
-import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.spi.ConsumerSPI;
+import org.gatein.registration.spi.RegistrationSPI;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
 import java.util.List;
@@ -48,7 +49,7 @@ import java.util.List;
  * @version $Revision$
  */
 @PrimaryType(name = ConsumerMapping.NODE_NAME)
-public abstract class ConsumerMapping
+public abstract class ConsumerMapping implements BaseMapping<ConsumerSPI, JCRRegistrationPersistenceManager>
 {
    public static final String NODE_NAME = "wsrp:consumer";
 
@@ -112,7 +113,7 @@ public abstract class ConsumerMapping
          }
 
          // then init
-         rm.initFrom(registration);
+         rm.initFrom((RegistrationSPI)registration);
       }
       else
       {
@@ -124,7 +125,7 @@ public abstract class ConsumerMapping
       return rm;
    }
 
-   public void initFrom(Consumer consumer)
+   public void initFrom(ConsumerSPI consumer)
    {
       setName(consumer.getName());
       setId(consumer.getId());
@@ -153,23 +154,30 @@ public abstract class ConsumerMapping
       }
    }
 
-   public ConsumerSPI toConsumer(JCRRegistrationPersistenceManager persistenceManager) throws RegistrationException
+   public ConsumerSPI toModel(ConsumerSPI initial, JCRRegistrationPersistenceManager persistenceManager)
    {
-      ConsumerSPI consumer = persistenceManager.newConsumerSPI(getId(), getName());
+      ConsumerSPI consumer = (initial != null ? initial : persistenceManager.newConsumerSPI(getId(), getName()));
       consumer.setConsumerAgent(getConsumerAgent());
       consumer.setPersistentKey(getPersistentKey());
 
       consumer.setCapabilities(getCapabilities().toConsumerCapabilities());
 
-      ConsumerGroupMapping cgm = getGroup();
-      if (cgm != null)
+      try
       {
-         consumer.setGroup(persistenceManager.getConsumerGroup(cgm.getName()));
-      }
+         ConsumerGroupMapping cgm = getGroup();
+         if (cgm != null)
+         {
+            consumer.setGroup(persistenceManager.getConsumerGroup(cgm.getName()));
+         }
 
-      for (RegistrationMapping rm : getRegistrations())
+         for (RegistrationMapping rm : getRegistrations())
+         {
+            consumer.addRegistration(rm.toRegistration(consumer, persistenceManager));
+         }
+      }
+      catch (RegistrationException e)
       {
-         consumer.addRegistration(rm.toRegistration(persistenceManager, consumer));
+         throw new RuntimeException(e);
       }
 
       return consumer;

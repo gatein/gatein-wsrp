@@ -29,9 +29,11 @@ import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.common.io.IOTools;
+import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.jcr.ChromatticPersister;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
@@ -45,7 +47,7 @@ import java.util.List;
  */
 @PrimaryType(name = RegistrationInfoMapping.NODE_NAME)
 @FormattedBy(ChromatticPersister.QNameFormatter.class)
-public abstract class RegistrationInfoMapping
+public abstract class RegistrationInfoMapping implements BaseMapping<RegistrationInfo, ProducerInfo>
 {
    public static final String NODE_NAME = "wsrp:registrationinfo";
 
@@ -95,7 +97,7 @@ public abstract class RegistrationInfoMapping
       }
    }
 
-   RegistrationInfo toRegistrationInfo(RegistrationInfo initial)
+   public RegistrationInfo toModel(RegistrationInfo initial, ProducerInfo registry)
    {
       initial.setConsumerName(getConsumerName());
       initial.setRegistrationHandle(getRegistrationHandle());

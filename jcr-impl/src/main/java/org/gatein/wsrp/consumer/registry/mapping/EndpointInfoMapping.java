@@ -30,6 +30,8 @@ import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
+import org.gatein.wsrp.consumer.ProducerInfo;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.jcr.mapping.mixins.MixinHolder;
 import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
 
@@ -38,7 +40,7 @@ import org.gatein.wsrp.jcr.mapping.mixins.WSSEndpointEnabled;
  * @version $Revision$
  */
 @PrimaryType(name = EndpointInfoMapping.NODE_NAME)
-public abstract class EndpointInfoMapping extends MixinHolder<WSSEndpointEnabled>
+public abstract class EndpointInfoMapping extends MixinHolder<WSSEndpointEnabled> implements BaseMapping<EndpointConfigurationInfo, ProducerInfo>
 {
    public static final String NODE_NAME = "wsrp:endpointinfo";
 
@@ -78,7 +80,7 @@ public abstract class EndpointInfoMapping extends MixinHolder<WSSEndpointEnabled
       setWSSEnabled(info.getWSSEnabled());
    }
 
-   EndpointConfigurationInfo toEndpointConfigurationInfo(EndpointConfigurationInfo initial)
+   public EndpointConfigurationInfo toModel(EndpointConfigurationInfo initial, ProducerInfo registry)
    {
       initial.setWsdlDefinitionURL(getWSDLURL());
       initial.setWSOperationTimeOut(getWSTimeoutMilliseconds());

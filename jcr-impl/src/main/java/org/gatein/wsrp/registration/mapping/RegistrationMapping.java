@@ -36,11 +36,11 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.StatefulPortletContext;
-import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
 import javax.xml.namespace.QName;
@@ -53,7 +53,7 @@ import java.util.Map;
  * @version $Revision$
  */
 @PrimaryType(name = RegistrationMapping.NODE_NAME)
-public abstract class RegistrationMapping
+public abstract class RegistrationMapping implements BaseMapping<RegistrationSPI, JCRRegistrationPersistenceManager>
 {
    public static final String NODE_NAME = "wsrp:registration";
 
@@ -91,7 +91,7 @@ public abstract class RegistrationMapping
     *
     * @param registration
     */
-   public void initFrom(Registration registration)
+   public void initFrom(RegistrationSPI registration)
    {
       setStatus(registration.getStatus());
       setRegistrationHandle(registration.getRegistrationHandle());
@@ -136,7 +136,32 @@ public abstract class RegistrationMapping
       }
    }
 
-   public RegistrationSPI toRegistration(JCRRegistrationPersistenceManager persistenceManager, ConsumerSPI consumer) throws RegistrationException
+   public RegistrationSPI toModel(RegistrationSPI initial, JCRRegistrationPersistenceManager persistenceManager)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(initial, "RegistrationSPI");
+
+      initial.setStatus(getStatus());
+      initial.setRegistrationHandle(getRegistrationHandle());
+      initial.setPersistentKey(getPersistentKey());
+
+      Collection<PortletContextMapping> pcms = getPortletContexts();
+      for (PortletContextMapping pcm : pcms)
+      {
+         PortletContext pc = PortletContext.createPortletContext(pcm.getId(), IOTools.safeGetBytes(pcm.getState()));
+         try
+         {
+            initial.addPortletContext(pc, false); // no need to save since we're loading from persistence :)
+         }
+         catch (RegistrationException e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+
+      return initial;
+   }
+
+   public RegistrationSPI toRegistration(ConsumerSPI consumer, JCRRegistrationPersistenceManager persistenceManager) throws RegistrationException
    {
       RegistrationPropertiesMapping rpm = getProperties();
       Map<QName, Object> props = Collections.emptyMap();
@@ -146,17 +171,6 @@ public abstract class RegistrationMapping
       }
 
       RegistrationSPI reg = persistenceManager.newRegistrationSPI(consumer, props);
-      reg.setStatus(getStatus());
-      reg.setRegistrationHandle(getRegistrationHandle());
-      reg.setPersistentKey(getPersistentKey());
-
-      Collection<PortletContextMapping> pcms = getPortletContexts();
-      for (PortletContextMapping pcm : pcms)
-      {
-         PortletContext pc = PortletContext.createPortletContext(pcm.getId(), IOTools.safeGetBytes(pcm.getState()));
-         reg.addPortletContext(pc, false); // no need to save since we're loading from persistence :)
-      }
-
-      return reg;
+      return toModel(reg, persistenceManager);
    }
 }
