@@ -252,7 +252,7 @@ public class RegistrationManagerImpl implements RegistrationManager
       return (Registration)getConsumerOrRegistration(registrationHandle, false);
    }
 
-   public Registration getNonregisteredRegistration() throws RegistrationException
+   public Registration getNonRegisteredRegistration() throws RegistrationException
    {
       //TODO: this might be better to place somewhere else and use the RegistrationHandler.register instead of
       // doing basically the same thing below.

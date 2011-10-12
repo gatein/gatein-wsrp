@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -348,7 +348,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       {
          try
          {
-            Registration registration = producer.getRegistrationManager().getNonregisteredRegistration();
+            Registration registration = producer.getRegistrationManager().getNonRegisteredRegistration();
             if (registration == null)
             {
                throwInvalidRegistrationFault("Could not acquire the nonregistered registration from the RegistrationManager");
