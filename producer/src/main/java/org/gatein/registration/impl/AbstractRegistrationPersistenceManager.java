@@ -31,6 +31,7 @@ import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationPersistenceManager;
+import org.gatein.registration.RegistrationStatus;
 import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
@@ -44,6 +45,8 @@ import java.util.Map;
  */
 public abstract class AbstractRegistrationPersistenceManager implements RegistrationPersistenceManager
 {
+   private long lastRegistrationId;
+
    public Consumer createConsumer(String consumerId, String consumerName) throws RegistrationException
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
@@ -180,13 +183,23 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
 
    protected abstract RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException;
 
-   protected abstract RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException;
+   protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
+   {
+      RegistrationSPI registrationSPI = newRegistrationSPI(consumer, registrationProperties);
+      registrationSPI.setPersistentKey("" + lastRegistrationId++);
+      return registrationSPI;
+   }
 
    protected abstract void internalAddConsumer(ConsumerSPI consumer) throws RegistrationException;
 
    protected abstract ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException;
 
-   protected abstract ConsumerSPI internalCreateConsumer(String consumerId, String consumerName) throws RegistrationException;
+   protected ConsumerSPI internalCreateConsumer(String consumerId, String consumerName) throws RegistrationException
+   {
+      ConsumerSPI consumerSPI = newConsumerSPI(consumerId, consumerName);
+      consumerSPI.setPersistentKey(consumerId);
+      return consumerSPI;
+   }
 
    protected abstract ConsumerSPI internalSaveChangesTo(Consumer consumer) throws RegistrationException;
 
@@ -196,7 +209,27 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
 
    protected abstract ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException;
 
-   protected abstract ConsumerGroupSPI internalCreateConsumerGroup(String name) throws RegistrationException;
+   protected ConsumerGroupSPI internalCreateConsumerGroup(String name) throws RegistrationException
+   {
+      ConsumerGroupSPI groupSPI = newConsumerGroupSPI(name);
+      groupSPI.setPersistentKey(name);
+      return groupSPI;
+   }
 
    protected abstract ConsumerSPI getConsumerSPIById(String consumerId) throws RegistrationException;
+
+   public RegistrationSPI newRegistrationSPI(ConsumerSPI consumer, Map<QName, Object> registrationProperties)
+   {
+      return new RegistrationImpl(consumer, RegistrationStatus.PENDING, registrationProperties, this);
+   }
+
+   public ConsumerSPI newConsumerSPI(String consumerId, String consumerName)
+   {
+      return new ConsumerImpl(consumerId, consumerName);
+   }
+
+   public ConsumerGroupSPI newConsumerGroupSPI(String name)
+   {
+      return new ConsumerGroupImpl(name);
+   }
 }
