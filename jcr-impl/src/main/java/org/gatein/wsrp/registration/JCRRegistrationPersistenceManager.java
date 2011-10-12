@@ -78,31 +78,36 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       this.persister = persister;
 
       ChromatticSession session = persister.getSession();
-      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
-      if (mappings == null)
+      try
       {
-         mappings = session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
-      }
-      persister.save(); // needed right now as the session must still be open to iterate over nodes
-
-      for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
-      {
-         internalAddConsumerGroup(cgm.toConsumerGroup(this));
-      }
-
-      for (ConsumerMapping cm : mappings.getConsumers())
-      {
-         ConsumerSPI consumer = cm.toConsumer(this);
-         internalAddConsumer(consumer);
-
-         // get the registrations and add them to local map.
-         for (Registration registration : consumer.getRegistrations())
+         ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+         if (mappings == null)
          {
-            internalAddRegistration((RegistrationSPI)registration);
+            mappings = session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+         }
+         persister.save(); // needed right now as the session must still be open to iterate over nodes
+
+         for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
+         {
+            internalAddConsumerGroup(cgm.toConsumerGroup(this));
+         }
+
+         for (ConsumerMapping cm : mappings.getConsumers())
+         {
+            ConsumerSPI consumer = cm.toConsumer(this);
+            internalAddConsumer(consumer);
+
+            // get the registrations and add them to local map.
+            for (Registration registration : consumer.getRegistrations())
+            {
+               internalAddRegistration((RegistrationSPI)registration);
+            }
          }
       }
-
-      persister.closeSession(false);
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    @Override
@@ -157,9 +162,9 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerSPI consumer = super.internalCreateConsumer(consumerId, consumerName);
 
       ChromatticSession session = persister.getSession();
-      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
+         ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          ConsumerMapping cm = mappings.createConsumer(consumerId);
          mappings.getConsumers().add(cm);
          cm.initFrom(consumer);
@@ -245,9 +250,9 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ConsumerGroupSPI group = super.internalCreateConsumerGroup(name);
 
       ChromatticSession session = persister.getSession();
-      ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
       try
       {
+         ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          ConsumerGroupMapping cgm = mappings.createConsumerGroup(name);
          mappings.getConsumerGroups().add(cgm);
          group.setPersistentKey(cgm.getPersistentKey());
