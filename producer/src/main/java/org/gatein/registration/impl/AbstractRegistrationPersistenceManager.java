@@ -21,9 +21,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.registration;
+package org.gatein.registration.impl;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.registration.Consumer;
+import org.gatein.registration.ConsumerGroup;
+import org.gatein.registration.DuplicateRegistrationException;
+import org.gatein.registration.NoSuchRegistrationException;
+import org.gatein.registration.Registration;
+import org.gatein.registration.RegistrationException;
+import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
