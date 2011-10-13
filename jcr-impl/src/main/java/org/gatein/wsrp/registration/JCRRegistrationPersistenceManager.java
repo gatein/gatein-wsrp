@@ -298,12 +298,18 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       return group;
    }
 
+   @Override
    public boolean isConsumerExisting(String consumerId) throws RegistrationException
+   {
+      return exists(consumerId);
+   }
+
+   private boolean exists(String name)
    {
       ChromatticSession session = persister.getSession();
       try
       {
-         return session.getJCRSession().itemExists(rootNodePath + ConsumersAndGroupsMapping.NODE_NAME + "/" + consumerId);
+         return session.getJCRSession().itemExists(rootNodePath + ConsumersAndGroupsMapping.NODE_NAME + "/" + name);
       }
       catch (RepositoryException e)
       {
@@ -313,5 +319,11 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       {
          persister.closeSession(false);
       }
+   }
+
+   @Override
+   public boolean isConsumerGroupExisting(String consumerGroupId) throws RegistrationException
+   {
+      return exists(consumerGroupId);
    }
 }

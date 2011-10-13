@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -83,15 +83,63 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
    public void testCreateConsumer() throws Exception
    {
       startInteraction();
-      Consumer consumer = getManager().createConsumer("Bar", "Bar");
+      Consumer consumer = getManager().createConsumer("BarId", "BarName");
+      assertTrue(getManager().isConsumerExisting("BarId"));
+      assertFalse(getManager().isConsumerExisting("BarName"));
+
       assertNotNull(consumer);
-      assertEquals("Bar", consumer.getName());
+      assertEquals("BarName", consumer.getName());
       assertTrue(consumer.getRegistrations().isEmpty());
       assertNull(consumer.getGroup());
       assertNotNull(consumer.getPersistentKey());
       assertNull(consumer.getConsumerAgent());
       assertNotNull(consumer.getCapabilities());
       assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
+      stopInteraction();
+   }
+
+   public void testCreateConsumerThrowsIAE() throws Exception
+   {
+      startInteraction();
+      try
+      {
+         getManager().createConsumer(null, "foo");
+         fail();
+      }
+      catch (IllegalArgumentException expected)
+      {
+      }
+
+      try
+      {
+         getManager().createConsumer("foo", null);
+         fail();
+      }
+      catch (IllegalArgumentException expected)
+      {
+      }
+      stopInteraction();
+   }
+
+   public void testCreateDuplicatedConsumer() throws Exception
+   {
+      startInteraction();
+      getManager().createConsumer("id", "name");
+      assertTrue(getManager().isConsumerExisting("id"));
+      assertFalse(getManager().isConsumerExisting("name"));
+
+      try
+      {
+         getManager().createConsumer("id", "different name");
+         fail();
+      }
+      catch (DuplicateRegistrationException expected)
+      {
+      }
+
+      getManager().createConsumer("different id", "name");
+      assertTrue(getManager().isConsumerExisting("different id"));
+
       stopInteraction();
    }
 
@@ -104,6 +152,20 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertEquals("Foo", group.getName());
       assertTrue(group.getConsumers().isEmpty());
       assertEquals(RegistrationStatus.PENDING, group.getStatus());
+      stopInteraction();
+   }
+
+   public void testCreateGroupThrowsIAE() throws Exception
+   {
+      startInteraction();
+      try
+      {
+         getManager().createConsumerGroup(null);
+         fail();
+      }
+      catch (IllegalArgumentException expected)
+      {
+      }
       stopInteraction();
    }
 

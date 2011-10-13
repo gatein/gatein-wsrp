@@ -52,10 +52,17 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerId, "Consumer identity", null);
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(consumerName, "Consumer name", null);
 
-      ConsumerSPI consumer = internalCreateConsumer(consumerId, consumerName);
-      internalAddConsumer(consumer);
+      if (isConsumerExisting(consumerId))
+      {
+         throw new DuplicateRegistrationException("A Consumer with identifier '" + consumerId + "' has already been registered.");
+      }
+      else
+      {
+         ConsumerSPI consumer = internalCreateConsumer(consumerId, consumerName);
+         internalAddConsumer(consumer);
 
-      return consumer;
+         return consumer;
+      }
    }
 
    public void saveChangesTo(Consumer consumer) throws RegistrationException
@@ -83,15 +90,16 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
 
    public ConsumerGroup createConsumerGroup(String name) throws RegistrationException
    {
-      ConsumerGroup group = getConsumerGroup(name);
-      if (group != null)
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "ConsumerGroup name", null);
+
+      if (isConsumerGroupExisting(name))
       {
          throw new DuplicateRegistrationException("A ConsumerGroup named '" + name + "' has already been registered.");
       }
       else
       {
-         group = internalCreateConsumerGroup(name);
-         internalAddConsumerGroup((ConsumerGroupSPI)group);
+         final ConsumerGroupSPI group = internalCreateConsumerGroup(name);
+         internalAddConsumerGroup(group);
          return group;
       }
    }
@@ -175,6 +183,11 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
    public boolean isConsumerExisting(String consumerId) throws RegistrationException
    {
       return getConsumerById(consumerId) != null;
+   }
+
+   public boolean isConsumerGroupExisting(String consumerGroupId) throws RegistrationException
+   {
+      return getConsumerGroup(consumerGroupId) != null;
    }
 
    // internal methods: extension points for subclasses
