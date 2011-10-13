@@ -161,6 +161,11 @@ public abstract class RegistrationMapping implements BaseMapping<RegistrationSPI
       return initial;
    }
 
+   public Class<RegistrationSPI> getModelClass()
+   {
+      return RegistrationSPI.class;
+   }
+
    public RegistrationSPI toRegistration(ConsumerSPI consumer, JCRRegistrationPersistenceManager persistenceManager) throws RegistrationException
    {
       RegistrationPropertiesMapping rpm = getProperties();

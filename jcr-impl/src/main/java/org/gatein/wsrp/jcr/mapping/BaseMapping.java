@@ -29,7 +29,15 @@ package org.gatein.wsrp.jcr.mapping;
  */
 public interface BaseMapping<T, R>
 {
+   /**
+    * Must match constant used by implementations to identify the JCR node name/type that the implementation
+    * represents.
+    */
+   public static final String JCR_TYPE_NAME_CONSTANT_NAME = "NODE_NAME";
+
    void initFrom(T model);
 
    T toModel(T initial, R registry);
+
+   Class<T> getModelClass();
 }

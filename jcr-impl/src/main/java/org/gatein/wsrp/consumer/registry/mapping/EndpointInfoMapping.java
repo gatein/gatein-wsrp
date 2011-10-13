@@ -88,6 +88,11 @@ public abstract class EndpointInfoMapping extends MixinHolder<WSSEndpointEnabled
       return initial;
    }
 
+   public Class<EndpointConfigurationInfo> getModelClass()
+   {
+      return EndpointConfigurationInfo.class;
+   }
+
    @Override
    public WSSEndpointEnabled getMixin()
    {

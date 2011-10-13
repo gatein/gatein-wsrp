@@ -123,4 +123,10 @@ public abstract class RegistrationInfoMapping implements BaseMapping<Registratio
 
       return initial;
    }
+
+   public Class<RegistrationInfo> getModelClass()
+   {
+      return RegistrationInfo.class;
+   }
+
 }

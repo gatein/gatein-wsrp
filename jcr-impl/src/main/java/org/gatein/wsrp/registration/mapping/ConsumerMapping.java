@@ -182,4 +182,10 @@ public abstract class ConsumerMapping implements BaseMapping<ConsumerSPI, JCRReg
 
       return consumer;
    }
+
+   public Class<ConsumerSPI> getModelClass()
+   {
+      return ConsumerSPI.class;
+   }
+
 }

@@ -123,4 +123,10 @@ public abstract class ConsumerGroupMapping implements BaseMapping<ConsumerGroupS
          throw new RuntimeException(e);
       }
    }
+
+   public Class<ConsumerGroupSPI> getModelClass()
+   {
+      return ConsumerGroupSPI.class;
+   }
+
 }

@@ -146,6 +146,11 @@ public abstract void setAvailable(boolean available);*/
       return info;
    }
 
+   public Class<ProducerInfo> getModelClass()
+   {
+      return ProducerInfo.class;
+   }
+
    private ModifyRegistrationRequired getCreatedModifyRegistrationRequiredMixin()
    {
       ModifyRegistrationRequired mmr = getModifyRegistrationRequiredMixin();

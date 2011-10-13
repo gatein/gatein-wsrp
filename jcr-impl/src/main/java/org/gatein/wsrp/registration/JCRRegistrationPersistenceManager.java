@@ -26,7 +26,6 @@ package org.gatein.wsrp.registration;
 import org.chromattic.api.ChromatticSession;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
-import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
@@ -34,6 +33,7 @@ import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 import org.gatein.wsrp.jcr.ChromatticPersister;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.mapping.ConsumerCapabilitiesMapping;
 import org.gatein.wsrp.registration.mapping.ConsumerGroupMapping;
 import org.gatein.wsrp.registration.mapping.ConsumerMapping;
@@ -42,6 +42,9 @@ import org.gatein.wsrp.registration.mapping.RegistrationMapping;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertiesMapping;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.RowIterator;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,11 +113,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
    }
 
+   protected ChromatticPersister getPersister()
+   {
+      return persister;
+   }
+
    @Override
    protected RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException
    {
-      Registration registration = getRegistration(registrationId);
-      remove(registration.getPersistentKey(), RegistrationMapping.class);
+      remove(registrationId, RegistrationMapping.class, RegistrationSPI.class);
 
       return super.internalRemoveRegistration(registrationId);
    }
@@ -144,20 +151,49 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    @Override
    protected ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException
    {
-      remove(consumerId, ConsumerMapping.class);
-
+      remove(consumerId, ConsumerMapping.class, ConsumerSPI.class);
       return super.internalRemoveConsumer(consumerId);
    }
 
-   private <T> T remove(String id, Class<T> clazz)
+   private <T extends BaseMapping, U> U remove(String name, Class<T> mappingClass, Class<U> modelClass)
    {
       ChromatticSession session = persister.getSession();
       try
       {
-         T toRemove = session.findById(clazz, id);
+         String jcrType = (String)mappingClass.getField(BaseMapping.JCR_TYPE_NAME_CONSTANT_NAME).get(null);
+         String id;
+         final Query query = session.getJCRSession().getWorkspace().getQueryManager().createQuery("select jcr:uuid from " + jcrType + " where jcr:path = '/%/" + name + "'", Query.SQL);
+         final QueryResult queryResult = query.execute();
+         final RowIterator rows = queryResult.getRows();
+         final long size = rows.getSize();
+         if (size == 0)
+         {
+            return null;
+         }
+         else
+         {
+            if (size != 1)
+            {
+               throw new IllegalArgumentException("There should be only one " + modelClass.getSimpleName() + " named " + name);
+            }
+
+            id = rows.nextRow().getValue("jcr:uuid").getString();
+
+         }
+
+         T toRemove = session.findById(mappingClass, id);
+         Class aClass = toRemove.getModelClass();
+         if (!modelClass.isAssignableFrom(aClass))
+         {
+            throw new IllegalArgumentException("Cannot convert a " + mappingClass.getSimpleName() + " to a " + modelClass.getSimpleName());
+         }
+
+         final U result = modelClass.cast(toRemove.toModel(null, this));
+
          session.remove(toRemove);
          persister.closeSession(true);
-         return toRemove;
+
+         return result;
       }
       catch (Exception e)
       {
@@ -234,23 +270,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    @Override
    protected ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException
    {
-      try
-      {
-         ConsumerGroup group = getConsumerGroup(name);
-         if (group == null)
-         {
-            return super.internalRemoveConsumerGroup(name);
-         }
-         else
-         {
-            remove(group.getPersistentKey(), ConsumerGroupMapping.class);
-         }
-      }
-      catch (RegistrationException e)
-      {
-         throw new IllegalArgumentException("Couldn't remove ConsumerGroup '" + name + "'", e);
-      }
-
+      remove(name, ConsumerGroupMapping.class, ConsumerGroupSPI.class);
       return super.internalRemoveConsumerGroup(name);
    }
 

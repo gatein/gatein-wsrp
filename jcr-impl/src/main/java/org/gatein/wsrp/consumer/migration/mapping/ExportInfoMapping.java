@@ -140,4 +140,10 @@ public abstract class ExportInfoMapping implements BaseMapping<ExportInfo, Objec
 
       return new ExportInfo(getExportTime(), errorCodesToHandles, states, IOTools.safeGetBytes(getExportContext()));
    }
+
+   public Class<ExportInfo> getModelClass()
+   {
+      return ExportInfo.class;
+   }
+
 }
