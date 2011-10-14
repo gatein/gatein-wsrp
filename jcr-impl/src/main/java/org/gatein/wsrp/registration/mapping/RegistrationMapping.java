@@ -29,6 +29,7 @@ import org.chromattic.api.annotations.MappedBy;
 import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
+import org.chromattic.api.annotations.Path;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.common.io.IOTools;
@@ -86,6 +87,9 @@ public abstract class RegistrationMapping implements BaseMapping<RegistrationSPI
    @Create
    public abstract RegistrationPropertiesMapping createProperties();
 
+   @Path
+   public abstract String getPath();
+
    /**
     * At this point, this RegistrationMapping should already have been added to its parent
     *
@@ -126,12 +130,15 @@ public abstract class RegistrationMapping implements BaseMapping<RegistrationSPI
       Map<QName, Object> properties = registration.getProperties();
       if (ParameterValidation.existsAndIsNotEmpty(properties))
       {
+         // re-create properties all the time since a bug in Chromattic prevents us from properly re-initializing the properties
          RegistrationPropertiesMapping rpm = getProperties();
-         if (rpm == null)
+         if (rpm != null)
          {
-            rpm = createProperties();
-            setProperties(rpm);
+            setProperties(null);
          }
+         rpm = createProperties();
+         setProperties(rpm);
+
          rpm.initFrom(properties);
       }
    }

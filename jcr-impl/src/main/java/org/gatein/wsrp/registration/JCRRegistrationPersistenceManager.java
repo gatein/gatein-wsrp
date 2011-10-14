@@ -26,9 +26,10 @@ package org.gatein.wsrp.registration;
 import org.chromattic.api.ChromatticSession;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
+import org.gatein.registration.ConsumerGroup;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
-import org.gatein.registration.impl.RegistrationPersistenceManagerImpl;
+import org.gatein.registration.impl.AbstractRegistrationPersistenceManager;
 import org.gatein.registration.spi.ConsumerGroupSPI;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
@@ -47,6 +48,7 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +57,7 @@ import java.util.Map;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class JCRRegistrationPersistenceManager extends RegistrationPersistenceManagerImpl
+public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersistenceManager
 {
    private ChromatticPersister persister;
    private final String rootNodePath;
@@ -86,30 +88,12 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          if (mappings == null)
          {
-            mappings = session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
-         }
-         persister.save(); // needed right now as the session must still be open to iterate over nodes
-
-         for (ConsumerGroupMapping cgm : mappings.getConsumerGroups())
-         {
-            internalAddConsumerGroup(cgm.toModel(newConsumerGroupSPI(cgm.getName()), this));
-         }
-
-         for (ConsumerMapping cm : mappings.getConsumers())
-         {
-            ConsumerSPI consumer = cm.toModel(newConsumerSPI(cm.getId(), cm.getName()), this);
-            internalAddConsumer(consumer);
-
-            // get the registrations and add them to local map.
-            for (Registration registration : consumer.getRegistrations())
-            {
-               internalAddRegistration((RegistrationSPI)registration);
-            }
+            session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          }
       }
       finally
       {
-         persister.closeSession(false);
+         persister.closeSession(true);
       }
    }
 
@@ -119,11 +103,36 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
+   public void removeRegistration(String registrationId) throws RegistrationException
+   {
+      internalRemoveRegistration(registrationId);
+   }
+
    protected RegistrationSPI internalRemoveRegistration(String registrationId) throws RegistrationException
    {
-      remove(registrationId, RegistrationMapping.class, RegistrationSPI.class);
+      // can't use remove method as we get id directly instead of name
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "identifier", null);
 
-      return super.internalRemoveRegistration(registrationId);
+      final Registration reg = getRegistration(registrationId);
+      if (reg != null)
+      {
+         try
+         {
+            final ChromatticSession session = persister.getSession();
+            final RegistrationMapping mapping = session.findById(RegistrationMapping.class, registrationId);
+            session.remove(mapping);
+            persister.save();
+         }
+         finally
+         {
+            persister.closeSession(false);
+         }
+         return (RegistrationSPI)reg;
+      }
+      else
+      {
+         return null;
+      }
    }
 
    @Override
@@ -149,10 +158,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
+   protected void internalAddConsumer(ConsumerSPI consumer) throws RegistrationException
+   {
+      // nothing to do
+   }
+
+   @Override
    protected ConsumerSPI internalRemoveConsumer(String consumerId) throws RegistrationException
    {
-      remove(consumerId, ConsumerMapping.class, ConsumerSPI.class);
-      return super.internalRemoveConsumer(consumerId);
+      return remove(consumerId, ConsumerMapping.class, ConsumerSPI.class);
    }
 
    private <T extends BaseMapping, U> U remove(String name, Class<T> mappingClass, Class<U> modelClass)
@@ -160,35 +174,13 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       ChromatticSession session = persister.getSession();
       try
       {
-         String jcrType = (String)mappingClass.getField(BaseMapping.JCR_TYPE_NAME_CONSTANT_NAME).get(null);
-         String id;
-         final Query query = session.getJCRSession().getWorkspace().getQueryManager().createQuery("select jcr:uuid from " + jcrType + " where jcr:path = '/%/" + name + "'", Query.SQL);
-         final QueryResult queryResult = query.execute();
-         final RowIterator rows = queryResult.getRows();
-         final long size = rows.getSize();
-         if (size == 0)
+         T toRemove = getMapping(session, mappingClass, name);
+         if (toRemove == null)
          {
             return null;
          }
-         else
-         {
-            if (size != 1)
-            {
-               throw new IllegalArgumentException("There should be only one " + modelClass.getSimpleName() + " named " + name);
-            }
 
-            id = rows.nextRow().getValue("jcr:uuid").getString();
-
-         }
-
-         T toRemove = session.findById(mappingClass, id);
-         Class aClass = toRemove.getModelClass();
-         if (!modelClass.isAssignableFrom(aClass))
-         {
-            throw new IllegalArgumentException("Cannot convert a " + mappingClass.getSimpleName() + " to a " + modelClass.getSimpleName());
-         }
-
-         final U result = modelClass.cast(toRemove.toModel(null, this));
+         final U result = getModelFrom(toRemove, mappingClass, modelClass);
 
          session.remove(toRemove);
          persister.closeSession(true);
@@ -200,6 +192,42 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
          persister.closeSession(false);
          throw new RuntimeException(e);
       }
+   }
+
+   private <T extends BaseMapping, U> U getModelFrom(T mapping, Class<T> mappingClass, Class<U> modelClass)
+   {
+      Class aClass = mapping.getModelClass();
+      if (!modelClass.isAssignableFrom(aClass))
+      {
+         throw new IllegalArgumentException("Cannot convert a " + mappingClass.getSimpleName() + " to a " + modelClass.getSimpleName());
+      }
+
+      return modelClass.cast(mapping.toModel(null, this));
+   }
+
+   private <T extends BaseMapping> T getMapping(ChromatticSession session, Class<T> mappingClass, String name) throws RepositoryException, NoSuchFieldException, IllegalAccessException
+   {
+      String jcrType = (String)mappingClass.getField(BaseMapping.JCR_TYPE_NAME_CONSTANT_NAME).get(null);
+      String id;
+      final Query query = session.getJCRSession().getWorkspace().getQueryManager().createQuery("select jcr:uuid from " + jcrType + " where jcr:path = '/%/" + name + "'", Query.SQL);
+      final QueryResult queryResult = query.execute();
+      final RowIterator rows = queryResult.getRows();
+      final long size = rows.getSize();
+      if (size == 0)
+      {
+         return null;
+      }
+      else
+      {
+         if (size != 1)
+         {
+            throw new IllegalArgumentException("There should be only one " + mappingClass.getSimpleName() + " named " + name);
+         }
+
+         id = rows.nextRow().getValue("jcr:uuid").getString();
+      }
+
+      return session.findById(mappingClass, id);
    }
 
    @Override
@@ -229,7 +257,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    @Override
    protected ConsumerSPI internalSaveChangesTo(Consumer consumer) throws RegistrationException
    {
-      ConsumerSPI consumerSPI = super.internalSaveChangesTo(consumer);
+      ConsumerSPI consumerSPI = (ConsumerSPI)consumer;
 
       ChromatticSession session = persister.getSession();
       try
@@ -249,7 +277,7 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
 
    protected RegistrationSPI internalSaveChangesTo(Registration registration) throws RegistrationException
    {
-      RegistrationSPI registrationSPI = super.internalSaveChangesTo(registration);
+      RegistrationSPI registrationSPI = (RegistrationSPI)registration;
 
       ChromatticSession session = persister.getSession();
       try
@@ -268,10 +296,15 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
+   protected void internalAddConsumerGroup(ConsumerGroupSPI group) throws RegistrationException
+   {
+      // nothing to do
+   }
+
+   @Override
    protected ConsumerGroupSPI internalRemoveConsumerGroup(String name) throws RegistrationException
    {
-      remove(name, ConsumerGroupMapping.class, ConsumerGroupSPI.class);
-      return super.internalRemoveConsumerGroup(name);
+      return remove(name, ConsumerGroupMapping.class, ConsumerGroupSPI.class);
    }
 
    @Override
@@ -299,6 +332,160 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
    }
 
    @Override
+   protected ConsumerSPI getConsumerSPIById(String consumerId) throws RegistrationException
+   {
+      return getModel(consumerId, ConsumerSPI.class, ConsumerMapping.class);
+   }
+
+   private <T, B extends BaseMapping> T getModel(String id, Class<T> modelClass, Class<B> mappingClass) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "identifier", null);
+
+      final ChromatticSession session = persister.getSession();
+
+      try
+      {
+         return getModel(id, modelClass, mappingClass, session);
+      }
+      catch (Exception e)
+      {
+         throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   private <T, B extends BaseMapping> T getModel(String id, Class<T> modelClass, Class<B> mappingClass, ChromatticSession session) throws RegistrationException
+   {
+      try
+      {
+         final B mapping = getMapping(session, mappingClass, id);
+         if (mapping == null)
+         {
+            return null;
+         }
+         else
+         {
+            return getModelFrom(mapping, mappingClass, modelClass);
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RegistrationException(e);
+      }
+   }
+
+   public ConsumerGroup getConsumerGroup(String name) throws RegistrationException
+   {
+      return getModel(name, ConsumerGroup.class, ConsumerGroupMapping.class);
+   }
+
+   public Consumer getConsumerById(String consumerId) throws IllegalArgumentException, RegistrationException
+   {
+      return getConsumerSPIById(consumerId);
+   }
+
+   public Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException
+   {
+      final ChromatticSession session = persister.getSession();
+
+      try
+      {
+         ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+         final List<ConsumerGroupMapping> groupMappings = mappings.getConsumerGroups();
+         List<ConsumerGroup> groups = new ArrayList<ConsumerGroup>(groupMappings.size());
+         for (ConsumerGroupMapping cgm : groupMappings)
+         {
+            groups.add(cgm.toModel(newConsumerGroupSPI(cgm.getName()), this));
+         }
+         return groups;
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   public Registration getRegistration(String registrationId) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "identifier", null);
+
+      final ChromatticSession session = persister.getSession();
+
+      try
+      {
+         final RegistrationMapping mapping = session.findById(RegistrationMapping.class, registrationId);
+         if (mapping == null)
+         {
+            return null;
+         }
+         else
+         {
+            // extract parent consumer and get the registration from it
+            final String path = mapping.getPath();
+            final String[] elements = path.split("/");
+            final String consumerId = elements[elements.length - 2]; // consumer id is previous before last
+
+            final Consumer consumer = getModel(consumerId, Consumer.class, ConsumerMapping.class, session);
+
+            if (consumer != null)
+            {
+               for (Registration registration : consumer.getRegistrations())
+               {
+                  if (registration.getPersistentKey().equals(registrationId))
+                  {
+                     return registration;
+                  }
+               }
+            }
+
+            return null;
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   public Collection<? extends Consumer> getConsumers() throws RegistrationException
+   {
+      final ChromatticSession session = persister.getSession();
+
+      try
+      {
+         ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+         final List<ConsumerMapping> consumerMappings = mappings.getConsumers();
+         List<Consumer> consumers = new ArrayList<Consumer>(consumerMappings.size());
+         for (ConsumerMapping consumerMapping : consumerMappings)
+         {
+            consumers.add(consumerMapping.toModel(newConsumerSPI(consumerMapping.getId(), consumerMapping.getName()), this));
+         }
+         return consumers;
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   public Collection<? extends Registration> getRegistrations() throws RegistrationException
+   {
+      final Collection<? extends Consumer> consumers = getConsumers();
+      List<Registration> registrations = new ArrayList<Registration>(consumers.size() * 2);
+      for (Consumer consumer : consumers)
+      {
+         registrations.addAll(consumer.getRegistrations());
+      }
+      return registrations;
+   }
+
    public boolean isConsumerExisting(String consumerId) throws RegistrationException
    {
       return exists(consumerId);
@@ -321,9 +508,14 @@ public class JCRRegistrationPersistenceManager extends RegistrationPersistenceMa
       }
    }
 
-   @Override
    public boolean isConsumerGroupExisting(String consumerGroupId) throws RegistrationException
    {
       return exists(consumerGroupId);
+   }
+
+   @Override
+   protected void internalAddRegistration(RegistrationSPI registration) throws RegistrationException
+   {
+      // nothing to do
    }
 }

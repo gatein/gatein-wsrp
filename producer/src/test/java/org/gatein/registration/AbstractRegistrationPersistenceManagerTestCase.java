@@ -46,14 +46,6 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
 
    public abstract RegistrationPersistenceManager getManager() throws Exception;
 
-   public void startInteraction()
-   {
-   }
-
-   public void stopInteraction()
-   {
-   }
-
    public void setUp() throws Exception
    {
       registrationProperties = new HashMap<QName, Object>();
@@ -68,7 +60,6 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
 
    public void testGetGroupThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().getConsumerGroup(null);
@@ -77,12 +68,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testCreateConsumer() throws Exception
    {
-      startInteraction();
       Consumer consumer = getManager().createConsumer("BarId", "BarName");
       assertTrue(getManager().isConsumerExisting("BarId"));
       assertFalse(getManager().isConsumerExisting("BarName"));
@@ -95,12 +84,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertNull(consumer.getConsumerAgent());
       assertNotNull(consumer.getCapabilities());
       assertEquals(RegistrationStatus.PENDING, consumer.getStatus());
-      stopInteraction();
    }
 
    public void testCreateConsumerThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().createConsumer(null, "foo");
@@ -118,12 +105,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testCreateDuplicatedConsumer() throws Exception
    {
-      startInteraction();
       getManager().createConsumer("id", "name");
       assertTrue(getManager().isConsumerExisting("id"));
       assertFalse(getManager().isConsumerExisting("name"));
@@ -140,24 +125,20 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       getManager().createConsumer("different id", "name");
       assertTrue(getManager().isConsumerExisting("different id"));
 
-      stopInteraction();
    }
 
    public void testCreateGroup() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       assertNotNull(group);
       assertNotNull(group.getPersistentKey());
       assertEquals("Foo", group.getName());
       assertTrue(group.getConsumers().isEmpty());
       assertEquals(RegistrationStatus.PENDING, group.getStatus());
-      stopInteraction();
    }
 
    public void testCreateGroupThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().createConsumerGroup(null);
@@ -166,26 +147,20 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testAddGroup() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       assertNotNull(group);
-      stopInteraction();
 
       // Test by retrieving the same consumer
-      startInteraction();
       group = getManager().getConsumerGroup("Foo");
       assertNotNull(group);
       assertEquals("Foo", group.getName());
       assertEquals(Collections.EMPTY_LIST, new ArrayList(group.getConsumers()));
-      stopInteraction();
 
       // Test by retrieving the consumer list
-      startInteraction();
       Collection groups = getManager().getConsumerGroups();
       assertNotNull(groups);
       assertEquals(1, groups.size());
@@ -193,12 +168,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertNotNull(group);
       assertEquals("Foo", group.getName());
       assertEquals(Collections.EMPTY_LIST, new ArrayList(group.getConsumers()));
-      stopInteraction();
    }
 
    public void testAddDuplicateGroup() throws Exception
    {
-      startInteraction();
       getManager().createConsumerGroup("Foo");
       try
       {
@@ -208,12 +181,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (DuplicateRegistrationException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testAddGroupThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().createConsumerGroup(null);
@@ -222,25 +193,19 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       {
          assertEquals(Collections.EMPTY_SET, new HashSet(getManager().getConsumerGroups()));
       }
-      stopInteraction();
    }
 
    public void testRemoveGroup() throws Exception
    {
-      startInteraction();
       getManager().createConsumerGroup("Foo");
-      stopInteraction();
 
-      startInteraction();
       getManager().removeConsumerGroup("Foo");
       assertNull(getManager().getConsumerGroup("Foo"));
       assertEquals(Collections.EMPTY_SET, new HashSet(getManager().getConsumerGroups()));
-      stopInteraction();
    }
 
    public void testRemoveGroupThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().removeConsumerGroup(null);
@@ -248,12 +213,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testRemoveNonExistingGroup() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().removeConsumerGroup("Foo");
@@ -261,12 +224,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (NoSuchRegistrationException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testGetConsumerThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          ConsumerGroup group = getManager().createConsumerGroup("Foo");
@@ -276,32 +237,24 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testAddConsumer() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
-      stopInteraction();
 
-      startInteraction();
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
       assertEquals("Foo", consumer.getGroup().getName());
-      stopInteraction();
 
       // Test by retrieving the same consumer
-      startInteraction();
       consumer = group.getConsumer("Bar");
       assertNotNull(consumer);
       assertEquals("Bar", consumer.getName());
       assertEquals(Collections.EMPTY_LIST, new ArrayList(consumer.getRegistrations()));
       assertEquals("Foo", consumer.getGroup().getName());
-      stopInteraction();
 
       // Test by retrieving the consumer list
-      startInteraction();
       Collection consumers = group.getConsumers();
       assertNotNull(consumers);
       assertEquals(1, consumers.size());
@@ -310,18 +263,14 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertEquals("Bar", consumer.getName());
       assertEquals(Collections.EMPTY_LIST, new ArrayList(consumer.getRegistrations()));
       assertEquals("Foo", consumer.getGroup().getName());
-      stopInteraction();
    }
 
    public void testAddDuplicateConsumer() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
-      stopInteraction();
 
-      startInteraction();
       try
       {
          group.addConsumer(consumer);
@@ -330,12 +279,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testAddConsumerThrowsIAE() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       try
       {
@@ -345,24 +292,20 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       {
          assertEquals(Collections.EMPTY_SET, new HashSet(group.getConsumers()));
       }
-      stopInteraction();
    }
 
    public void testRemoveConsumer() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
       group.removeConsumer(consumer);
       assertNull(group.getConsumer("Bar"));
       assertEquals(Collections.EMPTY_SET, new HashSet(group.getConsumers()));
-      stopInteraction();
    }
 
    public void testRemoveConsumerThrowsIAE() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       try
       {
@@ -371,18 +314,14 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testAddRegistration() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
-      stopInteraction();
 
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
       Registration reg1 = getManager().addRegistrationFor("Bar", registrationProperties);
       assertNotNull(reg1);
@@ -393,10 +332,8 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       expectedProps.put(new QName("prop1"), "value1");
       expectedProps.put(new QName("prop2"), "value2");
       assertEquals(expectedProps, reg1.getProperties());
-      stopInteraction();
 
       // Retrieve it from the list of consumer registrations
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
       Collection registrations = consumer.getRegistrations();
       assertNotNull(registrations);
@@ -405,22 +342,18 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertEquals(regId, reg3.getPersistentKey());
       assertEquals(consumer, reg3.getConsumer());
       assertEquals(expectedProps, reg3.getProperties());
-      stopInteraction();
 
       // Retrieve the same registration from the registry
-      startInteraction();
       Registration reg2 = getManager().getRegistration(regId);
       consumer = getManager().getConsumerById("Bar");
       assertNotNull(reg2);
       assertEquals(regId, reg2.getPersistentKey());
       assertEquals(consumer, reg2.getConsumer());
       assertEquals(expectedProps, reg2.getProperties());
-      stopInteraction();
    }
 
    public void testAddRegistrationThrowsIAE() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
@@ -433,12 +366,10 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testRemoveRegistrationThrowsIAE() throws Exception
    {
-      startInteraction();
       try
       {
          getManager().removeRegistration(null);
@@ -447,69 +378,59 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       catch (IllegalArgumentException expected)
       {
       }
-      stopInteraction();
    }
 
    public void testRemoveRegistration() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
       Registration reg = getManager().addRegistrationFor("Bar", registrationProperties);
       String regId = reg.getPersistentKey();
       getManager().removeRegistration(regId);
-      stopInteraction();
 
       // remove registration is the only method on RegistrationPersistenceManager that needs to "cascade"
       // this is needed because there is no remove method on Consumer, hence the manager needs to remove the
       // registration from its consumer since it's the only class that has access to the specific consumer impl
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
       Collection registrations = consumer.getRegistrations();
       assertNotNull(registrations);
       assertEquals(0, registrations.size());
-      stopInteraction();
 
       //
-      startInteraction();
       assertEquals(null, getManager().getRegistration(regId));
-      stopInteraction();
    }
 
    public void testBulkUpdateRegistrationProperties() throws Exception
    {
-      startInteraction();
       ConsumerGroup group = getManager().createConsumerGroup("Foo");
       Consumer consumer = getManager().createConsumer("Bar", "Bar");
       group.addConsumer(consumer);
       getManager().addRegistrationFor("Bar", registrationProperties);
-      stopInteraction();
 
       //
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
-      Registration reg = (Registration)consumer.getRegistrations().iterator().next();
+      Registration reg = consumer.getRegistrations().iterator().next();
       registrationProperties.remove(new QName("prop1"));
       reg.updateProperties(registrationProperties);
       assertEquals(Collections.singletonMap(new QName("prop2"), "value2"), reg.getProperties());
-      stopInteraction();
+
+      getManager().saveChangesTo(reg); // need to save for changes to be persisted
+      final Registration registration = getManager().getRegistration(reg.getPersistentKey());
+      assertEquals(reg.getProperties(), registration.getProperties());
 
       //
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
-      reg = (Registration)consumer.getRegistrations().iterator().next();
+      reg = consumer.getRegistrations().iterator().next();
       assertEquals(Collections.singletonMap(new QName("prop2"), "value2"), reg.getProperties());
       registrationProperties.put(new QName("prop3"), "value3");
       reg.updateProperties(registrationProperties);
       assertEquals(MapBuilder.hashMap().put(new QName("prop2"), "value2").put(new QName("prop3"), "value3").get(), reg.getProperties());
-      stopInteraction();
+      getManager().saveChangesTo(reg); // need to save for changes to be persisted
 
       //
-      startInteraction();
       consumer = getManager().getConsumerById("Bar");
-      reg = (Registration)consumer.getRegistrations().iterator().next();
+      reg = consumer.getRegistrations().iterator().next();
       assertEquals(MapBuilder.hashMap().put(new QName("prop2"), "value2").put(new QName("prop3"), "value3").get(), reg.getProperties());
-      stopInteraction();
    }
 }

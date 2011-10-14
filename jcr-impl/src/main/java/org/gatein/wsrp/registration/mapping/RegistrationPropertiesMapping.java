@@ -68,6 +68,7 @@ public abstract class RegistrationPropertiesMapping
       if (properties != null)
       {
          Map<String, String> map = getProperties();
+         // map.clear(); // we should be clearing here but Chromattic's PropertyMap doesn't clear.
 
          for (Map.Entry<QName, Object> entry : properties.entrySet())
          {
