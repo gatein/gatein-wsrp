@@ -150,7 +150,7 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(1, registry.getConfiguredConsumerNumber());
    }
 
-   public void testStoppingShouldntStartConsumers() throws Exception
+   public void testStoppingShouldNotStartConsumers() throws Exception
    {
       // fake marking consumer as active in persistence
       ProducerInfo info = Mockito.mock(ProducerInfo.class);
@@ -159,9 +159,14 @@ public class ConsumerRegistryTestCase extends TestCase
       Mockito.stub(info.getKey()).toReturn("fooKey");
       EndpointConfigurationInfo endpoint = Mockito.mock(EndpointConfigurationInfo.class);
       Mockito.stub(info.getEndpointConfigurationInfo()).toReturn(endpoint);
+      registry.save(info, "Couldn't save ProducerInfo");
+
+      WSRPConsumer original = registry.createConsumerFrom(info);
+
+      // since consumer is supposed to be active, the registry will attempt to start it:
+      assertEquals(original, registry.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
 
       // create a consumer to spy from
-      WSRPConsumer original = registry.createConsumerFrom(info);
       WSRPConsumer consumer = Mockito.spy(original);
 
       // force re-init of registry from "persistence" to ensure that the spy registry actually uses our spy consumer
@@ -173,14 +178,10 @@ public class ConsumerRegistryTestCase extends TestCase
       assertTrue(foo.getProducerInfo().isActive());
       assertEquals(consumer, foo);
 
-      // start consumer and check that it's properly added to the FederatingPortletInvoker
-      registrySpy.activateConsumer(foo);
-      assertEquals(consumer, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
-
-      // stop the consumer and then the registry and check that consumer.start has only been called once
+      // stop the consumer and then the registry and check that consumer.start hasn't been called
       consumer.stop();
       registrySpy.stop();
-      Mockito.verify(consumer, Mockito.times(1)).start();
+      Mockito.verify(consumer, Mockito.times(0)).start();
 
       // check that consumer is not known by the FederatingPortletInvoker anymore
       assertEquals(null, registrySpy.getFederatingPortletInvoker().getFederatedInvoker("foo"));

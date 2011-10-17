@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -88,7 +88,7 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
    }
 
    @Override
-   public void testStoppingShouldntStartConsumers() throws Exception
+   public void testStoppingShouldNotStartConsumers() throws Exception
    {
       // override to bypass this test as I couldn't find a way to make it work properly (i.e. how to inject a Mock
       // into the registry to check that start is only called once)

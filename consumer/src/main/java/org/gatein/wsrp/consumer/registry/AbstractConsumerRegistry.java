@@ -200,11 +200,23 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       // make sure we set the registry after loading from DB since registry is not persisted.
 //      producerInfo.setRegistry(this);
 
-      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo);
+      final WSRPConsumerImpl consumer = createAndActivateIfNeeded(producerInfo);
 
       // cache consumer
       consumers.putConsumer(producerInfo.getId(), consumer);
 
+      return consumer;
+   }
+
+   private WSRPConsumerImpl createAndActivateIfNeeded(ProducerInfo producerInfo)
+   {
+      final WSRPConsumerImpl consumer = new WSRPConsumerImpl(producerInfo);
+
+      // try to activate consumer if it's marked as active and isn't yet
+      if (producerInfo.isActive() && !consumer.isActive())
+      {
+         activateConsumer(consumer);
+      }
       return consumer;
    }
 
@@ -505,7 +517,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          while (infosFromStorage.hasNext())
          {
             ProducerInfo info = infosFromStorage.next();
-            consumers.put(info.getId(), createConsumerFrom(info));
+            consumers.put(info.getId(), createAndActivateIfNeeded(info));
          }
          lastModified = System.currentTimeMillis();
          setInvalidated(false);
@@ -528,7 +540,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
             ProducerInfo info = loadProducerInfo(id);
             if (info != null)
             {
-               consumer = createConsumerFrom(info);
+               consumer = createAndActivateIfNeeded(info);
             }
          }
          return consumer;
@@ -584,7 +596,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
                   {
                      info = loadProducerInfo(id);
                   }
-                  consumers.put(id, createConsumerFrom(info));
+                  consumers.put(id, createAndActivateIfNeeded(info));
                }
             }
 

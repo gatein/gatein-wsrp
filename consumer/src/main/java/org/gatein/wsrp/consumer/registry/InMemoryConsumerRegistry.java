@@ -81,6 +81,7 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    {
       // generate a UUID for ProducerInfo
       info.setKey(UUID.randomUUID().toString());
+      keysToIds.put(info.getKey(), info.getId());
    }
 
    public void delete(ProducerInfo info)
