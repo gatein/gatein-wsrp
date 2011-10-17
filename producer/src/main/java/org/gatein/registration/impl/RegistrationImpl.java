@@ -75,6 +75,34 @@ public class RegistrationImpl implements RegistrationSPI
       this.key = key;
    }
 
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (o == null || getClass() != o.getClass())
+      {
+         return false;
+      }
+
+      RegistrationImpl that = (RegistrationImpl)o;
+
+      if (!key.equals(that.key))
+      {
+         return false;
+      }
+
+      return true;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return key.hashCode();
+   }
+
    public void setRegistrationHandle(String handle)
    {
       this.registrationHandle = handle;
