@@ -62,6 +62,7 @@ public class RegistrationManagerImpl implements RegistrationManager
    private RegistrationPolicy policy;
    private RegistrationPersistenceManager persistenceManager;
    private AtomicReference<CopyOnWriteArrayList<RegistrationDestructionListener>> listeners = new AtomicReference<CopyOnWriteArrayList<RegistrationDestructionListener>>();
+   public static final String NON_REGISTERED_CONSUMER = "NONREGISTERED";
 
    public RegistrationManagerImpl()
    {
@@ -256,18 +257,16 @@ public class RegistrationManagerImpl implements RegistrationManager
    {
       //TODO: this might be better to place somewhere else and use the RegistrationHandler.register instead of
       // doing basically the same thing below.
-      String NonRegisteredConsumer = "NONREGISTERED";
-      Consumer unregConsumer = getConsumerByIdentity(NonRegisteredConsumer);
+      Consumer unregConsumer = getConsumerByIdentity(NON_REGISTERED_CONSUMER);
       if (unregConsumer == null)
       {
-         unregConsumer = createConsumer(NonRegisteredConsumer);
-         Registration registration = addRegistrationTo(NonRegisteredConsumer, new HashMap<QName, Object>(), null, false);
+         unregConsumer = createConsumer(NON_REGISTERED_CONSUMER);
+         Registration registration = addRegistrationTo(NON_REGISTERED_CONSUMER, new HashMap<QName, Object>(), null, false);
          registration.setStatus(RegistrationStatus.VALID);
          getPersistenceManager().saveChangesTo(unregConsumer);
       }
       //The unregistered consumer should only ever have one registration, return that
-      Registration registration = unregConsumer.getRegistrations().iterator().next();
-      return registration;
+      return unregConsumer.getRegistrations().iterator().next();
    }
 
    public void removeRegistration(String registrationHandle) throws RegistrationException, NoSuchRegistrationException
