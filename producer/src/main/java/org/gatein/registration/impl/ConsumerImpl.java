@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -35,8 +35,8 @@ import org.gatein.registration.spi.RegistrationSPI;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -49,15 +49,16 @@ public class ConsumerImpl implements ConsumerSPI
    private String name;
    private String identity;
    private String consumerAgent;
-   private Set<Registration> registrations;
+   private Map<String, Registration> registrations;
    private ConsumerGroup group;
-   private ConsumerCapabilities capabilities;
+   private ConsumerCapabilities capabilities = new ConsumerCapabilitiesImpl();
    private String key;
 
 
    private ConsumerImpl()
    {
       init();
+      throw new RuntimeException("default constructor");
    }
 
    ConsumerImpl(String identity, String name)
@@ -72,7 +73,7 @@ public class ConsumerImpl implements ConsumerSPI
 
    private void init()
    {
-      registrations = new HashSet<Registration>(7);
+      registrations = new HashMap<String, Registration>(7);
       capabilities = new ConsumerCapabilitiesImpl();
    }
 
@@ -143,7 +144,7 @@ public class ConsumerImpl implements ConsumerSPI
       if (ParameterValidation.existsAndIsNotEmpty(registrations))
       {
          RegistrationStatus result = RegistrationStatus.VALID;
-         for (Registration registration : registrations)
+         for (Registration registration : registrations.values())
          {
             RegistrationStatus status = registration.getStatus();
 
@@ -165,7 +166,14 @@ public class ConsumerImpl implements ConsumerSPI
 
    public Collection<Registration> getRegistrations() throws RegistrationException
    {
-      return Collections.unmodifiableSet(registrations);
+      return Collections.unmodifiableCollection(registrations.values());
+   }
+
+   public Registration getRegistration(String id) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "Registration identifier", null);
+
+      return registrations.get(id);
    }
 
    public ConsumerGroup getGroup()
@@ -177,7 +185,7 @@ public class ConsumerImpl implements ConsumerSPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
-      registrations.add(registration);
+      registrations.put(registration.getPersistentKey(), registration);
    }
 
    public void setPersistentKey(String key)
@@ -189,7 +197,7 @@ public class ConsumerImpl implements ConsumerSPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(registration, "Registration");
 
-      registrations.remove(registration);
+      registrations.remove(registration.getPersistentKey());
    }
 
    public void setGroup(ConsumerGroup group) throws RegistrationException
