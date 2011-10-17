@@ -328,6 +328,12 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       String regId = reg1.getPersistentKey();
       assertNotNull(regId);
       assertEquals(consumer, reg1.getConsumer());
+
+      // contrary to intuition, consumer should not know about reg1 if there is a persistence layer
+      // but if we retrieve it from persistence, it should now know it
+      consumer = getManager().getConsumerById("Bar");
+      assertEquals(reg1, consumer.getRegistration(regId));
+
       Map expectedProps = new HashMap();
       expectedProps.put(new QName("prop1"), "value1");
       expectedProps.put(new QName("prop2"), "value2");
@@ -339,6 +345,7 @@ public abstract class AbstractRegistrationPersistenceManagerTestCase extends Tes
       assertNotNull(registrations);
       assertEquals(1, registrations.size());
       Registration reg3 = (Registration)registrations.iterator().next();
+      assertEquals(reg1, reg3);
       assertEquals(regId, reg3.getPersistentKey());
       assertEquals(consumer, reg3.getConsumer());
       assertEquals(expectedProps, reg3.getProperties());
