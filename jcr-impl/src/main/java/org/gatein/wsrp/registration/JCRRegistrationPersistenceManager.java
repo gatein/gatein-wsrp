@@ -423,25 +423,8 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
          }
          else
          {
-            // extract parent consumer and get the registration from it
-            final String path = mapping.getPath();
-            final String[] elements = path.split("/");
-            final String consumerId = elements[elements.length - 2]; // consumer id is previous before last
-
-            final Consumer consumer = getModel(consumerId, Consumer.class, ConsumerMapping.class, session);
-
-            if (consumer != null)
-            {
-               for (Registration registration : consumer.getRegistrations())
-               {
-                  if (registration.getPersistentKey().equals(registrationId))
-                  {
-                     return registration;
-                  }
-               }
-            }
-
-            return null;
+            final ConsumerMapping parent = mapping.getParent();
+            return parent.toModel(null, this).getRegistration(registrationId);
          }
       }
       catch (Exception e)

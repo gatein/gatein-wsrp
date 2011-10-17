@@ -25,6 +25,7 @@ package org.gatein.wsrp.registration.mapping;
 
 import org.chromattic.api.annotations.Create;
 import org.chromattic.api.annotations.Id;
+import org.chromattic.api.annotations.ManyToOne;
 import org.chromattic.api.annotations.MappedBy;
 import org.chromattic.api.annotations.OneToMany;
 import org.chromattic.api.annotations.OneToOne;
@@ -89,6 +90,9 @@ public abstract class RegistrationMapping implements BaseMapping<RegistrationSPI
 
    @Path
    public abstract String getPath();
+
+   @ManyToOne
+   public abstract ConsumerMapping getParent();
 
    /**
     * At this point, this RegistrationMapping should already have been added to its parent
