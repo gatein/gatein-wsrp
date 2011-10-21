@@ -36,7 +36,7 @@
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
-   <version>2.1.0-Beta08</version>
+   <version>2.1.0-EPP520-Beta08</version>
 
    <packaging>pom</packaging>
 
