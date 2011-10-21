@@ -236,7 +236,28 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          persister.closeSession(false);
       }
+   }
 
+   @Override
+   public long getPersistedLastModifiedForProducerInfoWith(String id)
+   {
+      try
+      {
+         ChromatticSession session = persister.getSession();
+         ProducerInfoMapping pim = getProducerInfoMapping(id, session);
+         if (pim != null)
+         {
+            return pim.getLastModified();
+         }
+         else
+         {
+            throw new IllegalArgumentException("There is no ProducerInfo with id '" + id + "'");
+         }
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    private ProducerInfoMapping getProducerInfoMapping(String id, ChromatticSession session)

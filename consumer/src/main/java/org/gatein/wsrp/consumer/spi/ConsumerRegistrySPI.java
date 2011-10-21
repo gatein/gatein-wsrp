@@ -74,4 +74,6 @@ public interface ConsumerRegistrySPI extends ConsumerRegistry
    void registerWithFederatingPortletInvoker(WSRPConsumer consumer);
 
    void deregisterWithFederatingPortletInvoker(WSRPConsumer consumer);
+
+   long getPersistedLastModifiedForProducerInfoWith(String id);
 }

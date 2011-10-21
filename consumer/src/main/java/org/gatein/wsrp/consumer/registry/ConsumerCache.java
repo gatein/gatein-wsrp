@@ -47,4 +47,6 @@ public interface ConsumerCache
    long getLastModified();
 
    void initFromStorage();
+
+   void markAsModifiedNow();
 }

@@ -234,4 +234,9 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
    {
       consumers.remove(consumer.getProducerId());
    }
+
+   public long getPersistedLastModifiedForProducerInfoWith(String id)
+   {
+      return System.currentTimeMillis();
+   }
 }

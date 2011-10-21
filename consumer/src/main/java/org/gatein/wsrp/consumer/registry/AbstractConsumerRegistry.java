@@ -252,6 +252,11 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       startOrStopConsumer(consumer, false, true);
    }
 
+   public long getPersistedLastModifiedForProducerInfoWith(String id)
+   {
+      return loadProducerInfo(id).getLastModified();
+   }
+
    public synchronized String updateProducerInfo(ProducerInfo producerInfo)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
@@ -274,6 +279,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          consumers.removeConsumer(oldId);
          consumers.putConsumer(producerInfo.getId(), consumer);
       }
+
+      consumers.markAsModifiedNow();
 
       return oldId;
    }
@@ -519,8 +526,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
             ProducerInfo info = infosFromStorage.next();
             consumers.put(info.getId(), createAndActivateIfNeeded(info));
          }
-         lastModified = System.currentTimeMillis();
+         markAsModifiedNow();
          setInvalidated(false);
+      }
+
+      public void markAsModifiedNow()
+      {
+         lastModified = System.currentTimeMillis();
       }
 
       public Collection<WSRPConsumer> getConsumers()
@@ -534,8 +546,8 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          // try cache first
          WSRPConsumer consumer = consumers.get(id);
 
-         // if we didn't find the consumer in cache, try to load it from JCR
-         if (consumer == null)
+         // if consumer is not in cache or has been modified after the cache was last updated, load it from JCR
+         if (consumer == null || lastModified < getPersistedLastModifiedForProducerInfoWith(id))
          {
             ProducerInfo info = loadProducerInfo(id);
             if (info != null)
@@ -548,21 +560,21 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
       public WSRPConsumer removeConsumer(String id)
       {
-         lastModified = System.currentTimeMillis();
+         markAsModifiedNow();
          return consumers.remove(id);
       }
 
       public void putConsumer(String id, WSRPConsumer consumer)
       {
          consumers.put(id, consumer);
-         lastModified = System.currentTimeMillis();
+         markAsModifiedNow();
       }
 
       public void clear()
       {
          consumers.clear();
          invalidated = true;
-         lastModified = System.currentTimeMillis();
+         markAsModifiedNow();
       }
 
       public boolean isInvalidated()
@@ -600,7 +612,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
                }
             }
 
-            lastModified = System.currentTimeMillis();
+            markAsModifiedNow();
             setInvalidated(false);
          }
 
