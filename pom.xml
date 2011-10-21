@@ -27,6 +27,13 @@
    <modelVersion>4.0.0</modelVersion>
 
    <name>GateIn WSRP</name>
+   <description>WSRP v1 and v2 implementation for GateIn.</description>
+   <url>http://www.jboss.org/gatein/</url>
+   <inceptionYear>2006</inceptionYear>
+   <issueManagement>
+      <system>jira</system>
+      <url>https://issues.jboss.org/browse/GTNWSRP</url>
+   </issueManagement>
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
@@ -47,9 +54,9 @@
    </scm>
 
    <properties>
-      <org.gatein.pc.version>2.3.0-Beta06</org.gatein.pc.version>
+      <org.gatein.pc.version>2.3.0-Beta08</org.gatein.pc.version>
       <org.gatein.common.version>2.0.4-GA</org.gatein.common.version>
-      <org.gatein.wci.version>2.1.0-Beta06</org.gatein.wci.version>
+      <org.gatein.wci.version>2.1.0-GA</org.gatein.wci.version>
 
       <jsf.version>1.2_12</jsf.version>
       <javax.xml.ws.version>2.1</javax.xml.ws.version>
@@ -59,13 +66,45 @@
       <org.mockito.version>1.8.5</org.mockito.version>
    </properties>
 
+   <organization>
+      <name>GateIn</name>
+      <url>http://www.gatein.org</url>
+   </organization>
+
+   <licenses>
+      <license>
+         <name>LGPL, version 2.1</name>
+         <url>http://www.opensource.org/licenses/lgpl-license.php</url>
+      </license>
+   </licenses>
+
+   <developers>
+      <developer>
+         <id>chris.laprun</id>
+         <name>Christophe Laprun</name>
+         <email>claprun@redhat.com</email>
+         <roles>
+            <role>Lead</role>
+         </roles>
+      </developer>
+      <developer>
+         <id>matt.wringe</id>
+         <name>Matt Wringe</name>
+         <email>mwringe@redhat.com</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+   </developers>
+
+
    <dependencyManagement>
       <dependencies>
          <!-- Import dependency management configuration -->
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.1.0-Beta06</version>
+            <version>1.1.0-GA</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
