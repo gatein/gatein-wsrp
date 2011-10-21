@@ -148,6 +148,14 @@ public abstract class AbstractRegistrationPersistenceManager implements Registra
             + "' to add a Registration to...");
       }
 
+      return addRegistrationFor(consumer, registrationProperties);
+   }
+
+   public RegistrationSPI addRegistrationFor(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "Consumer");
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationProperties, "Registration properties");
+
       RegistrationSPI registration = internalCreateRegistration(consumer, registrationProperties);
       consumer.addRegistration(registration);
 

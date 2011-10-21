@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -29,22 +29,39 @@ package org.gatein.registration;
  */
 public class DuplicateRegistrationException extends RegistrationException
 {
+   private final Registration registration;
+
    public DuplicateRegistrationException()
    {
+      registration = null;
    }
 
    public DuplicateRegistrationException(String message)
    {
       super(message);
+      registration = null;
    }
 
    public DuplicateRegistrationException(String message, Throwable cause)
    {
       super(message, cause);
+      registration = null;
    }
 
    public DuplicateRegistrationException(Throwable cause)
    {
       super(cause);
+      registration = null;
+   }
+
+   public DuplicateRegistrationException(String message, Throwable cause, Registration registration)
+   {
+      super(message, cause);
+      this.registration = registration;
+   }
+
+   public Registration getExistingRegistration()
+   {
+      return registration;
    }
 }

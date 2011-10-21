@@ -23,6 +23,7 @@
 
 package org.gatein.registration;
 
+import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 
 import javax.xml.namespace.QName;
@@ -93,6 +94,8 @@ public interface RegistrationPersistenceManager
    Consumer getConsumerById(String consumerId) throws IllegalArgumentException, RegistrationException;
 
    RegistrationSPI addRegistrationFor(String consumerId, Map<QName, Object> registrationProperties) throws RegistrationException;
+
+   RegistrationSPI addRegistrationFor(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException;
 
    Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException;
 

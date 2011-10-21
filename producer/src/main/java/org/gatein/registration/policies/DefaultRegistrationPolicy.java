@@ -170,7 +170,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
             if (registration.hasEqualProperties(registrationProperties))
             {
                throw new DuplicateRegistrationException("Consumer named '" + consumer.getName()
-                  + "' has already been registered with the same set of registration properties. Registration rejected!");
+                  + "' has already been registered with the same set of registration properties. Registration rejected!", null, registration);
             }
          }
       }

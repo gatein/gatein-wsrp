@@ -26,6 +26,7 @@ package org.gatein.registration.impl;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerGroup;
+import org.gatein.registration.DuplicateRegistrationException;
 import org.gatein.registration.InvalidConsumerDataException;
 import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.Registration;
@@ -35,6 +36,7 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.registration.RegistrationPersistenceManager;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationStatus;
+import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.slf4j.Logger;
@@ -115,12 +117,31 @@ public class RegistrationManagerImpl implements RegistrationManager
       String identity = policy.getConsumerIdFrom(consumerName, registrationProperties);
 
       // validate the registration information
-      policy.validateRegistrationDataFor(registrationProperties, identity, expectations, this);
+      try
+      {
+         policy.validateRegistrationDataFor(registrationProperties, identity, expectations, this);
+      }
+      catch (DuplicateRegistrationException e)
+      {
+         log.info("Consumer '" + consumerName + "' was already registered with the same set of registration properties.");
+
+         // check if the policy set the existing registration to be returned
+         final Registration existingRegistration = e.getExistingRegistration();
+         if (existingRegistration != null)
+         {
+            return existingRegistration;
+         }
+         else
+         {
+            // if we didn't get a registration to return, just throw the exception
+            throw e;
+         }
+      }
 
       Consumer consumer = getOrCreateConsumer(identity, createConsumerIfNeeded, consumerName);
 
       // create the actual registration
-      RegistrationSPI registration = persistenceManager.addRegistrationFor(identity, registrationProperties);
+      RegistrationSPI registration = persistenceManager.addRegistrationFor((ConsumerSPI)consumer, registrationProperties);
 
       // let the policy decide what the handle should be
       String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
