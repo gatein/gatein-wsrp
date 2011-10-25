@@ -557,14 +557,26 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       }
    }
 
-   protected class WSDLInfo
+   protected static class WSDLInfo
    {
       private final QName wsrp2ServiceQName;
       private final QName wsrp1ServiceQName;
+      private final static WSDLFactory wsdlFactory;
+
+      static
+      {
+         try
+         {
+            wsdlFactory = WSDLFactory.newInstance();
+         }
+         catch (WSDLException e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
 
       public WSDLInfo(String wsdlURL) throws WSDLException
       {
-         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
          WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
 
          wsdlReader.setFeature("javax.wsdl.verbose", false);
