@@ -40,6 +40,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -149,7 +150,14 @@ public class ProducerBean extends ManagedBean implements Serializable
 
    public List<RegistrationPropertyDescription> getRegistrationProperties()
    {
-      return getLocalConfiguration().getRegistrationProperties();
+      ArrayList<RegistrationPropertyDescription> propertyDescriptions = new ArrayList<RegistrationPropertyDescription>(getLocalConfiguration().getRegistrationProperties().values());
+      Collections.sort(propertyDescriptions);
+      return propertyDescriptions;
+   }
+
+   public boolean isRegistrationPropertiesEmpty()
+   {
+      return getLocalConfiguration().getRegistrationProperties().isEmpty();
    }
 
    public List<SelectItem> getSupportedPropertyTypes()
@@ -177,7 +185,7 @@ public class ProducerBean extends ManagedBean implements Serializable
 
          registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
 
-         registrationRequirements.setRegistrationProperties(localConfiguration.getRegistrationRequirements().getRegistrationProperties());
+         registrationRequirements.setRegistrationProperties(localConfiguration.getRegistrationProperties());
 
          currentlyPersistedConfiguration.setUsingStrictMode(localConfiguration.isUsingStrictMode());
 
@@ -349,9 +357,9 @@ public class ProducerBean extends ManagedBean implements Serializable
          return registrationRequirements.getPolicy();
       }
 
-      public List<RegistrationPropertyDescription> getRegistrationProperties()
+      public Map<QName, RegistrationPropertyDescription> getRegistrationProperties()
       {
-         return registrationProperties;
+         return registrationRequirements.getRegistrationProperties();
       }
 
       public void addEmptyRegistrationProperty(String propertyName)

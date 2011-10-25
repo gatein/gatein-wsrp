@@ -42,11 +42,11 @@
          <h:panelGrid columns="2" width="100%">
             <h:selectBooleanCheckbox id="cons-reg-req-check"
                                      value="#{producer.registrationRequiredForFullDescription}"
-                                     immediate="true"
+                                     immediate="true" onclick="this.form.submit()"
                                      valueChangeListener="#{producer.requireRegistrationForFullDescListener}"/>
             <h:outputText value="#{i18n.producer_config_sd_requires_reg}"/>
             <h:selectBooleanCheckbox id="strict-mode-check" value="#{producer.strictMode}"
-                                     immediate="true"
+                                     immediate="true" onclick="this.form.submit()"
                                      valueChangeListener="#{producer.strictModeListener}"/>
             <h:outputText value="#{i18n.producer_config_strict}"/>
 
@@ -104,7 +104,7 @@
                </webui:blueHeaderBar>
 
 
-               <f:subview rendered="#{!empty producer.registrationProperties}" id="reg-props">
+               <f:subview rendered="#{!producer.registrationPropertiesEmpty}" id="reg-props">
                   <h:dataTable id="reg-properties" value="#{producer.registrationProperties}" var="property"
                                rendered="#{producer.registrationRequired}"
                                rowClasses="EvenRow,OddRow"
@@ -137,7 +137,7 @@
                   </h:dataTable>
                </f:subview>
 
-               <f:subview rendered="#{empty producer.registrationProperties}" id="reg-props-none">
+               <f:subview rendered="#{producer.registrationPropertiesEmpty}" id="reg-props-none">
                   <h:outputText value="#{i18n.producer_config_no_reg_props}"/>
                </f:subview>
 
