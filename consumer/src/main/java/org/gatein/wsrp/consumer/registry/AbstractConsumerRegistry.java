@@ -272,7 +272,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          if (federatingPortletInvoker.isResolved(oldId))
          {
             federatingPortletInvoker.unregisterInvoker(oldId);
-            federatingPortletInvoker.registerInvoker(producerInfo.getId(), consumer);
          }
 
          // update cache
