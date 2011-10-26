@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -428,7 +428,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          {
             Version version = parent.getEndpointConfigurationInfo().getWSRPVersion();
             String versionInfo = version != null ? " WSRP v" + version.getMajor() + " version" : " unknown WSRP version";
-            setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
+            setConsumerName(parent.getId() + " " + WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
          }
 
          // get a service description if we don't already have one
