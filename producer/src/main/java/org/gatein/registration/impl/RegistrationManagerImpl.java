@@ -26,7 +26,6 @@ package org.gatein.registration.impl;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.Consumer;
 import org.gatein.registration.ConsumerGroup;
-import org.gatein.registration.DuplicateRegistrationException;
 import org.gatein.registration.InvalidConsumerDataException;
 import org.gatein.registration.NoSuchRegistrationException;
 import org.gatein.registration.Registration;
@@ -117,7 +116,10 @@ public class RegistrationManagerImpl implements RegistrationManager
       String identity = policy.getConsumerIdFrom(consumerName, registrationProperties);
 
       // validate the registration information
-      try
+      policy.validateRegistrationDataFor(registrationProperties, identity, expectations, this);
+
+      // todo: GTNWSRP-251, GTNWSRP-253: implemented but requires changing the consumer names to work properly
+      /*try
       {
          policy.validateRegistrationDataFor(registrationProperties, identity, expectations, this);
       }
@@ -136,7 +138,7 @@ public class RegistrationManagerImpl implements RegistrationManager
             // if we didn't get a registration to return, just throw the exception
             throw e;
          }
-      }
+      }*/
 
       Consumer consumer = getOrCreateConsumer(identity, createConsumerIfNeeded, consumerName);
 

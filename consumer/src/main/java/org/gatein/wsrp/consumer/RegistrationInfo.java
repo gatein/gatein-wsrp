@@ -428,7 +428,10 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          {
             Version version = parent.getEndpointConfigurationInfo().getWSRPVersion();
             String versionInfo = version != null ? " WSRP v" + version.getMajor() + " version" : " unknown WSRP version";
-            setConsumerName(parent.getId() + " " + WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
+            setConsumerName(WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
+
+            // todo: GTNWSRP-251, GTNWSRP-253: implemented but requires adding consumer identity to consumer name to work properly
+            // setConsumerName(parent.getId() + " " + WSRPConstants.DEFAULT_CONSUMER_NAME + versionInfo);
          }
 
          // get a service description if we don't already have one
