@@ -266,19 +266,20 @@ public class WSRPPortletURLTestCase extends TestCase
       checkInvalidURL(invalid, message, "foo");
    }
 
-   public void testDoublyEncodedAmpersand()
-   {
-      String expected = "wsrp_rewrite?wsrp-urlType=render&amp;amp;wsrp-mode=wsrp:help&amp;amp;wsrp-windowState=wsrp:maximized/wsrp_rewrite";
-      try
-      {
-         WSRPPortletURL.create(expected);
-         fail("Should have thrown an exception on doubly encoded &!");
-      }
-      catch (Exception e)
-      {
-         // expected
-      }
-   }
+//   Disable this test for now as we handle the doubly encoded ampersand.
+//   public void testDoublyEncodedAmpersand()
+//   {
+//      String expected = "wsrp_rewrite?wsrp-urlType=render&amp;amp;wsrp-mode=wsrp:help&amp;amp;wsrp-windowState=wsrp:maximized/wsrp_rewrite";
+//      try
+//      {
+//         WSRPPortletURL.create(expected);
+//         fail("Should have thrown an exception on doubly encoded &!");
+//      }
+//      catch (Exception e)
+//      {
+//         // expected
+//      }
+//   }
 
    /** Relax validation and test that we now accept normally invalid URLs. */
    public void testExtraParametersRelaxedValidation()

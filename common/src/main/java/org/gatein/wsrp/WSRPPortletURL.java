@@ -215,10 +215,16 @@ public abstract class WSRPPortletURL implements ContainerURL
       }
 
       // standardize parameter separators
-      if (encodedURL.contains(AMP_AMP))
-      {
-         throw new IllegalArgumentException(encodedURL + " contains a doubly encoded &!");
-      }
+      
+      //NOTE: this is an error here, we should not be getting AMP_AMP, but if makes more sense for
+      //      now to handle the situation right now than to throw an error.
+      //      If we reneable this check, make sure to uncomment testDoublyEncodedAmpersand in WSRPPortletURLTestCase
+      //if (encodedURL.contains(AMP_AMP))
+      //{
+      //	throw new IllegalArgumentException(encodedURL + " contains a doubly encoded &!");
+      //}
+      
+      encodedURL = TextTools.replace(encodedURL, AMP_AMP, PARAM_SEPARATOR);
       encodedURL = TextTools.replace(encodedURL, ENCODED_AMPERSAND, PARAM_SEPARATOR);
       encodedURL = TextTools.replace(encodedURL, AMPERSAND, PARAM_SEPARATOR);
 
