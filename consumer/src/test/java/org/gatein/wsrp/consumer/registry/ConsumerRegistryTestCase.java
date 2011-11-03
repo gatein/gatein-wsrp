@@ -137,9 +137,14 @@ public class ConsumerRegistryTestCase extends TestCase
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       ProducerInfo info = consumer.getProducerInfo();
 
+      // update unchanged ProducerInfo should return null
+      String previousId = registry.updateProducerInfo(info);
+      assertNull(previousId);
+
       // change the id on the consumer's producer info and save it
       info.setId("bar");
-      registry.updateProducerInfo(info);
+      previousId = registry.updateProducerInfo(info);
+      assertEquals("foo", previousId);
 
       assertNull(registry.getConsumer(id));
       assertFalse(registry.containsConsumer(id));
@@ -161,7 +166,7 @@ public class ConsumerRegistryTestCase extends TestCase
       Mockito.stub(info.getEndpointConfigurationInfo()).toReturn(endpoint);
       registry.save(info, "Couldn't save ProducerInfo");
 
-      WSRPConsumer original = registry.createConsumerFrom(info);
+      WSRPConsumer original = registry.createConsumerFrom(info, true);
 
       // since consumer is supposed to be active, the registry will attempt to start it:
       assertEquals(original, registry.getFederatingPortletInvoker().getFederatedInvoker("foo").getPortletInvoker());
@@ -201,5 +206,40 @@ public class ConsumerRegistryTestCase extends TestCase
       assertEquals(2, registry.getConfiguredConsumersIds().size());
       assertEquals(consumer1, registry.getConsumer(consumer1.getProducerId()));
       assertEquals(consumer2, registry.getConsumer(consumer2.getProducerId()));
+   }
+
+   public void testCacheSimple()
+   {
+      WSRPConsumer consumer1 = registry.createConsumer("consumer1", null, null);
+
+      assertTrue(registry.containsConsumer(consumer1.getProducerId()));
+
+      assertEquals(consumer1, registry.consumerCache.getConsumer(consumer1.getProducerId()));
+
+      final ProducerInfo info = consumer1.getProducerInfo();
+      info.setId("foo");
+
+      registry.updateProducerInfo(info);
+
+      assertEquals(consumer1, registry.getConsumer("foo"));
+
+      registry.destroyConsumer("foo");
+      assertFalse(registry.containsConsumer("foo"));
+   }
+
+   public void testCacheModifyingProducerInfo()
+   {
+      WSRPConsumer consumer1 = registry.createConsumer("consumer1", null, null);
+
+      assertTrue(registry.containsConsumer(consumer1.getProducerId()));
+
+      final ProducerInfo info = consumer1.getProducerInfo();
+      info.setId("foo");
+
+      // use lower-level method to simulate change from persistence layer
+      registry.update(info);
+
+      // retrieving the consumer with its new id should work
+      assertEquals(consumer1, registry.getConsumer("foo"));
    }
 }

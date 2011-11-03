@@ -31,6 +31,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.naming.InitialContext;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -134,15 +135,14 @@ public class HibernateConsumerRegistry extends AbstractConsumerRegistry
       super.stop();
    }
 
-   @Override
-   protected ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified)
+   public Collection<String> getConfiguredConsumersIds()
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   protected boolean producerInfosGotModifiedSince(long lastModified)
+   protected void initConsumerCache()
    {
-      throw new UnsupportedOperationException();
+      setConsumerCache(new InMemoryConsumerCache(this));
    }
 }

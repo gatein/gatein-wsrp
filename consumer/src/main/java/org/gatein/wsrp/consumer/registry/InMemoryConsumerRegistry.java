@@ -29,6 +29,7 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.migration.InMemoryMigrationService;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,9 +54,15 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    }
 
    @Override
-   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   protected void initConsumerCache()
    {
-      WSRPConsumer consumer = super.createConsumerFrom(producerInfo);
+      setConsumerCache(new InMemoryConsumerCache(this));
+   }
+
+   @Override
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo, boolean putInCache)
+   {
+      WSRPConsumer consumer = super.createConsumerFrom(producerInfo, putInCache);
 
       String id = consumer.getProducerId();
       consumers.put(id, consumer);
@@ -98,12 +105,16 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    {
       String key = producerInfo.getKey();
       String oldId = keysToIds.get(key);
-      if (oldId.equals(producerInfo.getId()))
+      String newId = producerInfo.getId();
+      if (oldId.equals(newId))
       {
          return null;
       }
       else
       {
+         keysToIds.put(key, newId);
+         WSRPConsumer consumer = consumers.get(oldId);
+         consumers.put(newId, consumer);
          return oldId;
       }
    }
@@ -141,16 +152,9 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       keysToIds = null;
    }
 
-   @Override
-   protected ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified)
+   public Collection<String> getConfiguredConsumersIds()
    {
-      return null;
-   }
-
-   @Override
-   protected boolean producerInfosGotModifiedSince(long lastModified)
-   {
-      return false;
+      return consumers.keySet();
    }
 
    protected void initConsumers(SortedMap<String, WSRPConsumer> consumers)
@@ -162,5 +166,9 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
       this.consumers = consumers;
       int size = consumers.size();
       keysToIds = size == 0 ? new HashMap<String, String>() : new HashMap<String, String>(size);
+      for (WSRPConsumer consumer : consumers.values())
+      {
+         keysToIds.put(consumer.getProducerInfo().getKey(), consumer.getProducerId());
+      }
    }
 }

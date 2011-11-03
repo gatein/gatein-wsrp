@@ -220,7 +220,7 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
       return consumers.size();
    }
 
-   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo, boolean putInCache)
    {
       throw new UnsupportedOperationException();
    }

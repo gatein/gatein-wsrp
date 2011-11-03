@@ -39,12 +39,13 @@ import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -66,15 +67,22 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
-   protected ConsumerCache consumers = new InMemoryConsumerCache();
+   protected ConsumerCache consumerCache;
+
+   protected AbstractConsumerRegistry()
+   {
+      initConsumerCache();
+   }
+
+   protected abstract void initConsumerCache();
 
    public synchronized void setConsumerCache(ConsumerCache consumers)
    {
       if (consumers == null)
       {
-         consumers = new InMemoryConsumerCache();
+         consumers = new InMemoryConsumerCache(this);
       }
-      this.consumers = consumers;
+      this.consumerCache = consumers;
    }
 
    public synchronized void setSessionRegistry(SessionRegistry sessionRegistry)
@@ -137,7 +145,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       save(info, "Couldn't create Consumer '" + id + "'");
 
       log.debug(CONSUMER_WITH_ID + id + "' created");
-      return createConsumerFrom(info);
+      return createConsumerFrom(info, true);
    }
 
    public void destroyConsumer(String id)
@@ -169,7 +177,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          delete(info);
 
          // remove from cache
-         consumers.removeConsumer(id);
+         consumerCache.removeConsumer(id);
       }
       else
       {
@@ -187,7 +195,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
       save(info, CONSUMER_WITH_ID + info.getId() + "' couldn't be persisted!");
 
-      createConsumerFrom(info);
+      createConsumerFrom(info, true);
    }
 
    public synchronized void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
@@ -195,7 +203,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       this.federatingPortletInvoker = federatingPortletInvoker;
    }
 
-   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo)
+   public WSRPConsumer createConsumerFrom(ProducerInfo producerInfo, boolean putInCache)
    {
       // make sure we set the registry after loading from DB since registry is not persisted.
 //      producerInfo.setRegistry(this);
@@ -203,7 +211,10 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       final WSRPConsumerImpl consumer = createAndActivateIfNeeded(producerInfo);
 
       // cache consumer
-      consumers.putConsumer(producerInfo.getId(), consumer);
+      if (putInCache)
+      {
+         consumerCache.putConsumer(producerInfo.getId(), consumer);
+      }
 
       return consumer;
    }
@@ -254,7 +265,15 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    public long getPersistedLastModifiedForProducerInfoWith(String id)
    {
-      return loadProducerInfo(id).getLastModified();
+      ProducerInfo producerInfo = loadProducerInfo(id);
+      if (producerInfo == null)
+      {
+         return Long.MAX_VALUE;
+      }
+      else
+      {
+         return producerInfo.getLastModified();
+      }
    }
 
    public synchronized String updateProducerInfo(ProducerInfo producerInfo)
@@ -266,7 +285,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       // if we updated and oldId is not null, we need to update the local information
       if (oldId != null)
       {
-         WSRPConsumer consumer = createConsumerFrom(producerInfo);
+         WSRPConsumer consumer = createConsumerFrom(producerInfo, true);
 
          // update the federating portlet invoker if needed
          if (federatingPortletInvoker.isResolved(oldId))
@@ -275,11 +294,9 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          }
 
          // update cache
-         consumers.removeConsumer(oldId);
-         consumers.putConsumer(producerInfo.getId(), consumer);
+         consumerCache.removeConsumer(oldId);
+         consumerCache.putConsumer(producerInfo.getId(), consumer);
       }
-
-      consumers.markAsModifiedNow();
 
       return oldId;
    }
@@ -291,7 +308,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    public void reloadConsumers()
    {
-      consumers.initFromStorage();
+      consumerCache.initFromStorage();
    }
 
    public void stop() throws Exception
@@ -327,50 +344,12 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "consumer id", null);
 
-      return consumers.getConsumer(id);
+      return consumerCache.getConsumer(id);
    }
 
    public boolean containsConsumer(String id)
    {
       return getConsumer(id) != null;
-   }
-
-   public Collection<String> getConfiguredConsumersIds()
-   {
-      return new AbstractCollection<String>()
-      {
-         final private List<WSRPConsumer> consumers = getConsumers(false);
-
-         @Override
-         public Iterator<String> iterator()
-         {
-            return new Iterator<String>()
-            {
-               private Iterator<WSRPConsumer> consumerIterator = consumers.iterator();
-
-               public boolean hasNext()
-               {
-                  return consumerIterator.hasNext();
-               }
-
-               public String next()
-               {
-                  return consumerIterator.next().getProducerId();
-               }
-
-               public void remove()
-               {
-                  throw new UnsupportedOperationException();
-               }
-            };
-         }
-
-         @Override
-         public int size()
-         {
-            return consumers.size();
-         }
-      };
    }
 
    public int getConfiguredConsumerNumber()
@@ -420,7 +399,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          {
             if (!registerOrDeregisterOnly)
             {
-               consumer.activate();
+               consumer.refresh(false);
             }
 
             if (!federatingPortletInvoker.isResolved(id))
@@ -461,10 +440,11 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    protected List<WSRPConsumer> getConsumers(boolean startConsumers)
    {
-      final Collection<WSRPConsumer> consumerz = consumers.getConsumers();
-      for (WSRPConsumer consumer : consumerz)
+      final Collection<WSRPConsumer> consumerz = consumerCache.getConsumers();
+
+      if (startConsumers)
       {
-         if (startConsumers)
+         for (WSRPConsumer consumer : consumerz)
          {
             final ProducerInfo info = consumer.getProducerInfo();
             if (info.isActive() && !consumer.isActive())
@@ -510,28 +490,33 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       }
    }
 
-   protected class InMemoryConsumerCache implements ConsumerCache
+   protected static class InMemoryConsumerCache implements ConsumerCache
    {
+
       private Map<String, WSRPConsumer> consumers = new ConcurrentHashMap<String, WSRPConsumer>(11);
       private boolean invalidated;
-      private long lastModified;
+      private ConsumerRegistrySPI registry;
+
+      public InMemoryConsumerCache(ConsumerRegistrySPI registry)
+      {
+         this.registry = registry;
+      }
 
       public void initFromStorage()
       {
          clear();
-         Iterator<ProducerInfo> infosFromStorage = getProducerInfosFromStorage();
+         Iterator<ProducerInfo> infosFromStorage = registry.getProducerInfosFromStorage();
          while (infosFromStorage.hasNext())
          {
             ProducerInfo info = infosFromStorage.next();
-            consumers.put(info.getId(), createAndActivateIfNeeded(info));
+            consumers.put(info.getId(), createConsumer(info));
          }
-         markAsModifiedNow();
          setInvalidated(false);
       }
 
-      public void markAsModifiedNow()
+      private WSRPConsumer createConsumer(ProducerInfo info)
       {
-         lastModified = System.currentTimeMillis();
+         return registry.createConsumerFrom(info, false);
       }
 
       public Collection<WSRPConsumer> getConsumers()
@@ -545,35 +530,46 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          // try cache first
          WSRPConsumer consumer = consumers.get(id);
 
-         // if consumer is not in cache or has been modified after the cache was last updated, load it from JCR
-         if (consumer == null || lastModified < getPersistedLastModifiedForProducerInfoWith(id))
+         return getUpdatedConsumer(id, consumer);
+      }
+
+      private WSRPConsumer getUpdatedConsumer(String id, WSRPConsumer consumer)
+      {
+         if (consumer == null || consumer.getProducerInfo().getLastModified() < registry.getPersistedLastModifiedForProducerInfoWith(id))
          {
-            ProducerInfo info = loadProducerInfo(id);
+            // if consumer is not in cache or was modified in persistence, (re-)load it from persistence
+            ProducerInfo info = registry.loadProducerInfo(id);
             if (info != null)
             {
-               consumer = createAndActivateIfNeeded(info);
+               consumer = createConsumer(info);
+               consumers.put(id, consumer);
+               return consumer;
+            }
+            else
+            {
+               return null;
             }
          }
-         return consumer;
+         else
+         {
+            return consumer;
+         }
       }
 
       public WSRPConsumer removeConsumer(String id)
       {
-         markAsModifiedNow();
          return consumers.remove(id);
       }
 
       public void putConsumer(String id, WSRPConsumer consumer)
       {
          consumers.put(id, consumer);
-         markAsModifiedNow();
       }
 
       public void clear()
       {
          consumers.clear();
          invalidated = true;
-         markAsModifiedNow();
       }
 
       public boolean isInvalidated()
@@ -586,39 +582,38 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          this.invalidated = invalidated;
       }
 
-      public long getLastModified()
-      {
-         return lastModified;
-      }
-
       protected void refreshIfNeeded()
       {
-         AbstractConsumerRegistry registry = AbstractConsumerRegistry.this;
-         // check if we need to refresh the local cache
-         if (isInvalidated() || registry.producerInfosGotModifiedSince(lastModified))
+         if (isInvalidated())
          {
-            for (String id : registry.getConfiguredConsumersIds())
-            {
-               // only recreate the consumer if it's not in the cache or it's been modified after we've been last modified
-               ProducerInfo info = registry.getUpdatedProducerInfoIfModifiedSinceOrNull(id, lastModified);
-               if (consumers.get(id) == null)
-               {
-                  if (info == null)
-                  {
-                     info = loadProducerInfo(id);
-                  }
-                  consumers.put(id, createAndActivateIfNeeded(info));
-               }
-            }
-
-            markAsModifiedNow();
-            setInvalidated(false);
+            consumers.clear();
          }
 
+         // first remove all obsolete Consumers in cache
+         Collection<String> consumersIds = registry.getConfiguredConsumersIds();
+         Set<String> obsoleteConsumers = new HashSet<String>(consumers.keySet());
+         obsoleteConsumers.removeAll(consumersIds);
+         for (String obsolete : obsoleteConsumers)
+         {
+            consumers.remove(obsolete);
+         }
+
+         // then check, for each consumer, if it has been modified since we last checked
+         for (String id : consumersIds)
+         {
+            WSRPConsumer consumerInfo = consumers.get(id);
+            if (consumerInfo != null)
+            {
+               getUpdatedConsumer(id, consumerInfo);
+            }
+            else
+            {
+               ProducerInfo producerInfo = registry.loadProducerInfo(id);
+               consumers.put(id, createConsumer(producerInfo));
+            }
+         }
+
+         setInvalidated(false);
       }
    }
-
-   protected abstract ProducerInfo getUpdatedProducerInfoIfModifiedSinceOrNull(String id, long lastModified);
-
-   protected abstract boolean producerInfosGotModifiedSince(long lastModified);
 }

@@ -24,7 +24,6 @@ package org.gatein.wsrp.consumer.registry.xml;
 
 import org.gatein.common.xml.NullEntityResolver;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.registry.InMemoryConsumerRegistry;
 import org.jboss.xb.binding.JBossXBException;
 import org.jboss.xb.binding.ObjectModelFactory;
@@ -100,20 +99,5 @@ public class XMLConsumerRegistry extends InMemoryConsumerRegistry
       {
          throw new RuntimeException("Couldn't unmarshall WSRP Consumers configuration", e);
       }
-   }
-
-   public void save(ProducerInfo info, String messageOnError)
-   {
-      // do nothing
-   }
-
-   public void delete(ProducerInfo info)
-   {
-      // do nothing
-   }
-
-   public String update(ProducerInfo producerInfo)
-   {
-      return null;
    }
 }

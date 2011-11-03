@@ -44,9 +44,5 @@ public interface ConsumerCache
 
    void setInvalidated(boolean invalidated);
 
-   long getLastModified();
-
    void initFromStorage();
-
-   void markAsModifiedNow();
 }
