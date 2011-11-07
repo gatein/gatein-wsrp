@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,30 +119,33 @@ public class ProducerInfo
    // Transient information
 
    /** The Cookie handling policy required by the Producer */
-   private CookieProtocol requiresInitCookie;
+   private transient CookieProtocol requiresInitCookie;
 
    /** The Producer-Offered Portlets (handle -> WSRPPortlet) */
-   private Map<String, Portlet> popsMap;
+   private transient Map<String, Portlet> popsMap;
 
    /** A cache for Consumer-Configured Portlets (handle -> WSRPPortlet) */
-   private Map<String, Portlet> ccpsMap;
+   private transient Map<String, Portlet> ccpsMap;
 
    /** Portlet groups. */
-   private Map<String, Set<Portlet>> portletGroups;
+   private transient Map<String, Set<Portlet>> portletGroups;
 
    /** Time at which the cache expires */
-   private long expirationTimeMillis;
+   private transient long expirationTimeMillis;
 
-   private final ConsumerRegistrySPI registry;
+   private transient final ConsumerRegistrySPI registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
 
    private transient RegistrationInfo expectedRegistrationInfo;
 
-   private Map<String, ItemDescription> customModes;
-   private Map<String, ItemDescription> customWindowStates;
+   private transient Map<String, ItemDescription> customModes;
+   private transient Map<String, ItemDescription> customWindowStates;
 
    /** Events */
-   private Map<QName, EventInfo> eventDescriptions;
+   private transient Map<QName, EventInfo> eventDescriptions;
+
+   /** Supported options */
+   private transient List<String> supportedOptions = Collections.emptyList();
 
    /*protected org.oasis.wsrp.v1.ItemDescription[] userCategoryDescriptions;
    protected org.oasis.wsrp.v1.ItemDescription[] customUserProfileItemDescriptions;   
@@ -502,6 +506,13 @@ public class ProducerInfo
       // do we need to call initCookie or not?
       requiresInitCookie = serviceDescription.getRequiresInitCookie();
       log.debug("Requires initCookie: " + requiresInitCookie);
+
+      // supported options
+      final List<String> supportedOptions = serviceDescription.getSupportedOptions();
+      if (ParameterValidation.existsAndIsNotEmpty(supportedOptions))
+      {
+         this.supportedOptions = new ArrayList<String>(supportedOptions);
+      }
 
       // custom mode descriptions
       customModes = toMap(serviceDescription.getCustomModeDescriptions());
@@ -1294,5 +1305,10 @@ public class ProducerInfo
    public void setLastModified(long lastModified)
    {
       this.lastModified = lastModified;
+   }
+
+   public List<String> getSupportedOptions()
+   {
+      return supportedOptions;
    }
 }

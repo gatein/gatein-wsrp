@@ -64,6 +64,7 @@ import org.gatein.wsrp.services.PortletManagementService;
 import org.gatein.wsrp.services.RegistrationService;
 import org.gatein.wsrp.services.ServiceDescriptionService;
 import org.gatein.wsrp.servlet.UserAccess;
+import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.oasis.wsrp.v2.ExportedPortlet;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.FailedPortlets;
@@ -527,9 +528,10 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       return supportedUserScopes.contains(userScope);
    }
 
-   public boolean isSupportsExport()
+   public boolean isImportExportSupported()
    {
-      return isUsingWSRP2(); // todo: fix-me, using WSRP 2 doesn't necessarily equals supporting export...
+      final List<String> supportedOptions = producerInfo.getSupportedOptions();
+      return isUsingWSRP2() && supportedOptions.contains(WSRP2Constants.OPTIONS_IMPORT) && supportedOptions.contains(WSRP2Constants.OPTIONS_EXPORT);
    }
 
    // Registration *****************************************************************************************************
@@ -776,114 +778,120 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public ExportInfo exportPortlets(List<String> portletHandles) throws PortletInvokerException
    {
-      if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
+      if (isImportExportSupported())
       {
-
-         List<org.oasis.wsrp.v2.PortletContext> portletContexts = new ArrayList<org.oasis.wsrp.v2.PortletContext>(portletHandles.size());
-         for (String handle : portletHandles)
+         if (ParameterValidation.existsAndIsNotEmpty(portletHandles))
          {
-            portletContexts.add(WSRPTypeFactory.createPortletContext(handle));
-         }
-
-         try
-         {
-            Holder<byte[]> exportContextHolder = new Holder<byte[]>();
-            Holder<List<ExportedPortlet>> exportedPortletsHolder = new Holder<List<ExportedPortlet>>();
-            Holder<List<FailedPortlets>> failedPortletsHolder = new Holder<List<FailedPortlets>>();
-            Holder<Lifetime> lifetimeHolder = new Holder<Lifetime>();
-            getPortletManagementService().exportPortlets(getRegistrationContext(), portletContexts, UserAccess.getUserContext(),
-               lifetimeHolder, true, exportContextHolder, exportedPortletsHolder, failedPortletsHolder,
-               new Holder<ResourceList>(), new Holder<List<Extension>>());
-
-            SortedMap<String, byte[]> handleToState = null;
-            List<ExportedPortlet> exportedPortlets = exportedPortletsHolder.value;
-            if (ParameterValidation.existsAndIsNotEmpty(exportedPortlets))
+            List<org.oasis.wsrp.v2.PortletContext> portletContexts = new ArrayList<org.oasis.wsrp.v2.PortletContext>(portletHandles.size());
+            for (String handle : portletHandles)
             {
-               handleToState = new TreeMap<String, byte[]>();
-               for (ExportedPortlet exportedPortlet : exportedPortlets)
+               portletContexts.add(WSRPTypeFactory.createPortletContext(handle));
+            }
+
+            try
+            {
+               Holder<byte[]> exportContextHolder = new Holder<byte[]>();
+               Holder<List<ExportedPortlet>> exportedPortletsHolder = new Holder<List<ExportedPortlet>>();
+               Holder<List<FailedPortlets>> failedPortletsHolder = new Holder<List<FailedPortlets>>();
+               Holder<Lifetime> lifetimeHolder = new Holder<Lifetime>();
+               getPortletManagementService().exportPortlets(getRegistrationContext(), portletContexts, UserAccess.getUserContext(),
+                  lifetimeHolder, true, exportContextHolder, exportedPortletsHolder, failedPortletsHolder,
+                  new Holder<ResourceList>(), new Holder<List<Extension>>());
+
+               SortedMap<String, byte[]> handleToState = null;
+               List<ExportedPortlet> exportedPortlets = exportedPortletsHolder.value;
+               if (ParameterValidation.existsAndIsNotEmpty(exportedPortlets))
                {
-                  handleToState.put(exportedPortlet.getPortletHandle(), exportedPortlet.getExportData());
+                  handleToState = new TreeMap<String, byte[]>();
+                  for (ExportedPortlet exportedPortlet : exportedPortlets)
+                  {
+                     handleToState.put(exportedPortlet.getPortletHandle(), exportedPortlet.getExportData());
+                  }
                }
-            }
 
-            SortedMap<QName, List<String>> errorCodeToHandle = null;
-            List<FailedPortlets> failedPortlets = failedPortletsHolder.value;
-            if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
-            {
-               errorCodeToHandle = new TreeMap<QName, List<String>>();
-               for (FailedPortlets failedPortletsForReason : failedPortlets)
+               SortedMap<QName, List<String>> errorCodeToHandle = null;
+               List<FailedPortlets> failedPortlets = failedPortletsHolder.value;
+               if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
                {
-                  errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getPortletHandles());
+                  errorCodeToHandle = new TreeMap<QName, List<String>>();
+                  for (FailedPortlets failedPortletsForReason : failedPortlets)
+                  {
+                     errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getPortletHandles());
+                  }
                }
-            }
 
-            // todo: deal with expiration time
-            Lifetime lifetime = lifetimeHolder.value;
-            if (lifetime != null)
+               // todo: deal with expiration time
+               Lifetime lifetime = lifetimeHolder.value;
+               if (lifetime != null)
+               {
+                  XMLGregorianCalendar currentTime = lifetime.getCurrentTime();
+                  Duration refreshDuration = lifetime.getRefreshDuration();
+                  XMLGregorianCalendar terminationTime = lifetime.getTerminationTime();
+               }
+
+               ExportInfo exportInfo = new ExportInfo(System.currentTimeMillis(), errorCodeToHandle, handleToState, exportContextHolder.value);
+               getConsumerRegistry().getMigrationService().add(exportInfo);
+               return exportInfo;
+            }
+            catch (OperationNotSupported operationNotSupported)
             {
-               XMLGregorianCalendar currentTime = lifetime.getCurrentTime();
-               Duration refreshDuration = lifetime.getRefreshDuration();
-               XMLGregorianCalendar terminationTime = lifetime.getTerminationTime();
+               throw new UnsupportedOperationException(operationNotSupported);
             }
-
-            ExportInfo exportInfo = new ExportInfo(System.currentTimeMillis(), errorCodeToHandle, handleToState, exportContextHolder.value);
-            getConsumerRegistry().getMigrationService().add(exportInfo);
-            return exportInfo;
+            catch (InconsistentParameters inconsistentParameters)
+            {
+               throw new IllegalArgumentException(inconsistentParameters);
+            }
+            /*
+            // GTNWSRP-62
+            catch (AccessDenied accessDenied)
+            {
+               accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ExportByValueNotSupported exportByValueNotSupported)
+            {
+               exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidHandle invalidHandle)
+            {
+               invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidRegistration invalidRegistration)
+            {
+               invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidUserCategory invalidUserCategory)
+            {
+               invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (MissingParameters missingParameters)
+            {
+               missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ModifyRegistrationRequired modifyRegistrationRequired)
+            {
+               modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (OperationFailed operationFailed)
+            {
+               operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ResourceSuspended resourceSuspended)
+            {
+               resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }*/
+            catch (Exception e)
+            {
+               throw new PortletInvokerException(e.getLocalizedMessage(), e);
+            }
          }
-         catch (OperationNotSupported operationNotSupported)
+         else
          {
-            throw new UnsupportedOperationException(operationNotSupported);
-         }
-         catch (InconsistentParameters inconsistentParameters)
-         {
-            throw new IllegalArgumentException(inconsistentParameters);
-         }
-         /*
-         // GTNWSRP-62
-         catch (AccessDenied accessDenied)
-         {
-            accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ExportByValueNotSupported exportByValueNotSupported)
-         {
-            exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidHandle invalidHandle)
-         {
-            invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidRegistration invalidRegistration)
-         {
-            invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidUserCategory invalidUserCategory)
-         {
-            invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (MissingParameters missingParameters)
-         {
-            missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ModifyRegistrationRequired modifyRegistrationRequired)
-         {
-            modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (OperationFailed operationFailed)
-         {
-            operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ResourceSuspended resourceSuspended)
-         {
-            resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }*/
-         catch (Exception e)
-         {
-            throw new PortletInvokerException(e.getLocalizedMessage(), e);
+            throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
          }
       }
       else
       {
-         throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
+         throw new UnsupportedOperationException("Producer " + producerInfo.getId() + " doesn't support import/export functionality.");
       }
    }
 
@@ -894,127 +902,134 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public void releaseExport(ExportInfo exportInfo) throws PortletInvokerException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to release");
+      if (isImportExportSupported())
+      {
+         ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to release");
 
-      getPortletManagementService().releaseExport(getRegistrationContext(), exportInfo.getExportContext(), UserAccess.getUserContext());
+         getPortletManagementService().releaseExport(getRegistrationContext(), exportInfo.getExportContext(), UserAccess.getUserContext());
+      }
+      else
+      {
+         throw new UnsupportedOperationException("Producer " + producerInfo.getId() + " doesn't support import/export functionality.");
+      }
    }
 
    public ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to import from");
-
-      if (ParameterValidation.existsAndIsNotEmpty(portlets))
+      if (isImportExportSupported())
       {
-         try
+         ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to import from");
+
+         if (ParameterValidation.existsAndIsNotEmpty(portlets))
          {
-            List<ImportPortlet> importPortlets = new ArrayList<ImportPortlet>(portlets.size());
-            for (String portlet : portlets)
+            try
             {
-               // todo: check semantics
-               importPortlets.add(WSRPTypeFactory.createImportPortlet(portlet, exportInfo.getPortletStateFor(portlet)));
-            }
-
-            Holder<List<ImportedPortlet>> importedPortletsHolder = new Holder<List<ImportedPortlet>>();
-            Holder<List<ImportPortletsFailed>> failedPortletsHolder = new Holder<List<ImportPortletsFailed>>();
-            Holder<ResourceList> resourceListHolder = new Holder<ResourceList>();
-            getPortletManagementService().importPortlets(getRegistrationContext(), exportInfo.getExportContext(),
-               importPortlets, UserAccess.getUserContext(), null, importedPortletsHolder, failedPortletsHolder,
-               resourceListHolder, new Holder<List<Extension>>());
-
-            List<ImportedPortlet> importedPortlets = importedPortletsHolder.value;
-            SortedMap<String, PortletContext> importIdToPortletContext = new TreeMap<String, PortletContext>();
-            if (ParameterValidation.existsAndIsNotEmpty(importedPortlets))
-            {
-               for (ImportedPortlet importedPortlet : importedPortlets)
+               List<ImportPortlet> importPortlets = new ArrayList<ImportPortlet>(portlets.size());
+               for (String portlet : portlets)
                {
-                  org.oasis.wsrp.v2.PortletContext portletContext = importedPortlet.getNewPortletContext();
-                  PortletContext apiPC = PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState(), false);
-                  // we need to reference the resulting PortletContext so that it can then be used properly
-                  importIdToPortletContext.put(importedPortlet.getImportID(), PortletContext.reference(getProducerId(), apiPC));
+                  // todo: check semantics
+                  importPortlets.add(WSRPTypeFactory.createImportPortlet(portlet, exportInfo.getPortletStateFor(portlet)));
                }
-            }
 
-            SortedMap<QName, List<String>> errorCodeToHandle = null;
-            List<ImportPortletsFailed> failedPortlets = failedPortletsHolder.value;
-            if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
-            {
-               errorCodeToHandle = new TreeMap<QName, List<String>>();
-               for (ImportPortletsFailed failedPortletsForReason : failedPortlets)
+               Holder<List<ImportedPortlet>> importedPortletsHolder = new Holder<List<ImportedPortlet>>();
+               Holder<List<ImportPortletsFailed>> failedPortletsHolder = new Holder<List<ImportPortletsFailed>>();
+               Holder<ResourceList> resourceListHolder = new Holder<ResourceList>();
+               getPortletManagementService().importPortlets(getRegistrationContext(), exportInfo.getExportContext(),
+                  importPortlets, UserAccess.getUserContext(), null, importedPortletsHolder, failedPortletsHolder,
+                  resourceListHolder, new Holder<List<Extension>>());
+
+               List<ImportedPortlet> importedPortlets = importedPortletsHolder.value;
+               SortedMap<String, PortletContext> importIdToPortletContext = new TreeMap<String, PortletContext>();
+               if (ParameterValidation.existsAndIsNotEmpty(importedPortlets))
                {
-                  errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getImportID());
+                  for (ImportedPortlet importedPortlet : importedPortlets)
+                  {
+                     org.oasis.wsrp.v2.PortletContext portletContext = importedPortlet.getNewPortletContext();
+                     PortletContext apiPC = PortletContext.createPortletContext(portletContext.getPortletHandle(), portletContext.getPortletState(), false);
+                     // we need to reference the resulting PortletContext so that it can then be used properly
+                     importIdToPortletContext.put(importedPortlet.getImportID(), PortletContext.reference(getProducerId(), apiPC));
+                  }
                }
-            }
 
-            return new ImportInfo(System.currentTimeMillis(), errorCodeToHandle, importIdToPortletContext);
+               SortedMap<QName, List<String>> errorCodeToHandle = null;
+               List<ImportPortletsFailed> failedPortlets = failedPortletsHolder.value;
+               if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
+               {
+                  errorCodeToHandle = new TreeMap<QName, List<String>>();
+                  for (ImportPortletsFailed failedPortletsForReason : failedPortlets)
+                  {
+                     errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getImportID());
+                  }
+               }
+
+               return new ImportInfo(System.currentTimeMillis(), errorCodeToHandle, importIdToPortletContext);
+            }
+            catch (OperationNotSupported operationNotSupported)
+            {
+               throw new UnsupportedOperationException(operationNotSupported);
+            }
+            catch (InconsistentParameters inconsistentParameters)
+            {
+               throw new IllegalArgumentException(inconsistentParameters);
+            }
+            /*
+            // GTNWSRP-62
+            catch (AccessDenied accessDenied)
+            {
+               accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ExportByValueNotSupported exportByValueNotSupported)
+            {
+               exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidHandle invalidHandle)
+            {
+               invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidRegistration invalidRegistration)
+            {
+               invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (InvalidUserCategory invalidUserCategory)
+            {
+               invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (MissingParameters missingParameters)
+            {
+               missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ModifyRegistrationRequired modifyRegistrationRequired)
+            {
+               modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (OperationFailed operationFailed)
+            {
+               operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            catch (ResourceSuspended resourceSuspended)
+            {
+               resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }*/
+            catch (Exception e)
+            {
+               throw new PortletInvokerException(e.getLocalizedMessage(), e);
+            }
          }
-         catch (OperationNotSupported operationNotSupported)
+         else
          {
-            throw new UnsupportedOperationException(operationNotSupported);
-         }
-         catch (InconsistentParameters inconsistentParameters)
-         {
-            throw new IllegalArgumentException(inconsistentParameters);
-         }
-         /*
-         // GTNWSRP-62
-         catch (AccessDenied accessDenied)
-         {
-            accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ExportByValueNotSupported exportByValueNotSupported)
-         {
-            exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidHandle invalidHandle)
-         {
-            invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidRegistration invalidRegistration)
-         {
-            invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (InvalidUserCategory invalidUserCategory)
-         {
-            invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (MissingParameters missingParameters)
-         {
-            missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ModifyRegistrationRequired modifyRegistrationRequired)
-         {
-            modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (OperationFailed operationFailed)
-         {
-            operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
-         catch (ResourceSuspended resourceSuspended)
-         {
-            resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }*/
-         catch (Exception e)
-         {
-            throw new PortletInvokerException(e.getLocalizedMessage(), e);
+            throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
          }
       }
       else
       {
-         throw new IllegalArgumentException("Must provide a non-null, non-empty list of portlet handles.");
+         throw new UnsupportedOperationException("Producer " + producerInfo.getId() + " doesn't support import/export functionality.");
       }
    }
 
    public boolean isUsingWSRP2()
    {
       Version wsrpVersion = getWSRPVersion();
-      if (wsrpVersion != null)
-      {
-         return wsrpVersion.getMajor() >= 2;
-      }
-      else
-      {
-         return false;
-      }
+      return wsrpVersion != null && wsrpVersion.getMajor() >= 2;
    }
 
    public MigrationService getMigrationService()

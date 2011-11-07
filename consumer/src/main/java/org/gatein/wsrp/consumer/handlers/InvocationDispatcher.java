@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -35,7 +35,9 @@ import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 
 import java.util.Map;
@@ -127,7 +129,16 @@ public class InvocationDispatcher
       }
       else if (invocation instanceof EventInvocation)
       {
-         handler = eventHandler;
+         final ProducerInfo producerInfo = consumer.getProducerInfo();
+         if (producerInfo.getSupportedOptions().contains(WSRP2Constants.OPTIONS_EVENTS))
+         {
+            handler = eventHandler;
+         }
+         else
+         {
+            // do something better here?
+            return new ErrorResponse("Producer " + producerInfo.getId() + " doesn't support event processing.");
+         }
       }
       else
       {

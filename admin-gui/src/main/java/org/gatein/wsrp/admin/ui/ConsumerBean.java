@@ -740,9 +740,9 @@ public class ConsumerBean extends ManagedBean implements Serializable
       currentExport = (ExportInfoDisplay)existingExports.getRowData();
    }
 
-   public boolean isSupportsExport()
+   public boolean isImportExportSupported()
    {
-      return isActive() && getConsumer().isSupportsExport();
+      return isActive() && getConsumer().isImportExportSupported();
    }
 
    public boolean isAvailableExportInfosEmpty()
