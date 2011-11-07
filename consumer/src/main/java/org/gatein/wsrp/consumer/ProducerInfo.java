@@ -40,6 +40,7 @@ import org.gatein.wsrp.consumer.portlet.info.WSRPEventInfo;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.servlet.UserAccess;
+import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.ExportDescription;
@@ -66,7 +67,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,7 +146,7 @@ public class ProducerInfo
    private transient Map<QName, EventInfo> eventDescriptions;
 
    /** Supported options */
-   private transient List<String> supportedOptions = Collections.emptyList();
+   private transient Set<String> supportedOptions = Collections.emptySet();
 
    /*protected org.oasis.wsrp.v1.ItemDescription[] userCategoryDescriptions;
    protected org.oasis.wsrp.v1.ItemDescription[] customUserProfileItemDescriptions;   
@@ -511,7 +512,7 @@ public class ProducerInfo
       final List<String> supportedOptions = serviceDescription.getSupportedOptions();
       if (ParameterValidation.existsAndIsNotEmpty(supportedOptions))
       {
-         this.supportedOptions = new ArrayList<String>(supportedOptions);
+         this.supportedOptions = new HashSet<String>(supportedOptions);
       }
 
       // custom mode descriptions
@@ -1307,8 +1308,31 @@ public class ProducerInfo
       this.lastModified = lastModified;
    }
 
-   public List<String> getSupportedOptions()
+   public Collection<String> getSupportedOptions()
    {
-      return supportedOptions;
+      return Collections.unmodifiableSet(supportedOptions);
+   }
+
+   /**
+    * Public for tests
+    *
+    * @param option
+    */
+   public void setSupportedOption(String option)
+   {
+      if (WSRP2Constants.OPTIONS_COPYPORTLETS.equals(option) || WSRP2Constants.OPTIONS_EVENTS.equals(option)
+         || WSRP2Constants.OPTIONS_EXPORT.equals(option) || WSRP2Constants.OPTIONS_IMPORT.equals(option)
+         || WSRP2Constants.OPTIONS_LEASING.equals(option))
+      {
+         if (supportedOptions.isEmpty())
+         {
+            supportedOptions = new HashSet<String>(5);
+         }
+         supportedOptions.add(option);
+      }
+      else
+      {
+         throw new IllegalArgumentException("Invalid option: " + option);
+      }
    }
 }

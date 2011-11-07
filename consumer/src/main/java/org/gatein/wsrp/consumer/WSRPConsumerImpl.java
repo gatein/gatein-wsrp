@@ -93,6 +93,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -530,7 +531,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public boolean isImportExportSupported()
    {
-      final List<String> supportedOptions = producerInfo.getSupportedOptions();
+      final Collection<String> supportedOptions = producerInfo.getSupportedOptions();
       return isUsingWSRP2() && supportedOptions.contains(WSRP2Constants.OPTIONS_IMPORT) && supportedOptions.contains(WSRP2Constants.OPTIONS_EXPORT);
    }
 
