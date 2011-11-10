@@ -101,6 +101,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       OPTIONS.add(WSRP2Constants.OPTIONS_EVENTS);
       OPTIONS.add(WSRP2Constants.OPTIONS_IMPORT);
       OPTIONS.add(WSRP2Constants.OPTIONS_EXPORT);
+      OPTIONS.add(WSRP2Constants.OPTIONS_COPYPORTLETS);
    }
 
    public ServiceDescriptionHandler(WSRPProducerImpl producer)
