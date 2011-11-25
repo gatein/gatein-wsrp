@@ -882,6 +882,8 @@ public class ProducerInfo
          Holder<List<String>> supportedOptions = new Holder<List<String>>();
          Holder<ExportDescription> exportDescription = new Holder<ExportDescription>();
          Holder<Boolean> mayReturnRegistrationState = new Holder<Boolean>();
+         final Holder<List<ExtensionDescription>> extensionDescriptions = new Holder<List<ExtensionDescription>>();
+         final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
 
          // invocation
          persistentEndpointInfo.getServiceDescriptionService().getServiceDescription(
@@ -892,7 +894,7 @@ public class ProducerInfo
             requiresRegistration,
             offeredPortlets,
             userCategoryDescriptions,
-            new Holder<List<ExtensionDescription>>(),
+            extensionDescriptions,
             windowStateDescriptions,
             modeDescriptions,
             requiresInitCookie,
@@ -904,13 +906,17 @@ public class ProducerInfo
             supportedOptions,
             exportDescription,
             mayReturnRegistrationState,
-            new Holder<List<Extension>>());
+            extensions);
 
          // TODO: fix-me
          serviceDescription = WSRPTypeFactory.createServiceDescription(requiresRegistration.value);
          serviceDescription.setRegistrationPropertyDescription(registrationPropertyDescription.value);
          serviceDescription.setRequiresInitCookie(requiresInitCookie.value);
          serviceDescription.setResourceList(resourceList.value);
+         serviceDescription.setSchemaType(schemaTypes.value);
+         serviceDescription.setExportDescription(exportDescription.value);
+         serviceDescription.setMayReturnRegistrationState(mayReturnRegistrationState.value);
+
          if (ParameterValidation.existsAndIsNotEmpty(modeDescriptions.value))
          {
             serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
@@ -930,6 +936,22 @@ public class ProducerInfo
          if (ParameterValidation.existsAndIsNotEmpty(userCategoryDescriptions.value))
          {
             serviceDescription.getUserCategoryDescriptions().addAll(userCategoryDescriptions.value);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(eventDescriptions.value))
+         {
+            serviceDescription.getEventDescriptions().addAll(eventDescriptions.value);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(extensionDescriptions.value))
+         {
+            serviceDescription.getExtensionDescriptions().addAll(extensionDescriptions.value);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+         {
+            serviceDescription.getExtensions().addAll(extensions.value);
+         }
+         if (ParameterValidation.existsAndIsNotEmpty(supportedOptions.value))
+         {
+            serviceDescription.getSupportedOptions().addAll(supportedOptions.value);
          }
 
          return serviceDescription;
