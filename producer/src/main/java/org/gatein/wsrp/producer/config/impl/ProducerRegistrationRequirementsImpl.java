@@ -211,7 +211,15 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    private RegistrationPropertyDescription getPropertyDescription(QName propertyName)
    {
       // copy to ensure immutability
-      return new RegistrationPropertyDescription(registrationProperties.get(propertyName));
+      final RegistrationPropertyDescription description = registrationProperties.get(propertyName);
+      if (description != null)
+      {
+         return new RegistrationPropertyDescription(description);
+      }
+      else
+      {
+         throw new IllegalArgumentException("Unknown property name '" + propertyName + "'");
+      }
    }
 
    public RegistrationPropertyDescription removeRegistrationProperty(QName propertyName)
