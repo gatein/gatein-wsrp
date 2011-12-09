@@ -65,7 +65,7 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
 
    public int getContentLength()
    {
-      throw new UnsupportedOperationException("Not currently supported");
+      return -1;
    }
 
    public BufferedReader getReader() throws IOException
@@ -129,6 +129,12 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
       public String getContentType()
       {
          return contentType;
+      }
+
+      @Override
+      public int getContentLength()
+      {
+         return 0;
       }
    }
 
