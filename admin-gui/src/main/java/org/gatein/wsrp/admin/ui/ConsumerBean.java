@@ -531,7 +531,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
 
    public boolean isAlreadyExisting(String objectName)
    {
-      return getRegistry().getConsumer(objectName) != null;
+      return getRegistry().containsConsumer(objectName);
    }
 
    public ConsumerRegistry getRegistry()
