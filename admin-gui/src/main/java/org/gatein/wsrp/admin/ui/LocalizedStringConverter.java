@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -43,6 +43,11 @@ public class LocalizedStringConverter implements Converter
 
    public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object o)
    {
-      return o == null ? null : ((LocalizedString)o).getValue();
+      return getAsString(o);
+   }
+
+   static String getAsString(Object localizedString)
+   {
+      return localizedString == null ? null : ((LocalizedString)localizedString).getValue();
    }
 }

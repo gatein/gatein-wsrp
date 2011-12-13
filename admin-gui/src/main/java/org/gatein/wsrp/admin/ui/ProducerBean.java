@@ -30,14 +30,17 @@ import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
+import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,6 +56,7 @@ import java.util.Map;
  */
 public class ProducerBean extends ManagedBean implements Serializable
 {
+   private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private transient ProducerConfigurationService configurationService;
    private String policyClassName;
    private String validatorClassName;
@@ -285,12 +289,13 @@ public class ProducerBean extends ManagedBean implements Serializable
 
    protected String getObjectTypeName()
    {
-      return null; // default implementation as not used
+      return REGISTRATION_PROPERTY_TYPE;
    }
 
    public boolean isAlreadyExisting(String objectName)
    {
-      return false; // default implementation as not used
+      // allow for edit of properties since they will be replaced anyway
+      return false;
    }
 
    private LocalProducerConfiguration getLocalConfiguration()
@@ -313,6 +318,25 @@ public class ProducerBean extends ManagedBean implements Serializable
    public String getV2WSDL()
    {
       return beanContext.getServerAddress() + "/wsrp-producer/v2/MarkupService?wsdl";
+   }
+
+   public void validate(FacesContext facesContext, UIComponent uiComponent, Object o)
+   {
+      String toValidate = null;
+      if (o instanceof String)
+      {
+         toValidate = (String)o;
+      }
+      else if (o instanceof LocalizedString)
+      {
+         toValidate = LocalizedStringConverter.getAsString(o);
+      }
+
+      final String validated = this.checkNameValidity(toValidate, uiComponent.getClientId(facesContext));
+      if (validated == null)
+      {
+         throw new ValidatorException(new FacesMessage()); // need a non-null FacesMessage to avoid NPE
+      }
    }
 
    private static class LocalProducerConfiguration
