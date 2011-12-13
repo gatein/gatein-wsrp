@@ -38,6 +38,14 @@ import java.util.Locale;
  */
 public class RegistrationPropertyDescription implements PropertyDescription
 {
+   public static final ParameterValidation.ValidationErrorHandler HANDLER = new ParameterValidation.ValidationErrorHandler(null)
+   {
+      @Override
+      protected String internalValidationErrorHandling(String failedValue)
+      {
+         throw new IllegalArgumentException(failedValue + " is not a valid RegistrationPropertyDescription name");
+      }
+   };
    private String key;
    private QName name;
    private QName type;
@@ -173,7 +181,8 @@ public class RegistrationPropertyDescription implements PropertyDescription
 
    public void setNameAsString(String name)
    {
-      setName(new QName(name));
+      final String sanitizedName = ParameterValidation.sanitizeFromPatternWithHandler(name, ParameterValidation.XSS_CHECK, HANDLER);
+      setName(new QName(sanitizedName));
    }
 
    public String getNameAsString()
