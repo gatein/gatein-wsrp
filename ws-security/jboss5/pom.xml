@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2012, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -45,6 +45,10 @@
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-wsrp2-ws</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-wss</artifactId>
       </dependency>
 
       <dependency>
