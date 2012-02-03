@@ -531,7 +531,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
 
    public boolean isAlreadyExisting(String objectName)
    {
-      return getRegistry().containsConsumer(objectName);
+      return getRegistry().getConsumer(objectName) != null;
    }
 
    public ConsumerRegistry getRegistry()
@@ -740,9 +740,9 @@ public class ConsumerBean extends ManagedBean implements Serializable
       currentExport = (ExportInfoDisplay)existingExports.getRowData();
    }
 
-   public boolean isImportExportSupported()
+   public boolean isSupportsExport()
    {
-      return isActive() && getConsumer().isImportExportSupported();
+      return isActive() && getConsumer().isSupportsExport();
    }
 
    public boolean isAvailableExportInfosEmpty()

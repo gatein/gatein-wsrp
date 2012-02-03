@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2010, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -65,13 +65,13 @@
    </td>
 </tr>
 <c:if test="#{consumer.wssAvailable}">
-   <tr>
-      <th>#{i18n.edit_enable_ws_security}</th>
-      <td>
-         <h:selectBooleanCheckbox value="#{consumer.wssEnabled}"/>
-         <h:message styleClass="portlet-msg-error" for="wsdl"/>
-      </td>
-   </tr>
+<tr>
+   <th>#{i18n.edit_enable_ws_security}</th>
+   <td>
+     <h:selectBooleanCheckbox value="#{consumer.wssEnabled}"/>
+     <h:message styleClass="portlet-msg-error" for="wsdl"/>
+   </td>
+</tr>
 </c:if>
 <c:if test="#{consumer.localInfoPresent}">
    <tr>
@@ -269,7 +269,7 @@
                      <div class="ButtonMiddle">
                         <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}"
                                        actionListener="#{consumersMgr.selectConsumer}"
-                                       rendered="#{consumer.importExportSupported}"
+                                       rendered="#{consumer.supportsExport}"
                                        value="#{i18n.edit_consumer_export}"
                                        title="#{i18n.edit_consumer_export_title}">
                            <f:param name="id" value="#{consumer.id}"/>
@@ -284,7 +284,7 @@
                      <div class="ButtonMiddle">
                         <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}"
                                        actionListener="#{consumersMgr.selectConsumer}"
-                                       rendered="#{consumer.importExportSupported and ! consumer.availableExportInfosEmpty}"
+                                       rendered="#{consumer.supportsExport and ! consumer.availableExportInfosEmpty}"
                                        value="#{i18n.edit_consumer_import}"
                                        title="#{i18n.edit_consumer_import_title}">
                            <f:param name="id" value="#{consumer.id}"/>

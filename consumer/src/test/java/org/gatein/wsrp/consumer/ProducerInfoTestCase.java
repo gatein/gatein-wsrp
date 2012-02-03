@@ -26,14 +26,12 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
-import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.PortletManagementBehavior;
 import org.gatein.wsrp.test.protocol.v2.RegistrationBehavior;
 import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.GroupedPortletsServiceDescriptionBehavior;
-import org.gatein.wsrp.test.protocol.v2.behaviors.SupportedOptionsServiceDescriptionBehavior;
 import org.gatein.wsrp.test.support.MockConsumerRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.CookieProtocol;
@@ -60,7 +58,6 @@ import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -466,19 +463,6 @@ public class ProducerInfoTestCase extends TestCase
       info.refresh(false);
 
       assertEquals(CookieProtocol.PER_GROUP, info.getRequiresInitCookie());
-   }
-
-   public void testSupportedOptions() throws PortletInvokerException
-   {
-      ServiceDescriptionBehavior sdb = new SupportedOptionsServiceDescriptionBehavior();
-      serviceFactory.getRegistry().setServiceDescriptionBehavior(sdb);
-
-      info.refresh(false);
-
-      final Collection<String> supportedOptions = info.getSupportedOptions();
-      assertEquals(2, supportedOptions.size());
-      assertTrue(supportedOptions.contains(WSRP2Constants.OPTIONS_EXPORT));
-      assertTrue(supportedOptions.contains(WSRP2Constants.OPTIONS_IMPORT));
    }
 
    private static class TestPortletManagementBehavior extends PortletManagementBehavior

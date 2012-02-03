@@ -40,7 +40,6 @@ import org.gatein.wsrp.consumer.portlet.info.WSRPEventInfo;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import org.gatein.wsrp.servlet.UserAccess;
-import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.EventDescription;
 import org.oasis.wsrp.v2.ExportDescription;
@@ -67,7 +66,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,33 +118,30 @@ public class ProducerInfo
    // Transient information
 
    /** The Cookie handling policy required by the Producer */
-   private transient CookieProtocol requiresInitCookie;
+   private CookieProtocol requiresInitCookie;
 
    /** The Producer-Offered Portlets (handle -> WSRPPortlet) */
-   private transient Map<String, Portlet> popsMap;
+   private Map<String, Portlet> popsMap;
 
    /** A cache for Consumer-Configured Portlets (handle -> WSRPPortlet) */
-   private transient Map<String, Portlet> ccpsMap;
+   private Map<String, Portlet> ccpsMap;
 
    /** Portlet groups. */
-   private transient Map<String, Set<Portlet>> portletGroups;
+   private Map<String, Set<Portlet>> portletGroups;
 
    /** Time at which the cache expires */
-   private transient long expirationTimeMillis;
+   private long expirationTimeMillis;
 
-   private transient final ConsumerRegistrySPI registry;
+   private final ConsumerRegistrySPI registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
 
    private transient RegistrationInfo expectedRegistrationInfo;
 
-   private transient Map<String, ItemDescription> customModes;
-   private transient Map<String, ItemDescription> customWindowStates;
+   private Map<String, ItemDescription> customModes;
+   private Map<String, ItemDescription> customWindowStates;
 
    /** Events */
-   private transient Map<QName, EventInfo> eventDescriptions;
-
-   /** Supported options */
-   private transient Set<String> supportedOptions = Collections.emptySet();
+   private Map<QName, EventInfo> eventDescriptions;
 
    /*protected org.oasis.wsrp.v1.ItemDescription[] userCategoryDescriptions;
    protected org.oasis.wsrp.v1.ItemDescription[] customUserProfileItemDescriptions;   
@@ -507,13 +502,6 @@ public class ProducerInfo
       // do we need to call initCookie or not?
       requiresInitCookie = serviceDescription.getRequiresInitCookie();
       log.debug("Requires initCookie: " + requiresInitCookie);
-
-      // supported options
-      final List<String> supportedOptions = serviceDescription.getSupportedOptions();
-      if (ParameterValidation.existsAndIsNotEmpty(supportedOptions))
-      {
-         this.supportedOptions = new HashSet<String>(supportedOptions);
-      }
 
       // custom mode descriptions
       customModes = toMap(serviceDescription.getCustomModeDescriptions());
@@ -882,8 +870,6 @@ public class ProducerInfo
          Holder<List<String>> supportedOptions = new Holder<List<String>>();
          Holder<ExportDescription> exportDescription = new Holder<ExportDescription>();
          Holder<Boolean> mayReturnRegistrationState = new Holder<Boolean>();
-         final Holder<List<ExtensionDescription>> extensionDescriptions = new Holder<List<ExtensionDescription>>();
-         final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
 
          // invocation
          persistentEndpointInfo.getServiceDescriptionService().getServiceDescription(
@@ -894,7 +880,7 @@ public class ProducerInfo
             requiresRegistration,
             offeredPortlets,
             userCategoryDescriptions,
-            extensionDescriptions,
+            new Holder<List<ExtensionDescription>>(),
             windowStateDescriptions,
             modeDescriptions,
             requiresInitCookie,
@@ -906,17 +892,13 @@ public class ProducerInfo
             supportedOptions,
             exportDescription,
             mayReturnRegistrationState,
-            extensions);
+            new Holder<List<Extension>>());
 
          // TODO: fix-me
          serviceDescription = WSRPTypeFactory.createServiceDescription(requiresRegistration.value);
          serviceDescription.setRegistrationPropertyDescription(registrationPropertyDescription.value);
          serviceDescription.setRequiresInitCookie(requiresInitCookie.value);
          serviceDescription.setResourceList(resourceList.value);
-         serviceDescription.setSchemaType(schemaTypes.value);
-         serviceDescription.setExportDescription(exportDescription.value);
-         serviceDescription.setMayReturnRegistrationState(mayReturnRegistrationState.value);
-
          if (ParameterValidation.existsAndIsNotEmpty(modeDescriptions.value))
          {
             serviceDescription.getCustomModeDescriptions().addAll(modeDescriptions.value);
@@ -936,22 +918,6 @@ public class ProducerInfo
          if (ParameterValidation.existsAndIsNotEmpty(userCategoryDescriptions.value))
          {
             serviceDescription.getUserCategoryDescriptions().addAll(userCategoryDescriptions.value);
-         }
-         if (ParameterValidation.existsAndIsNotEmpty(eventDescriptions.value))
-         {
-            serviceDescription.getEventDescriptions().addAll(eventDescriptions.value);
-         }
-         if (ParameterValidation.existsAndIsNotEmpty(extensionDescriptions.value))
-         {
-            serviceDescription.getExtensionDescriptions().addAll(extensionDescriptions.value);
-         }
-         if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
-         {
-            serviceDescription.getExtensions().addAll(extensions.value);
-         }
-         if (ParameterValidation.existsAndIsNotEmpty(supportedOptions.value))
-         {
-            serviceDescription.getSupportedOptions().addAll(supportedOptions.value);
          }
 
          return serviceDescription;
@@ -1328,33 +1294,5 @@ public class ProducerInfo
    public void setLastModified(long lastModified)
    {
       this.lastModified = lastModified;
-   }
-
-   public Collection<String> getSupportedOptions()
-   {
-      return Collections.unmodifiableSet(supportedOptions);
-   }
-
-   /**
-    * Public for tests
-    *
-    * @param option
-    */
-   public void setSupportedOption(String option)
-   {
-      if (WSRP2Constants.OPTIONS_COPYPORTLETS.equals(option) || WSRP2Constants.OPTIONS_EVENTS.equals(option)
-         || WSRP2Constants.OPTIONS_EXPORT.equals(option) || WSRP2Constants.OPTIONS_IMPORT.equals(option)
-         || WSRP2Constants.OPTIONS_LEASING.equals(option))
-      {
-         if (supportedOptions.isEmpty())
-         {
-            supportedOptions = new HashSet<String>(5);
-         }
-         supportedOptions.add(option);
-      }
-      else
-      {
-         throw new IllegalArgumentException("Invalid option: " + option);
-      }
    }
 }

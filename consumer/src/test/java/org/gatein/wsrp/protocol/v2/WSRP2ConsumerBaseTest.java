@@ -27,7 +27,6 @@ import junit.framework.TestCase;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
-import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
@@ -81,10 +80,6 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
       // set the test producer identifier
       ProducerInfo producerInfo = consumer.getProducerInfo();
       producerInfo.setId(TEST_PRODUCER_ID);
-
-      // set import/export option
-      producerInfo.setSupportedOption(WSRP2Constants.OPTIONS_EXPORT);
-      producerInfo.setSupportedOption(WSRP2Constants.OPTIONS_IMPORT);
 
       // reset the behaviors
       BehaviorRegistry registry = producer.getBehaviorRegistry();

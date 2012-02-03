@@ -245,7 +245,7 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
       throw new NotYetImplemented();
    }
 
-   public boolean isImportExportSupported()
+   public boolean isSupportsExport()
    {
       return false;
    }

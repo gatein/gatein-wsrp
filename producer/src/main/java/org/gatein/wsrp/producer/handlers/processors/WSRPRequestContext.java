@@ -134,7 +134,7 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
       @Override
       public int getContentLength()
       {
-         return 0; // todo: is it really the case or should it be -1?
+         return 0;
       }
    }
 

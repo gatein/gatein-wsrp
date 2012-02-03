@@ -128,7 +128,7 @@ public interface WSRPConsumer extends PortletInvoker, SessionEventListener
 
    MigrationService getMigrationService();
 
-   boolean isImportExportSupported();
+   boolean isSupportsExport();
 
    ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException;
 
