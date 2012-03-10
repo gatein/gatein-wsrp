@@ -107,20 +107,8 @@
       </h:form>
 
       <h:form>
-         <table class="ActionContainer">
-            <tr>
-               <td>
-                  <div class="ButtonLeft">
-                     <div class="ButtonRight">
-                        <div class="ButtonMiddle">
-                           <h:commandButton id="reloadConsumersButton" action="#{consumersMgr.reload}"
-                                            value="#{i18n.consumers_table_reload}"/>
-                        </div>
-                     </div>
-                  </div>
-               </td>
-            </tr>
-         </table>
+         <h:commandButton id="reloadConsumersButton" action="#{consumersMgr.reload}" styleClass="ActionButton"
+                          value="#{i18n.consumers_table_reload}"/>
       </h:form>
    </ui:define>
 </ui:decorate>

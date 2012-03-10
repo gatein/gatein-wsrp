@@ -60,41 +60,13 @@
             </h:column>
          </h:dataTable>
 
-         <table class="ActionContainer">
-            <tr>
-               <td>
-                  <div class="ButtonLeft">
-                     <div class="ButtonRight">
-                        <div class="ButtonMiddle">
-                           <h:commandButton id="import" action="#{consumer.importPortlets}" disabled="#{!consumer.currentExport.readyForImport}"
-                                            value="#{i18n.import_import}"/>
-                        </div>
-                     </div>
-                  </div>
-               </td>
-               <td>
-                  <div class="ButtonLeft">
-                     <div class="ButtonRight">
-                        <div class="ButtonMiddle">
-                           <h:commandLink action="#{consumersMgr.configureConsumer}" id="configure">
-                              <f:param name="id" value="#{consumer.id}"/>
-                              #{i18n.portlets_table_configure}
-                           </h:commandLink>
-                        </div>
-                     </div>
-                  </div>
-               </td>
-               <td>
-                  <div class="ButtonLeft">
-                     <div class="ButtonRight">
-                        <div class="ButtonMiddle">
-                           <h:commandLink id="exports" action="exports" value="#{i18n.export_detail_exports}"/>
-                        </div>
-                     </div>
-                  </div>
-               </td>
-            </tr>
-         </table>
+         <h:commandButton id="import" action="#{consumer.importPortlets}" disabled="#{!consumer.currentExport.readyForImport}"
+                          value="#{i18n.import_import}" styleClass="ActionButton"/>
+         <h:commandLink action="#{consumersMgr.configureConsumer}" id="configure" styleClass="ActionButton">
+            <f:param name="id" value="#{consumer.id}"/>
+            #{i18n.portlets_table_configure}
+         </h:commandLink>
+         <h:commandLink id="exports" action="exports" value="#{i18n.export_detail_exports}" styleClass="ActionButton"/>
       </h:form>
    </ui:define>
 </ui:decorate>
