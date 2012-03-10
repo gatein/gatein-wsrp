@@ -1,6 +1,6 @@
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2012, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -26,7 +26,7 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:c="http://java.sun.com/jstl/core"
-             xmlns:webui="http://jboss.org/gatein">
+             xmlns:div="http://jboss.org/gatein">
 
    <ui:param name="title" value="#{i18n.producer_config_title}"/>
 
@@ -72,36 +72,12 @@
             <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
             <f:subview id="producer-registration" rendered="#{producer.registrationRequired}">
 
-               <webui:blueHeaderBar>
-                  <div class="full-width float-left bold">
-                     #{i18n.producer_config_reg_props}
-                     <div class="add-prop-container">
-                        <div class="add-prop-button">
-                           <table class="ActionContainer">
-                              <tr>
-                                 <td>
-                                    <div class="ButtonLeft">
-                                       <div class="ButtonRight">
-                                          <div class="ButtonMiddle">
-                                             <h:commandLink id="add-reg-prop"
-                                                            action="#{producer.addRegistrationProperty}"
-                                                            value="#{i18n.producer_config_add_reg_prop}"/>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </td>
-                              </tr>
-                           </table>
-                           <ui:remove><webui:commandButton id="add-reg-prop" action="addRegistrationProperty"
-                                                           backingBean="#{producer}"
-                                                           value="#{i18n.producer_config_add_reg_prop}"/>
-                           </ui:remove>
-                        </div>
-                     </div>
-                  </div>
-
-
-               </webui:blueHeaderBar>
+               <div class="bar">
+                  <h:outputText value="#{i18n.producer_config_reg_props}" style="font-weight: bold; margin-right: .3em;"/>
+                  <h:commandLink id="add-reg-prop" styleClass="ActionButton"
+                                 action="#{producer.addRegistrationProperty}"
+                                 value="#{i18n.producer_config_add_reg_prop}"/>
+               </div>
 
 
                <f:subview rendered="#{!producer.registrationPropertiesEmpty}" id="reg-props">
@@ -148,38 +124,8 @@
 
             <h:outputText value="  "/>
             <h:panelGroup styleClass="portlet-section-buttonrow">
-               <table class="ActionContainer">
-                  <tr>
-                     <td>
-                        <div class="ButtonLeft">
-                           <div class="ButtonRight">
-                              <div class="ButtonMiddle">
-                                 <h:commandButton id="reg-save" action="#{producer.save}"
-                                                  value="#{i18n.producer_config_save}"/>
-                              </div>
-                           </div>
-                        </div>
-                     </td>
-                     <td>
-                        <div class="ButtonLeft">
-                           <div class="ButtonRight">
-                              <div class="ButtonMiddle">
-                                 <h:commandButton id="reg-reload" action="#{producer.reloadConfiguration}"
-                                                  value="#{i18n.producer_config_cancel}"/>
-                              </div>
-                           </div>
-                        </div>
-                     </td>
-                  </tr>
-               </table>
-               <ui:remove><webui:commandButton id="reg-save" action="save"
-                                               backingBean="#{producer}"
-                                               value="#{i18n.producer_config_save}"/>
-
-                  <webui:commandButton id="reg-reload" action="reloadConfiguration"
-                                       backingBean="#{producer}"
-                                       value="#{i18n.producer_config_cancel}"/></ui:remove>
-
+               <h:commandButton id="reg-save" action="#{producer.save}"  styleClass="ActionButton" value="#{i18n.producer_config_save}"/>
+               <h:commandButton id="reg-reload" action="#{producer.reloadConfiguration}" styleClass="ActionButton" value="#{i18n.producer_config_cancel}"/>
             </h:panelGroup>
          </h:panelGrid>
       </h:form>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ JBoss, a division of Red Hat
-  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
+  ~ Copyright 2012, Red Hat Middleware, LLC, and individual
   ~ contributors as indicated by the @authors tag. See the
   ~ copyright.txt in the distribution for a full listing of
   ~ individual contributors.
@@ -61,11 +61,6 @@
    <context-param>
       <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
       <param-value>server</param-value>
-   </context-param>
-
-   <context-param>
-      <param-name>facelets.LIBRARIES</param-name>
-      <param-value>/WEB-INF/tags/webui.taglib.xml</param-value>
    </context-param>
 
    <servlet>

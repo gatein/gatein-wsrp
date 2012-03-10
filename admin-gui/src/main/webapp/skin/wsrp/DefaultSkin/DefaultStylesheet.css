@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -21,16 +21,6 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-.UIWsrpPortlet .UIControlBar {
-/*background: url('background/ControlIcon.gif') repeat-x center -222px;*/
-/*border: 1px solid #b7b7b7;*/
-/*height: 23px;*/
-   line-height: 28px;
-   padding: 4px 10px 0 0; /*margin: 5px 0px;*/
-   font-weight: bold;
-   text-align: right;
-}
-
 /***************************** Consumer Form Style ************************/
 
 .UIWsrpPortlet .cons-temp-form,
@@ -40,6 +30,7 @@
 
 .UIWsrpPortlet .UIGrid {
    border: 1px solid #B7B7B7;
+   margin-bottom: 0.3em;
 }
 
 .UIWsrpPortlet .ConsumerGrid thead tr th,
@@ -54,25 +45,6 @@
 .UIWsrpPortlet .list-cons-link {
    text-decoration: underline;
    color: darkblue;
-}
-
-.UIWsrpPortlet .create-container .ActionContainer {
-   position: absolute;
-   margin: 7px 0 0 0;
-}
-
-/***************************** Producer Form Style ************************/
-
-.UIWsrpPortlet .add-prop-container {
-   position: relative;
-   display: inline
-}
-
-.UIWsrpPortlet .add-prop-button {
-   position: absolute;
-   top: -5px;
-   left: 10px;
-   font-weight: normal
 }
 
 /***************************** Messages Style ************************/
@@ -99,36 +71,6 @@
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
-}
-
-/***************************** ActionButton Style ************************/
-.UIWsrpPortlet .ActionContainer {
-   width: auto;
-   display: inline; /*margin: auto;*/
-}
-
-.UIWsrpPortlet .ButtonLeft {
-   background: url('background/LightBlueStyle.gif') no-repeat left top;
-   padding: 0px 0px 0px 3px;
-}
-
-.UIWsrpPortlet .ButtonRight {
-   background: url('background/LightBlueStyle.gif') no-repeat right top;
-   padding: 0px 3px 0px 0px;
-}
-
-.UIWsrpPortlet .ButtonMiddle {
-   line-height: 22px;
-   text-align: center;
-   background: url('background/LightBlueStyle.gif') repeat-x bottom;
-   white-space: nowrap;
-   display: table-cell;
-   padding: 0px 12px;
-}
-
-.UIWsrpPortlet .ButtonMiddle input {
-   background: transparent;
-   border: none;
 }
 
 /***************************** GrayTabStyle ************************/
@@ -195,4 +137,30 @@
 
 .UIWsrpPortlet .tab-blank {
    border-bottom: 1px solid #B7B7B7;
+}
+
+.UIWsrpPortlet .ActionButton {
+   line-height: 19px;
+   text-align: center;
+   background: url('background/LightBlueStyle.gif') repeat-x center;
+   white-space: nowrap;
+   padding: 0 12px;
+   -moz-border-radius: 3px;
+   -webkit-border-radius: 3px;
+   border-radius: 3px;
+   border: 1px solid #8A8A8A;
+   border-bottom: 1px solid #5D5D5D;
+   display: inline-block;
+   margin: 0;
+   cursor: pointer;
+}
+
+.UIWsrpPortlet .bar {
+   padding: .4em;
+   margin: 0 0 0.3em 0;
+   border: 1px solid #B7B7B7;
+   -moz-border-radius: 3px;
+   -webkit-border-radius: 3px;
+   border-radius: 3px;
+   background: #eee;
 }
