@@ -254,7 +254,8 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          }
          else
          {
-            throw new IllegalArgumentException("There is no ProducerInfo with id '" + id + "'");
+            log.debug("There is no ProducerInfo with id '" + id + "'. Return Long.MIN_VALUE for last modified time.");
+            return Long.MIN_VALUE;
          }
       }
       finally
