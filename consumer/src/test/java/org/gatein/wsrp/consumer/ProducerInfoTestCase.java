@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2011, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -82,6 +82,64 @@ public class ProducerInfoTestCase extends TestCase
       serviceFactory = new BehaviorBackedServiceFactory();
       EndpointConfigurationInfo eci = new EndpointConfigurationInfo(serviceFactory);
       info.setEndpointConfigurationInfo(eci);
+   }
+
+   public void testSettersWithoutModificationShouldNotChangeLastModified()
+   {
+      final long initial = info.getLastModified();
+
+      info.setActive(info.isActive());
+      assertEquals(initial, info.getLastModified());
+
+      info.setActiveAndSave(info.isActive());
+      assertEquals(initial, info.getLastModified());
+
+      info.setExpirationCacheSeconds(info.getExpirationCacheSeconds());
+      assertEquals(initial, info.getLastModified());
+
+      info.setId(info.getId());
+      assertEquals(initial, info.getLastModified());
+
+      info.setModifyRegistrationRequired(info.isModifyRegistrationRequired());
+      assertEquals(initial, info.getLastModified());
+   }
+
+   public void testSettersWithModificationShouldChangeLastModified() throws InterruptedException
+   {
+      long initial = info.getLastModified();
+      Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
+      info.setActive(!info.isActive());
+
+      initial = info.getLastModified();
+      Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
+      info.setActiveAndSave(!info.isActive());
+      assertTrue(initial != info.getLastModified());
+
+      initial = info.getLastModified();
+      Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
+      info.setExpirationCacheSeconds(info.getExpirationCacheSeconds() + 1);
+      assertTrue(initial != info.getLastModified());
+
+      initial = info.getLastModified();
+      Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
+      info.setId(info.getId() + "other");
+      assertTrue(initial != info.getLastModified());
+
+      initial = info.getLastModified();
+      Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
+      info.setModifyRegistrationRequired(!info.isModifyRegistrationRequired());
+      assertTrue(initial != info.getLastModified());
+   }
+
+   public void testSetKeyDoesNotChangeLastModified()
+   {
+      long initial = info.getLastModified();
+      info.setKey(info.getKey());
+      assertEquals(initial, info.getLastModified());
+
+      initial = info.getLastModified();
+      info.setKey(info.getKey() + "other");
+      assertEquals(initial, info.getLastModified());
    }
 
    public void testSetRegistrationInfo()
