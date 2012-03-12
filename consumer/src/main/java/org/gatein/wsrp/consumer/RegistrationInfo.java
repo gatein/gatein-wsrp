@@ -745,6 +745,9 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       }
 
       regenerateRegistrationData = true;
+
+      // make sure that the parent is marked as modified so that changes can be properly saved
+      parent.modifyNow();
    }
 
    private void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)

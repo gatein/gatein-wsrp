@@ -105,7 +105,6 @@ public class ProducerInfo
    /** The activated status of the associated Consumer */
    private boolean persistentActive;
 
-   // GTNWSRP-239: information that's currently transient but should probably be persistent
    /**
     * GTNWSRP-239: whether or not this ProducerInfo requires ModifyRegistration to be called, currently persisted via
     * mixin
@@ -175,7 +174,7 @@ public class ProducerInfo
       {
          return false;
       }
-      if (!persistentId.equals(that.persistentId))
+      if (!getId().equals(that.getId()))
       {
          return false;
       }
@@ -187,7 +186,7 @@ public class ProducerInfo
    public int hashCode()
    {
       int result = key != null ? key.hashCode() : 0;
-      result = 31 * result + persistentId.hashCode();
+      result = 31 * result + getId().hashCode();
       return result;
    }
 
@@ -197,7 +196,7 @@ public class ProducerInfo
       final StringBuilder sb = new StringBuilder();
       sb.append("ProducerInfo");
       sb.append("{key='").append(key).append('\'');
-      sb.append(", id='").append(persistentId).append('\'');
+      sb.append(", id='").append(getId()).append('\'');
       sb.append('}');
       return sb.toString();
    }
@@ -297,13 +296,46 @@ public class ProducerInfo
     */
    public void setActive(boolean active)
    {
+      setInternalActive(active);
+   }
+
+   private boolean setInternalActive(boolean active)
+   {
+      final boolean modified = modifyNowIfNeeded(persistentActive, active);
       this.persistentActive = active;
+      return modified;
+   }
+
+   public String getId()
+   {
+      return persistentId;
+   }
+
+   public void setId(String id)
+   {
+      modifyNowIfNeeded(persistentId, id);
+      this.persistentId = id;
+   }
+
+   private boolean modifyNowIfNeeded(Object oldValue, Object newValue)
+   {
+      if (ParameterValidation.isOldAndNewDifferent(oldValue, newValue))
+      {
+         modifyNow();
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
 
    public void setActiveAndSave(boolean active)
    {
-      setActive(active);
-      registry.updateProducerInfo(this);
+      if(setInternalActive(active))
+      {
+         registry.updateProducerInfo(this);
+      }
    }
 
    public boolean isModifyRegistrationRequired()
@@ -315,6 +347,7 @@ public class ProducerInfo
 
    public void setModifyRegistrationRequired(boolean modifyRegistrationRequired)
    {
+      modifyNowIfNeeded(isModifyRegistrationRequired, modifyRegistrationRequired);
       this.isModifyRegistrationRequired = modifyRegistrationRequired;
    }
 
@@ -562,16 +595,16 @@ public class ProducerInfo
          }
 
          result.setRegistrationResult(registrationResult);
-
-         return result;
       }
       else
       {
          log.debug("Registration not required");
          persistentRegistrationInfo = new RegistrationInfo(this, false);
          extractOfferedPortlets(serviceDescription);
-         return result;
       }
+
+      modifyNow();
+      return result;
    }
 
    private Map<String, ItemDescription> toMap(List<ItemDescription> itemDescriptions)
@@ -589,16 +622,6 @@ public class ProducerInfo
          }
          return result;
       }
-   }
-
-   public String getId()
-   {
-      return persistentId;
-   }
-
-   public void setId(String id)
-   {
-      this.persistentId = id;
    }
 
    /**
@@ -661,7 +684,7 @@ public class ProducerInfo
       {
          log.warn("Portlet '" + portletHandle
             + "' uses the GET method in forms. Since we don't handle this, this portlet will be excluded from " +
-            "the list of offered portlets for producer " + persistentId);
+            "the list of offered portlets for producer " + getId());
       }
       else
       {
@@ -737,7 +760,7 @@ public class ProducerInfo
          }
          catch (Exception e)
          {
-            log.debug("Couldn't get portlet via getPortletDescription for producer '" + persistentId
+            log.debug("Couldn't get portlet via getPortletDescription for producer '" + getId()
                + "'. Attempting to retrieve it from the service description as this producer might not support the PortletManagement interface.", e);
 
             justRefreshed = refresh(true);
@@ -819,24 +842,26 @@ public class ProducerInfo
 
    public void setExpirationCacheSeconds(Integer expirationCacheSeconds)
    {
-      // record the previous cache expiration duration
-      Integer previousMS = getSafeExpirationCacheSeconds() * 1000;
-
-      // assign the new value
-      this.persistentExpirationCacheSeconds = expirationCacheSeconds;
-
-      // recompute the expiration time based on previous value and new one
-      long lastExpirationTimeChange = expirationTimeMillis - previousMS;
-      int newMS = getSafeExpirationCacheSeconds() * 1000;
-      if (lastExpirationTimeChange > 0)
+      if (modifyNowIfNeeded(persistentExpirationCacheSeconds, expirationCacheSeconds))
       {
-         expirationTimeMillis = lastExpirationTimeChange + newMS;
-      }
-      else
-      {
-         expirationTimeMillis = System.currentTimeMillis();
-      }
+         // record the previous cache expiration duration
+         Integer previousMS = getSafeExpirationCacheSeconds() * 1000;
 
+         // assign the new value
+         this.persistentExpirationCacheSeconds = expirationCacheSeconds;
+
+         // recompute the expiration time based on previous value and new one
+         long lastExpirationTimeChange = expirationTimeMillis - previousMS;
+         int newMS = getSafeExpirationCacheSeconds() * 1000;
+         if (lastExpirationTimeChange > 0)
+         {
+            expirationTimeMillis = lastExpirationTimeChange + newMS;
+         }
+         else
+         {
+            expirationTimeMillis = System.currentTimeMillis();
+         }
+      }
    }
 
    /**
@@ -972,7 +997,7 @@ public class ProducerInfo
    {
       Throwable cause = e.getCause();
       throw new InvokerUnavailableException("Problem getting service description for producer "
-         + persistentId + ", please see the logs for more information. ", cause == null ? e : cause);
+         + getId() + ", please see the logs for more information. ", cause == null ? e : cause);
    }
 
    public RegistrationContext getRegistrationContext() throws PortletInvokerException
@@ -990,7 +1015,13 @@ public class ProducerInfo
       persistentRegistrationInfo.resetRegistration();
 
       invalidateCache();
+      modifyNow();
       registry.updateProducerInfo(this);
+   }
+
+   void modifyNow()
+   {
+      setLastModified(System.currentTimeMillis());
    }
 
    // make package only after package reorg
@@ -1082,7 +1113,7 @@ public class ProducerInfo
          if (serviceDescription.isRequiresRegistration())
          {
             // check if the configured registration information is correct and if we can get the service description
-            RefreshResult result = persistentRegistrationInfo.refresh(serviceDescription, persistentId, true, forceRefresh, false);
+            RefreshResult result = persistentRegistrationInfo.refresh(serviceDescription, getId(), true, forceRefresh, false);
             if (!result.hasIssues())
             {
                try
@@ -1110,7 +1141,7 @@ public class ProducerInfo
 
                   if (debug)
                   {
-                     String msg = "Consumer with id '" + persistentId + "' successfully registered with handle: '"
+                     String msg = "Consumer with id '" + getId() + "' successfully registered with handle: '"
                         + registrationContext.getRegistrationHandle() + "'";
                      log.debug(msg);
                   }
@@ -1124,7 +1155,7 @@ public class ProducerInfo
                {
                   persistentRegistrationInfo.resetRegistration();
                   setActive(false);
-                  throw new PortletInvokerException("Couldn't register with producer '" + persistentId + "'", e);
+                  throw new PortletInvokerException("Couldn't register with producer '" + getId() + "'", e);
                }
             }
             else
@@ -1149,11 +1180,11 @@ public class ProducerInfo
          {
             RegistrationContext registrationContext = getRegistrationContext();
             persistentEndpointInfo.getRegistrationService().deregister(registrationContext, UserAccess.getUserContext());
-            log.info("Consumer with id '" + persistentId + "' deregistered.");
+            log.info("Consumer with id '" + getId() + "' deregistered.");
          }
          catch (Exception e)
          {
-            throw new PortletInvokerException("Couldn't deregister with producer '" + persistentId + "'", e);
+            throw new PortletInvokerException("Couldn't deregister with producer '" + getId() + "'", e);
          }
          finally
          {
@@ -1162,7 +1193,7 @@ public class ProducerInfo
       }
       else
       {
-         throw new IllegalStateException("Cannot deregister producer '" + persistentId + "' as it's not registered");
+         throw new IllegalStateException("Cannot deregister producer '" + getId() + "' as it's not registered");
       }
 
    }
@@ -1210,20 +1241,20 @@ public class ProducerInfo
                // update state
                persistentRegistrationInfo.setRegistrationState(registrationState.value);
 
-               log.info("Consumer with id '" + persistentId + "' sucessfully modified its registration.");
+               log.info("Consumer with id '" + getId() + "' sucessfully modified its registration.");
 
                // reset cache to be able to see new offered portlets on the next refresh
                invalidateCache();
             }
             catch (Exception e)
             {
-               throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
+               throw new PortletInvokerException("Couldn't modify registration with producer '" + getId() + "'", e);
             }
          }
       }
       else
       {
-         throw new IllegalStateException("Cannot modify registration for producer '" + persistentId
+         throw new IllegalStateException("Cannot modify registration for producer '" + getId()
             + "' as it's not registered");
       }
    }
@@ -1239,9 +1270,9 @@ public class ProducerInfo
    private RefreshResult internalRefreshRegistration(ServiceDescription serviceDescription, boolean mergeWithLocalInfo, boolean forceRefresh, boolean forceCheckOfExtraProps) throws PortletInvokerException
    {
       RefreshResult result =
-         persistentRegistrationInfo.refresh(serviceDescription, persistentId, mergeWithLocalInfo, forceRefresh, forceCheckOfExtraProps);
+         persistentRegistrationInfo.refresh(serviceDescription, getId(), mergeWithLocalInfo, forceRefresh, forceCheckOfExtraProps);
 
-      log.debug("Refreshed registration information for consumer with id '" + persistentId + "'");
+      log.debug("Refreshed registration information for consumer with id '" + getId() + "'");
 
       return result;
    }
@@ -1253,7 +1284,7 @@ public class ProducerInfo
          || persistentEndpointInfo.isRefreshNeeded();
       if (result)
       {
-         log.debug("Refresh needed for producer '" + persistentId + "'");
+         log.debug("Refresh needed for producer '" + getId() + "'");
       }
       return result;
    }

@@ -134,7 +134,8 @@ public class InMemoryConsumerRegistry extends AbstractConsumerRegistry
    {
       if (keysToIds.containsValue(id))
       {
-         return consumers.get(id).getProducerInfo();
+         final WSRPConsumer consumer = consumers.get(id);
+         return consumer != null ? consumer.getProducerInfo() : null;
       }
       else
       {

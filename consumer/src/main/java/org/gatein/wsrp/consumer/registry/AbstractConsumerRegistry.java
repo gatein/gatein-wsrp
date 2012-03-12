@@ -65,7 +65,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
    private static final String RELEASE_SESSIONS_LISTENER = "release_sessions_listener_";
 
-   private static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
+   protected static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
    protected ConsumerCache consumerCache;
 
@@ -268,7 +268,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       ProducerInfo producerInfo = loadProducerInfo(id);
       if (producerInfo == null)
       {
-         return Long.MAX_VALUE;
+         return Long.MIN_VALUE;
       }
       else
       {
@@ -280,25 +280,33 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(producerInfo, "ProducerInfo");
 
-      String oldId = update(producerInfo);
-
-      // if we updated and oldId is not null, we need to update the local information
-      if (oldId != null)
+      // only save producer info if we have local modifications that postdate last persisted change
+      if (producerInfo.getLastModified() > getPersistedLastModifiedForProducerInfoWith(producerInfo.getId()))
       {
-         WSRPConsumer consumer = createConsumerFrom(producerInfo, true);
+         String oldId = update(producerInfo);
 
-         // update the federating portlet invoker if needed
-         if (federatingPortletInvoker.isResolved(oldId))
+         // if we updated and oldId is not null, we need to update the local information
+         if (oldId != null)
          {
-            federatingPortletInvoker.unregisterInvoker(oldId);
+            WSRPConsumer consumer = createConsumerFrom(producerInfo, true);
+
+            // update the federating portlet invoker if needed
+            if (federatingPortletInvoker.isResolved(oldId))
+            {
+               federatingPortletInvoker.unregisterInvoker(oldId);
+            }
+
+            // update cache
+            consumerCache.removeConsumer(oldId);
+            consumerCache.putConsumer(producerInfo.getId(), consumer);
          }
 
-         // update cache
-         consumerCache.removeConsumer(oldId);
-         consumerCache.putConsumer(producerInfo.getId(), consumer);
+         return oldId;
       }
-
-      return oldId;
+      else
+      {
+         return null;
+      }
    }
 
    public void start() throws Exception
