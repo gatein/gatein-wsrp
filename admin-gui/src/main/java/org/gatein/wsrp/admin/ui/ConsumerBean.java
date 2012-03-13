@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2011, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -88,9 +88,9 @@ public class ConsumerBean extends ManagedBean implements Serializable
    private static final String FAILED_PORTLETS = "bean_consumer_import_failed_portlets";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
 
-   private DataModel portletHandles;
-   private DataModel existingExports;
-   private ExportInfoDisplay currentExport;
+   private transient DataModel portletHandles;
+   private transient DataModel existingExports;
+   private transient ExportInfoDisplay currentExport;
 
    private static void bypassAndRedisplay()
    {
@@ -571,7 +571,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
 
    public boolean isReadyForExport()
    {
-      List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)portletHandles.getWrappedData();
+      List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)getPortlets().getWrappedData();
       for (SelectablePortletHandle handle : handles)
       {
          if (handle.isSelected())
@@ -588,7 +588,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
       final WSRPConsumer consumer = getConsumer();
       if (consumer != null)
       {
-         List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)portletHandles.getWrappedData();
+         List<SelectablePortletHandle> handles = (List<SelectablePortletHandle>)getPortlets().getWrappedData();
          List<String> selectedHandles = new ArrayList<String>(handles.size());
          for (SelectablePortletHandle selectablePortletHandle : handles)
          {
@@ -737,7 +737,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
 
    public void selectExport()
    {
-      currentExport = (ExportInfoDisplay)existingExports.getRowData();
+      currentExport = (ExportInfoDisplay)getExistingExports().getRowData();
    }
 
    public boolean isImportExportSupported()
