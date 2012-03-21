@@ -26,6 +26,7 @@ package org.gatein.wsrp.registration;
 import org.gatein.common.util.ParameterValidation;
 
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ import java.util.Locale;
  * @version $Revision:5865 $
  * @since 2.6
  */
-public class RegistrationPropertyDescription implements PropertyDescription
+public class RegistrationPropertyDescription implements PropertyDescription, Serializable
 {
    public static final ParameterValidation.ValidationErrorHandler HANDLER = new ParameterValidation.ValidationErrorHandler(null)
    {

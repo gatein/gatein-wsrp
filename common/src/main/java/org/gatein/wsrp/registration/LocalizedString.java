@@ -25,6 +25,7 @@ package org.gatein.wsrp.registration;
 
 import org.gatein.common.util.ParameterValidation;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -32,7 +33,7 @@ import java.util.Locale;
  * @version $Revision:5865 $
  * @since 2.6
  */
-public class LocalizedString
+public class LocalizedString implements Serializable
 {
    private String value;
    private Locale locale;

@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ import java.util.Set;
  * @version $Revision: 12686 $
  * @since 2.6
  */
-public class RegistrationInfo implements RegistrationProperty.PropertyChangeListener
+public class RegistrationInfo implements RegistrationProperty.PropertyChangeListener, Serializable
 {
    private static final Logger log = LoggerFactory.getLogger(RegistrationInfo.class);
 

@@ -28,6 +28,8 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.xml.namespace.QName;
 
+import java.io.Serializable;
+
 import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
 
 /**
@@ -35,7 +37,7 @@ import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
  * @version $Revision: 12019 $
  * @since 2.6
  */
-public class RegistrationProperty implements Comparable<RegistrationProperty>
+public class RegistrationProperty implements Comparable<RegistrationProperty>, Serializable
 {
    private String persistentId;
    private RegistrationPropertyDescription persistentDescription;
