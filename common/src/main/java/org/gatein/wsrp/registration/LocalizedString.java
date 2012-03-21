@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2009, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -25,6 +25,7 @@ package org.gatein.wsrp.registration;
 
 import org.gatein.common.util.ParameterValidation;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -32,7 +33,7 @@ import java.util.Locale;
  * @version $Revision:5865 $
  * @since 2.6
  */
-public class LocalizedString
+public class LocalizedString implements Serializable
 {
    private String value;
    private Locale locale;

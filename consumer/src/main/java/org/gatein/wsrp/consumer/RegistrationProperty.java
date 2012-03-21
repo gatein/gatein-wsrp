@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -27,6 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 
 import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
 
@@ -35,7 +36,7 @@ import static org.gatein.wsrp.consumer.RegistrationProperty.Status.*;
  * @version $Revision: 12019 $
  * @since 2.6
  */
-public class RegistrationProperty implements Comparable<RegistrationProperty>
+public class RegistrationProperty implements Comparable<RegistrationProperty>, Serializable
 {
    private String persistentId;
    private RegistrationPropertyDescription persistentDescription;
