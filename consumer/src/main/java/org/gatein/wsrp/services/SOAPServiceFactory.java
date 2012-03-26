@@ -132,21 +132,24 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       List<Handler> handlerChain = binding.getHandlerChain();
       if (handlerChain != null)
       {
+    	 //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
+    	 addWSSHandlers(handlerChain);
+    	  
          // if we already have a handler chain, just add the request hearder handler if it's not already in there
          if (!handlerChain.contains(REQUEST_HEADER_CLIENT_HANDLER))
          {
             handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
          }
-
-         addWSSHandlers(handlerChain);
       }
       else
       {
          // otherwise, create a handler chain and add our handler to it
          handlerChain = new ArrayList<Handler>(1);
-         handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
-
+         
+         //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
          addWSSHandlers(handlerChain);
+         
+         handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
       }
       binding.setHandlerChain(handlerChain);
 
