@@ -146,10 +146,15 @@ public class RegistrationManagerImpl implements RegistrationManager
       RegistrationSPI registration = persistenceManager.addRegistrationFor((ConsumerSPI)consumer, registrationProperties);
 
       // let the policy decide what the handle should be
-      String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
-      registration.setRegistrationHandle(handle);
+      createAndSetRegistrationHandle(registration);
 
       return registration;
+   }
+
+   private void createAndSetRegistrationHandle(RegistrationSPI registration)
+   {
+      String handle = policy.createRegistrationHandleFor(registration.getPersistentKey());
+      registration.setRegistrationHandle(handle);
    }
 
    public Consumer createConsumer(String name) throws RegistrationException, InvalidConsumerDataException
@@ -288,8 +293,21 @@ public class RegistrationManagerImpl implements RegistrationManager
          getPersistenceManager().saveChangesTo(registration);
          return registration;
       }
-      //The unregistered consumer should only ever have one registration, return that
-      return unregConsumer.getRegistrations().iterator().next();
+      else
+      {
+         //The unregistered consumer should only ever have one registration, return that
+         final Registration registration = unregConsumer.getRegistrations().iterator().next();
+
+         // but first check that we don't have an improper persisted state due to GTNWSRP-283
+         if(registration.getRegistrationHandle() == null || RegistrationStatus.PENDING == registration.getStatus())
+         {
+            // if we have improper persisted state, correct it
+            createAndSetRegistrationHandle((RegistrationSPI)registration);
+            registration.setStatus(RegistrationStatus.VALID);
+            getPersistenceManager().saveChangesTo(registration);
+         }
+         return registration;
+      }
    }
 
    public void removeRegistration(String registrationHandle) throws RegistrationException, NoSuchRegistrationException
