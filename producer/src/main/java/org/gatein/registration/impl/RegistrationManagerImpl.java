@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2011, Red Hat Middleware, LLC, and individual
+ * Copyright 2012, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -283,10 +283,10 @@ public class RegistrationManagerImpl implements RegistrationManager
       Consumer unregConsumer = getConsumerByIdentity(NON_REGISTERED_CONSUMER);
       if (unregConsumer == null)
       {
-         unregConsumer = createConsumer(NON_REGISTERED_CONSUMER);
-         Registration registration = addRegistrationTo(NON_REGISTERED_CONSUMER, new HashMap<QName, Object>(), null, false);
+         Registration registration = addRegistrationTo(NON_REGISTERED_CONSUMER, new HashMap<QName, Object>(), null, true);
          registration.setStatus(RegistrationStatus.VALID);
-         getPersistenceManager().saveChangesTo(unregConsumer);
+         getPersistenceManager().saveChangesTo(registration);
+         return registration;
       }
       //The unregistered consumer should only ever have one registration, return that
       return unregConsumer.getRegistrations().iterator().next();
