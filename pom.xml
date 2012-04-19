@@ -41,9 +41,9 @@
    </parent>
 
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/gatein/components/wsrp/trunk/</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/gatein/components/wsrp/trunk/</developerConnection>
-      <url>http://fisheye.jboss.org/browse/gatein/components/wsrp/trunk/</url>
+      <connection>scm:git:git://github.com/gatein/gatein-wsrp.git</connection>
+      <developerConnection>scm:git:ssh://git@github.com/gatein/gatein-wsrp.git</developerConnection>
+      <url>https://github.com/gatein/gatein-wsrp</url>
    </scm>
 
    <properties>
@@ -61,6 +61,17 @@
       <org.jboss.arquillian.version>1.0.0.Alpha2</org.jboss.arquillian.version>
       <org.mockito.version>1.8.5</org.mockito.version>
       <com.google.guava.version>r09</com.google.guava.version>
+      
+      <!-- maven-release-plugin -->
+      <useReleaseProfile>false</useReleaseProfile>
+      <arguments>-Prelease</arguments>
+      <version.release.plugin>2.2.1</version.release.plugin>
+      <pushChanges>false</pushChanges>
+      <autoVersionSubmodules>true</autoVersionSubmodules>
+      
+      <!-- buildnumber-maven-plugin : needs 1.0 for git -->
+      <version.buildnumber.plugin>1.0</version.buildnumber.plugin>
+      
    </properties>
 
    <dependencyManagement>
