@@ -32,6 +32,7 @@ import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.extensions.ExtensionAccessor;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
@@ -127,6 +128,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       Serializable payload = invocation.getPayload();
       Event event = WSRPTypeFactory.createEvent(name, payload);
       EventParams eventParams = WSRPTypeFactory.createEventParams(Collections.singletonList(event), WSRPUtils.getStateChangeFromAccessMode(accessMode));
+      eventParams.getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(EventParams.class));
 
       return WSRPTypeFactory.createHandleEvents(requestPrecursor.getRegistrationContext(), portletContext,
          requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams(), eventParams);

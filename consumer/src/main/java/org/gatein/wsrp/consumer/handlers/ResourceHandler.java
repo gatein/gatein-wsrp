@@ -31,6 +31,7 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.extensions.ExtensionAccessor;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.Extension;
@@ -136,6 +137,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
       resourceParams.setNavigationalContext(params.getNavigationalContext());
       resourceParams.setClientData(params.getClientData());
       resourceParams.setResourceCacheability(WSRPUtils.getResourceCacheabilityFromCacheLevel(invocation.getCacheLevel()));
+      resourceParams.getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(ResourceParams.class));
 
       for (Map.Entry<String, String[]> entry : invocation.getForm().entrySet())
       {
