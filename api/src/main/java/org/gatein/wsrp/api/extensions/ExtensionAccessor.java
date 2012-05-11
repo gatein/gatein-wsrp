@@ -45,9 +45,9 @@ public abstract class ExtensionAccessor
     */
    public abstract List<Extension> getConsumerExtensionsTargetedAt(Class targetClass);
 
-   public abstract List<UnmarshalledExtension> getProducerResponseExtensionsFrom(Class responseClass);
-
    public abstract void addConsumerExtensionTargetedAt(Class targetClass, String name, String value);
+
+   public abstract List<UnmarshalledExtension> getProducerResponseExtensionsFrom(Class responseClass);
 
    public abstract void addProducerResponseExtensionFrom(Class responseClass, UnmarshalledExtension extension);
 

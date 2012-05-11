@@ -23,6 +23,8 @@
 package org.gatein.wsrp.api.extensions;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Extension;
 
 import java.util.ArrayList;
@@ -93,7 +95,7 @@ public class DefaultExtensionAccessor extends ExtensionAccessor
             extensionsMap.put(targetClass, extensions);
          }
 
-//         extensions.add(extension);
+         extensions.add(WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension(name, value)));
       }
    }
 
