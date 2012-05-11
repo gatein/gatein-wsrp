@@ -41,7 +41,7 @@ public abstract class ExtensionAccessor
     *
     * @param targetClass the WSRP 2 class for which extensions are supposed to be retrieved, if any
     * @return a List containing the Extensions needed to be added to the target class or an empty List if no such
-    *         extension exists. Note that we're using a detyped API to avoid pulling undue dependencies in this module.
+    *         extension exists.
     */
    public abstract List<Extension> getConsumerExtensionsTargetedAt(Class targetClass);
 
