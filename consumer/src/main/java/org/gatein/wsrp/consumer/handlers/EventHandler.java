@@ -128,7 +128,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       Serializable payload = invocation.getPayload();
       Event event = WSRPTypeFactory.createEvent(name, payload);
       EventParams eventParams = WSRPTypeFactory.createEventParams(Collections.singletonList(event), WSRPUtils.getStateChangeFromAccessMode(accessMode));
-      eventParams.getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(EventParams.class));
+      eventParams.getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(EventParams.class));
 
       return WSRPTypeFactory.createHandleEvents(requestPrecursor.getRegistrationContext(), portletContext,
          requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams(), eventParams);

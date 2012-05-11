@@ -143,7 +143,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
          log.debug("Portlet is requesting " + accessMode + " access mode");
       }
       InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(WSRPUtils.getStateChangeFromAccessMode(accessMode));
-      interactionParams.getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(InteractionParams.class));
+      interactionParams.getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(InteractionParams.class));
 
       // interaction state
       StateString interactionState = actionInvocation.getInteractionState();

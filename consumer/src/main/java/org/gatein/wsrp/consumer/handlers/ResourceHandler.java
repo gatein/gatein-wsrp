@@ -137,7 +137,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
       resourceParams.setNavigationalContext(params.getNavigationalContext());
       resourceParams.setClientData(params.getClientData());
       resourceParams.setResourceCacheability(WSRPUtils.getResourceCacheabilityFromCacheLevel(invocation.getCacheLevel()));
-      resourceParams.getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(ResourceParams.class));
+      resourceParams.getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(ResourceParams.class));
 
       for (Map.Entry<String, String[]> entry : invocation.getForm().entrySet())
       {

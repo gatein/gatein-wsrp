@@ -388,7 +388,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState);
          String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
          getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
-         getMarkupParams().getExtensions().addAll(ExtensionAccessor.getConsumerExtensionsTargetedAt(MarkupParams.class));
+         getMarkupParams().getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(MarkupParams.class));
 
          // navigational state
          StateString navigationalState = invocation.getNavigationalState();

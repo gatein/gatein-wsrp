@@ -22,19 +22,17 @@
 
 package org.gatein.wsrp.api.extensions;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import org.oasis.wsrp.v2.Extension;
+
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class ExtensionAccessor
+public abstract class ExtensionAccessor
 {
-   private static final ThreadLocal<Map<Class, List>> EXTENSIONS = new ThreadLocal<Map<Class, List>>();
+   private static ExtensionAccessor instance;
 
    /**
     * Retrieves previously set extensions targeted at the specified WSRP 2 target class so that the consumer can add
@@ -45,55 +43,28 @@ public class ExtensionAccessor
     * @return a List containing the Extensions needed to be added to the target class or an empty List if no such
     *         extension exists. Note that we're using a detyped API to avoid pulling undue dependencies in this module.
     */
-   public static List getConsumerExtensionsTargetedAt(Class targetClass)
-   {
-      List extensions = null;
-      if (targetClass != null)
-      {
-         final Map<Class, List> extensionsMap = EXTENSIONS.get();
-         if (extensionsMap != null)
-         {
-            extensions = extensionsMap.get(targetClass);
-         }
-      }
+   public abstract List<Extension> getConsumerExtensionsTargetedAt(Class targetClass);
 
-      return extensions != null ? extensions : Collections.emptyList();
+   public abstract List<UnmarshalledExtension> getProducerResponseExtensionsFrom(Class responseClass);
+
+   public abstract void addConsumerExtensionTargetedAt(Class targetClass, String name, String value);
+
+   public abstract void addProducerResponseExtensionFrom(Class responseClass, UnmarshalledExtension extension);
+
+   public static ExtensionAccessor instance()
+   {
+      return instance;
    }
 
-   public static List<UnmarshalledExtension> getProducerResponseExtensionsFrom(Class responseClass)
+   protected synchronized static void registerInstance(ExtensionAccessor accessor)
    {
-      if (responseClass != null)
+      if (instance != null)
       {
-
+         throw new IllegalStateException("An ExtensionAccessor has already been registered!");
       }
-
-      return Collections.emptyList();
-   }
-
-   public static void addConsumerExtensionTargetedAt(Class targetClass, String name, String value)
-   {
-
-   }
-
-   public static void addProducerResponseExtensionFrom(Class responseClass, UnmarshalledExtension extension)
-   {
-      Map<Class, List> extensionsMap = EXTENSIONS.get();
-      if (extensionsMap == null)
+      else
       {
-         extensionsMap = new ConcurrentHashMap<Class, List>(7);
-         EXTENSIONS.set(extensionsMap);
-      }
-
-      List extensions = extensionsMap.get(responseClass);
-      if (extension != null)
-      {
-         if (extensions == null)
-         {
-            extensions = new ArrayList(3);
-            extensionsMap.put(responseClass, extensions);
-         }
-
-         extensions.add(extension);
+         instance = accessor;
       }
    }
 }

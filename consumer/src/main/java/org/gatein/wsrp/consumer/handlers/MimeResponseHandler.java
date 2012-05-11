@@ -98,7 +98,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       for (Extension extension : extensions)
       {
          final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
-         ExtensionAccessor.addProducerResponseExtensionFrom(mimeResponse.getClass(), unmarshalledExtension);
+         ExtensionAccessor.instance().addProducerResponseExtensionFrom(mimeResponse.getClass(), unmarshalledExtension);
       }
 
       return rewriteResponseIfNeeded(mimeResponse, invocation);
