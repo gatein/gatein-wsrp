@@ -37,7 +37,7 @@ import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.api.extensions.ExtensionAccessor;
+import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
@@ -388,7 +388,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState);
          String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
          getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
-         getMarkupParams().getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(MarkupParams.class));
+         getMarkupParams().getExtensions().addAll(ConsumerExtensionAccessor.instance().getRequestExtensionsFor(MarkupParams.class));
 
          // navigational state
          StateString navigationalState = invocation.getNavigationalState();

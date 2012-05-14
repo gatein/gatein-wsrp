@@ -42,8 +42,8 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.api.extensions.ExtensionAccessor;
 import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
+import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.payload.PayloadUtils;
@@ -98,7 +98,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       for (Extension extension : extensions)
       {
          final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
-         ExtensionAccessor.instance().addProducerResponseExtensionFrom(mimeResponse.getClass(), unmarshalledExtension);
+         ConsumerExtensionAccessor.instance().addReponseExtension(mimeResponse.getClass(), unmarshalledExtension);
       }
 
       return rewriteResponseIfNeeded(mimeResponse, invocation);

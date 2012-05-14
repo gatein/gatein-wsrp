@@ -39,7 +39,7 @@ import org.gatein.pc.api.spi.RequestContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.api.extensions.ExtensionAccessor;
+import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
@@ -143,7 +143,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
          log.debug("Portlet is requesting " + accessMode + " access mode");
       }
       InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(WSRPUtils.getStateChangeFromAccessMode(accessMode));
-      interactionParams.getExtensions().addAll(ExtensionAccessor.instance().getConsumerExtensionsTargetedAt(InteractionParams.class));
+      interactionParams.getExtensions().addAll(ConsumerExtensionAccessor.instance().getRequestExtensionsFor(InteractionParams.class));
 
       // interaction state
       StateString interactionState = actionInvocation.getInteractionState();

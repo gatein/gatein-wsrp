@@ -24,6 +24,7 @@ package org.gatein.wsrp.api.extensions;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.Extension;
 
@@ -34,12 +35,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
-public class DefaultExtensionAccessor extends ExtensionAccessor
+public class DefaultConsumerExtensionAccessor extends ConsumerExtensionAccessor
 {
    // On-demand class holder Singleton pattern (multi-thread safe)
    private static final class InstanceHolder
    {
-      public static final ExtensionAccessor instance = new DefaultExtensionAccessor();
+      public static final ConsumerExtensionAccessor instance = new DefaultConsumerExtensionAccessor();
    }
 
    // register instance with API
@@ -52,7 +53,7 @@ public class DefaultExtensionAccessor extends ExtensionAccessor
    private static final ThreadLocal<Map<Class, List<Extension>>> EXTENSIONS = new ThreadLocal<Map<Class, List<Extension>>>();
    private static final ThreadLocal<Map<Class, List<UnmarshalledExtension>>> UNMARSHALLED_EXTENSIONS = new ThreadLocal<Map<Class, List<UnmarshalledExtension>>>();
 
-   public List<Extension> getConsumerExtensionsTargetedAt(Class targetClass)
+   public List<Extension> getRequestExtensionsFor(Class targetClass)
    {
       List<Extension> extensions = null;
       if (targetClass != null)
@@ -67,7 +68,7 @@ public class DefaultExtensionAccessor extends ExtensionAccessor
       return extensions != null ? extensions : Collections.<Extension>emptyList();
    }
 
-   public List<UnmarshalledExtension> getProducerResponseExtensionsFrom(Class responseClass)
+   public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass)
    {
       if (responseClass != null)
       {
@@ -77,7 +78,7 @@ public class DefaultExtensionAccessor extends ExtensionAccessor
       return Collections.emptyList();
    }
 
-   public void addConsumerExtensionTargetedAt(Class targetClass, String name, String value)
+   public void addRequestExtension(Class targetClass, String name, String value)
    {
       Map<Class, List<Extension>> extensionsMap = EXTENSIONS.get();
       if (extensionsMap == null)
@@ -99,7 +100,7 @@ public class DefaultExtensionAccessor extends ExtensionAccessor
       }
    }
 
-   public void addProducerResponseExtensionFrom(Class responseClass, UnmarshalledExtension extension)
+   public void addReponseExtension(Class responseClass, UnmarshalledExtension extension)
    {
       Map<Class, List<UnmarshalledExtension>> extensionsMap = UNMARSHALLED_EXTENSIONS.get();
       if (extensionsMap == null)
