@@ -100,7 +100,7 @@ public class DefaultConsumerExtensionAccessor extends ConsumerExtensionAccessor
       }
    }
 
-   public void addReponseExtension(Class responseClass, UnmarshalledExtension extension)
+   public void addResponseExtension(Class responseClass, UnmarshalledExtension extension)
    {
       Map<Class, List<UnmarshalledExtension>> extensionsMap = UNMARSHALLED_EXTENSIONS.get();
       if (extensionsMap == null)

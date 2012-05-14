@@ -50,7 +50,7 @@ public abstract class ConsumerExtensionAccessor
 
    public abstract List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
-   public abstract void addReponseExtension(Class responseClass, UnmarshalledExtension extension);
+   public abstract void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 
    public static ConsumerExtensionAccessor instance()
    {
