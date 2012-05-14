@@ -23,9 +23,9 @@
 
 package org.gatein.wsrp.endpoints;
 
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
-import org.gatein.wsrp.servlet.ServletAccess;
 
 import javax.servlet.http.HttpSession;
 

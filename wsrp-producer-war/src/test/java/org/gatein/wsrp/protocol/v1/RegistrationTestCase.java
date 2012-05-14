@@ -24,13 +24,12 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.registration.Registration;
-import org.gatein.registration.RegistrationException;
 import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
-import org.oasis.wsrp.v1.V1MissingParameters;
 import org.oasis.wsrp.v1.V1ModifyRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1PropertyDescription;

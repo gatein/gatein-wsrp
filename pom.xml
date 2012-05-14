@@ -65,14 +65,14 @@
       <org.jboss.arquillian.version>1.0.0.Alpha2</org.jboss.arquillian.version>
       <org.mockito.version>1.8.5</org.mockito.version>
       <org.jboss.portletbridge.version>2.3.0.Final</org.jboss.portletbridge.version>
-      
+
       <!-- maven-release-plugin -->
       <useReleaseProfile>false</useReleaseProfile>
       <arguments>-Prelease</arguments>
       <version.release.plugin>2.2.1</version.release.plugin>
       <pushChanges>false</pushChanges>
       <autoVersionSubmodules>true</autoVersionSubmodules>
-      
+
       <!-- buildnumber-maven-plugin : needs 1.0 for git -->
       <version.buildnumber.plugin>1.0</version.buildnumber.plugin>
    </properties>
@@ -255,9 +255,9 @@
    </dependencyManagement>
 
    <modules>
-      <module>api</module>
       <module>wsrp1-ws</module>
       <module>wsrp2-ws</module>
+      <module>api</module>
       <module>common</module>
       <module>test</module>
       <module>producer</module>

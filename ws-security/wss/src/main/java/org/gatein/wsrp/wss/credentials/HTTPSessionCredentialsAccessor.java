@@ -24,7 +24,7 @@
 package org.gatein.wsrp.wss.credentials;
 
 import org.gatein.wci.security.Credentials;
-import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class HTTPSessionCredentialsAccessor implements CredentialsAccessor
    /**
     * Return credentials from HTTP session. It assumes that Credentials are in HTTP session in attribute
     * {@link org.gatein.wci.security.Credentials#CREDENTIALS} and current HTTP request is bound to {@link
-    * org.gatein.wsrp.servlet.ServletAccess} thread-local.
+    * org.gatein.wsrp.api.servlet.ServletAccess} thread-local.
     *
     * @return credentials
     */

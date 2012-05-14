@@ -43,12 +43,10 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.Utils;
-import org.gatein.wsrp.producer.WSRPValidator;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -71,16 +69,14 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -358,7 +354,8 @@ public abstract class RequestProcessor<Response>
    }
 
    /**
-    * Retrieves the best matching value from a set of possible values based on an ordered set of preferred values or the
+    * Retrieves the best matching value from a set of possible values based on an ordered set of preferred values or
+    * the
     * given default value if no matching value is found.
     *
     * @param possibleValues  the set of possible values

@@ -31,7 +31,7 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.oasis.wsrp.v2.MimeResponse;
 
 /**

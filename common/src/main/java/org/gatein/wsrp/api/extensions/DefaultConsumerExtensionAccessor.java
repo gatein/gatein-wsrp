@@ -43,12 +43,14 @@ public class DefaultConsumerExtensionAccessor extends ConsumerExtensionAccessor
       public static final ConsumerExtensionAccessor instance = new DefaultConsumerExtensionAccessor();
    }
 
-   // register instance with API
-   static
+   public static void registerWithAPI()
    {
-      registerInstance(InstanceHolder.instance);
+      // register instance with API
+      if (ConsumerExtensionAccessor.instance() == null)
+      {
+         registerInstance(InstanceHolder.instance);
+      }
    }
-
 
    private static final ThreadLocal<Map<Class, List<Extension>>> EXTENSIONS = new ThreadLocal<Map<Class, List<Extension>>>();
    private static final ThreadLocal<Map<Class, List<UnmarshalledExtension>>> UNMARSHALLED_EXTENSIONS = new ThreadLocal<Map<Class, List<UnmarshalledExtension>>>();

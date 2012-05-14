@@ -102,7 +102,7 @@
       <!--      <property name="configFile">/tmp/producer-config.xml</property> -->
    </bean>
 
-   <bean name="ServletAccess" class="org.gatein.wsrp.servlet.ServletAccess"/>
+   <bean name="ServletAccess" class="org.gatein.wsrp.api.servlet.ServletAccess"/>
 
    <bean name="ExportManager" class="org.gatein.exports.impl.ExportManagerImpl"/>
 
