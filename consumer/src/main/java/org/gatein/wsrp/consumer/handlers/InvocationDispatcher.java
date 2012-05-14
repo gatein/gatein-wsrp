@@ -156,7 +156,7 @@ public class InvocationDispatcher
 
       if (delegate != null)
       {
-         delegate.processInvocationResponse(response);
+         delegate.processInvocationResponse(response, invocation);
       }
 
       return response;

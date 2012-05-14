@@ -61,5 +61,5 @@ public abstract class InvocationHandlerDelegate
 
    public abstract void processInvocation(PortletInvocation invocation);
 
-   public abstract void processInvocationResponse(PortletInvocationResponse response);
+   public abstract void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation);
 }
