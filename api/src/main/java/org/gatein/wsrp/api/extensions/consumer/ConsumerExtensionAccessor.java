@@ -31,9 +31,8 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public abstract class ConsumerExtensionAccessor
+public interface ConsumerExtensionAccessor
 {
-   private static ConsumerExtensionAccessor instance;
 
    /**
     * Retrieves previously set extensions targeted at the specified WSRP 2 target class so that the consumer can add
@@ -44,28 +43,12 @@ public abstract class ConsumerExtensionAccessor
     * @return a List containing the Extensions needed to be added to the target class or an empty List if no such
     *         extension exists.
     */
-   public abstract List<Extension> getRequestExtensionsFor(Class targetClass);
+   public List<Extension> getRequestExtensionsFor(Class targetClass);
 
-   public abstract void addRequestExtension(Class targetClass, String name, String value);
+   public void addRequestExtension(Class targetClass, String name, String value);
 
-   public abstract List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
+   public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
-   public abstract void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
+   public void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 
-   public static ConsumerExtensionAccessor instance()
-   {
-      return instance;
-   }
-
-   protected synchronized static void registerInstance(ConsumerExtensionAccessor accessor)
-   {
-      if (instance != null)
-      {
-         throw new IllegalStateException("An ExtensionAccessor has already been registered!");
-      }
-      else
-      {
-         instance = accessor;
-      }
-   }
 }

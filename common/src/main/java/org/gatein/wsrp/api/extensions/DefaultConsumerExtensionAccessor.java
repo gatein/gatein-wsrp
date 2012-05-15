@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
-public class DefaultConsumerExtensionAccessor extends ConsumerExtensionAccessor
+public class DefaultConsumerExtensionAccessor implements ConsumerExtensionAccessor
 {
    // On-demand class holder Singleton pattern (multi-thread safe)
    private static final class InstanceHolder
@@ -46,9 +46,9 @@ public class DefaultConsumerExtensionAccessor extends ConsumerExtensionAccessor
    public static void registerWithAPI()
    {
       // register instance with API
-      if (ConsumerExtensionAccessor.instance() == null)
+      if (ExtensionAccess.getConsumerExtensionAccessor() == null)
       {
-         registerInstance(InstanceHolder.instance);
+         ExtensionAccess.registerInstance(InstanceHolder.instance);
       }
    }
 
