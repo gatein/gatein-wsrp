@@ -62,6 +62,7 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
+import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
@@ -108,11 +109,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletInvocationResponse response;
       try
       {
-         log.debug("RenderInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(getMarkup.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("RenderInvocation done");
+         response = invoke(requestProcessor, getMarkup.getRegistrationContext(), GET_MARKUP, handle);
       }
       catch (PortletInvokerException e)
       {
@@ -137,11 +134,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletInvocationResponse response;
       try
       {
-         log.debug("ResourceInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(getResource.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("ResourceInvocation done");
+         response = invoke(requestProcessor, getResource.getRegistrationContext(), GET_RESOURCE, handle);
       }
       catch (PortletInvokerException e)
       {
@@ -168,11 +161,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       try
       {
-         log.debug("ActionInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(performBlockingInteraction.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("ActionInvocation done");
+         response = invoke(requestProcessor, performBlockingInteraction.getRegistrationContext(), PBI, handle);
       }
       catch (PortletStateChangeRequiredException e)
       {
@@ -225,11 +214,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       try
       {
-         log.debug("EventInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(handleEvents.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("EventInvocation done");
+         response = invoke(requestProcessor, handleEvents.getRegistrationContext(), HANDLE_EVENTS, handle);
       }
       catch (PortletStateChangeRequiredException e)
       {
@@ -243,6 +228,17 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       checkForError(response);
 
       return requestProcessor.processResponse(response);
+   }
+
+   private PortletInvocationResponse invoke(RequestProcessor requestProcessor, RegistrationContext registrationContext, String invocationType, String handle)
+      throws PortletInvokerException, OperationFailed, ModifyRegistrationRequired, InvalidRegistration
+   {
+      log.debug(invocationType + " on portlet '" + handle + "'");
+      Registration registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
+      RegistrationLocal.setRegistration(registration);
+      final PortletInvocationResponse response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
+      log.debug(invocationType + " done");
+      return response;
    }
 
    private void checkForError(PortletInvocationResponse response)
