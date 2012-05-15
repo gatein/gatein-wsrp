@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer.handlers;
 
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
@@ -33,6 +34,7 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.portlet.state.producer.PortletStateChangeRequiredException;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
+import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.MarkupInterface;
 import org.gatein.wsrp.producer.Utils;
@@ -234,9 +236,24 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       throws PortletInvokerException, OperationFailed, ModifyRegistrationRequired, InvalidRegistration
    {
       log.debug(invocationType + " on portlet '" + handle + "'");
+
       Registration registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
       RegistrationLocal.setRegistration(registration);
-      final PortletInvocationResponse response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
+      final PortletInvocation invocation = requestProcessor.getInvocation();
+
+      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.producerDelegate();
+      if (delegate != null)
+      {
+         delegate.processInvocation(invocation);
+      }
+
+      final PortletInvocationResponse response = producer.getPortletInvoker().invoke(invocation);
+
+      if (delegate != null)
+      {
+         delegate.processInvocationResponse(response, invocation);
+      }
+
       log.debug(invocationType + " done");
       return response;
    }
