@@ -146,7 +146,7 @@ public class InvocationDispatcher
          throw new InvocationException("Unknown invocation type: " + invocation);
       }
 
-      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.delegate();
+      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.consumerDelegate();
       if (delegate != null)
       {
          delegate.processInvocation(invocation);

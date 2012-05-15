@@ -28,12 +28,19 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public abstract class InvocationHandlerDelegate
 {
-   private static InvocationHandlerDelegate DELEGATE;
-   public static final String DELEGATE_CLASSNAME = "org.gatein.wsrp.consumer.handlers.delegate";
+   private static final InvocationHandlerDelegate CONSUMER_DELEGATE;
+   private static final InvocationHandlerDelegate PRODUCER_DELEGATE;
+   public static final String CONSUMER_DELEGATE_CLASSNAME = "org.gatein.wsrp.consumer.handlers.delegate";
+   public static final String PRODUCER_DELEGATE_CLASSNAME = "org.gatein.wsrp.producer.handlers.delegate";
 
    static
    {
-      final String delegateClassName = System.getProperty(DELEGATE_CLASSNAME);
+      CONSUMER_DELEGATE = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
+      PRODUCER_DELEGATE = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
+   }
+
+   private static InvocationHandlerDelegate createDelegate(String delegateClassName)
+   {
       if (delegateClassName != null && !delegateClassName.isEmpty())
       {
          ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -44,19 +51,25 @@ public abstract class InvocationHandlerDelegate
             {
                throw new IllegalArgumentException("Invocation handler delegate class " + delegateClassName + "does not extends " + InvocationHandlerDelegate.class.getName());
             }
-            DELEGATE = (InvocationHandlerDelegate)delegateClass.newInstance();
+            return (InvocationHandlerDelegate)delegateClass.newInstance();
          }
          catch (Exception e)
          {
             throw new RuntimeException(e);
          }
       }
+      return null;
    }
 
 
-   public static InvocationHandlerDelegate delegate()
+   public static InvocationHandlerDelegate consumerDelegate()
    {
-      return DELEGATE;
+      return CONSUMER_DELEGATE;
+   }
+
+   public static InvocationHandlerDelegate producerDelegate()
+   {
+      return PRODUCER_DELEGATE;
    }
 
    public abstract void processInvocation(PortletInvocation invocation);
