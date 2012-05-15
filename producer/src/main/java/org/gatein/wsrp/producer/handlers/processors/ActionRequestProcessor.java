@@ -124,6 +124,9 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
       // Form parameters
       invocation.setForm(requestContext.getForm());
 
+      // Extensions
+      processExtensionsFrom(interactionParams.getClass(), interactionParams.getExtensions());
+
       return invocation;
    }
 

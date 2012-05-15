@@ -23,26 +23,45 @@
 package org.gatein.wsrp.api.extensions;
 
 import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
+import org.gatein.wsrp.api.extensions.producer.ProducerExtensionAccessor;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public class ExtensionAccess
 {
    private static ConsumerExtensionAccessor consumer;
+   private static ProducerExtensionAccessor producer;
 
    public static ConsumerExtensionAccessor getConsumerExtensionAccessor()
    {
       return consumer;
    }
 
-   protected synchronized static void registerInstance(ConsumerExtensionAccessor accessor)
+   public static ProducerExtensionAccessor getProducerExtensionAccessor()
+   {
+      return producer;
+   }
+
+   protected synchronized static void registerConsumerAccessorInstance(ConsumerExtensionAccessor accessor)
    {
       if (consumer != null)
       {
-         throw new IllegalStateException("An ExtensionAccessor has already been registered!");
+         throw new IllegalStateException("A ConsumerExtensionAccessor has already been registered!");
       }
       else
       {
          consumer = accessor;
+      }
+   }
+
+   protected synchronized static void registerProducerAccessorInstance(ProducerExtensionAccessor accessor)
+   {
+      if (producer != null)
+      {
+         throw new IllegalStateException("A ProducerExtensionAccessor has already been registered!");
+      }
+      else
+      {
+         producer = accessor;
       }
    }
 }

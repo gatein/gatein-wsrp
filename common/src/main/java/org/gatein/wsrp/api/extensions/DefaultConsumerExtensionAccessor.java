@@ -48,7 +48,7 @@ public class DefaultConsumerExtensionAccessor implements ConsumerExtensionAccess
       // register instance with API
       if (ExtensionAccess.getConsumerExtensionAccessor() == null)
       {
-         ExtensionAccess.registerInstance(InstanceHolder.instance);
+         ExtensionAccess.registerConsumerAccessorInstance(InstanceHolder.instance);
       }
    }
 

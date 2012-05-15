@@ -140,7 +140,8 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    {
       EventInvocation eventInvocation = new EventInvocation(context);
 
-      List<Event> events = handleEvents.getEventParams().getEvents();
+      final EventParams eventParams = handleEvents.getEventParams();
+      List<Event> events = eventParams.getEvents();
 
       if (events.size() > 1)
       {
@@ -152,6 +153,9 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
 
       eventInvocation.setName(event.getName());
       eventInvocation.setPayload(PayloadUtils.getPayloadAsSerializable(event));
+
+      // Extensions
+      processExtensionsFrom(eventParams.getClass(), eventParams.getExtensions());
 
       return eventInvocation;
    }
