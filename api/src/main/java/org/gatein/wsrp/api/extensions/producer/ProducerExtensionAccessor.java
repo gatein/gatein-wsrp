@@ -23,9 +23,18 @@
 package org.gatein.wsrp.api.extensions.producer;
 
 import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
+import org.oasis.wsrp.v2.Extension;
+
+import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public interface ProducerExtensionAccessor
 {
-   public void addRequestExtension(Class fromClass, UnmarshalledExtension extension);
+   void addRequestExtension(Class fromClass, UnmarshalledExtension extension);
+
+   List<UnmarshalledExtension> getRequestExtensionsFor(Class targetClass);
+
+   List<Extension> getResponseExtensionsFor(Class wsrpResponseClass);
+
+   void addResponseExtension(Class wsrpResponseClass, String name, String value);
 }

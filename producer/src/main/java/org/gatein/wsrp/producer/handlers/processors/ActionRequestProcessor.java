@@ -35,6 +35,7 @@ import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -52,6 +53,8 @@ import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UpdateResponse;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -128,6 +131,12 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
       processExtensionsFrom(interactionParams.getClass(), interactionParams.getExtensions());
 
       return invocation;
+   }
+
+   @Override
+   List<Extension> getResponseExtensionsFor(BlockingInteractionResponse blockingInteractionResponse)
+   {
+      return blockingInteractionResponse.getExtensions();
    }
 
    protected BlockingInteractionResponse internalProcessResponse(PortletInvocationResponse response)

@@ -219,11 +219,19 @@ public abstract class RequestProcessor<Response>
 
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
+   abstract List<Extension> getResponseExtensionsFor(Response response);
+
    public Response processResponse(PortletInvocationResponse response)
    {
       try
       {
-         return internalProcessResponse(response);
+         final Response wsrpResponse = internalProcessResponse(response);
+
+         // extensions
+         List<Extension> extensions = ExtensionAccess.getProducerExtensionAccessor().getResponseExtensionsFor(wsrpResponse.getClass());
+         getResponseExtensionsFor(wsrpResponse).addAll(extensions);
+
+         return wsrpResponse;
       }
       finally
       {
