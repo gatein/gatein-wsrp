@@ -38,11 +38,14 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.extensions.ExtensionAccess;
+import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
@@ -59,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -293,6 +297,22 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
    protected abstract Request prepareRequest(RequestPrecursor<Invocation> requestPrecursor, Invocation invocation);
 
    protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
+
+   protected void processExtensions(List<Extension> extensions, Class responseClass)
+   {
+      for (Extension extension : extensions)
+      {
+         try
+         {
+            final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
+            ExtensionAccess.getConsumerExtensionAccessor().addResponseExtension(responseClass, unmarshalledExtension);
+         }
+         catch (Exception e)
+         {
+            log.debug("Couldn't unmarshall extension from producer, ignoring it.", e);
+         }
+      }
+   }
 
    /**
     * Extracts basic required elements for all invocation requests.

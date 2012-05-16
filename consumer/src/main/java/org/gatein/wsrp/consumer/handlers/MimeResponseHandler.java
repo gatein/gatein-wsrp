@@ -42,18 +42,13 @@ import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.api.extensions.ExtensionAccess;
-import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
-import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.CacheControl;
-import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.SessionContext;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,19 +89,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          requestPrecursor.getPortletHandle());
 
       LocalMimeResponse mimeResponse = getMimeResponseFrom(response);
-      final List<Extension> extensions = mimeResponse.getExtensions();
-      for (Extension extension : extensions)
-      {
-         try
-         {
-            final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
-            ExtensionAccess.getConsumerExtensionAccessor().addResponseExtension(mimeResponse.getClass(), unmarshalledExtension);
-         }
-         catch (Exception e)
-         {
-            log.debug("Couldn't unmarshall extension from producer, ignoring it.", e);
-         }
-      }
+      processExtensions(mimeResponse.getExtensions(), mimeResponse.getClass());
 
       return rewriteResponseIfNeeded(mimeResponse, invocation);
    }

@@ -115,6 +115,9 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
          }
       }
 
+      // extensions
+      processExtensions(updateResponse.getExtensions(), updateResponse.getClass());
+
       // check if the portlet was cloned
       PortletContext portletContext = updateResponse.getPortletContext();
       SessionHandler sessionHandler = consumer.getSessionHandler();
