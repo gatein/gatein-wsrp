@@ -22,54 +22,54 @@
 
 package org.gatein.wsrp.api.extensions;
 
-import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
+import org.gatein.wsrp.api.extensions.producer.ProducerExtensionAccessor;
 import org.oasis.wsrp.v2.Extension;
 
 import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
-public class DefaultConsumerExtensionAccessor extends AbstractExtensionAccessor implements ConsumerExtensionAccessor
+public class DefaultProducerExtensionAccessor extends AbstractExtensionAccessor implements ProducerExtensionAccessor
 {
-   private DefaultConsumerExtensionAccessor()
+   private DefaultProducerExtensionAccessor()
    {
    }
 
    @Override
-   public List<Extension> getRequestExtensionsFor(Class targetClass)
+   public void addRequestExtension(Class fromClass, UnmarshalledExtension extension)
    {
-      return getExtensions(targetClass);
+      addUnmarshalledExtension(fromClass, extension);
    }
 
    @Override
-   public void addRequestExtension(Class targetClass, String name, String value)
+   public List<UnmarshalledExtension> getRequestExtensionsFor(Class targetClass)
    {
-      addExtension(targetClass, name, value);
+      return getUnmarshalledExtensions(targetClass);
    }
 
    @Override
-   public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass)
+   public List<Extension> getResponseExtensionsFor(Class wsrpResponseClass)
    {
-      return getUnmarshalledExtensions(responseClass);
+      return getExtensions(wsrpResponseClass);
    }
 
    @Override
-   public void addResponseExtension(Class responseClass, UnmarshalledExtension extension)
+   public void addResponseExtension(Class wsrpResponseClass, String name, String value)
    {
-      addUnmarshalledExtension(responseClass, extension);
+      addExtension(wsrpResponseClass, name, value);
    }
 
    // On-demand class holder Singleton pattern (multi-thread safe)
    private static final class InstanceHolder
    {
-      public static final ConsumerExtensionAccessor instance = new DefaultConsumerExtensionAccessor();
+      public static final ProducerExtensionAccessor instance = new DefaultProducerExtensionAccessor();
    }
 
    public synchronized static void registerWithAPI()
    {
       // register instance with API
-      if (ExtensionAccess.getConsumerExtensionAccessor() == null)
+      if (ExtensionAccess.getProducerExtensionAccessor() == null)
       {
-         ExtensionAccess.registerConsumerAccessorInstance(InstanceHolder.instance);
+         ExtensionAccess.registerProducerAccessorInstance(InstanceHolder.instance);
       }
    }
 }
