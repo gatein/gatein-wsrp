@@ -20,9 +20,8 @@
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
 
-package org.gatein.wsrp.api.extensions.producer;
+package org.gatein.wsrp.api.extensions;
 
-import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.oasis.wsrp.v2.Extension;
 
 import java.util.List;

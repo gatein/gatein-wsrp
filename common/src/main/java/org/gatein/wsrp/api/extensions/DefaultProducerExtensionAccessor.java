@@ -22,7 +22,6 @@
 
 package org.gatein.wsrp.api.extensions;
 
-import org.gatein.wsrp.api.extensions.producer.ProducerExtensionAccessor;
 import org.oasis.wsrp.v2.Extension;
 
 import java.util.List;

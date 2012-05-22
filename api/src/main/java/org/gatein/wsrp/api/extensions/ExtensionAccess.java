@@ -22,9 +22,6 @@
 
 package org.gatein.wsrp.api.extensions;
 
-import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
-import org.gatein.wsrp.api.extensions.producer.ProducerExtensionAccessor;
-
 /**
  * Provides an entry point to the extension support in GateIn WSRP. ConsumerExtensionAccessor provides access to
  * extensions on the consumer-side while ProducerExtensionAccessor provides access to extensions on the producer-side.
