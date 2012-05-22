@@ -51,13 +51,11 @@ public interface ConsumerExtensionAccessor
    public List<Extension> getRequestExtensionsFor(Class targetClass);
 
    /**
-    * Adds an extension composed of the specified name / value pair to the specified request before it is sent to the
-    * producer to elements of the specified target class. For example, to add a <code>foo</code> extension with the
-    * <code>bar</code> value to outgoing {@link org.oasis.wsrp.v2.MarkupParams} instances, you would call this method
-    * as
-    * follows:
+    * Adds an extension composed of the specified name / value pair to be added the specified request before it is sent
+    * to the producer to elements of the specified target class. For example, to add a <code>foo</code> extension with
+    * the <code>bar</code> value to outgoing {@link org.oasis.wsrp.v2.MarkupParams} instances, you would call this
+    * method as follows:
     * <p><code>addRequestExtension(MarkupParams.class, "foo", "bar")</code></p>
-    * <p/>
     * <p/>
     * Note that extensions can currently only be set on {@link org.oasis.wsrp.v2.InteractionParams}, {@link
     * org.oasis.wsrp.v2.EventParams}, {@link org.oasis.wsrp.v2.MarkupParams} or {@link
@@ -72,10 +70,10 @@ public interface ConsumerExtensionAccessor
    /**
     * Retrieves extensions that were sent by the producer for instances of the specified response class.
     * <p/>
-    * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.UpdateResponse} and
-    * {@link org.oasis.wsrp.v2.MimeResponse} (so {@link org.oasis.wsrp.v2.MarkupContext} or {@link
-    * org.oasis.wsrp.v2.ResourceContext} which are subclasses of {@link org.oasis.wsrp.v2.MimeResponse}). These classes
-    * are the ones that contain the specific information pertaining to markup, interaction, resource or event requests.
+    * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.MarkupResponse},
+    * {@link org.oasis.wsrp.v2.BlockingInteractionResponse}, {@link org.oasis.wsrp.v2.HandleEventsResponse} or {@link
+    * org.oasis.wsrp.v2.ResourceResponse}. These classes are the ones that contain the specific information pertaining
+    * to markup, interaction, resource or event requests.
     *
     * @param responseClass
     * @return
@@ -83,7 +81,7 @@ public interface ConsumerExtensionAccessor
    public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
    /**
-    * Adds the specified unmarshalled extension to the specified WSRP response class.
+    * Adds the specified unmarshalled extension to be linked to the specified WSRP response class.
     * <p/>
     * Note that this method is essentially targeted at the internal implementation.
     *
