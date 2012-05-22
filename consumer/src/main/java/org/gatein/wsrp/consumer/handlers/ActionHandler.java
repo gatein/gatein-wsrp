@@ -265,10 +265,8 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
 
    protected PortletInvocationResponse processResponse(BlockingInteractionResponse response, ActionInvocation invocation, RequestPrecursor<ActionInvocation> requestPrecursor) throws PortletInvokerException
    {
-      BlockingInteractionResponse blockingInteractionResponse = response;
-
-      String redirectURL = blockingInteractionResponse.getRedirectURL();
-      UpdateResponse updateResponse = blockingInteractionResponse.getUpdateResponse();
+      String redirectURL = response.getRedirectURL();
+      UpdateResponse updateResponse = response.getUpdateResponse();
       if (redirectURL != null && updateResponse != null)
       {
          return new ErrorResponse(new IllegalArgumentException("Producer error: response cannot both redirect and update state."));
@@ -287,7 +285,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       {
          // updateResponse.getMarkupContext(); // ignore bundled markup for now.
 
-         return processUpdateResponse(invocation, requestPrecursor, updateResponse);
+         return processUpdateResponse(invocation, requestPrecursor, updateResponse, response);
       }
    }
 

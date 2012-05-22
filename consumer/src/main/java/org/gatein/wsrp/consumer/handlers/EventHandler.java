@@ -143,6 +143,6 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
          return new ErrorResponse("Couldn't process events: " + failed);
       }
 
-      return processUpdateResponse(invocation, requestPrecursor, response.getUpdateResponse());
+      return processUpdateResponse(invocation, requestPrecursor, response.getUpdateResponse(), response);
    }
 }

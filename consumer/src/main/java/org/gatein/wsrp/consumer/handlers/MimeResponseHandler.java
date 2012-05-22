@@ -89,7 +89,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          requestPrecursor.getPortletHandle());
 
       LocalMimeResponse mimeResponse = getMimeResponseFrom(response);
-      processExtensions(mimeResponse.getExtensions(), mimeResponse.getClass());
+      processExtensions(mimeResponse.getExtensions(), response.getClass());
 
       return rewriteResponseIfNeeded(mimeResponse, invocation);
    }
