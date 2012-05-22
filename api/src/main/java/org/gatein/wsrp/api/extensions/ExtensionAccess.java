@@ -25,7 +25,12 @@ package org.gatein.wsrp.api.extensions;
 import org.gatein.wsrp.api.extensions.consumer.ConsumerExtensionAccessor;
 import org.gatein.wsrp.api.extensions.producer.ProducerExtensionAccessor;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Provides an entry point to the extension support in GateIn WSRP. ConsumerExtensionAccessor provides access to
+ * extensions on the consumer-side while ProducerExtensionAccessor provides access to extensions on the producer-side.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public class ExtensionAccess
 {
    private static ConsumerExtensionAccessor consumer;

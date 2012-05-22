@@ -28,6 +28,10 @@ import org.oasis.wsrp.v2.Extension;
 import java.util.List;
 
 /**
+ * Accessor for consumer-side extensions. Use {@link #addRequestExtension(Class, String, String)} to add extensions to
+ * the request before it is sent to the producer. Use {@link #getResponseExtensionsFrom(Class)} to retrieve the
+ * extensions that the producer might have sent back in its response.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -38,6 +42,8 @@ public interface ConsumerExtensionAccessor
     * Retrieves previously set extensions targeted at the specified WSRP 2 target class so that the consumer can add
     * them to the requests before sending them to the producer. For examples, to retrieve extensions currently targeted
     * to be added on MarkupParams, you would pass MarkupParams.class.
+    * <p/>
+    * Note that this method is essentially targeted at the internal implementation.
     *
     * @param targetClass the WSRP 2 class for which extensions are supposed to be retrieved, if any
     * @return a List containing the Extensions needed to be added to the target class or an empty List if no such
@@ -45,10 +51,46 @@ public interface ConsumerExtensionAccessor
     */
    public List<Extension> getRequestExtensionsFor(Class targetClass);
 
+   /**
+    * Adds an extension composed of the specified name / value pair to the specified request before it is sent to the
+    * producer to elements of the specified target class. For example, to add a <code>foo</code> extension with the
+    * <code>bar</code> value to outgoing {@link org.oasis.wsrp.v2.MarkupParams} instances, you would call this method
+    * as
+    * follows:
+    * <p><code>addRequestExtension(MarkupParams.class, "foo", "bar")</code></p>
+    * <p/>
+    * <p/>
+    * Note that extensions can currently only be set on {@link org.oasis.wsrp.v2.InteractionParams}, {@link
+    * org.oasis.wsrp.v2.EventParams}, {@link org.oasis.wsrp.v2.MarkupParams} or {@link
+    * org.oasis.wsrp.v2.ResourceParams}
+    *
+    * @param targetClass the class of elements on which extensions need to be added before being sent to the producer
+    * @param name        the name of the extension to be added
+    * @param value       the value of the extension to be added
+    */
    public void addRequestExtension(Class targetClass, String name, String value);
 
+   /**
+    * Retrieves extensions that were sent by the producer for instances of the specified response class.
+    * <p/>
+    * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.UpdateResponse} and
+    * {@link org.oasis.wsrp.v2.MimeResponse} (so {@link org.oasis.wsrp.v2.MarkupContext} or {@link
+    * org.oasis.wsrp.v2.ResourceContext} which are subclasses of {@link org.oasis.wsrp.v2.MimeResponse}). These classes
+    * are the ones that contain the specific information pertaining to markup, interaction, resource or event requests.
+    *
+    * @param responseClass
+    * @return
+    */
    public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
+   /**
+    * Adds the specified unmarshalled extension to the specified WSRP response class.
+    * <p/>
+    * Note that this method is essentially targeted at the internal implementation.
+    *
+    * @param responseClass
+    * @param extension
+    */
    public void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 
 }
