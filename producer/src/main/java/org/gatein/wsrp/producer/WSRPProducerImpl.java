@@ -37,6 +37,7 @@ import org.gatein.registration.RegistrationManager;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.context.ProducerContext;
+import org.gatein.wsrp.api.extensions.DefaultProducerExtensionAccessor;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -182,6 +183,8 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
       serviceDescriptionHandler = new ServiceDescriptionHandler(this);
       registrationHandler = new RegistrationHandler(this);
       portletManagementHandler = new PortletManagementHandler(this);
+
+      DefaultProducerExtensionAccessor.registerWithAPI();
    }
 
    public ProducerRegistrationRequirements getProducerRegistrationRequirements()

@@ -32,7 +32,7 @@ import org.gatein.pc.api.info.PortletInfo;
 import org.gatein.registration.Registration;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.gatein.wsrp.test.support.MockHttpSession;

@@ -30,10 +30,9 @@
 package org.gatein.wsrp.protocol.v1;
 
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;

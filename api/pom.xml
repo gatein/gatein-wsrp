@@ -42,6 +42,10 @@
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-wsrp2-ws</artifactId>
+      </dependency>
    </dependencies>
 
 </project>

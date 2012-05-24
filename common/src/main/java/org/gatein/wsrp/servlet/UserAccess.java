@@ -24,6 +24,7 @@
 package org.gatein.wsrp.servlet;
 
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.oasis.wsrp.v2.UserContext;
 
 import javax.servlet.http.HttpServletRequest;

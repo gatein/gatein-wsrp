@@ -43,13 +43,15 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.UserContextConverter;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.WSRPExceptionFactory;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.extensions.ExtensionAccess;
+import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
+import org.gatein.wsrp.api.servlet.ServletAccess;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.producer.Utils;
-import org.gatein.wsrp.producer.WSRPValidator;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupType;
@@ -71,16 +73,14 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -219,11 +219,19 @@ public abstract class RequestProcessor<Response>
 
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
+   abstract List<Extension> getResponseExtensionsFor(Response response);
+
    public Response processResponse(PortletInvocationResponse response)
    {
       try
       {
-         return internalProcessResponse(response);
+         final Response wsrpResponse = internalProcessResponse(response);
+
+         // extensions
+         List<Extension> extensions = ExtensionAccess.getProducerExtensionAccessor().getResponseExtensionsFor(wsrpResponse.getClass());
+         getResponseExtensionsFor(wsrpResponse).addAll(extensions);
+
+         return wsrpResponse;
       }
       finally
       {
@@ -335,7 +343,27 @@ public abstract class RequestProcessor<Response>
       // get the character set
       String characterSet = getMatchingOrDefaultFrom(Collections.<String>emptyList(), params.getMarkupCharacterSets(), WSRPConstants.DEFAULT_CHARACTER_SET);
 
+      // extensions
+      final List<Extension> extensions = params.getExtensions();
+      processExtensionsFrom(params.getClass(), extensions);
+
       return new MarkupRequest(markupTypeCopy, mode, windowState, characterSet, portlet);
+   }
+
+   protected void processExtensionsFrom(Class paramsClass, List<Extension> extensions)
+   {
+      for (Extension extension : extensions)
+      {
+         try
+         {
+            final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
+            ExtensionAccess.getProducerExtensionAccessor().addRequestExtension(paramsClass, unmarshalledExtension);
+         }
+         catch (Exception e)
+         {
+            log.debug("Couldn't unmarshall extension from consumer, ignoring it.", e);
+         }
+      }
    }
 
    /**
@@ -358,7 +386,8 @@ public abstract class RequestProcessor<Response>
    }
 
    /**
-    * Retrieves the best matching value from a set of possible values based on an ordered set of preferred values or the
+    * Retrieves the best matching value from a set of possible values based on an ordered set of preferred values or
+    * the
     * given default value if no matching value is found.
     *
     * @param possibleValues  the set of possible values

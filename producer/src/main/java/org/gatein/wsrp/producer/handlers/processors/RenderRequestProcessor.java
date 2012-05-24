@@ -29,6 +29,7 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -45,6 +46,8 @@ import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -96,6 +99,12 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, Markup
    AccessMode getAccessMode()
    {
       return AccessMode.READ_ONLY;
+   }
+
+   @Override
+   List<Extension> getResponseExtensionsFor(MarkupResponse markupResponse)
+   {
+      return markupResponse.getExtensions();
    }
 
    protected PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context)
