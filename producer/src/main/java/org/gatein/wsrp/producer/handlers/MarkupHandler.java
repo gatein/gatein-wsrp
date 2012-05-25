@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer.handlers;
 
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
@@ -33,12 +34,13 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.portlet.state.producer.PortletStateChangeRequiredException;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
+import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.MarkupInterface;
 import org.gatein.wsrp.producer.Utils;
 import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.handlers.processors.ProcessorFactory;
 import org.gatein.wsrp.producer.handlers.processors.RequestProcessor;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
@@ -62,6 +64,7 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
+import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
@@ -108,11 +111,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletInvocationResponse response;
       try
       {
-         log.debug("RenderInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(getMarkup.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("RenderInvocation done");
+         response = invoke(requestProcessor, getMarkup.getRegistrationContext(), GET_MARKUP, handle);
       }
       catch (PortletInvokerException e)
       {
@@ -137,11 +136,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletInvocationResponse response;
       try
       {
-         log.debug("ResourceInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(getResource.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("ResourceInvocation done");
+         response = invoke(requestProcessor, getResource.getRegistrationContext(), GET_RESOURCE, handle);
       }
       catch (PortletInvokerException e)
       {
@@ -168,11 +163,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       String handle = requestProcessor.getPortletContext().getPortletHandle();
       try
       {
-         log.debug("ActionInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(performBlockingInteraction.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("ActionInvocation done");
+         response = invoke(requestProcessor, performBlockingInteraction.getRegistrationContext(), PBI, handle);
       }
       catch (PortletStateChangeRequiredException e)
       {
@@ -225,11 +216,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
       try
       {
-         log.debug("EventInvocation on portlet '" + handle + "'");
-         Registration registration = producer.getRegistrationOrFailIfInvalid(handleEvents.getRegistrationContext());
-         RegistrationLocal.setRegistration(registration);
-         response = producer.getPortletInvoker().invoke(requestProcessor.getInvocation());
-         log.debug("EventInvocation done");
+         response = invoke(requestProcessor, handleEvents.getRegistrationContext(), HANDLE_EVENTS, handle);
       }
       catch (PortletStateChangeRequiredException e)
       {
@@ -243,6 +230,32 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       checkForError(response);
 
       return requestProcessor.processResponse(response);
+   }
+
+   private PortletInvocationResponse invoke(RequestProcessor requestProcessor, RegistrationContext registrationContext, String invocationType, String handle)
+      throws PortletInvokerException, OperationFailed, ModifyRegistrationRequired, InvalidRegistration
+   {
+      log.debug(invocationType + " on portlet '" + handle + "'");
+
+      Registration registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
+      RegistrationLocal.setRegistration(registration);
+      final PortletInvocation invocation = requestProcessor.getInvocation();
+
+      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.producerDelegate();
+      if (delegate != null)
+      {
+         delegate.processInvocation(invocation);
+      }
+
+      final PortletInvocationResponse response = producer.getPortletInvoker().invoke(invocation);
+
+      if (delegate != null)
+      {
+         delegate.processInvocationResponse(response, invocation);
+      }
+
+      log.debug(invocationType + " done");
+      return response;
    }
 
    private void checkForError(PortletInvocationResponse response)

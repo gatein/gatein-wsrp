@@ -42,7 +42,7 @@ import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.servlet.ServletAccess;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

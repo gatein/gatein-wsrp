@@ -23,8 +23,8 @@
 
 package org.gatein.wsrp.protocol.v1;
 
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
@@ -86,21 +86,21 @@ public class ReleaseSessionTestCase extends NeedPortletHandleTest
    {
       if (System.getProperty("test.deployables.dir") != null)
       {
-       super.setUp();
-       //hack to get around having to have a httpservletrequest when accessing the producer services
-       //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
+         super.setUp();
+         //hack to get around having to have a httpservletrequest when accessing the producer services
+         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
       }
    }
-   
-   
+
+
    @After
    public void tearDown() throws Exception
    {
-       if (System.getProperty("test.deployables.dir") != null)
-       {
-          super.tearDown();
-       }
+      if (System.getProperty("test.deployables.dir") != null)
+      {
+         super.tearDown();
+      }
    }
 
    @Test

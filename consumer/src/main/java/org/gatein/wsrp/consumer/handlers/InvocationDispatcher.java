@@ -35,6 +35,7 @@ import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
@@ -145,6 +146,19 @@ public class InvocationDispatcher
          throw new InvocationException("Unknown invocation type: " + invocation);
       }
 
-      return handler.handle(invocation);
+      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.consumerDelegate();
+      if (delegate != null)
+      {
+         delegate.processInvocation(invocation);
+      }
+
+      final PortletInvocationResponse response = handler.handle(invocation);
+
+      if (delegate != null)
+      {
+         delegate.processInvocationResponse(response, invocation);
+      }
+
+      return response;
    }
 }

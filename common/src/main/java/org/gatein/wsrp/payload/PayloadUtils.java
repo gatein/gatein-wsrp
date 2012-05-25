@@ -25,18 +25,22 @@ package org.gatein.wsrp.payload;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventPayload;
 import org.oasis.wsrp.v2.NamedStringArray;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.TypeInfo;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +53,7 @@ public class PayloadUtils
 {
    private final static Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
    private final static Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
+   public static final String EXTENSION_SEPARATOR = "_:_";
 
    static
    {
@@ -145,15 +150,7 @@ public class PayloadUtils
          QName name = eventNeedingType.getName();
          try
          {
-            JAXBContext context = JAXBContext.newInstance(payloadClass);
-            Marshaller marshaller = context.createMarshaller();
-
-            JAXBElement<Serializable> element = new JAXBElement<Serializable>(name, payloadClass, payload);
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            builderFactory.setNamespaceAware(true);
-            Document document = builderFactory.newDocumentBuilder().newDocument();
-            marshaller.marshal(element, document);
-            return WSRPTypeFactory.createEventPayloadAsAny(document.getDocumentElement());
+            return WSRPTypeFactory.createEventPayloadAsAny(marshallPayload(payload, payloadClass, name));
          }
          catch (Exception e)
          {
@@ -161,4 +158,102 @@ public class PayloadUtils
          }
       }
    }
+
+   public static Element marshallPayload(Serializable payload)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(payload, "Payload");
+      final Class<? extends Serializable> payloadClass = payload.getClass();
+      XSDTypeConverter converter = classToConverters.get(payloadClass);
+      if (converter == null)
+      {
+         throw new IllegalArgumentException("Don't know hot to marshall payload " + payload);
+      }
+      else
+      {
+         try
+         {
+            return marshallPayload(payload, payloadClass, converter.getXSDType());
+         }
+         catch (Exception e)
+         {
+            throw new IllegalArgumentException("Couldn't marshall payload " + payload, e);
+         }
+      }
+   }
+
+   public static Serializable unmarshallPayload(Object object)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(object, "Object to unmarshall");
+      if (object instanceof Element)
+      {
+         Element element = (Element)object;
+
+         String namespace = element.getNamespaceURI();
+         if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(namespace))
+         {
+            final TypeInfo type = element.getSchemaTypeInfo();
+            String typeName = type.getTypeName();
+            if (typeName == null)
+            {
+               // try to determine the type name based on the tag name
+               // tag name will have prefix so that we need to remove it
+               String tagName = element.getTagName();
+               int prefixEnd = tagName.indexOf(':');
+               typeName = prefixEnd == -1 ? tagName : tagName.substring(prefixEnd + 1);
+            }
+
+            // if we want a default simple datatype, convert it directly
+            XSDTypeConverter converter = typeToConverters.get(typeName);
+            if (converter == null)
+            {
+               throw new IllegalArgumentException("Don't know how to deal with standard type: " + type);
+            }
+
+            return converter.parseFromXML(element.getTextContent());
+         }
+      }
+      else if (object instanceof Serializable)
+      {
+         return (Serializable)object;
+      }
+
+      throw new IllegalArgumentException("Cannot unmarshall element with unknown type");
+   }
+
+   private static Element marshallPayload(Serializable payload, Class payloadClass, QName name) throws JAXBException, ParserConfigurationException
+   {
+      JAXBContext context = JAXBContext.newInstance(payloadClass);
+      Marshaller marshaller = context.createMarshaller();
+
+      JAXBElement<Serializable> element = new JAXBElement<Serializable>(name, payloadClass, payload);
+      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+      builderFactory.setNamespaceAware(true);
+      Document document = builderFactory.newDocumentBuilder().newDocument();
+      marshaller.marshal(element, document);
+      return document.getDocumentElement();
+   }
+
+   public static Element marshallExtension(String name, String value)
+   {
+      try
+      {
+         return marshallPayload(name + EXTENSION_SEPARATOR + value, String.class, XSDTypeConverter.STRING.getXSDType());
+      }
+      catch (Exception e)
+      {
+         throw new IllegalArgumentException("Couldn't marshall extension named '" + name + "', valued '" + value + "'");
+      }
+   }
+
+   public static UnmarshalledExtension unmarshallExtension(Object any)
+   {
+      final String extension = (String)unmarshallPayload(any);
+      final int separator = extension.indexOf(EXTENSION_SEPARATOR);
+      if (separator <= 0)
+      {
+         throw new IllegalArgumentException("Unable to parse unmarshalled extension '" + extension + "'");
+      }
+      return new UnmarshalledExtension(extension.substring(0, separator), extension.substring(separator + EXTENSION_SEPARATOR.length()));
+   }
+
 }

@@ -39,6 +39,7 @@ import org.gatein.pc.api.spi.RequestContext;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
@@ -142,6 +143,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
          log.debug("Portlet is requesting " + accessMode + " access mode");
       }
       InteractionParams interactionParams = WSRPTypeFactory.createInteractionParams(WSRPUtils.getStateChangeFromAccessMode(accessMode));
+      interactionParams.getExtensions().addAll(ExtensionAccess.getConsumerExtensionAccessor().getRequestExtensionsFor(InteractionParams.class));
 
       // interaction state
       StateString interactionState = actionInvocation.getInteractionState();
@@ -263,10 +265,8 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
 
    protected PortletInvocationResponse processResponse(BlockingInteractionResponse response, ActionInvocation invocation, RequestPrecursor<ActionInvocation> requestPrecursor) throws PortletInvokerException
    {
-      BlockingInteractionResponse blockingInteractionResponse = response;
-
-      String redirectURL = blockingInteractionResponse.getRedirectURL();
-      UpdateResponse updateResponse = blockingInteractionResponse.getUpdateResponse();
+      String redirectURL = response.getRedirectURL();
+      UpdateResponse updateResponse = response.getUpdateResponse();
       if (redirectURL != null && updateResponse != null)
       {
          return new ErrorResponse(new IllegalArgumentException("Producer error: response cannot both redirect and update state."));
@@ -285,7 +285,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       {
          // updateResponse.getMarkupContext(); // ignore bundled markup for now.
 
-         return processUpdateResponse(invocation, requestPrecursor, updateResponse);
+         return processUpdateResponse(invocation, requestPrecursor, updateResponse, response);
       }
    }
 

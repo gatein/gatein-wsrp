@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.servlet;
 
+import org.gatein.wsrp.api.servlet.ServletAccess;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;

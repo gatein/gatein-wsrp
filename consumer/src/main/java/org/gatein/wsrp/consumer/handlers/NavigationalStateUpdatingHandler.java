@@ -54,7 +54,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       super(consumer);
    }
 
-   protected UpdateNavigationalStateResponse processUpdateResponse(Invocation invocation, RequestPrecursor<Invocation> requestPrecursor, UpdateResponse updateResponse)
+   protected UpdateNavigationalStateResponse processUpdateResponse(Invocation invocation, RequestPrecursor<Invocation> requestPrecursor, UpdateResponse updateResponse, Response wsrpResponse)
    {
       UpdateNavigationalStateResponse result = new UpdateNavigationalStateResponse();
 
@@ -114,6 +114,9 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
             }
          }
       }
+
+      // extensions
+      processExtensions(updateResponse.getExtensions(), wsrpResponse.getClass());
 
       // check if the portlet was cloned
       PortletContext portletContext = updateResponse.getPortletContext();

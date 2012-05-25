@@ -30,6 +30,7 @@ import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.handlers.MarkupHandler;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -48,6 +49,8 @@ import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UserContext;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -73,6 +76,12 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, Re
    AccessMode getAccessMode() throws MissingParameters
    {
       return AccessMode.READ_ONLY;
+   }
+
+   @Override
+   List<Extension> getResponseExtensionsFor(ResourceResponse resourceResponse)
+   {
+      return resourceResponse.getExtensions();
    }
 
    @Override

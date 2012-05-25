@@ -47,6 +47,7 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.api.extensions.DefaultConsumerExtensionAccessor;
 import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
@@ -128,6 +129,9 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    {
       REGISTRATION_NOT_NEEDED.setConsumerAgent("INVALID AGENT");
       REGISTRATION_NOT_NEEDED.setConsumerName("INVALID NAME");
+
+      // register DefaultConsumerExtensionAccessor with API
+      DefaultConsumerExtensionAccessor.registerWithAPI();
    }
 
    /** The default user scopes as per the specification (6.1.4) */

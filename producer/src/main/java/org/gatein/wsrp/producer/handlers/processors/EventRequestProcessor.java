@@ -37,6 +37,7 @@ import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -140,7 +141,8 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    {
       EventInvocation eventInvocation = new EventInvocation(context);
 
-      List<Event> events = handleEvents.getEventParams().getEvents();
+      final EventParams eventParams = handleEvents.getEventParams();
+      List<Event> events = eventParams.getEvents();
 
       if (events.size() > 1)
       {
@@ -153,7 +155,16 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
       eventInvocation.setName(event.getName());
       eventInvocation.setPayload(PayloadUtils.getPayloadAsSerializable(event));
 
+      // Extensions
+      processExtensionsFrom(eventParams.getClass(), eventParams.getExtensions());
+
       return eventInvocation;
+   }
+
+   @Override
+   List<Extension> getResponseExtensionsFor(HandleEventsResponse handleEventsResponse)
+   {
+      return handleEventsResponse.getExtensions();
    }
 
    @Override

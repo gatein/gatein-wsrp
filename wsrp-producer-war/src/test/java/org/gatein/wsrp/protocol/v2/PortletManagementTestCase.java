@@ -35,8 +35,8 @@ import org.gatein.pc.portlet.state.SimplePropertyMap;
 import org.gatein.pc.portlet.state.StateConverter;
 import org.gatein.pc.portlet.state.producer.PortletState;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.servlet.ServletAccess;
 import org.gatein.wsrp.support.TestMockExportPersistenceManager;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
@@ -1121,7 +1121,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    }
 
    /**
-    * Check copyPortlets from a non-null registration context to a null registration context. Note: this does _NOT_ mean
+    * Check copyPortlets from a non-null registration context to a null registration context. Note: this does _NOT_
+    * mean
     * the copy should be available from a non registered consumer, the spec states if the toRegistration is null, it
     * should be registered using the fromRegistrationContext
     */
