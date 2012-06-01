@@ -25,8 +25,7 @@ package org.gatein.wsrp.wss;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
+import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -34,37 +33,47 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class WebServiceSecurityFactory
 {
-
    public static final WebServiceSecurityFactory instance = new WebServiceSecurityFactory();
+   public List<CustomizePortListener> customizePortListeners;
+   private CredentialsAccessor credentialsAccessor;
    
    public static WebServiceSecurityFactory getInstance()
    {
       return instance;
    }
    
-   private List<SOAPHandler<SOAPMessageContext>> handlers;
-   
-   public void registerWebServiceSecurityHandler(SOAPHandler<SOAPMessageContext> handler)
+   public void setCredentialsAccessor(CredentialsAccessor credentialsAccessor)
    {
-      if (handlers == null)
+      this.credentialsAccessor = credentialsAccessor;
+   }
+   
+   public CredentialsAccessor getCredentialsAccessor()
+   {
+      return credentialsAccessor;
+   }
+   
+   public void addCustomizePortListener(CustomizePortListener listener)
+   {
+      if (this.customizePortListeners == null)
       {
-         handlers = new ArrayList<SOAPHandler<SOAPMessageContext>>();
+         customizePortListeners = new ArrayList<CustomizePortListener>();
       }
-      handlers.add(handler);
+      customizePortListeners.add(listener);
    }
    
-   public List<SOAPHandler<SOAPMessageContext>> getHandlers()
+   public void removeCustomizePortListener(CustomizePortListener listener)
    {
-      return handlers;
-   }
-   
-   public void unregisterWebServiceSecurityHandler(SOAPHandler<SOAPMessageContext> handler)
-   {
-      if (handlers != null)
+      if (customizePortListeners != null)
       {
-         handlers.remove(handler);
+         customizePortListeners.remove(listener);
       }
    }
+   
+   public List<CustomizePortListener> getCustomizePortListeners()
+   {
+      return customizePortListeners;
+   }
+   
    
 }
 
