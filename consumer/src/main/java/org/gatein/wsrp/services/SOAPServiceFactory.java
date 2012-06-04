@@ -385,7 +385,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             }
             catch (Exception e)
             {
-               log.debug("PortletManagement port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
                portletManagementURL = null;
             }
 
@@ -396,7 +396,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             }
             catch (Exception e)
             {
-               log.debug("Registration port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
                registrationURL = null;
             }
 
@@ -416,7 +416,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       }
       catch (Exception e)
       {
-         log.info("Couldn't access WSDL information at" + wsdlDefinitionURL + ". Service won't be available", e);
+         log.info("Couldn't access WSDL information at " + wsdlDefinitionURL + ". Service won't be available", e);
          setAvailable(false);
          setFailed(true);
          throw e;
