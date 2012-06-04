@@ -22,15 +22,21 @@
  ******************************************************************************/
 package org.wsrp.wss.jboss5.handlers.producer;
 
+import java.io.File;
+import java.net.MalformedURLException;
+
 import javax.xml.ws.handler.MessageContext;
 
 import org.jboss.ws.extensions.security.jaxws.WSSecurityHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
 public class JBWSSecurityHandlerWrapper extends WSSecurityHandler
 {
+   private static Logger log = LoggerFactory.getLogger(JBWSSecurityHandlerWrapper.class);
    
    protected boolean handleInbound(MessageContext msgContext)
    {
@@ -45,6 +51,33 @@ public class JBWSSecurityHandlerWrapper extends WSSecurityHandler
    @Override
    protected String getConfigResourceName()
    {
+      String configFile = System.getProperty("gatein.wsrp.producer.wss.config");
+      if (configFile == null)
+      {
+         String gateInConfDirectory = System.getProperty("gatein.conf.dir");
+         configFile = gateInConfDirectory + File.separator + "gatein-wsse-producer.xml";
+      }
+
+      if (configFile != null)
+      {
+         File file = new File(configFile);
+         if (file.exists())
+         {
+            try
+            {
+               return file.toURI().toURL().toString();
+            }
+            catch (MalformedURLException e)
+            {
+               log.warn("Exception when trying to get gatein wsse producer configuration file : " + configFile, e);
+            }
+         }
+         else
+         {
+            log.debug("No gatein-wsse-producer.xml file found in the gatein.conf.dir. Using default empty wss configuration file.");
+         }
+      }
+      // if the file does not exist or if an exception occurs, return the default, empty internal configuration file.
       return "conf/gatein-wsse-producer.xml";
    }
 
