@@ -87,8 +87,7 @@ public interface ProducerExtensionAccessor
     * to markup, interaction, resource or event requests.
     *
     * @param wsrpResponseClass
-    * @param name
-    * @param value
+    * @param extension
     */
-   void addResponseExtension(Class wsrpResponseClass, String name, String value);
+   void addResponseExtension(Class wsrpResponseClass, Object extension);
 }

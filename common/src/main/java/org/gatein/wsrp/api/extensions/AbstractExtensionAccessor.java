@@ -64,12 +64,11 @@ public class AbstractExtensionAccessor
       return extensions != null ? extensions : Collections.<T>emptyList();
    }
 
-   public void addExtension(Class targetClass, String name, String value)
+   public void addExtension(Class targetClass, Object extension)
    {
-      if (!ParameterValidation.isNullOrEmpty(name))
-      {
-         add(extensions, targetClass, WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension(name, value)));
-      }
+      ParameterValidation.throwIllegalArgExceptionIfNull(extension, "Extension");
+
+      add(extensions, targetClass, WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension(extension)));
    }
 
    public void addUnmarshalledExtension(Class targetClass, UnmarshalledExtension extension)

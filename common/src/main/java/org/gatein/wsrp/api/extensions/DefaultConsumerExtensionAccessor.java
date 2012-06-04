@@ -40,9 +40,9 @@ public class DefaultConsumerExtensionAccessor extends AbstractExtensionAccessor 
    }
 
    @Override
-   public void addRequestExtension(Class targetClass, String name, String value)
+   public void addRequestExtension(Class targetClass, Object extension)
    {
-      addExtension(targetClass, name, value);
+      addExtension(targetClass, extension);
    }
 
    @Override

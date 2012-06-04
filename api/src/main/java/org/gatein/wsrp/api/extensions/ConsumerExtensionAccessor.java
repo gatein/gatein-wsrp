@@ -27,7 +27,7 @@ import org.oasis.wsrp.v2.Extension;
 import java.util.List;
 
 /**
- * Accessor for consumer-side extensions. Use {@link #addRequestExtension(Class, String, String)} to add extensions to
+ * Accessor for consumer-side extensions. Use {@link #addRequestExtension(Class, Object)} to add extensions to
  * the request before it is sent to the producer. Use {@link #getResponseExtensionsFrom(Class)} to retrieve the
  * extensions that the producer might have sent back in its response.
  *
@@ -62,10 +62,9 @@ public interface ConsumerExtensionAccessor
     * org.oasis.wsrp.v2.ResourceParams}
     *
     * @param targetClass the class of elements on which extensions need to be added before being sent to the producer
-    * @param name        the name of the extension to be added
-    * @param value       the value of the extension to be added
+    * @param extension
     */
-   public void addRequestExtension(Class targetClass, String name, String value);
+   public void addRequestExtension(Class targetClass, Object extension);
 
    /**
     * Retrieves extensions that were sent by the producer for instances of the specified response class.

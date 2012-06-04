@@ -220,6 +220,47 @@ public class PayloadUtils
       throw new IllegalArgumentException("Cannot unmarshall element with unknown type");
    }
 
+   public static UnmarshalledExtension unmarshallExtension(Object object)
+   {
+      if (object instanceof Element)
+      {
+         Element element = (Element)object;
+         Object value = element;
+
+         String namespace = element.getNamespaceURI();
+
+         // get the tag name without namespace prefix
+         String tagName = element.getTagName();
+         int prefixEnd = tagName.indexOf(':');
+         tagName = prefixEnd == -1 ? tagName : tagName.substring(prefixEnd + 1);
+
+         // attempt to convert to simple datatype value
+         if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(namespace))
+         {
+            final TypeInfo type = element.getSchemaTypeInfo();
+            String typeName = type.getTypeName();
+
+            if (typeName == null)
+            {
+               // try to determine the type name based on the tag name
+               typeName = tagName;
+            }
+
+            // if we want a default simple datatype, convert it directly
+            XSDTypeConverter converter = typeToConverters.get(typeName);
+            if (converter == null)
+            {
+               throw new IllegalArgumentException("Don't know how to deal with standard type: " + type);
+            }
+
+            value = converter.parseFromXML(element.getTextContent());
+         }
+
+         return new UnmarshalledExtension(tagName, value, namespace);
+      }
+      throw new IllegalArgumentException("Cannot unmarshall extension '" + object + "'");
+   }
+
    private static Element marshallPayload(Serializable payload, Class payloadClass, QName name) throws JAXBException, ParserConfigurationException
    {
       JAXBContext context = JAXBContext.newInstance(payloadClass);
@@ -233,19 +274,24 @@ public class PayloadUtils
       return document.getDocumentElement();
    }
 
-   public static Element marshallExtension(String name, String value)
+   public static Element marshallExtension(Object value)
    {
+      if (value instanceof Element)
+      {
+         return (Element)value;
+      }
+
       try
       {
-         return marshallPayload(name + EXTENSION_SEPARATOR + value, String.class, XSDTypeConverter.STRING.getXSDType());
+         return marshallPayload((Serializable)value);
       }
       catch (Exception e)
       {
-         throw new IllegalArgumentException("Couldn't marshall extension named '" + name + "', valued '" + value + "'");
+         throw new IllegalArgumentException("Couldn't marshall extension '" + value + "'");
       }
    }
 
-   public static UnmarshalledExtension unmarshallExtension(Object any)
+   /*public static UnmarshalledExtension unmarshallExtension(Object any)
    {
       final String extension = (String)unmarshallPayload(any);
       final int separator = extension.indexOf(EXTENSION_SEPARATOR);
@@ -254,6 +300,6 @@ public class PayloadUtils
          throw new IllegalArgumentException("Unable to parse unmarshalled extension '" + extension + "'");
       }
       return new UnmarshalledExtension(extension.substring(0, separator), extension.substring(separator + EXTENSION_SEPARATOR.length()));
-   }
+   }*/
 
 }
