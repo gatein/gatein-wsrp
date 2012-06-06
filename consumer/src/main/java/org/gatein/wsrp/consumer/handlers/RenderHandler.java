@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
+import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
@@ -88,6 +89,12 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
          requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), requestPrecursor.getMarkupParams());
    }
 
+   @Override
+   protected List<Extension> getExtensionsFrom(MarkupResponse markupResponse)
+   {
+      return markupResponse.getExtensions();
+   }
+
    /*protected void updateUserContext(GetMarkup request, UserContext userContext)
    {
       request.setUserContext(userContext);
@@ -113,12 +120,17 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
       // invocation
       Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
       Holder<MarkupContext> markupContextHolder = new Holder<MarkupContext>();
+      final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
       consumer.getMarkupService().getMarkup(request.getRegistrationContext(), request.getPortletContext(),
          request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
-         markupContextHolder, sessionContextHolder, new Holder<List<Extension>>());
+         markupContextHolder, sessionContextHolder, extensions);
 
       MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      {
+         markupResponse.getExtensions().addAll(extensions.value);
+      }
       return markupResponse;
    }
 }

@@ -116,7 +116,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       }
 
       // extensions
-      processExtensions(updateResponse.getExtensions(), wsrpResponse.getClass());
+      processExtensions(wsrpResponse);
 
       // check if the portlet was cloned
       PortletContext portletContext = updateResponse.getPortletContext();
