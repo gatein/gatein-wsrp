@@ -29,6 +29,7 @@ import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.WindowState;
 import org.gatein.pc.api.invocation.ActionInvocation;
+import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
@@ -40,11 +41,15 @@ import org.gatein.pc.portlet.impl.spi.AbstractSecurityContext;
 import org.gatein.pc.portlet.impl.spi.AbstractUserContext;
 import org.gatein.pc.portlet.impl.spi.AbstractWindowContext;
 import org.gatein.wsrp.WSRPResourceURL;
+import org.gatein.wsrp.api.extensions.ExtensionAccess;
+import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
+import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.behaviors.BasicMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.EmptyMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.ExtensionMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.GroupedPortletsServiceDescriptionBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.InitCookieMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.InitCookieNotRequiredMarkupBehavior;
@@ -63,6 +68,8 @@ import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.ItemDescription;
+import org.oasis.wsrp.v2.MarkupParams;
+import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.ModelDescription;
 import org.oasis.wsrp.v2.ModelTypes;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
@@ -131,6 +138,30 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       result = checkRenderResult(consumer.invoke(render), "portlet2:0:view:maximized");
       ExtendedAssert.assertEquals(0, result.getCacheControl().getExpirationSecs());
    }
+
+   public void testRenderWithSimpleExtensions() throws PortletInvokerException
+   {
+      // Register delegate that send "foo" as an extension to MarkupParams and expects to retrieve "bar" as an extension of MarkupResponse
+      InvocationHandlerDelegate.registerConsumerDelegate(new InvocationHandlerDelegate()
+      {
+         @Override
+         public void processInvocation(PortletInvocation invocation)
+         {
+            ExtensionAccess.getConsumerExtensionAccessor().addRequestExtension(MarkupParams.class, ExtensionMarkupBehavior.EXPECTED_REQUEST_EXTENSION_VALUE);
+         }
+
+         @Override
+         public void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation)
+         {
+            final List<UnmarshalledExtension> extensions = ExtensionAccess.getConsumerExtensionAccessor().getResponseExtensionsFrom(MarkupResponse.class);
+            assertEquals(1, extensions.size());
+            assertEquals(ExtensionMarkupBehavior.EXPECTED_RESPONSE_EXTENSION_VALUE, extensions.get(0).getValue());
+         }
+      });
+
+      checkRenderResult(consumer.invoke(createRenderInvocation(ExtensionMarkupBehavior.PORTLET_HANDLE)), ExtensionMarkupBehavior.SUCCESS);
+   }
+
 
    public void testAction() throws Exception
    {

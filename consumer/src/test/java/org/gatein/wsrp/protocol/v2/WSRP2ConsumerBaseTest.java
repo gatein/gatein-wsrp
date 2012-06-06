@@ -41,6 +41,7 @@ import org.gatein.wsrp.test.protocol.v2.behaviors.BasicMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.BasicPortletManagementBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.BasicServiceDescriptionBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.EmptyMarkupBehavior;
+import org.gatein.wsrp.test.protocol.v2.behaviors.ExtensionMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.InitCookieNotRequiredMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.NullMarkupBehavior;
 import org.gatein.wsrp.test.protocol.v2.behaviors.PerGroupInitCookieMarkupBehavior;
@@ -194,6 +195,7 @@ public abstract class WSRP2ConsumerBaseTest extends TestCase
       registry.registerMarkupBehavior(new NullMarkupBehavior(registry));
       registry.registerMarkupBehavior(new SessionMarkupBehavior(registry));
       registry.registerMarkupBehavior(new ResourceMarkupBehavior(registry));
+      registry.registerMarkupBehavior(new ExtensionMarkupBehavior(registry));
    }
 
    protected Set<String> getPortletHandles()

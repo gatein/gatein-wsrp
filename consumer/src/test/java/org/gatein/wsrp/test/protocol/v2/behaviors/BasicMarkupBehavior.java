@@ -98,6 +98,7 @@ public class BasicMarkupBehavior extends MarkupBehavior
       UpdateResponse ur = WSRPTypeFactory.createUpdateResponse();
       ur.setNavigationalContext(WSRPTypeFactory.createNavigationalContextOrNull(new OpaqueStateString(NS), null));
       updateResponse.value = ur;
+      extensions.value = ur.getExtensions();
    }
 
    public void modifyResponseIfNeeded(MarkupResponse markupResponse)
