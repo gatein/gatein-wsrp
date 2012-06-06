@@ -28,15 +28,15 @@ import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public abstract class InvocationHandlerDelegate
 {
-   private static final InvocationHandlerDelegate CONSUMER_DELEGATE;
-   private static final InvocationHandlerDelegate PRODUCER_DELEGATE;
+   private static InvocationHandlerDelegate consumerDelegate;
+   private static InvocationHandlerDelegate producerDelegate;
    public static final String CONSUMER_DELEGATE_CLASSNAME = "org.gatein.wsrp.consumer.handlers.delegate";
    public static final String PRODUCER_DELEGATE_CLASSNAME = "org.gatein.wsrp.producer.handlers.delegate";
 
    static
    {
-      CONSUMER_DELEGATE = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
-      PRODUCER_DELEGATE = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
+      consumerDelegate = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
+      producerDelegate = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
    }
 
    private static InvocationHandlerDelegate createDelegate(String delegateClassName)
@@ -61,15 +61,24 @@ public abstract class InvocationHandlerDelegate
       return null;
    }
 
+   public synchronized static void registerConsumerDelegate(InvocationHandlerDelegate delegate)
+   {
+      consumerDelegate = delegate;
+   }
+
+   public synchronized static void registerProducerDelegate(InvocationHandlerDelegate delegate)
+   {
+      producerDelegate = delegate;
+   }
 
    public static InvocationHandlerDelegate consumerDelegate()
    {
-      return CONSUMER_DELEGATE;
+      return consumerDelegate;
    }
 
    public static InvocationHandlerDelegate producerDelegate()
    {
-      return PRODUCER_DELEGATE;
+      return producerDelegate;
    }
 
    public abstract void processInvocation(PortletInvocation invocation);
