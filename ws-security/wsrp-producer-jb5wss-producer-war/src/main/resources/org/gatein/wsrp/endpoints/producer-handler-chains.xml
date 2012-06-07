@@ -25,15 +25,5 @@
 <handler-chains xmlns="http://java.sun.com/xml/ns/javaee"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee javaee_web_services_1_2.xsd">
-   <handler-chain>
-      <handler>
-         <handler-name>ProducerSecurityCredentialHandler</handler-name>
-         <handler-class>org.wsrp.wss.jboss5.handlers.producer.WSSecurityCredentialHandler</handler-class>
-      </handler>
-      <handler>
-         <handler-name>ProducerWSSecurityHandler</handler-name>
-         <handler-class>org.wsrp.wss.jboss5.handlers.producer.JBWSSecurityHandlerWrapper</handler-class>
-      </handler>
-   </handler-chain>
 </handler-chains>
 

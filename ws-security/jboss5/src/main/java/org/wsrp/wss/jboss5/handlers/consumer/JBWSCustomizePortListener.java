@@ -1,6 +1,6 @@
 /******************************************************************************
  * JBoss, a division of Red Hat                                               *
- * Copyright 2011, Red Hat Middleware, LLC, and individual                    *
+ * Copyright 2012, Red Hat Middleware, LLC, and individual                    *
  * contributors as indicated by the @authors tag. See the                     *
  * copyright.txt in the distribution for a full listing of                    *
  * individual contributors.                                                   *
@@ -20,60 +20,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
-package org.gatein.wsrp.wss;
+package org.wsrp.wss.jboss5.handlers.consumer;
 
-import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.gatein.wsrp.wss.CustomizePortListener;
+import org.jboss.ws.core.StubExt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class WebServiceSecurityFactory
+public class JBWSCustomizePortListener implements CustomizePortListener
 {
-   public static final WebServiceSecurityFactory instance = new WebServiceSecurityFactory();
-   public List<CustomizePortListener> customizePortListeners;
-   private CredentialsAccessor credentialsAccessor;
 
-   public static WebServiceSecurityFactory getInstance()
-   {
-      return instance;
-   }
+   private static Logger log = LoggerFactory.getLogger(JBWSCustomizePortListener.class);
 
-   public void setCredentialsAccessor(CredentialsAccessor credentialsAccessor)
+   @Override
+   public void customizePort(Object service)
    {
-      this.credentialsAccessor = credentialsAccessor;
-   }
-
-   public CredentialsAccessor getCredentialsAccessor()
-   {
-      return credentialsAccessor;
-   }
-
-   public void addCustomizePortListener(CustomizePortListener listener)
-   {
-      if (this.customizePortListeners == null)
+      if (service instanceof StubExt)
       {
-         customizePortListeners = new ArrayList<CustomizePortListener>();
+         StubExt stub = (StubExt)service;
+         stub.setConfigName("GateIn Consumer WSSecurity", "META-INF/gatein-consumer-config.xml");
       }
-      customizePortListeners.add(listener);
-   }
-
-   public void removeCustomizePortListener(CustomizePortListener listener)
-   {
-      if (customizePortListeners != null)
+      else
       {
-         customizePortListeners.remove(listener);
+         log.warn("Service not an instance of StubExt, cannot customize the port for WS-Security.");
       }
    }
-
-   public List<CustomizePortListener> getCustomizePortListeners()
-   {
-      return customizePortListeners;
-   }
-
 
 }
 

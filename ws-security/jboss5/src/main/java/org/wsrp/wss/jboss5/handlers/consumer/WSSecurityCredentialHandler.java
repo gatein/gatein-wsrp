@@ -23,6 +23,7 @@
 package org.wsrp.wss.jboss5.handlers.consumer;
 
 import org.gatein.wci.security.Credentials;
+import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.jboss.ws.core.CommonMessageContext;
 import org.slf4j.Logger;
@@ -42,13 +43,6 @@ import java.util.Set;
 public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static Logger log = LoggerFactory.getLogger(WSSecurityCredentialHandler.class);
-
-   private CredentialsAccessor credentialsAccessor;
-
-   public WSSecurityCredentialHandler(CredentialsAccessor credentialsAccessor)
-   {
-      this.credentialsAccessor = credentialsAccessor;
-   }
 
    public void close(MessageContext arg0)
    {
@@ -81,10 +75,11 @@ public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageConte
 
          CommonMessageContext ctx = (CommonMessageContext)soapMessageContext;
 
-         Credentials credentials = credentialsAccessor.getCredentials();
+         CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
 
-         if (credentials != null)
+         if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
          {
+            Credentials credentials = credentialsAccessor.getCredentials();
             ctx.put(BindingProvider.USERNAME_PROPERTY, credentials.getUsername());
             ctx.put(BindingProvider.PASSWORD_PROPERTY, credentials.getPassword());
          }
@@ -103,7 +98,7 @@ public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageConte
 
    private boolean handleResponse(SOAPMessageContext soapMessageContext)
    {
-      return false;
+      return true;
    }
 
    public Set<QName> getHeaders()
