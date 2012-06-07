@@ -24,11 +24,16 @@ package org.gatein.wsrp.protocol.v2;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.StateString;
+import org.gatein.pc.api.invocation.PortletInvocation;
+import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPActionURL;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.api.extensions.ExtensionAccess;
+import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
+import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.payload.SerializableSimplePayload;
@@ -47,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.Event;
+import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsFailed;
@@ -55,6 +61,7 @@ import org.oasis.wsrp.v2.InitCookie;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MarkupContext;
+import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
@@ -139,6 +146,58 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          System.out.println("ERROR running testGetMarkupViewNoSession");
          e.printStackTrace();
          throw e;
+      }
+   }
+
+   @Test
+   public void testGetMarkupViewWithExtensions() throws Exception
+   {
+      InvocationHandlerDelegate.registerProducerDelegate(new InvocationHandlerDelegate()
+      {
+         private boolean success;
+
+         @Override
+         public void processInvocation(PortletInvocation invocation)
+         {
+            // check that we have extensions as expected
+            final List<UnmarshalledExtension> extensions = ExtensionAccess.getProducerExtensionAccessor().getRequestExtensionsFor(MarkupParams.class);
+            assertEquals(1, extensions.size());
+            assertEquals("foo", extensions.get(0).getValue());
+            success = true;
+         }
+
+         @Override
+         public void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation)
+         {
+            // add extension to response
+            if (success)
+            {
+               ExtensionAccess.getProducerExtensionAccessor().addResponseExtension(MarkupResponse.class, "bar");
+            }
+         }
+      });
+      try
+      {
+         GetMarkup getMarkup = createMarkupRequest();
+         getMarkup.getMarkupParams().getExtensions().add(WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension("foo")));
+
+         MarkupResponse response = producer.getMarkup(getMarkup);
+
+         checkMarkupResponse(response, DEFAULT_VIEW_MARKUP);
+
+         final List<Extension> responseExtensions = response.getExtensions();
+         assertEquals(1, responseExtensions.size());
+         assertEquals("bar", PayloadUtils.unmarshallExtension(responseExtensions.get(0).getAny()).getValue());
+      }
+      catch (Exception e)
+      {
+         System.out.println("ERROR running testGetMarkupViewNoSession");
+         e.printStackTrace();
+         throw e;
+      }
+      finally
+      {
+         InvocationHandlerDelegate.registerProducerDelegate(null);
       }
    }
 
