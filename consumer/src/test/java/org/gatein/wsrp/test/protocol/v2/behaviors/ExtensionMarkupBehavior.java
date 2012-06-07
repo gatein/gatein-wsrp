@@ -33,21 +33,33 @@ import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InconsistentParameters;
+import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.InvalidSession;
 import org.oasis.wsrp.v2.InvalidUserCategory;
+import org.oasis.wsrp.v2.MarkupParams;
 import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.PortletStateChangeRequired;
+import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.ResourceSuspended;
+import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMimeType;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UnsupportedWindowState;
+import org.oasis.wsrp.v2.UpdateResponse;
+import org.oasis.wsrp.v2.UserContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.jws.WebParam;
+import javax.xml.ws.Holder;
 import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
@@ -106,36 +118,7 @@ public class ExtensionMarkupBehavior extends MarkupBehavior
    {
       status = Status.failure;
 
-      try
-      {
-         final List<Extension> extensions = getMarkup.getMarkupParams().getExtensions();
-         if (!extensions.isEmpty())
-         {
-            final Extension extension = extensions.get(0);
-            final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
-            if (unmarshalledExtension.isElement())
-            {
-               final Element element = (Element)unmarshalledExtension.getValue();
-               if (EXPECTED_REQUEST_EXTENSION_VALUE.equals(element.getTextContent()))
-               {
-                  status = Status.element;
-               }
-            }
-            else
-            {
-               final String foo = (String)unmarshalledExtension.getValue();
-               if (EXPECTED_REQUEST_EXTENSION_VALUE.equals(foo))
-               {
-                  status = Status.simple;
-               }
-            }
-         }
-      }
-      catch (Exception e)
-      {
-         status = Status.failure;
-         throw new RuntimeException(e);
-      }
+      getStatus(getMarkup.getMarkupParams().getExtensions());
 
       return status.markup;
    }
@@ -143,9 +126,54 @@ public class ExtensionMarkupBehavior extends MarkupBehavior
    @Override
    public void modifyResponseIfNeeded(MarkupResponse markupResponse)
    {
+      final List<Extension> extensions = markupResponse.getExtensions();
+      addExtensions(extensions);
+   }
+
+   private void addExtensions(List<Extension> extensions)
+   {
       if (!Status.failure.equals(status))
       {
-         markupResponse.getExtensions().add(WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension(status.response)));
+         extensions.add(WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension(status.response)));
+      }
+   }
+
+   @Override
+   public void performBlockingInteraction(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "portletContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") PortletContext portletContext, @WebParam(name = "runtimeContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RuntimeContext runtimeContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext, @WebParam(name = "markupParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") MarkupParams markupParams, @WebParam(name = "interactionParams", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") InteractionParams interactionParams, @WebParam(name = "updateResponse", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<UpdateResponse> updateResponse, @WebParam(name = "redirectURL", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> redirectURL, @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions) throws AccessDenied, InconsistentParameters, InvalidCookie, InvalidHandle, InvalidRegistration, InvalidSession, InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
+   {
+      status = Status.failure;
+
+      getStatus(interactionParams.getExtensions());
+
+      UpdateResponse ur = WSRPTypeFactory.createUpdateResponse();
+      updateResponse.value = ur;
+      final List<Extension> responseExtensions = ur.getExtensions();
+      addExtensions(responseExtensions);
+      extensions.value = responseExtensions;
+   }
+
+   private void getStatus(List<Extension> requestExtensions)
+   {
+      if (!requestExtensions.isEmpty())
+      {
+         final Extension extension = requestExtensions.get(0);
+         final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
+         if (unmarshalledExtension.isElement())
+         {
+            final Element element = (Element)unmarshalledExtension.getValue();
+            if (EXPECTED_REQUEST_EXTENSION_VALUE.equals(element.getTextContent()))
+            {
+               status = Status.element;
+            }
+         }
+         else
+         {
+            final String foo = (String)unmarshalledExtension.getValue();
+            if (EXPECTED_REQUEST_EXTENSION_VALUE.equals(foo))
+            {
+               status = Status.simple;
+            }
+         }
       }
    }
 }
