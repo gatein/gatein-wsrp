@@ -97,7 +97,7 @@ public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageConte
 
       private boolean handleRequest(SOAPMessageContext soapMessageContext)
       {
-         return false;
+         return true;
       }
 
       public Set<QName> getHeaders()

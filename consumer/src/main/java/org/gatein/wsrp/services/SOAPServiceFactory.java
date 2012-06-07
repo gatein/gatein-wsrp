@@ -34,6 +34,7 @@ import org.gatein.wsrp.services.v2.V2MarkupService;
 import org.gatein.wsrp.services.v2.V2PortletManagementService;
 import org.gatein.wsrp.services.v2.V2RegistrationService;
 import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
+import org.gatein.wsrp.wss.CustomizePortListener;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
@@ -112,6 +113,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    private <T> T customizePort(Class<T> expectedServiceInterface, Object service, String portAddress)
    {
+      configureWSS(service);
       BindingProvider bindingProvider = (BindingProvider)service;
       Map<String, Object> requestContext = bindingProvider.getRequestContext();
 
@@ -132,9 +134,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       List<Handler> handlerChain = binding.getHandlerChain();
       if (handlerChain != null)
       {
-    	 //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
-    	 addWSSHandlers(handlerChain);
-    	  
          // if we already have a handler chain, just add the request hearder handler if it's not already in there
          if (!handlerChain.contains(REQUEST_HEADER_CLIENT_HANDLER))
          {
@@ -145,10 +144,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          // otherwise, create a handler chain and add our handler to it
          handlerChain = new ArrayList<Handler>(1);
-         
-         //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
-         addWSSHandlers(handlerChain);
-         
          handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
       }
       binding.setHandlerChain(handlerChain);
@@ -524,7 +519,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    public boolean isWSSAvailable()
    {
       WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-      if (wssFactory != null && wssFactory.getHandlers() != null && !wssFactory.getHandlers().isEmpty())
+      if (wssFactory != null && wssFactory.getCustomizePortListeners() != null && !wssFactory.getCustomizePortListeners().isEmpty())
       {
          return true;
       }
@@ -533,30 +528,27 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          return false;
       }
    }
-
-   protected void addWSSHandlers(List<Handler> handlerChain)
+   
+   protected void configureWSS(Object service)
    {
       if (wssEnabled)
       {
          WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-         if (wssFactory.getHandlers() != null)
+         if (wssFactory.getCustomizePortListeners() != null)
          {
-            for (SOAPHandler<SOAPMessageContext> wssHandler : wssFactory.getHandlers())
+            for (CustomizePortListener listener: wssFactory.getCustomizePortListeners())
             {
-               if (!handlerChain.contains(wssHandler))
-               {
-                  handlerChain.add(wssHandler);
-               }
+               listener.customizePort(service);
             }
          }
          else
          {
-            log.debug("WSS enabled, but no handlers provided. WSS will not be able to work properly.");
+           log.debug("WSS enabled, but no CustomizePortListeners provided. WSS will not be able to work properly.");
          }
       }
       else
       {
-         log.debug("WSS disabled.");
+         log.debug("WSS disabled");
       }
    }
 
