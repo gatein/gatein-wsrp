@@ -236,6 +236,7 @@ public abstract class RequestProcessor<Response>
       finally
       {
          RegistrationLocal.setRegistration(null);
+         ExtensionAccess.getProducerExtensionAccessor().clear();
       }
    }
 

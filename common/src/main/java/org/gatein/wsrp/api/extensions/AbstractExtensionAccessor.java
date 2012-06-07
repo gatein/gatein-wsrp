@@ -97,4 +97,10 @@ public class AbstractExtensionAccessor
          extensions.add(toAdd);
       }
    }
+
+   public void clear()
+   {
+      extensions.set(null);
+      unmarshalledExtensions.set(null);
+   }
 }

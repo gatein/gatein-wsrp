@@ -90,4 +90,10 @@ public interface ProducerExtensionAccessor
     * @param extension
     */
    void addResponseExtension(Class wsrpResponseClass, Object extension);
+
+   /**
+    * Clears the currently held extensions. This method is called once per request-response cycle by the internal
+    * implementation.
+    */
+   public void clear();
 }

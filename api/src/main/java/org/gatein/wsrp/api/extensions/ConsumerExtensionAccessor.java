@@ -89,4 +89,10 @@ public interface ConsumerExtensionAccessor
     */
    public void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 
+   /**
+    * Clears the currently held extensions. This method is called once per request-response cycle by the internal
+    * implementation.
+    */
+   public void clear();
+
 }
