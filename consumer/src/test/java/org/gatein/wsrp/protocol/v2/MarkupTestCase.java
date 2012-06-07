@@ -45,6 +45,7 @@ import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
 import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.gatein.wsrp.test.protocol.v2.behaviors.BasicMarkupBehavior;
@@ -77,6 +78,8 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.ResourceList;
 import org.oasis.wsrp.v2.ResourceSuspended;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.Holder;
@@ -97,6 +100,13 @@ public class MarkupTestCase extends V2ConsumerBaseTest
    public MarkupTestCase() throws Exception
    {
       super();
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      InvocationHandlerDelegate.registerConsumerDelegate(null);
+      super.tearDown();
    }
 
    public void testInvalidHandle()
@@ -141,7 +151,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
 
    public void testRenderWithSimpleExtensions() throws PortletInvokerException
    {
-      // Register delegate that send "foo" as an extension to MarkupParams and expects to retrieve "bar" as an extension of MarkupResponse
+      // Register delegate sending "foo" String as an extension to MarkupParams and expects to retrieve "bar" as an extension of MarkupResponse
       InvocationHandlerDelegate.registerConsumerDelegate(new InvocationHandlerDelegate()
       {
          @Override
@@ -159,7 +169,48 @@ public class MarkupTestCase extends V2ConsumerBaseTest
          }
       });
 
-      checkRenderResult(consumer.invoke(createRenderInvocation(ExtensionMarkupBehavior.PORTLET_HANDLE)), ExtensionMarkupBehavior.SUCCESS);
+      checkRenderResult(consumer.invoke(createRenderInvocation(ExtensionMarkupBehavior.PORTLET_HANDLE)), ExtensionMarkupBehavior.SIMPLE_SUCCESS);
+   }
+
+   public void testRenderWithElementExtensions() throws PortletInvokerException
+   {
+      // Register delegate sending an Element as an extension to MarkupParams and expects to retrieve an element as an extension of MarkupResponse
+      InvocationHandlerDelegate.registerConsumerDelegate(new InvocationHandlerDelegate()
+      {
+         @Override
+         public void processInvocation(PortletInvocation invocation)
+         {
+            /*
+            <ext1:MarkupRequestState xmlns:ext1='urn:bea:wsrp:ext:v1:types'>
+                              <ext1:state>
+                                           foo
+                              </ext1:state>
+                     </ext1:MarkupRequestState>
+             */
+            final String namespaceURI = "urn:bea:wsrp:ext:v1:types";
+            Element extension = PayloadUtils.createElement(namespaceURI, "MarkupRequestState");
+            Node state = extension.getOwnerDocument().createElementNS(namespaceURI, "state");
+            state = extension.appendChild(state);
+            state.setTextContent(ExtensionMarkupBehavior.EXPECTED_REQUEST_EXTENSION_VALUE);
+
+//            System.out.println("extension = " + PayloadUtils.outputToXML(extension));
+
+            ExtensionAccess.getConsumerExtensionAccessor().addRequestExtension(MarkupParams.class, extension);
+         }
+
+         @Override
+         public void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation)
+         {
+            final List<UnmarshalledExtension> extensions = ExtensionAccess.getConsumerExtensionAccessor().getResponseExtensionsFrom(MarkupResponse.class);
+            assertEquals(1, extensions.size());
+            final UnmarshalledExtension unmarshalledExtension = extensions.get(0);
+            assertTrue(unmarshalledExtension.isElement());
+            Element element = (Element)unmarshalledExtension.getValue();
+            assertEquals(ExtensionMarkupBehavior.EXPECTED_RESPONSE_EXTENSION_VALUE, element.getTextContent());
+         }
+      });
+
+      checkRenderResult(consumer.invoke(createRenderInvocation(ExtensionMarkupBehavior.PORTLET_HANDLE)), ExtensionMarkupBehavior.ELEMENT_SUCCESS);
    }
 
 
