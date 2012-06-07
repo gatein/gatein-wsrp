@@ -80,7 +80,7 @@ public class ExtensionMarkupBehavior extends MarkupBehavior
 
    private static enum Status
    {
-      simple(SIMPLE_SUCCESS, EXPECTED_REQUEST_EXTENSION_VALUE), element(ELEMENT_SUCCESS, ELEMENT_RESPONSE), failure(FAILURE, null);
+      simple(SIMPLE_SUCCESS, EXPECTED_RESPONSE_EXTENSION_VALUE), element(ELEMENT_SUCCESS, ELEMENT_RESPONSE), failure(FAILURE, null);
 
       private Status(String markup, Object response)
       {
