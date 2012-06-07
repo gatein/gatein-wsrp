@@ -53,7 +53,6 @@ public class PayloadUtils
 {
    private final static Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
    private final static Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
-   public static final String EXTENSION_SEPARATOR = "_:_";
 
    static
    {
@@ -290,16 +289,4 @@ public class PayloadUtils
          throw new IllegalArgumentException("Couldn't marshall extension '" + value + "'");
       }
    }
-
-   /*public static UnmarshalledExtension unmarshallExtension(Object any)
-   {
-      final String extension = (String)unmarshallPayload(any);
-      final int separator = extension.indexOf(EXTENSION_SEPARATOR);
-      if (separator <= 0)
-      {
-         throw new IllegalArgumentException("Unable to parse unmarshalled extension '" + extension + "'");
-      }
-      return new UnmarshalledExtension(extension.substring(0, separator), extension.substring(separator + EXTENSION_SEPARATOR.length()));
-   }*/
-
 }
