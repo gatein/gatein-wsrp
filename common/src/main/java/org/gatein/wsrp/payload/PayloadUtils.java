@@ -32,6 +32,8 @@ import org.oasis.wsrp.v2.NamedStringArray;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.TypeInfo;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -39,6 +41,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.Serializable;
@@ -53,6 +56,7 @@ public class PayloadUtils
 {
    private final static Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
    private final static Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
+   private final static ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>();
 
    static
    {
@@ -288,5 +292,40 @@ public class PayloadUtils
       {
          throw new IllegalArgumentException("Couldn't marshall extension '" + value + "'");
       }
+   }
+
+   private static DocumentBuilder getBuilder()
+   {
+      DocumentBuilder builder = documentBuilder.get();
+      if (builder == null)
+      {
+         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+         builderFactory.setNamespaceAware(true);
+         try
+         {
+            builder = builderFactory.newDocumentBuilder();
+            documentBuilder.set(builder);
+         }
+         catch (ParserConfigurationException e)
+         {
+            throw new RuntimeException("Couldn't get a DocumentBuilder", e);
+         }
+      }
+
+      return builder;
+   }
+
+   public static String outputToXML(Element node)
+   {
+      Document document = node.getOwnerDocument();
+      DOMImplementationLS domImplLS = (DOMImplementationLS)document.getImplementation();
+      LSSerializer serializer = domImplLS.createLSSerializer();
+      return serializer.writeToString(node);
+   }
+
+   public static Element createElement(String namespaceURI, String name)
+   {
+      Document document = getBuilder().newDocument();
+      return document.createElementNS(namespaceURI, name);
    }
 }
