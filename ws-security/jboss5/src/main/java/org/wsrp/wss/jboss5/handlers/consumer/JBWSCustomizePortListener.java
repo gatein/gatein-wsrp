@@ -1,6 +1,6 @@
 /******************************************************************************
  * JBoss, a division of Red Hat                                               *
- * Copyright 2011, Red Hat Middleware, LLC, and individual                    *
+ * Copyright 2012, Red Hat Middleware, LLC, and individual                    *
  * contributors as indicated by the @authors tag. See the                     *
  * copyright.txt in the distribution for a full listing of                    *
  * individual contributors.                                                   *
@@ -22,14 +22,8 @@
  ******************************************************************************/
 package org.wsrp.wss.jboss5.handlers.consumer;
 
-import java.io.File;
-import java.net.MalformedURLException;
-
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
-
-import org.jboss.ws.extensions.security.jaxws.WSSecurityHandler;
+import org.gatein.wsrp.wss.CustomizePortListener;
+import org.jboss.ws.core.StubExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,53 +31,23 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class JBWSSecurityHandlerWrapper extends WSSecurityHandler
+public class JBWSCustomizePortListener implements CustomizePortListener
 {
-   private static Logger log = LoggerFactory.getLogger(JBWSSecurityHandlerWrapper.class);
 
-   protected boolean handleInbound(MessageContext msgContext)
-   {
-      return handleInboundSecurity(msgContext);
-   }
-
-   protected boolean handleOutbound(MessageContext msgContext)
-   {
-      return handleOutboundSecurity(msgContext);
-   }
-
+   private static Logger log = LoggerFactory.getLogger(JBWSCustomizePortListener.class);
    
    @Override
-   protected String getConfigResourceName()
+   public void customizePort(Object service)
    {
-      String configFile = System.getProperty("gatein.wsrp.consumer.wss.config");
-      if (configFile == null)
+      if (service instanceof StubExt)
       {
-         String gateInConfDirectory = System.getProperty("gatein.conf.dir");
-         configFile = gateInConfDirectory + File.separator + "gatein-wsse-consumer.xml";
+         StubExt stub = (StubExt)service;
+         stub.setConfigName("GateIn Consumer WSSecurity", "META-INF/gatein-consumer-config.xml");
       }
-      
-      if (configFile != null)
+      else
       {
-         File file = new File(configFile);
-         if (file.exists())
-         {
-            try
-            {
-               return file.toURI().toURL().toString();
-            }
-            catch (MalformedURLException e)
-            {
-               log.warn("Exception when trying to get gatein wsse consumer configuration file : " + configFile, e);
-            }
-         }
-         else
-         {
-            log.debug("No gatein-wsse-consumer.xml file found in the gatein.conf.dir. Using default empty wss configuration file.");
-         }
+         log.warn("Service not an instance of StubExt, cannot customize the port for WS-Security.");
       }
-      // if the file does not exist or if an exception occurs, return the default, empty internal configuration file.
-      return "gatein-wsse-consumer.xml";
-      
    }
 
 }
