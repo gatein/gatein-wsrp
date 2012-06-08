@@ -52,9 +52,9 @@ public class DefaultProducerExtensionAccessor extends AbstractExtensionAccessor 
    }
 
    @Override
-   public void addResponseExtension(Class wsrpResponseClass, String name, String value)
+   public void addResponseExtension(Class wsrpResponseClass, Object extension)
    {
-      addExtension(wsrpResponseClass, name, value);
+      addExtension(wsrpResponseClass, extension);
    }
 
    // On-demand class holder Singleton pattern (multi-thread safe)

@@ -35,6 +35,7 @@ import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPRewritingConstants;
+import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.api.extensions.InvocationHandlerDelegate;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
@@ -152,13 +153,20 @@ public class InvocationDispatcher
          delegate.processInvocation(invocation);
       }
 
-      final PortletInvocationResponse response = handler.handle(invocation);
-
-      if (delegate != null)
+      try
       {
-         delegate.processInvocationResponse(response, invocation);
-      }
+         final PortletInvocationResponse response = handler.handle(invocation);
 
-      return response;
+         if (delegate != null)
+         {
+            delegate.processInvocationResponse(response, invocation);
+         }
+
+         return response;
+      }
+      finally
+      {
+         ExtensionAccess.getConsumerExtensionAccessor().clear();
+      }
    }
 }

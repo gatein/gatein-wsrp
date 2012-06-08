@@ -25,18 +25,38 @@ package org.gatein.wsrp.api.extensions;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * A delegate that can be used to intercept PortletInvocations and PortletInvocationReponses before they are processed
+ * either by the Consumer or Producer. While this is particularly useful to be able to add and process WSRP Extensions
+ * that are outside of the WSRP specification, delegates could certainly be used to do more. However, since they have
+ * access to raw data from the portal's internal, one must be very careful about what's being done to the invocations
+ * and responses as a wrong operation could possibly have disastrous results on the portal's behavior. It is therefore
+ * <strong>extremely recommended</strong> (though not currently enforced) to treat the access to PortletInvocation and
+ * PortletInvocationResponse objects as <strong>read-only</strong>.
+ * <p/>
+ * On the Consumer side, the consumer InvocationHandlerDelegate can intercept the incoming PortletInvocation from the
+ * consumer portal before it is processed by the WSRP stack, i.e. before a WSRP request is sent to the remote producer.
+ * On the flip side, the response from the producer can be processed right after the WSRP stack is done with it but
+ * before it is processed by the consumer portal.
+ * <p/>
+ * On the Producer side, the producer InvocationHandlerDelegate can intercept the PortletInvocation that has been
+ * created as a translation of the incoming WSRP request before it is sent to the producer portal's portlet container.
+ * The response from the portlet container can then be processed before it is handled by the WSRP stack to be sent back
+ * to the Consumer.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public abstract class InvocationHandlerDelegate
 {
-   private static final InvocationHandlerDelegate CONSUMER_DELEGATE;
-   private static final InvocationHandlerDelegate PRODUCER_DELEGATE;
+   private static InvocationHandlerDelegate consumerDelegate;
+   private static InvocationHandlerDelegate producerDelegate;
    public static final String CONSUMER_DELEGATE_CLASSNAME = "org.gatein.wsrp.consumer.handlers.delegate";
    public static final String PRODUCER_DELEGATE_CLASSNAME = "org.gatein.wsrp.producer.handlers.delegate";
 
    static
    {
-      CONSUMER_DELEGATE = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
-      PRODUCER_DELEGATE = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
+      consumerDelegate = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
+      producerDelegate = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
    }
 
    private static InvocationHandlerDelegate createDelegate(String delegateClassName)
@@ -61,18 +81,54 @@ public abstract class InvocationHandlerDelegate
       return null;
    }
 
+   public synchronized static void registerConsumerDelegate(InvocationHandlerDelegate delegate)
+   {
+      consumerDelegate = delegate;
+   }
 
+   public synchronized static void registerProducerDelegate(InvocationHandlerDelegate delegate)
+   {
+      producerDelegate = delegate;
+   }
+
+   /**
+    * Retrieves the delegate on the Consumer side.
+    *
+    * @return
+    */
    public static InvocationHandlerDelegate consumerDelegate()
    {
-      return CONSUMER_DELEGATE;
+      return consumerDelegate;
    }
 
+   /**
+    * Retrieves the delegate on the Producer side.
+    *
+    * @return
+    */
    public static InvocationHandlerDelegate producerDelegate()
    {
-      return PRODUCER_DELEGATE;
+      return producerDelegate;
    }
 
+   /**
+    * Method to process the specified PortletInvocation before it is handled by the rest of the WSRP invocation chain.
+    * See the class documentation for more details.
+    *
+    * @param invocation the PortletInvocation to process (recommended to consider as read-only, used to extract
+    *                   information from, not modify)
+    */
    public abstract void processInvocation(PortletInvocation invocation);
 
+   /**
+    * Method to process the specified PortletInvocationResponse before it is handled by the rest of the WSRP invocation
+    * chain. See the class documentation for more details.
+    *
+    * @param response   the PortletInvocationResponse to process (recommended to consider as read-only, used to extract
+    *                   information from, not modify)
+    * @param invocation the PortletInvocation that caused the specified PortletInvocationResponse (recommended to
+    *                   consider as read-only, used to extract
+    *                   information from, not modify)
+    */
    public abstract void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation);
 }

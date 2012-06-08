@@ -89,13 +89,19 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
 
       Holder<List<HandleEventsFailed>> failedEvents = new Holder<List<HandleEventsFailed>>();
       Holder<UpdateResponse> updateResponse = new Holder<UpdateResponse>();
+      final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
       consumer.getMarkupService().handleEvents(request.getRegistrationContext(), request.getPortletContext(),
          request.getRuntimeContext(), request.getUserContext(), request.getMarkupParams(),
          request.getEventParams(), updateResponse, failedEvents,
-         new Holder<List<Extension>>());
+         extensions);
 
       HandleEventsResponse response = WSRPTypeFactory.createHandleEventsReponse();
       response.setUpdateResponse(updateResponse.value);
+
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      {
+         response.getExtensions().addAll(extensions.value);
+      }
       if (ParameterValidation.existsAndIsNotEmpty(failedEvents.value))
       {
          response.getFailedEvents().addAll(failedEvents.value);
@@ -144,5 +150,11 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       }
 
       return processUpdateResponse(invocation, requestPrecursor, response.getUpdateResponse(), response);
+   }
+
+   @Override
+   protected List<Extension> getExtensionsFrom(HandleEventsResponse handleEventsResponse)
+   {
+      return handleEventsResponse.getExtensions();
    }
 }

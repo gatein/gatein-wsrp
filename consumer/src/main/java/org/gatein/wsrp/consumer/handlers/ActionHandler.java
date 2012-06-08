@@ -102,20 +102,29 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       {
          log.debug("performBlockingInteraction on '" + interaction.getPortletContext().getPortletHandle() + "'");
       }
+      final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
       consumer.getMarkupService().performBlockingInteraction(interaction.getRegistrationContext(),
          interaction.getPortletContext(), interaction.getRuntimeContext(), interaction.getUserContext(),
          interaction.getMarkupParams(), interaction.getInteractionParams(), updateResponseHolder, redirectURL,
-         new Holder<List<Extension>>());
+         extensions);
 
       // construct response
+      final BlockingInteractionResponse response;
       if (redirectURL.value != null)
       {
-         return WSRPTypeFactory.createBlockingInteractionResponse(redirectURL.value);
+         response = WSRPTypeFactory.createBlockingInteractionResponse(redirectURL.value);
       }
       else
       {
-         return WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
+         response = WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
       }
+
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      {
+         response.getExtensions().addAll(extensions.value);
+      }
+
+      return response;
    }
 
    protected PerformBlockingInteraction prepareRequest(RequestPrecursor<ActionInvocation> requestPrecursor, ActionInvocation invocation)
@@ -287,6 +296,12 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
 
          return processUpdateResponse(invocation, requestPrecursor, updateResponse, response);
       }
+   }
+
+   @Override
+   protected List<Extension> getExtensionsFrom(BlockingInteractionResponse blockingInteractionResponse)
+   {
+      return blockingInteractionResponse.getExtensions();
    }
 
    /**
