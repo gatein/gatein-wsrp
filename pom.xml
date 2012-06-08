@@ -55,7 +55,7 @@
    <properties>
       <org.gatein.pc.version>2.3.2-GA</org.gatein.pc.version>
       <org.gatein.common.version>2.0.4-GA</org.gatein.common.version>
-      <org.gatein.wci.version>2.1.1-GA</org.gatein.wci.version>
+      <org.gatein.wci.version>2.2.0-Beta01</org.gatein.wci.version>
 
       <jsf.version>1.2_12</jsf.version>
       <javax.xml.ws.version>2.1</javax.xml.ws.version>

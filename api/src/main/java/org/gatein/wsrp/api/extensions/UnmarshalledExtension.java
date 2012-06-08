@@ -22,6 +22,8 @@
 
 package org.gatein.wsrp.api.extensions;
 
+import org.w3c.dom.Element;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
@@ -29,12 +31,16 @@ package org.gatein.wsrp.api.extensions;
 public class UnmarshalledExtension
 {
    private final String name;
-   private final String value;
+   private final Object value;
+   private final String namespaceURI;
+   private final boolean isElement;
 
-   public UnmarshalledExtension(String name, String value)
+   public UnmarshalledExtension(String name, Object value, String namespaceURI)
    {
       this.name = name;
       this.value = value;
+      this.namespaceURI = namespaceURI;
+      isElement = value instanceof Element;
    }
 
    public String getName()
@@ -42,8 +48,18 @@ public class UnmarshalledExtension
       return name;
    }
 
-   public String getValue()
+   public Object getValue()
    {
       return value;
+   }
+
+   public boolean isElement()
+   {
+      return isElement;
+   }
+
+   public String getNamespaceURI()
+   {
+      return namespaceURI;
    }
 }

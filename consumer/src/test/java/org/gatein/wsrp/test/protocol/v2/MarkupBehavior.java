@@ -186,6 +186,7 @@ public abstract class MarkupBehavior extends TestProducerBehavior implements WSR
 
       markupContext.value = markupResponse.getMarkupContext();
       sessionContext.value = markupResponse.getSessionContext();
+      extensions.value = markupResponse.getExtensions();
    }
 
    public List<Extension> initCookie(@WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext, @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext) throws AccessDenied, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended

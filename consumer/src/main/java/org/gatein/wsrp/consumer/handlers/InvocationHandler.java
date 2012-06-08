@@ -298,14 +298,16 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
    protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
 
-   protected void processExtensions(List<Extension> extensions, Class responseClass)
+   protected abstract List<Extension> getExtensionsFrom(Response response);
+
+   protected void processExtensions(Response response)
    {
-      for (Extension extension : extensions)
+      for (Extension extension : getExtensionsFrom(response))
       {
          try
          {
             final UnmarshalledExtension unmarshalledExtension = PayloadUtils.unmarshallExtension(extension.getAny());
-            ExtensionAccess.getConsumerExtensionAccessor().addResponseExtension(responseClass, unmarshalledExtension);
+            ExtensionAccess.getConsumerExtensionAccessor().addResponseExtension(response.getClass(), unmarshalledExtension);
          }
          catch (Exception e)
          {
