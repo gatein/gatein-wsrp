@@ -163,18 +163,29 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
    }
 
    @Override
+   protected List<Extension> getExtensionsFrom(ResourceResponse resourceResponse)
+   {
+      return resourceResponse.getExtensions();
+   }
+
+   @Override
    protected ResourceResponse performRequest(GetResource request) throws Exception
    {
       Holder<SessionContext> sessionContextHolder = new Holder<SessionContext>();
       Holder<ResourceContext> resourceContextHolder = new Holder<ResourceContext>();
       Holder<PortletContext> portletContextHolder = new Holder<PortletContext>(request.getPortletContext());
 
+      final Holder<List<Extension>> extensions = new Holder<List<Extension>>();
       consumer.getMarkupService().getResource(request.getRegistrationContext(), portletContextHolder, request.getRuntimeContext(),
-         request.getUserContext(), request.getResourceParams(), resourceContextHolder, sessionContextHolder, new Holder<List<Extension>>());
+         request.getUserContext(), request.getResourceParams(), resourceContextHolder, sessionContextHolder, extensions);
 
       ResourceResponse resourceResponse = WSRPTypeFactory.createResourceResponse(resourceContextHolder.value);
       resourceResponse.setPortletContext(portletContextHolder.value);
       resourceResponse.setSessionContext(sessionContextHolder.value);
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      {
+         resourceResponse.getExtensions().addAll(extensions.value);
+      }
       return resourceResponse;
    }
 

@@ -87,8 +87,13 @@ public interface ProducerExtensionAccessor
     * to markup, interaction, resource or event requests.
     *
     * @param wsrpResponseClass
-    * @param name
-    * @param value
+    * @param extension
     */
-   void addResponseExtension(Class wsrpResponseClass, String name, String value);
+   void addResponseExtension(Class wsrpResponseClass, Object extension);
+
+   /**
+    * Clears the currently held extensions. This method is called once per request-response cycle by the internal
+    * implementation.
+    */
+   public void clear();
 }
