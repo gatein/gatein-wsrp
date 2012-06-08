@@ -191,12 +191,13 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       }
       catch (Exception e)
       {
-         System.out.println("ERROR running testGetMarkupViewNoSession");
+         System.out.println("ERROR running testGetMarkupViewWithExtensions");
          e.printStackTrace();
          throw e;
       }
       finally
       {
+         // reset the producer delegate
          InvocationHandlerDelegate.registerProducerDelegate(null);
       }
    }
@@ -375,6 +376,61 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       // no update response
       UpdateResponse updateResponse = response.getUpdateResponse();
       ExtendedAssert.assertNull(updateResponse);
+   }
+
+   @Test
+   public void testPerformBlockingInteractionWithExtensions() throws Exception
+   {
+      InvocationHandlerDelegate.registerProducerDelegate(new InvocationHandlerDelegate()
+      {
+         private boolean success;
+
+         @Override
+         public void processInvocation(PortletInvocation invocation)
+         {
+            // check that we have extensions as expected
+            final List<UnmarshalledExtension> extensions = ExtensionAccess.getProducerExtensionAccessor().getRequestExtensionsFor(InteractionParams.class);
+            assertEquals(1, extensions.size());
+            assertEquals("foo", extensions.get(0).getValue());
+            success = true;
+         }
+
+         @Override
+         public void processInvocationResponse(PortletInvocationResponse response, PortletInvocation invocation)
+         {
+            // add extension to response
+            if (success)
+            {
+               ExtensionAccess.getProducerExtensionAccessor().addResponseExtension(BlockingInteractionResponse.class, "bar");
+            }
+         }
+      });
+      try
+      {
+         PerformBlockingInteraction performBlockingInteraction = createDefaultPerformBlockingInteraction(getDefaultHandle());
+         InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
+         interactionParams.getExtensions().add(WSRPTypeFactory.createExtension(PayloadUtils.marshallExtension("foo")));
+         NamedString namedString = WSRPTypeFactory.createNamedString("symbol", "RHT");
+         interactionParams.getFormParameters().add(namedString);
+
+         final BlockingInteractionResponse interactionResponse = producer.performBlockingInteraction(performBlockingInteraction);
+         assertNotNull(interactionResponse);
+
+         final List<Extension> responseExtensions = interactionResponse.getExtensions();
+         assertEquals(1, responseExtensions.size());
+         assertEquals("bar", PayloadUtils.unmarshallExtension(responseExtensions.get(0).getAny()).getValue());
+      }
+      catch (Exception e)
+      {
+         System.out.println("ERROR running testPerformBlockingInteractionWithExtensions");
+         e.printStackTrace();
+         throw e;
+      }
+      finally
+      {
+         // reset the producer delegate
+         InvocationHandlerDelegate.registerProducerDelegate(null);
+      }
    }
 
    @Test
