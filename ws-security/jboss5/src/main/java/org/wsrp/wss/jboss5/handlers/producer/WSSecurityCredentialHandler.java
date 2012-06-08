@@ -27,46 +27,18 @@ import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
 import org.jboss.wsf.spi.invocation.SecurityAdaptor;
 import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wsrp.wss.jboss5.handlers.AbstractWSSecurityCredentialHandler;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageContext>
+public class WSSecurityCredentialHandler extends AbstractWSSecurityCredentialHandler
 {
-   private static Logger log = LoggerFactory.getLogger(WSSecurityCredentialHandler.class);
-
-   public void close(MessageContext arg0)
-   {
-      //Nothing to do for now
-   }
-
-   public boolean handleFault(SOAPMessageContext soapMessageContext)
-   {
-      return true;
-   }
-
-   public boolean handleMessage(SOAPMessageContext soapMessageContext)
-   {
-      if (Boolean.TRUE.equals(soapMessageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)))
-      {
-         return handleRequest(soapMessageContext);
-      }
-      else
-      {
-         return handleResponse(soapMessageContext);
-      }
-   }
-
-   private boolean handleResponse(SOAPMessageContext soapMessageContext)
+   @Override
+   protected boolean handleResponse(SOAPMessageContext soapMessageContext)
    {
       try
       {
@@ -94,14 +66,5 @@ public class WSSecurityCredentialHandler implements SOAPHandler<SOAPMessageConte
       return true;
    }
 
-   private boolean handleRequest(SOAPMessageContext soapMessageContext)
-   {
-      return true;
-   }
-
-   public Set<QName> getHeaders()
-   {
-      return null;
-   }
 }
 
