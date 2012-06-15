@@ -558,6 +558,16 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(userContext);
 
       List<String> names = getPortletProperties.getNames();
+      // workaround for GTNWSRP-290:
+      if (names.size() == 1)
+      {
+         final String name = names.get(0);
+         if(ParameterValidation.isNullOrEmpty(name))
+         {
+            names = Collections.emptyList();
+         }
+      }
+
       Set<String> keys = new HashSet<String>(names);
 
       try
@@ -566,7 +576,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          org.gatein.pc.api.PortletContext jbpContext = WSRPUtils.convertToPortalPortletContext(portletContext);
 
          RegistrationLocal.setRegistration(registration);
-         if (keys != null)
+         if (!keys.isEmpty())
          {
             properties = producer.getPortletInvoker().getProperties(jbpContext, keys);
          }
