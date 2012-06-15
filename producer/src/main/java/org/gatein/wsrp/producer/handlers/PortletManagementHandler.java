@@ -557,6 +557,16 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(userContext);
 
       List<String> names = getPortletProperties.getNames();
+      // workaround for GTNWSRP-290: remove when GTNWSRP-293 is fixed
+      if (names.size() == 1)
+      {
+         final String name = names.get(0);
+         if (ParameterValidation.isNullOrEmpty(name))
+         {
+            names = Collections.emptyList();
+         }
+      }
+
       Set<String> keys = new HashSet<String>(names);
 
       try
