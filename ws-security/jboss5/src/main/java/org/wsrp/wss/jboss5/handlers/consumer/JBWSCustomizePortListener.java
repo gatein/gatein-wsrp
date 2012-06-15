@@ -35,7 +35,7 @@ public class JBWSCustomizePortListener implements CustomizePortListener
 {
 
    private static Logger log = LoggerFactory.getLogger(JBWSCustomizePortListener.class);
-   
+
    @Override
    public void customizePort(Object service)
    {
