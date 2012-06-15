@@ -421,8 +421,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          List<FailedPortlets> failedPortlets = new ArrayList<FailedPortlets>(failedPortletsMap.values());
          //TODO: handle resources properly
          ResourceList resourceList = null;
-         CopyPortletsResponse copyPortletsResponse = WSRPTypeFactory.createCopyPortletsResponse(copiedPortlets, failedPortlets, resourceList);
-         return copyPortletsResponse;
+         return WSRPTypeFactory.createCopyPortletsResponse(copiedPortlets, failedPortlets, resourceList);
       }
       catch (Exception e)
       {
@@ -562,7 +561,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       if (names.size() == 1)
       {
          final String name = names.get(0);
-         if(ParameterValidation.isNullOrEmpty(name))
+         if (ParameterValidation.isNullOrEmpty(name))
          {
             names = Collections.emptyList();
          }
@@ -952,17 +951,11 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          RegistrationLocal.setRegistration(registration);
 
          ExportContext exportContext;
-         if (setExportLifetime != null)
-         {
-            long currentTime = toLongDate(setExportLifetime.getLifetime().getCurrentTime());
-            long terminationTime = toLongDate(setExportLifetime.getLifetime().getTerminationTime());
-            long refreshDuration = setExportLifetime.getLifetime().getRefreshDuration().getTimeInMillis(setExportLifetime.getLifetime().getCurrentTime().toGregorianCalendar());
-            exportContext = producer.getExportManager().setExportLifetime(exportContextBytes, currentTime, terminationTime, refreshDuration);
-         }
-         else
-         {
-            exportContext = producer.getExportManager().setExportLifetime(exportContextBytes, -1, -1, -1);
-         }
+         long currentTime = toLongDate(setExportLifetime.getLifetime().getCurrentTime());
+         long terminationTime = toLongDate(setExportLifetime.getLifetime().getTerminationTime());
+         long refreshDuration = setExportLifetime.getLifetime().getRefreshDuration().getTimeInMillis(setExportLifetime.getLifetime().getCurrentTime().toGregorianCalendar());
+         exportContext = producer.getExportManager().setExportLifetime(exportContextBytes, currentTime, terminationTime, refreshDuration);
+
          return getLifetime(exportContext);
       }
       catch (Exception e)
