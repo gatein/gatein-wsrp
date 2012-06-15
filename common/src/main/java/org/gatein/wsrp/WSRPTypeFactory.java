@@ -581,7 +581,8 @@ public class WSRPTypeFactory
    /**
     * mimeType: The mime type of the returned markup. The mimeType field MUST be specified whenever markup is returned,
     * and if the markupBinary field is used to return the markup, the mime type MUST include the character set for
-    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this particular
+    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this
+    * particular
     * case this character set MAY be different than the response message.
     * <p/>
     */
@@ -618,10 +619,12 @@ public class WSRPTypeFactory
    }
 
    /**
-    * @param mediaType The mime type of the returned resource. The mimeType field MUST be specified whenever resource is
+    * @param mediaType The mime type of the returned resource. The mimeType field MUST be specified whenever resource
+    *                  is
     *                  returned, and if the resourceBinary field is used to return the resource, the mime type MUST
     *                  include the character set for textual mime types using the syntax specified in RFC1522[14] (e.g.
-    *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than the
+    *                  "text/html; charset=UTF-8"). In this particular case this character set MAY be different than
+    *                  the
     *                  response message.
     * @return a new ResourceContext
     */
@@ -693,11 +696,13 @@ public class WSRPTypeFactory
    }
 
    /**
-    * @param consumerName       A name (preferably unique) that identifies the Consumer [R355] An example of such a name
+    * @param consumerName       A name (preferably unique) that identifies the Consumer [R355] An example of such a
+    *                           name
     *                           would be the Consumer's URL.
     * @param methodGetSupported A flag that tells the Producer whether the Consumer has implemented portlet URLs
     *                           (regardless of whether they are written through Consumer URL rewriting or Producer URL
-    *                           writing, see [Section 10.2]) in a manner that supports HTML markup containing forms with
+    *                           writing, see [Section 10.2]) in a manner that supports HTML markup containing forms
+    *                           with
     *                           method="get".
     * @return
     */
@@ -738,11 +743,13 @@ public class WSRPTypeFactory
    public static Property createProperty(QName name, String lang, String stringValue)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "name");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "language", "Property");
 
       Property property = new Property();
       property.setName(name);
-      property.setLang(lang);
+      if (!ParameterValidation.isNullOrEmpty(lang))
+      {
+         property.setLang(lang);
+      }
       property.setStringValue(stringValue);
       return property;
    }
