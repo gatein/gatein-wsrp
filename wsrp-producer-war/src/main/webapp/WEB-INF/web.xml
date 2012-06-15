@@ -29,12 +29,12 @@
 
    <!-- WS-Security Configuration -->
    <context-param>
-     <param-name>jbossws-config-name</param-name>
-     <param-value>GateIn Producer WSSecurity</param-value>
+      <param-name>jbossws-config-name</param-name>
+      <param-value>GateIn Producer WSSecurity</param-value>
    </context-param>
    <context-param>
-     <param-name>jbossws-config-file</param-name>
-     <param-value>WEB-INF/conf/gatein-producer-config.xml</param-value>
+      <param-name>jbossws-config-file</param-name>
+      <param-value>WEB-INF/conf/gatein-producer-config.xml</param-value>
    </context-param>
 
    <!-- Filter to put request and response in ServletAccess -->

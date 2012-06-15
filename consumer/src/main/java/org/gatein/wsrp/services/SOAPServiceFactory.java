@@ -57,8 +57,6 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
-import javax.xml.ws.handler.soap.SOAPHandler;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -528,7 +526,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          return false;
       }
    }
-   
+
    protected void configureWSS(Object service)
    {
       if (wssEnabled)
@@ -536,14 +534,14 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
          if (wssFactory.getCustomizePortListeners() != null)
          {
-            for (CustomizePortListener listener: wssFactory.getCustomizePortListeners())
+            for (CustomizePortListener listener : wssFactory.getCustomizePortListeners())
             {
                listener.customizePort(service);
             }
          }
          else
          {
-           log.debug("WSS enabled, but no CustomizePortListeners provided. WSS will not be able to work properly.");
+            log.debug("WSS enabled, but no CustomizePortListeners provided. WSS will not be able to work properly.");
          }
       }
       else

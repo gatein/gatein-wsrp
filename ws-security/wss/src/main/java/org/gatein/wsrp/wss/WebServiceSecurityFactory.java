@@ -22,10 +22,10 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss;
 
+import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -36,22 +36,22 @@ public class WebServiceSecurityFactory
    public static final WebServiceSecurityFactory instance = new WebServiceSecurityFactory();
    public List<CustomizePortListener> customizePortListeners;
    private CredentialsAccessor credentialsAccessor;
-   
+
    public static WebServiceSecurityFactory getInstance()
    {
       return instance;
    }
-   
+
    public void setCredentialsAccessor(CredentialsAccessor credentialsAccessor)
    {
       this.credentialsAccessor = credentialsAccessor;
    }
-   
+
    public CredentialsAccessor getCredentialsAccessor()
    {
       return credentialsAccessor;
    }
-   
+
    public void addCustomizePortListener(CustomizePortListener listener)
    {
       if (this.customizePortListeners == null)
@@ -60,7 +60,7 @@ public class WebServiceSecurityFactory
       }
       customizePortListeners.add(listener);
    }
-   
+
    public void removeCustomizePortListener(CustomizePortListener listener)
    {
       if (customizePortListeners != null)
@@ -68,12 +68,12 @@ public class WebServiceSecurityFactory
          customizePortListeners.remove(listener);
       }
    }
-   
+
    public List<CustomizePortListener> getCustomizePortListeners()
    {
       return customizePortListeners;
    }
-   
-   
+
+
 }
 
