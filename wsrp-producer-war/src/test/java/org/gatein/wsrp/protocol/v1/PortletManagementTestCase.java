@@ -360,6 +360,31 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    }
 
    @Test
+   public void testSetPortletPropertiesNoLanguage() throws Exception
+   {
+      String handle = getDefaultHandle();
+
+      V1PortletContext portletContext = clonePortlet(handle);
+      V1PropertyList propertyList = WSRP1TypeFactory.createPropertyList();
+      List<V1Property> properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("prefName1", null, "newPrefValue1"),
+         WSRP1TypeFactory.createProperty("prefName2", null, "newPrefValue2"));
+      V1SetPortletProperties setPortletProperties = WSRP1TypeFactory.createSetPortletProperties(null, portletContext, propertyList);
+
+      V1PortletContext response = producer.setPortletProperties(setPortletProperties);
+      V1GetPortletProperties getPortletProperties = WSRP1TypeFactory.createGetPortletProperties(null, response);
+      Collections.addAll(getPortletProperties.getNames(), "prefName1", "prefName2");
+
+      // need to reset properties to use a language since getPortletProperties will return the associated language
+      propertyList = WSRP1TypeFactory.createPropertyList();
+      properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("prefName1", "en", "newPrefValue1"),
+         WSRP1TypeFactory.createProperty("prefName2", "en", "newPrefValue2"));
+
+      checkGetPropertiesResponse(producer.getPortletProperties(getPortletProperties), properties);
+   }
+
+   @Test
    public void testSetResetSamePortletProperty() throws Exception
    {
       String handle = getDefaultHandle();

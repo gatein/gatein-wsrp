@@ -144,7 +144,8 @@ public class WSRP1TypeFactory
    }
 
    /**
-    * {@link V1RegistrationContext}?, {@link V1PortletContext}, {@link V1RuntimeContext}, {@link V1UserContext}?, {@link
+    * {@link V1RegistrationContext}?, {@link V1PortletContext}, {@link V1RuntimeContext}, {@link V1UserContext}?,
+    * {@link
     * V1MarkupParams}, {@link V1InteractionParams}
     *
     * @param portletContext
@@ -496,7 +497,8 @@ public class WSRP1TypeFactory
    /**
     * mimeType: The mime type of the returned markup. The mimeType field MUST be specified whenever markup is returned,
     * and if the markupBinary field is used to return the markup, the mime type MUST include the character set for
-    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this particular
+    * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this
+    * particular
     * case this character set MAY be different than the response message.
     * <p/>
     * useCachedMarkup(xsd:boolean[false])?, mimeType(xsd:string)?, (markupString(xsd:string) |
@@ -508,10 +510,10 @@ public class WSRP1TypeFactory
    public static V1MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCacheItem)
    {
       boolean isUseCacheItem = (useCacheItem == null) ? false : useCacheItem.booleanValue();
-      
+
       V1MarkupContext markupContext = new V1MarkupContext();
       markupContext.setMimeType(mediaType);
-      
+
       if (isUseCacheItem)
       {
          markupContext.setUseCachedMarkup(useCacheItem);
@@ -532,7 +534,7 @@ public class WSRP1TypeFactory
             throw new IllegalArgumentException("MarkupContext required either a true useCacheItem or a non-null markup string or binary markup");
          }
       }
-      
+
       return markupContext;
    }
 
@@ -579,11 +581,13 @@ public class WSRP1TypeFactory
     * consumerWindowStates(xsd:string)*, consumerUserScopes(xsd:string)*, customUserProfileData(xsd:string)*,
     * registrationProperties(Property)*, extensions(Extension)*
     *
-    * @param consumerName       A name (preferably unique) that identifies the Consumer [R355] An example of such a name
+    * @param consumerName       A name (preferably unique) that identifies the Consumer [R355] An example of such a
+    *                           name
     *                           would be the Consumer's URL.
     * @param methodGetSupported A flag that tells the Producer whether the Consumer has implemented portlet URLs
     *                           (regardless of whether they are written through Consumer URL rewriting or Producer URL
-    *                           writing, see [Section 10.2]) in a manner that supports HTML markup containing forms with
+    *                           writing, see [Section 10.2]) in a manner that supports HTML markup containing forms
+    *                           with
     *                           method="get".
     * @return
     */
@@ -620,12 +624,14 @@ public class WSRP1TypeFactory
    public static V1Property createProperty(String name, String lang, String stringValue)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(name, "name", "Property");
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(lang, "language", "Property");
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(stringValue, "String value", "Property");
 
       V1Property property = new V1Property();
       property.setName(name);
-      property.setLang(lang);
+      if (!ParameterValidation.isNullOrEmpty(lang))
+      {
+         property.setLang(lang);
+      }
       property.setStringValue(stringValue);
       return property;
    }
