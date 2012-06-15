@@ -243,6 +243,20 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    }
 
    @Test
+   public void testGetPortletPropertiesNoKeys() throws Exception
+   {
+      String handle = getDefaultHandle();
+      V1PortletContext initialContext = WSRP1TypeFactory.createPortletContext(handle);
+      V1GetPortletProperties getPortletProperties = WSRP1TypeFactory.createGetPortletProperties(null, initialContext);
+
+      V1PropertyList response = producer.getPortletProperties(getPortletProperties);
+      List<V1Property> expected = new ArrayList<V1Property>(2);
+      Collections.addAll(expected, WSRP1TypeFactory.createProperty("prefName1", "en", "prefValue1"),
+         WSRP1TypeFactory.createProperty("prefName2", "en", "prefValue2"));
+      checkGetPropertiesResponse(response, expected);
+   }
+
+   @Test
    public void testGetPortletPropertiesNoRegistration() throws Exception
    {
       String handle = getDefaultHandle();
@@ -258,12 +272,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          WSRP1TypeFactory.createProperty("prefName2", "en", "prefValue2"));
       checkGetPropertiesResponse(response, expected);
 
-      //This part of the tests doesn't make sense as names is a reference to the list, not a clone
-      //Changed test to check for a empty list since calling names.clear
       names.clear();
       response = producer.getPortletProperties(getPortletProperties);
-      //checkGetPropertiesResponse(response, expected);
-      checkGetPropertiesResponse(response, new ArrayList<V1Property>());
 
       names.add("prefName2");
       response = producer.getPortletProperties(getPortletProperties);
