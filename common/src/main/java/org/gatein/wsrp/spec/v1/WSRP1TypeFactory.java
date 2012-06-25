@@ -145,8 +145,7 @@ public class WSRP1TypeFactory
 
    /**
     * {@link V1RegistrationContext}?, {@link V1PortletContext}, {@link V1RuntimeContext}, {@link V1UserContext}?,
-    * {@link
-    * V1MarkupParams}, {@link V1InteractionParams}
+    * {@link V1MarkupParams}, {@link V1InteractionParams}
     *
     * @param portletContext
     * @param runtimeContext
@@ -333,8 +332,9 @@ public class WSRP1TypeFactory
    }
 
    /**
-    * Same as createMarkupParams(false, {@link WSRPConstants#getDefaultLocales()}, {@link
-    * WSRPConstants#getDefaultMimeTypes()}, {@link WSRPConstants#VIEW_MODE}, {@link WSRPConstants#NORMAL_WINDOW_STATE})
+    * Same as createMarkupParams(false, {@link WSRPConstants#getDefaultLocales()},
+    * {@link WSRPConstants#getDefaultMimeTypes()}, {@link WSRPConstants#VIEW_MODE},
+    * {@link WSRPConstants#NORMAL_WINDOW_STATE})
     *
     * @return
     */
@@ -498,8 +498,7 @@ public class WSRP1TypeFactory
     * mimeType: The mime type of the returned markup. The mimeType field MUST be specified whenever markup is returned,
     * and if the markupBinary field is used to return the markup, the mime type MUST include the character set for
     * textual mime types using the syntax specified in RFC1522[14] (e.g. "text/html; charset=UTF-8"). In this
-    * particular
-    * case this character set MAY be different than the response message.
+    * particular case this character set MAY be different than the response message.
     * <p/>
     * useCachedMarkup(xsd:boolean[false])?, mimeType(xsd:string)?, (markupString(xsd:string) |
     * markupBinary(xsd:base64Binary)), locale(xsd:string)?, requiresUrlRewriting(xsd:boolean[false])?,
@@ -601,8 +600,8 @@ public class WSRP1TypeFactory
    }
 
    /**
-    * Same as createRegistrationData({@link WSRPConstants#DEFAULT_CONSUMER_NAME}, false) using {@link
-    * WSRPConstants#CONSUMER_AGENT} for the consumer agent.
+    * Same as createRegistrationData({@link WSRPConstants#DEFAULT_CONSUMER_NAME}, false) using
+    * {@link WSRPConstants#CONSUMER_AGENT} for the consumer agent.
     *
     * @return
     * @since 2.4.1
