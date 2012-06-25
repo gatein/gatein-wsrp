@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <modelVersion>4.0.0</modelVersion>
 
@@ -51,6 +52,23 @@
       <developerConnection>scm:git:ssh://git@github.com/gatein/gatein-wsrp.git</developerConnection>
       <url>https://github.com/gatein/gatein-wsrp</url>
    </scm>
+
+   <repositories>
+      <repository>
+         <id>jboss-public-repository-group</id>
+         <name>JBoss Public Repository Group</name>
+         <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+         <layout>default</layout>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+         </snapshots>
+      </repository>
+   </repositories>
 
    <properties>
       <org.gatein.pc.version>2.3.2-GA</org.gatein.pc.version>
