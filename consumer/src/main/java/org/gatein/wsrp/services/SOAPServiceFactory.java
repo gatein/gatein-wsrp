@@ -132,9 +132,9 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       List<Handler> handlerChain = binding.getHandlerChain();
       if (handlerChain != null)
       {
-    	 //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
-    	 addWSSHandlers(handlerChain);
-    	  
+         //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
+         addWSSHandlers(handlerChain);
+
          // if we already have a handler chain, just add the request hearder handler if it's not already in there
          if (!handlerChain.contains(REQUEST_HEADER_CLIENT_HANDLER))
          {
@@ -145,10 +145,10 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       {
          // otherwise, create a handler chain and add our handler to it
          handlerChain = new ArrayList<Handler>(1);
-         
+
          //We need to make sure the WSS handlers are added before the REQUEST_HEADER_CLIENT_HANDLER otherwise the session information is lost
          addWSSHandlers(handlerChain);
-         
+
          handlerChain.add(REQUEST_HEADER_CLIENT_HANDLER);
       }
       binding.setHandlerChain(handlerChain);
@@ -385,7 +385,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             }
             catch (Exception e)
             {
-               log.debug("PortletManagement port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
                portletManagementURL = null;
             }
 
@@ -396,7 +396,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
             }
             catch (Exception e)
             {
-               log.debug("Registration port was not available for WSDL at: " + wsdlDefinitionURL, e);
+               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
                registrationURL = null;
             }
 
@@ -416,7 +416,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       }
       catch (Exception e)
       {
-         log.info("Couldn't access WSDL information at" + wsdlDefinitionURL + ". Service won't be available", e);
+         log.info("Couldn't access WSDL information at " + wsdlDefinitionURL + ". Service won't be available", e);
          setAvailable(false);
          setFailed(true);
          throw e;
