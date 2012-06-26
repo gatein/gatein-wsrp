@@ -62,7 +62,7 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType"
 )
-@HandlerChain(file="../producer-handler-chains.xml")
+@HandlerChain(file = "../producer-handler-chains.xml")
 public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRPV2ServiceDescriptionPortType
 {
    public void getServiceDescription(
@@ -105,5 +105,10 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       locales.value = description.getLocales();
       resourceList.value = description.getResourceList();
       extensions.value = description.getExtensions();
+      eventDescriptions.value = description.getEventDescriptions();
+      schemaType.value = description.getSchemaType();
+      supportedOptions.value = description.getSupportedOptions();
+      exportDescription.value = description.getExportDescription();
+      mayReturnRegistrationState.value = description.isMayReturnRegistrationState();
    }
 }
