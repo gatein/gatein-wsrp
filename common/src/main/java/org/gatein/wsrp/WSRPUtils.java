@@ -81,6 +81,10 @@ public class WSRPUtils
    private static boolean strict = true;
    private static Logger log = LoggerFactory.getLogger(WSRPUtils.class);
 
+   /** Switch for 00618063 support case */
+   private static PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
+   public static final String DEACTIVATE_URL_REWRITING = "org.gatein.wsrp.producer.deactivateURLRewriting";
+
    public static void setStrict(boolean strict)
    {
       WSRPUtils.strict = strict;
@@ -669,6 +673,17 @@ public class WSRPUtils
       }
    }
 
+   public static PropertyAccessor getPropertyAccessor()
+   {
+      return propertyAccessor;
+   }
+
+   static PropertyAccessor getPropertyAccessor(boolean reload)
+   {
+      propertyAccessor = new DefaultPropertyAccessor();
+      return propertyAccessor;
+   }
+
    /**
     * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
     * @version $Revision$
@@ -687,15 +702,20 @@ public class WSRPUtils
          return getAbsoluteURLFor(urlMatch.getURLAsString());
       }
 
-      /**
-       * todo: public only for tests
-       *
-       * @param url
-       * @return
-       */
-      public String getAbsoluteURLFor(String url)
+      String getAbsoluteURLFor(String url)
       {
          return WSRPUtils.getAbsoluteURLFor(url, true, serverAddress);
+      }
+   }
+
+   private static class DefaultPropertyAccessor implements PropertyAccessor
+   {
+      private boolean urlRewritingActive = !Boolean.parseBoolean(System.getProperty(DEACTIVATE_URL_REWRITING));
+
+      @Override
+      public boolean isURLRewritingActive()
+      {
+         return urlRewritingActive;
       }
    }
 }
