@@ -680,7 +680,10 @@ public class WSRPUtils
 
    static PropertyAccessor getPropertyAccessor(boolean reload)
    {
-      propertyAccessor = new DefaultPropertyAccessor();
+      if (reload)
+      {
+         propertyAccessor = new DefaultPropertyAccessor();
+      }
       return propertyAccessor;
    }
 
