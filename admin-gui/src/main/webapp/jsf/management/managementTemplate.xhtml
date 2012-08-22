@@ -24,20 +24,15 @@
 <ui:decorate template="../common/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core">
+   >
 
    <ui:define name="topnav">
       <h:form id="management-temp-link">
-         <ul class="topnav">
-            <li>
-               <h:commandLink id="consumers" action="consumers" value="#{i18n.nav_tabs_consumers}"/>
-            </li>
-            <li>
-               <h:commandLink id="producer" action="producer" value="#{i18n.nav_tabs_producer_config}"/>
-            </li>
-            <li id="currentTab">#{i18n.nav_tabs_producer_management}</li>
-         </ul>
+
+         <span class="tab"><h:commandLink id="consumersTab" action="consumers" value="#{i18n.nav_tabs_consumers}"/></span>
+         <span class="tab"><h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}" action="producer"/></span>
+         <span class="selectedTab"><h:commandLink id="management-link" value="#{i18n.nav_tabs_producer_management}" action="management"/></span>
+
       </h:form>
    </ui:define>
 
