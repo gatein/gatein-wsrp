@@ -26,45 +26,13 @@
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:c="http://java.sun.com/jstl/core"
-             xmlns:webui="http://jboss.org/gatein">
+   >
 
    <ui:define name="topnav">
       <h:form id="cons-temp-form" styleClass="cons-temp-form">
 
-         <div class="TabsContainer">
-            <table class="TabsActionContainer">
-               <tr>
-                  <td>
-                     <div class="UITab GrayTabStyle">
-                        <div class="SelectedTab">
-                           <div class="LeftTab">
-                              <div class="RightTab">
-                                 <div class="MiddleTab">
-                                    <h:commandLink id="consumersTab" action="consumers"
-                                                   value="#{i18n.nav_tabs_consumers}"/>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </td>
-                  <td>
-                     <div class="UITab GrayTabStyle">
-                        <div class="NormalTab">
-                           <div class="LeftTab">
-                              <div class="RightTab">
-                                 <div class="MiddleTab">
-                                    <h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}"
-                                                   action="producer"/>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </td>
-               </tr>
-            </table>
-         </div>
+         <span class="selectedTab"><h:commandLink id="consumersTab" action="consumers" value="#{i18n.nav_tabs_consumers}"/></span>
+         <span class="tab"><h:commandLink id="producer-link" value="#{i18n.nav_tabs_producer_config}" action="producer"/></span>
 
       </h:form>
    </ui:define>

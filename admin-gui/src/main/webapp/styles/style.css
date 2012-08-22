@@ -296,7 +296,7 @@
 .wsrp-consumers-ui .registration-prop-table {
    text-align: left;
    width: 100%;
-   margin-bottom: .3em;
+   margin-bottom: 3px;
 }
 
 .wsrp-consumers-ui .registration-prop-table.active {
@@ -342,13 +342,13 @@
 }
 
 .wsrp-consumers-ui #handle a.portlet-form-button {
-   padding: .2em;
-   margin-left: 3em;
+   padding: 2px;
+   margin-left: 30px;
 }
 
 .wsrp-consumers-ui .portlet-form-button {
-   padding: .2em;
-   margin: 0 .3em;
+   padding: 2px;
+   margin: 0 3px;
 }
 
 .portlet-msg-status:before {
@@ -385,15 +385,15 @@
 
 .wsrp-consumers-ui .portlet-msg {
    border: 1px solid #bbb;
-   margin: 2em auto;
-   padding: 1em;
+   margin: 22px auto;
+   padding: 11px;
    width: 60%;
 }
 
 .wsrp-consumers-ui .portlet-msg-body {
    position: relative;
-   top: -3em;
-   left: 3em;
+   top: -33px;
+   left: 33px;
    width: 95%;
 }
 
@@ -423,5 +423,5 @@
    -moz-border-radius: 6px;
    -webkit-border-radius: 6px;
    border-radius: 6px;
-   padding: .5em;
+   padding: 5px;
 }
