@@ -874,16 +874,6 @@ public class ConsumerBean extends ManagedBean implements Serializable
          return getSelectItemsFrom(pageIdentifiers);
       }
 
-      private List<SelectItem> getSelectItemsFrom(List<String> identifiers)
-      {
-         List<SelectItem> result = new ArrayList<SelectItem>(identifiers.size());
-         for (String pageIdentifier : identifiers)
-         {
-            result.add(new SelectItem(pageIdentifier));
-         }
-         return result;
-      }
-
       public List<SelectItem> getWindows()
       {
          return getSelectItemsFrom(provider.getWindowIdentifiersFor(page));

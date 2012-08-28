@@ -27,7 +27,10 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.faces.model.SelectItem;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -256,5 +259,15 @@ public abstract class ManagedBean implements Serializable
    public String cancel()
    {
       return cancelOutcome;
+   }
+
+   protected static List<SelectItem> getSelectItemsFrom(List<String> identifiers)
+   {
+      List<SelectItem> result = new ArrayList<SelectItem>(identifiers.size());
+      for (String pageIdentifier : identifiers)
+      {
+         result.add(new SelectItem(pageIdentifier));
+      }
+      return result;
    }
 }
