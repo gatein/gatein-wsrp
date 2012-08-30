@@ -58,8 +58,6 @@ public class ProducerBean extends ManagedBean implements Serializable
 {
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private transient ProducerConfigurationService configurationService;
-   private String policyClassName;
-   private String validatorClassName;
    private static final String PROPERTY = "property";
    private static final String PRODUCER = "producer";
    private String selectedProp;
@@ -102,44 +100,6 @@ public class ProducerBean extends ManagedBean implements Serializable
    public void setRegistrationRequired(boolean requireRegistration)
    {
       getLocalConfiguration().setRegistrationRequired(requireRegistration);
-   }
-
-   public String getRegistrationPolicyClassName()
-   {
-      RegistrationPolicy policy = getLocalConfiguration().getPolicy();
-      if (policy != null)
-      {
-         return policy.getClassName();
-      }
-      else
-      {
-         return beanContext.getMessageFromBundle("bean_producer_regpolicy_unset");
-      }
-   }
-
-   public void setRegistrationPolicyClassName(String className)
-   {
-      policyClassName = className;
-   }
-
-   public boolean isDefaultRegistrationPolicy()
-   {
-      return ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME.equals(getRegistrationPolicyClassName());
-   }
-
-   public String getValidatorClassName()
-   {
-      if (isDefaultRegistrationPolicy())
-      {
-         DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getLocalConfiguration().getPolicy());
-         return policy.getValidator().getClass().getName();
-      }
-      throw new IllegalStateException("getValidatorClassName shouldn't be called if we're not using the default registration");
-   }
-
-   public void setValidatorClassName(String className)
-   {
-      validatorClassName = className;
    }
 
    public boolean isStrictMode()
@@ -187,7 +147,7 @@ public class ProducerBean extends ManagedBean implements Serializable
          registrationRequirements.setRegistrationRequiredForFullDescription(localConfiguration.isRegistrationRequiredForFullDescription());
          registrationRequirements.setRegistrationRequired(localConfiguration.isRegistrationRequired());
 
-         registrationRequirements.reloadPolicyFrom(policyClassName, validatorClassName);
+         registrationRequirements.reloadPolicyFrom(localConfiguration.getRegistrationPolicyClassName(), localConfiguration.getValidatorClassName());
 
          registrationRequirements.setRegistrationProperties(localConfiguration.getRegistrationProperties());
 
@@ -339,11 +299,41 @@ public class ProducerBean extends ManagedBean implements Serializable
       }
    }
 
+   public List<SelectItem> getAvailableRegistrationPolicies()
+   {
+      return getSelectItemsFrom(localProducerConfiguration.getRegistrationRequirements().getAvailableRegistrationPolicies());
+   }
+
+   public void policyChangeListener(ValueChangeEvent event)
+   {
+      getLocalConfiguration().setRegistrationPolicyClassName((String)event.getNewValue());
+
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
+
+   public Object getRegistrationPolicyClassName()
+   {
+      return getLocalConfiguration().getRegistrationPolicyClassName();
+   }
+
+   public boolean isDefaultRegistrationPolicy()
+   {
+      return getLocalConfiguration().isDefaultRegistrationPolicy();
+   }
+
+   public Object getValidatorClassName()
+   {
+      return getLocalConfiguration().getValidatorClassName();
+   }
+
    private static class LocalProducerConfiguration
    {
       private List<RegistrationPropertyDescription> registrationProperties;
       private ProducerRegistrationRequirements registrationRequirements;
       private boolean strictMode;
+      private String policyClassName;
+      private String validatorClassName;
 
       public void initFrom(ProducerRegistrationRequirements registrationRequirements, boolean usingStrictMode)
       {
@@ -352,6 +342,9 @@ public class ProducerBean extends ManagedBean implements Serializable
          Map<QName, RegistrationPropertyDescription> descriptions = registrationRequirements.getRegistrationProperties();
          registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
          Collections.sort(registrationProperties);
+
+         policyClassName = this.registrationRequirements.getPolicyClassName();
+         validatorClassName = getValidatorClassName();
 
          this.strictMode = usingStrictMode;
       }
@@ -420,6 +413,57 @@ public class ProducerBean extends ManagedBean implements Serializable
       public void setUsingStrictMode(boolean usingStrictMode)
       {
          this.strictMode = usingStrictMode;
+      }
+
+      public String getRegistrationPolicyClassName()
+      {
+         return policyClassName;
+      }
+
+      public void setRegistrationPolicyClassName(String className)
+      {
+         policyClassName = className;
+      }
+
+      public boolean isDefaultRegistrationPolicy()
+      {
+         return ProducerRegistrationRequirements.DEFAULT_POLICY_CLASS_NAME.equals(getRegistrationPolicyClassName());
+      }
+
+      public String getValidatorClassName()
+      {
+         final String validatorClassName = getValidatorClassNameOrNullIfNotDefault();
+         if (validatorClassName != null)
+         {
+            return validatorClassName;
+         }
+         else
+         {
+            throw new IllegalStateException("getValidatorClassName shouldn't be called if we're not using the default registration");
+         }
+      }
+
+      private String getValidatorClassNameOrNullIfNotDefault()
+      {
+         if (isDefaultRegistrationPolicy())
+         {
+            if (validatorClassName == null)
+            {
+               DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getPolicy());
+               validatorClassName = policy.getValidator().getClass().getName();
+            }
+
+            return validatorClassName;
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public void setValidatorClassName(String className)
+      {
+         validatorClassName = className;
       }
    }
 }
