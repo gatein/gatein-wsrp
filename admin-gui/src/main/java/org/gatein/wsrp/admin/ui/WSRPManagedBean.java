@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * @version $Revision: 13413 $
  * @since 2.6
  */
-public abstract class ManagedBean implements Serializable
+public abstract class WSRPManagedBean implements Serializable
 {
    protected transient Logger log = LoggerFactory.getLogger(getClass());
 
@@ -226,12 +226,12 @@ public abstract class ManagedBean implements Serializable
 
       public String getObjectTypeName()
       {
-         return ManagedBean.this.getObjectTypeName();
+         return WSRPManagedBean.this.getObjectTypeName();
       }
 
       public boolean isAlreadyExisting(String propertyName)
       {
-         return ManagedBean.this.isAlreadyExisting(propertyName);
+         return WSRPManagedBean.this.isAlreadyExisting(propertyName);
       }
 
       public String doSimpleChecks(String name)

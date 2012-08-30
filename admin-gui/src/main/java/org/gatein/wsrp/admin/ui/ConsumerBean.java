@@ -64,7 +64,7 @@ import java.util.SortedMap;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerBean extends ManagedBean implements Serializable
+public class ConsumerBean extends WSRPManagedBean implements Serializable
 {
    public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
    private transient WSRPConsumer consumer;

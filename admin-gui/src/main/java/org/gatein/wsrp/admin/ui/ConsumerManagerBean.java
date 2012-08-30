@@ -41,7 +41,7 @@ import java.util.Map;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerManagerBean extends ManagedBean implements Serializable
+public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
 {
    private transient ConsumerRegistry registry;
    private String selectedId;
