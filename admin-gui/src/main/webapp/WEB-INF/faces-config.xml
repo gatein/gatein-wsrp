@@ -22,16 +22,17 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-   "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
-
-<faces-config>
+<faces-config
+   xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd"
+   version="2.1">
 
    <!-- Facelet portlet view handler-->
 
    <application>
-      <view-handler>org.jboss.portletbridge.application.PortletViewHandler</view-handler>
-      <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>
+      <!--<view-handler>org.jboss.portletbridge.application.PortletViewHandler</view-handler>
+      <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>-->
       <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
       <locale-config>
          <default-locale>en</default-locale>
@@ -86,7 +87,7 @@
    <managed-bean>
       <managed-bean-name>consumer</managed-bean-name>
       <managed-bean-class>org.gatein.wsrp.admin.ui.ConsumerBean</managed-bean-class>
-      <managed-bean-scope>session</managed-bean-scope>
+      <managed-bean-scope>view</managed-bean-scope>
       <managed-property>
          <property-name>beanContext</property-name>
          <property-class>org.gatein.wsrp.admin.ui.BeanContext</property-class>
