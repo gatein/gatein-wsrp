@@ -394,7 +394,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
 
    private void setConsumerIdInSession(boolean remove)
    {
-      Map<String, Object> sessionMap = beanContext.getSessionMap();
+      /*Map<String, Object> sessionMap = beanContext.getSessionMap();
       String consumerBeanName = "consumer"; // must match ConsumerBean name in faces-config.xml
 
       // force recreation of ConsumerBean otherwise switching to the consumer view might not show the proper consumer 
@@ -407,7 +407,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
       else
       {
          sessionMap.remove(SESSION_CONSUMER_ID);
-      }
+      }*/
    }
 
    private void noSelectedConsumerError()
