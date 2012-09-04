@@ -23,14 +23,18 @@
 
 package org.gatein.wsrp.admin.ui;
 
+import javax.faces.application.ConfigurableNavigationHandler;
+import javax.faces.application.NavigationCase;
 import javax.faces.application.NavigationHandler;
 import javax.faces.context.FacesContext;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-public class RedirectOnNoConsumerNavigationHandler extends NavigationHandler
+public class RedirectOnNoConsumerNavigationHandler extends ConfigurableNavigationHandler
 {
    private NavigationHandler base;
    private static final String CONFIGURE_CONSUMER = "configureConsumer";
@@ -72,5 +76,17 @@ public class RedirectOnNoConsumerNavigationHandler extends NavigationHandler
       }
 
       base.handleNavigation(facesContext, fromAction, outcome);
+   }
+
+   @Override
+   public NavigationCase getNavigationCase(FacesContext context, String fromAction, String outcome)
+   {
+      return (base instanceof ConfigurableNavigationHandler) ? ((ConfigurableNavigationHandler)base).getNavigationCase(context, fromAction, outcome) : null;
+   }
+
+   @Override
+   public Map<String, Set<NavigationCase>> getNavigationCases()
+   {
+      return (base instanceof ConfigurableNavigationHandler) ? ((ConfigurableNavigationHandler)base).getNavigationCases() : null;
    }
 }
