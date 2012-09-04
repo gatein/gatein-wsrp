@@ -24,9 +24,7 @@
 <ui:decorate template="../common/template.xhtml" xmlns="http://www.w3.org/1999/xhtml"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
-             xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core"
-   >
+             xmlns:f="http://java.sun.com/jsf/core">
 
    <ui:define name="topnav">
       <h:form id="cons-temp-form" styleClass="cons-temp-form">
@@ -40,7 +38,7 @@
    <ui:define name="objectpath">
 
       <div class="bar">
-         <f:subview id="add-consumer" rendered="#{showAddConsumer eq true}">
+         <f:subview id="add-consumer" rendered="#{showAddConsumer}">
             <h:form id="createConsumer" styleClass="createObjectForm">
                <span class="portlet-font bold">#{i18n.consumers_create_title}</span>&#160;
                <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
@@ -51,18 +49,17 @@
                                 value="#{i18n.consumers_create_submit}"/>
             </h:form>
          </f:subview>
-         <c:if test="#{empty showAddConsumer}">
+         <h:panelGroup rendered="#{! showAddConsumer}">
             <strong>
                <h:outputFormat value="#{i18n.path_consumers_consumer}">
-                  <f:param value="#{consumer.id}"/>
+                  <f:param value="${consumer.id}"/>
                </h:outputFormat>
             </strong>
-               <span
-                  class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} swatch">
+               <span class="#{consumer.active ? 'active' : 'inactive'} #{consumer.refreshNeeded ? 'needsRefresh' : ''} swatch">
                   #{consumer.active ? i18n.path_consumers_active : i18n.path_consumers_inactive}
                   #{consumer.refreshNeeded ? i18n.path_consumers_refreshNeeded : ''}
                </span>
-         </c:if>
+         </h:panelGroup>
       </div>
 
 
