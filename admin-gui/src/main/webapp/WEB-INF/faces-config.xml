@@ -28,12 +28,7 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd"
    version="2.1">
 
-   <!-- Facelet portlet view handler-->
-
    <application>
-      <!--<view-handler>org.jboss.portletbridge.application.PortletViewHandler</view-handler>
-      <state-manager>org.jboss.portletbridge.application.PortletStateManager</state-manager>-->
-      <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
       <locale-config>
          <default-locale>en</default-locale>
          <supported-locale>fr</supported-locale>
