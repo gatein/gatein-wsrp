@@ -54,7 +54,7 @@ import java.util.Map;
  * @version $Revision: 12854 $
  * @since 2.6.3
  */
-public class ProducerBean extends ManagedBean implements Serializable
+public class ProducerBean extends WSRPManagedBean implements Serializable
 {
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private transient ProducerConfigurationService configurationService;
