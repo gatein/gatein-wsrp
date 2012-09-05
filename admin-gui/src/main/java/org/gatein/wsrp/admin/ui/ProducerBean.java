@@ -312,9 +312,14 @@ public class ProducerBean extends ManagedBean implements Serializable
       FacesContext.getCurrentInstance().renderResponse();
    }
 
-   public Object getRegistrationPolicyClassName()
+   public String getRegistrationPolicyClassName()
    {
       return getLocalConfiguration().getRegistrationPolicyClassName();
+   }
+
+   public void setRegistrationPolicyClassName(String policyClassName)
+   {
+      getLocalConfiguration().setRegistrationPolicyClassName(policyClassName);
    }
 
    public boolean isDefaultRegistrationPolicy()
@@ -322,9 +327,14 @@ public class ProducerBean extends ManagedBean implements Serializable
       return getLocalConfiguration().isDefaultRegistrationPolicy();
    }
 
-   public Object getValidatorClassName()
+   public String getValidatorClassName()
    {
       return getLocalConfiguration().getValidatorClassName();
+   }
+
+   public void setValidatorClassName(String validatorClassName)
+   {
+      getLocalConfiguration().setValidatorClassName(validatorClassName);
    }
 
    private static class LocalProducerConfiguration
