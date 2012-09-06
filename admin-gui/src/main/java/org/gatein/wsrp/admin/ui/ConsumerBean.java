@@ -40,7 +40,6 @@ import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.DataModel;
@@ -91,12 +90,6 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    private transient DataModel portletHandles;
    private transient DataModel existingExports;
    private transient ExportInfoDisplay currentExport;
-
-   private static void bypassAndRedisplay()
-   {
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
-   }
 
    public void setManager(ConsumerManagerBean manager)
    {

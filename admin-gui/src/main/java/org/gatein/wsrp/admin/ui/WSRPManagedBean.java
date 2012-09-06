@@ -27,6 +27,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,6 +51,12 @@ public abstract class WSRPManagedBean implements Serializable
    public static final String INVALID_NAME = "INVALID_NAME_ERROR";
    public static final String INVALID_PATH = "INVALID_PATH_ERROR";
    public static final String DUPLICATE = "DUPLICATE_ERROR";
+
+   static void bypassAndRedisplay()
+   {
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
 
    public static interface PropertyValidator extends Serializable
    {

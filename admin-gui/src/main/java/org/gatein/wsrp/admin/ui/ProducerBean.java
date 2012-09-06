@@ -203,24 +203,21 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    {
       setRegistrationRequired((Boolean)event.getNewValue());
 
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
+      bypassAndRedisplay();
    }
 
    public void strictModeListener(ValueChangeEvent event)
    {
       setStrictMode((Boolean)event.getNewValue());
 
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
+      bypassAndRedisplay();
    }
 
    public void requireRegistrationForFullDescListener(ValueChangeEvent event)
    {
       setRegistrationRequiredForFullDescription((Boolean)event.getNewValue());
 
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
+      bypassAndRedisplay();
    }
 
    public void selectProperty(ActionEvent event)
@@ -308,8 +305,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    {
       getLocalConfiguration().setRegistrationPolicyClassName((String)event.getNewValue());
 
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
+      bypassAndRedisplay();
    }
 
    public String getRegistrationPolicyClassName()
