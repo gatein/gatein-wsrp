@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
@@ -59,6 +60,7 @@
          <scope>provided</scope>
       </dependency>
 
+
       <dependency>
          <groupId>javax.faces</groupId>
          <artifactId>jsf-api</artifactId>
@@ -74,11 +76,6 @@
          <groupId>org.jboss.portletbridge</groupId>
          <artifactId>portletbridge-impl</artifactId>
          <version>${org.jboss.portletbridge.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>com.sun.facelets</groupId>
-         <artifactId>jsf-facelets</artifactId>
-         <version>1.1.15</version>
       </dependency>
 
       <dependency>
@@ -105,5 +102,29 @@
          <artifactId>slf4j-simple</artifactId>
          <scope>test</scope>
       </dependency>
+
+      <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+      <dependency>
+         <groupId>org.jboss.spec</groupId>
+         <artifactId>jboss-javaee-web-6.0</artifactId>
+         <version>3.0.0.Final</version>
+         <type>pom</type>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
+
+   <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <classpathDependencyExcludes>
+                  <!-- exclude code absent api -->
+                  <classpathDependencyExclude>javax.faces:jsf-api</classpathDependencyExclude>
+               </classpathDependencyExcludes>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>

@@ -25,8 +25,7 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html"
              xmlns:f="http://java.sun.com/jsf/core"
-             xmlns:c="http://java.sun.com/jstl/core"
-             xmlns:div="http://jboss.org/gatein">
+   >
 
    <ui:param name="title" value="#{i18n.producer_config_title}"/>
 
@@ -59,12 +58,15 @@
             <h:panelGroup rendered="#{producer.registrationRequired}">
                <h:panelGrid columns="2" width="100%">
                   <h:outputLabel value="#{i18n.producer_config_reg_policy}" for="registrationPolicy"/>
-                  <h:inputText id="registrationPolicy" value="#{producer.registrationPolicyClassName}" size="80"/>
+                  <h:selectOneMenu value="#{producer.registrationPolicyClassName}" id="registrationPolicy" immediate="true" onchange="this.form.submit()"
+                                   valueChangeListener="#{producer.policyChangeListener}">
+                     <f:selectItems value="#{producer.availableRegistrationPolicies}"/>
+                  </h:selectOneMenu>
 
-                  <h:outputLabel value="#{i18n.producer_config_reg_prop_validator}" for="validator"
-                                 rendered="#{producer.defaultRegistrationPolicy}"/>
-                  <h:inputText id="validator" value="#{producer.validatorClassName}" size="80"
-                               rendered="#{producer.defaultRegistrationPolicy}"/>
+                  <h:outputLabel value="#{i18n.producer_config_reg_prop_validator}" for="validator" rendered="#{producer.defaultRegistrationPolicy}"/>
+                  <h:selectOneMenu value="#{producer.validatorClassName}" id="validator" rendered="#{producer.defaultRegistrationPolicy}">
+                     <f:selectItems value="#{producer.availableValidators}"/>
+                  </h:selectOneMenu>
 
                </h:panelGrid>
             </h:panelGroup>
@@ -124,7 +126,7 @@
 
             <h:outputText value="  "/>
             <h:panelGroup styleClass="portlet-section-buttonrow">
-               <h:commandButton id="reg-save" action="#{producer.save}"  styleClass="ActionButton" value="#{i18n.producer_config_save}"/>
+               <h:commandButton id="reg-save" action="#{producer.save}" styleClass="ActionButton" value="#{i18n.producer_config_save}"/>
                <h:commandButton id="reg-reload" action="#{producer.reloadConfiguration}" styleClass="ActionButton" value="#{i18n.producer_config_cancel}"/>
             </h:panelGroup>
          </h:panelGrid>

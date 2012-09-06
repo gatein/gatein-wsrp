@@ -46,6 +46,9 @@ public final class WSRPConstants
 {
    public static final boolean RUNS_IN_EPP = RuntimeContext.getInstance().isRunningIn(RuntimeContext.RunningEnvironment.epp);
 
+   /** The directory where WSRP services are deployed for automatic detection by {@link ResourceFinder}. */
+   public static String SERVICES_DIRECTORY_URL;
+
    /**
     * The version of the WSRP service. This should match the maven version of the module. Right now, checked via the
     * UpdateWSRPForGatein.sh script.
@@ -64,6 +67,16 @@ public final class WSRPConstants
          throw new RuntimeException("Could not load wsrp.properties.");
       }
       WSRP_SERVICE_VERSION = props.getProperty("wsrp.service.version");
+
+      final String serverPath = System.getProperty("jboss.server.base.dir");
+      if (serverPath != null)
+      {
+         SERVICES_DIRECTORY_URL = serverPath + "/deployments";
+      }
+      else
+      {
+         SERVICES_DIRECTORY_URL = null;
+      }
    }
 
 

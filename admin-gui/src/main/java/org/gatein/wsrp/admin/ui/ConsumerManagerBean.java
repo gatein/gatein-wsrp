@@ -41,7 +41,7 @@ import java.util.Map;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerManagerBean extends ManagedBean implements Serializable
+public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
 {
    private transient ConsumerRegistry registry;
    private String selectedId;
@@ -165,8 +165,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
          try
          {
             getRegistry().registerOrDeregisterConsumerWith(selectedId, register);
-            // show consumer configuration
-            setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
          catch (Exception e)
@@ -190,7 +188,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
          try
          {
             getRegistry().createConsumer(selectedId, ProducerInfo.DEFAULT_CACHE_VALUE, null);
-            setConsumerIdInSession(false);
             return CONFIGURE_CONSUMER;
          }
          catch (Exception e)
@@ -230,7 +227,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
    {
       if (refreshConsumerId() != null)
       {
-         setConsumerIdInSession(false);
          return CONFIGURE_CONSUMER;
       }
       else
@@ -259,7 +255,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
    {
       if (refreshConsumerId() != null)
       {
-         setConsumerIdInSession(false);
          return EXPORTS;
       }
       else
@@ -273,7 +268,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
    {
       if (refreshConsumerId() != null)
       {
-         setConsumerIdInSession(false);
          return EXPORT;
       }
       else
@@ -363,7 +357,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
       RefreshResult result = internalRefresh(consumer);
 
       selectedId = consumer.getProducerId();
-      setConsumerIdInSession(false);
       return result;
    }
 
@@ -375,7 +368,6 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
 
    public String listConsumers()
    {
-      setConsumerIdInSession(true);
       selectedId = null;
       return CONSUMERS;
    }
@@ -383,31 +375,12 @@ public class ConsumerManagerBean extends ManagedBean implements Serializable
    public void selectConsumer(ActionEvent actionEvent)
    {
       refreshConsumerId();
-      setConsumerIdInSession(false);
    }
 
    private String refreshConsumerId()
    {
       selectedId = beanContext.getParameter(REQUESTED_CONSUMER_ID);
       return selectedId;
-   }
-
-   private void setConsumerIdInSession(boolean remove)
-   {
-      Map<String, Object> sessionMap = beanContext.getSessionMap();
-      String consumerBeanName = "consumer"; // must match ConsumerBean name in faces-config.xml
-
-      // force recreation of ConsumerBean otherwise switching to the consumer view might not show the proper consumer 
-      sessionMap.remove(consumerBeanName);
-
-      if (!remove)
-      {
-         sessionMap.put(SESSION_CONSUMER_ID, selectedId);
-      }
-      else
-      {
-         sessionMap.remove(SESSION_CONSUMER_ID);
-      }
    }
 
    private void noSelectedConsumerError()

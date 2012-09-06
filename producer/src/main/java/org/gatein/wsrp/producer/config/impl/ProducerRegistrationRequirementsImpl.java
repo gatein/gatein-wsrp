@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.producer.config.impl;
 
+import com.google.common.base.Function;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.RegistrationPolicyChangeListener;
@@ -31,6 +32,7 @@ import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
+import org.gatein.wsrp.ResourceFinder;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
@@ -38,9 +40,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,6 +59,14 @@ import java.util.Set;
 public class ProducerRegistrationRequirementsImpl implements ProducerRegistrationRequirements
 {
    private static final Logger log = LoggerFactory.getLogger(ProducerRegistrationRequirementsImpl.class);
+   public static final Function<Class<? extends RegistrationPolicy>, String> CLASS_TO_NAME_FUNCTION = new Function<Class<? extends RegistrationPolicy>, String>()
+   {
+      @Override
+      public String apply(Class<? extends RegistrationPolicy> aClass)
+      {
+         return aClass.getSimpleName();
+      }
+   };
 
    private boolean requiresRegistration;
    private boolean fullServiceDescriptionRequiresRegistration;
@@ -64,6 +79,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    private Set<RegistrationPropertyChangeListener> propertyChangeListeners = new HashSet<RegistrationPropertyChangeListener>(3);
    private Set<RegistrationPolicyChangeListener> policyChangeListeners = new HashSet<RegistrationPolicyChangeListener>(3);
+   private ResourceFinder resourceFinder;
 
    public ProducerRegistrationRequirementsImpl(boolean requiresMarshalling, boolean requiresRegistration, boolean fullServiceDescriptionRequiresRegistration)
    {
@@ -441,6 +457,37 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
    }
 
+   @Override
+   public List<String> getAvailableRegistrationPolicies()
+   {
+      return getImplementationNames(RegistrationPolicy.class, DEFAULT_POLICY_CLASS_NAME);
+   }
+
+   @Override
+   public List<String> getAvailableRegistrationPropertyValidators()
+   {
+      return getImplementationNames(RegistrationPropertyValidator.class, DEFAULT_VALIDATOR_CLASS_NAME);
+   }
+
+   private List<String> getImplementationNames(Class pluginClass, String defaultImplementationClassName)
+   {
+      try
+      {
+         // find all available implementations
+         final List<String> registrationPolicies = getResourceFinder().findAllStrings(pluginClass.getCanonicalName());
+         // add the default one
+         registrationPolicies.add(defaultImplementationClassName);
+         // sort alphabetically
+         Collections.sort(registrationPolicies);
+
+         return registrationPolicies;
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
    public void propertyHasBeenRenamed(RegistrationPropertyDescription propertyDescription, QName oldName)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyDescription, "RegistrationPropertyDescription");
@@ -481,5 +528,62 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    public String getValidatorClassName()
    {
       return validatorClassName;
+   }
+
+   private ResourceFinder getResourceFinder()
+   {
+      synchronized (this)
+      {
+         if (resourceFinder != null)
+         {
+            return resourceFinder;
+         }
+      }
+
+      if (WSRPConstants.SERVICES_DIRECTORY_URL != null)
+      {
+         final File servicesDirectory = new File(WSRPConstants.SERVICES_DIRECTORY_URL);
+         URL[] urls = null;
+         if (servicesDirectory.isDirectory())
+         {
+            final File[] files = servicesDirectory.listFiles(new FilenameFilter()
+            {
+               @Override
+               public boolean accept(File dir, String name)
+               {
+                  return dir.equals(servicesDirectory) && name.endsWith(".wsrp.jar");
+               }
+            });
+
+            urls = new URL[files.length];
+            int index = 0;
+            for (File file : files)
+            {
+               try
+               {
+                  urls[index] = file.toURI().toURL();
+               }
+               catch (MalformedURLException e)
+               {
+                  urls[index] = null;
+               }
+
+               index++;
+            }
+         }
+         synchronized (this)
+         {
+            resourceFinder = new ResourceFinder("META-INF/services", urls);
+         }
+      }
+      else
+      {
+         synchronized (this)
+         {
+            resourceFinder = new ResourceFinder("META-INF/services");
+         }
+      }
+
+      return resourceFinder;
    }
 }

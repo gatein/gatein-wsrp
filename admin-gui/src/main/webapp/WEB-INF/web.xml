@@ -22,10 +22,14 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-         version="2.4">
+<web-app
+   xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   id="wsrp-admin-ui"
+   version="2.5">
+
+   <display-name>wsrp-admin-ui</display-name>
 
    <context-param>
       <param-name>javax.portlet.faces.renderPolicy</param-name>
@@ -34,22 +38,6 @@
 
    <context-param>
       <param-name>javax.portlet.faces.preserveActionParams</param-name>
-      <param-value>true</param-value>
-   </context-param>
-
-   <!-- Tell JBoss AS 6 to use JSF 1.2 -->
-   <context-param>
-      <param-name>org.jboss.jbossfaces.JSF_CONFIG_NAME</param-name>
-      <param-value>Mojarra-1.2</param-value>
-   </context-param>
-
-   <!-- Facelet configuration -->
-   <context-param>
-      <param-name>facelets.DEVELOPMENT</param-name>
-      <param-value>false</param-value>
-   </context-param>
-   <context-param>
-      <param-name>facelets.SKIP_COMMENTS</param-name>
       <param-value>true</param-value>
    </context-param>
 
@@ -71,12 +59,12 @@
 
    <servlet-mapping>
       <servlet-name>FacesServlet</servlet-name>
-      <url-pattern>/faces/*</url-pattern>
+      <url-pattern>*.faces</url-pattern>
    </servlet-mapping>
 
    <error-page>
       <exception-type>java.lang.Exception</exception-type>
-      <location>/faces/jsf/error.xhtml</location>
+      <location>/jsf/error.xhtml</location>
    </error-page>
 
    <distributable/>
