@@ -79,6 +79,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    private Set<RegistrationPropertyChangeListener> propertyChangeListeners = new HashSet<RegistrationPropertyChangeListener>(3);
    private Set<RegistrationPolicyChangeListener> policyChangeListeners = new HashSet<RegistrationPolicyChangeListener>(3);
+   private ResourceFinder resourceFinder;
 
    public ProducerRegistrationRequirementsImpl(boolean requiresMarshalling, boolean requiresRegistration, boolean fullServiceDescriptionRequiresRegistration)
    {
@@ -459,51 +460,23 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    @Override
    public List<String> getAvailableRegistrationPolicies()
    {
-      ResourceFinder finder;
-      if (WSRPConstants.SERVICES_DIRECTORY_URL != null)
-      {
-         final File servicesDirectory = new File(WSRPConstants.SERVICES_DIRECTORY_URL);
-         URL[] urls = null;
-         if (servicesDirectory.isDirectory())
-         {
-            final File[] files = servicesDirectory.listFiles(new FilenameFilter()
-            {
-               @Override
-               public boolean accept(File dir, String name)
-               {
-                  return dir.equals(servicesDirectory) && name.endsWith(".wsrp.jar");
-               }
-            });
+      return getImplementationNames(RegistrationPolicy.class, DEFAULT_POLICY_CLASS_NAME);
+   }
 
-            urls = new URL[files.length];
-            int index = 0;
-            for (File file : files)
-            {
-               try
-               {
-                  urls[index] = file.toURI().toURL();
-               }
-               catch (MalformedURLException e)
-               {
-                  urls[index] = null;
-               }
+   @Override
+   public List<String> getAvailableRegistrationPropertyValidators()
+   {
+      return getImplementationNames(RegistrationPropertyValidator.class, DEFAULT_VALIDATOR_CLASS_NAME);
+   }
 
-               index++;
-            }
-         }
-         finder = new ResourceFinder("META-INF/services", urls);
-      }
-      else
-      {
-         finder = new ResourceFinder("META-INF/services");
-      }
-
+   private List<String> getImplementationNames(Class pluginClass, String defaultImplementationClassName)
+   {
       try
       {
          // find all available implementations
-         final List<String> registrationPolicies = finder.findAllStrings(RegistrationPolicy.class.getCanonicalName());
+         final List<String> registrationPolicies = getResourceFinder().findAllStrings(pluginClass.getCanonicalName());
          // add the default one
-         registrationPolicies.add(DEFAULT_POLICY_CLASS_NAME);
+         registrationPolicies.add(defaultImplementationClassName);
          // sort alphabetically
          Collections.sort(registrationPolicies);
 
@@ -511,9 +484,8 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
       catch (Exception e)
       {
-         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         throw new RuntimeException(e);
       }
-      return null;
    }
 
    public void propertyHasBeenRenamed(RegistrationPropertyDescription propertyDescription, QName oldName)
@@ -556,5 +528,62 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    public String getValidatorClassName()
    {
       return validatorClassName;
+   }
+
+   private ResourceFinder getResourceFinder()
+   {
+      synchronized (this)
+      {
+         if (resourceFinder != null)
+         {
+            return resourceFinder;
+         }
+      }
+
+      if (WSRPConstants.SERVICES_DIRECTORY_URL != null)
+      {
+         final File servicesDirectory = new File(WSRPConstants.SERVICES_DIRECTORY_URL);
+         URL[] urls = null;
+         if (servicesDirectory.isDirectory())
+         {
+            final File[] files = servicesDirectory.listFiles(new FilenameFilter()
+            {
+               @Override
+               public boolean accept(File dir, String name)
+               {
+                  return dir.equals(servicesDirectory) && name.endsWith(".wsrp.jar");
+               }
+            });
+
+            urls = new URL[files.length];
+            int index = 0;
+            for (File file : files)
+            {
+               try
+               {
+                  urls[index] = file.toURI().toURL();
+               }
+               catch (MalformedURLException e)
+               {
+                  urls[index] = null;
+               }
+
+               index++;
+            }
+         }
+         synchronized (this)
+         {
+            resourceFinder = new ResourceFinder("META-INF/services", urls);
+         }
+      }
+      else
+      {
+         synchronized (this)
+         {
+            resourceFinder = new ResourceFinder("META-INF/services");
+         }
+      }
+
+      return resourceFinder;
    }
 }

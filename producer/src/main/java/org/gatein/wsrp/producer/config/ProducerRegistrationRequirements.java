@@ -123,4 +123,6 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
    String getPolicyClassName();
 
    List<String> getAvailableRegistrationPolicies();
+
+   List<String> getAvailableRegistrationPropertyValidators();
 }
