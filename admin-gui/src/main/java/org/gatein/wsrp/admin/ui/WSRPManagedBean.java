@@ -27,7 +27,11 @@ import org.gatein.common.util.ParameterValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -36,7 +40,7 @@ import java.util.regex.Pattern;
  * @version $Revision: 13413 $
  * @since 2.6
  */
-public abstract class ManagedBean implements Serializable
+public abstract class WSRPManagedBean implements Serializable
 {
    protected transient Logger log = LoggerFactory.getLogger(getClass());
 
@@ -47,6 +51,12 @@ public abstract class ManagedBean implements Serializable
    public static final String INVALID_NAME = "INVALID_NAME_ERROR";
    public static final String INVALID_PATH = "INVALID_PATH_ERROR";
    public static final String DUPLICATE = "DUPLICATE_ERROR";
+
+   static void bypassAndRedisplay()
+   {
+      // bypass the rest of the life cycle and re-display page
+      FacesContext.getCurrentInstance().renderResponse();
+   }
 
    public static interface PropertyValidator extends Serializable
    {
@@ -223,12 +233,12 @@ public abstract class ManagedBean implements Serializable
 
       public String getObjectTypeName()
       {
-         return ManagedBean.this.getObjectTypeName();
+         return WSRPManagedBean.this.getObjectTypeName();
       }
 
       public boolean isAlreadyExisting(String propertyName)
       {
-         return ManagedBean.this.isAlreadyExisting(propertyName);
+         return WSRPManagedBean.this.isAlreadyExisting(propertyName);
       }
 
       public String doSimpleChecks(String name)
@@ -256,5 +266,15 @@ public abstract class ManagedBean implements Serializable
    public String cancel()
    {
       return cancelOutcome;
+   }
+
+   protected static List<SelectItem> getSelectItemsFrom(List<String> identifiers)
+   {
+      List<SelectItem> result = new ArrayList<SelectItem>(identifiers.size());
+      for (String pageIdentifier : identifiers)
+      {
+         result.add(new SelectItem(pageIdentifier));
+      }
+      return result;
    }
 }

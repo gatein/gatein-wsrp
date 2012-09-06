@@ -40,7 +40,6 @@ import org.gatein.wsrp.consumer.migration.ImportInfo;
 import org.gatein.wsrp.consumer.migration.MigrationService;
 import org.gatein.wsrp.consumer.registry.ConsumerRegistry;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.DataModel;
@@ -64,7 +63,7 @@ import java.util.SortedMap;
  * @version $Revision: 12865 $
  * @since 2.6
  */
-public class ConsumerBean extends ManagedBean implements Serializable
+public class ConsumerBean extends WSRPManagedBean implements Serializable
 {
    public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
    private transient WSRPConsumer consumer;
@@ -91,12 +90,6 @@ public class ConsumerBean extends ManagedBean implements Serializable
    private transient DataModel portletHandles;
    private transient DataModel existingExports;
    private transient ExportInfoDisplay currentExport;
-
-   private static void bypassAndRedisplay()
-   {
-      // bypass the rest of the life cycle and re-display page
-      FacesContext.getCurrentInstance().renderResponse();
-   }
 
    public void setManager(ConsumerManagerBean manager)
    {
@@ -848,7 +841,7 @@ public class ConsumerBean extends ManagedBean implements Serializable
       {
          page = (String)event.getNewValue();
 
-         // if we only have one window, select it automatically as a select event might not be triggerer if there's only one :/
+         // if we only have one window, select it automatically as a select event might not be triggered if there's only one :/
          if (page != null)
          {
             List<String> windows = provider.getWindowIdentifiersFor(page);
@@ -872,16 +865,6 @@ public class ConsumerBean extends ManagedBean implements Serializable
       {
          List<String> pageIdentifiers = provider.getPageIdentifiers();
          return getSelectItemsFrom(pageIdentifiers);
-      }
-
-      private List<SelectItem> getSelectItemsFrom(List<String> identifiers)
-      {
-         List<SelectItem> result = new ArrayList<SelectItem>(identifiers.size());
-         for (String pageIdentifier : identifiers)
-         {
-            result.add(new SelectItem(pageIdentifier));
-         }
-         return result;
       }
 
       public List<SelectItem> getWindows()
