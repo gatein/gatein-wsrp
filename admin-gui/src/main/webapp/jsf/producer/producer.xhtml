@@ -63,11 +63,10 @@
                      <f:selectItems value="#{producer.availableRegistrationPolicies}"/>
                   </h:selectOneMenu>
 
-                  <h:outputLabel value="#{i18n.producer_config_reg_prop_validator}" for="validator"
-                                 rendered="#{producer.defaultRegistrationPolicy}"/>
-                  <h:inputText id="validator" value="#{producer.validatorClassName}" size="80"
-                               rendered="#{producer.defaultRegistrationPolicy}"/>
-
+                  <h:outputLabel value="#{i18n.producer_config_reg_prop_validator}" for="validator" rendered="#{producer.defaultRegistrationPolicy}"/>
+                  <h:selectOneMenu value="#{producer.validatorClassName}" id="validator" rendered="#{producer.defaultRegistrationPolicy}">
+                     <f:selectItems value="#{producer.availableValidators}"/>
+                  </h:selectOneMenu>
 
                </h:panelGrid>
             </h:panelGroup>

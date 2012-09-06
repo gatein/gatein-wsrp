@@ -333,6 +333,11 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       getLocalConfiguration().setValidatorClassName(validatorClassName);
    }
 
+   public List<SelectItem> getAvailableValidators()
+   {
+      return getSelectItemsFrom(localProducerConfiguration.getRegistrationRequirements().getAvailableRegistrationPropertyValidators());
+   }
+
    private static class LocalProducerConfiguration
    {
       private List<RegistrationPropertyDescription> registrationProperties;
