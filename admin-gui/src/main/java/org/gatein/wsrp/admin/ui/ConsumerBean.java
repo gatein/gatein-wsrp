@@ -841,7 +841,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       {
          page = (String)event.getNewValue();
 
-         // if we only have one window, select it automatically as a select event might not be triggerer if there's only one :/
+         // if we only have one window, select it automatically as a select event might not be triggered if there's only one :/
          if (page != null)
          {
             List<String> windows = provider.getWindowIdentifiersFor(page);
