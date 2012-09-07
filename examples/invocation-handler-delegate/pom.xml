@@ -9,19 +9,14 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <name>GateIn WSRP Examples: RegistrationPolicy Implementation</name>
-   <artifactId>wsrp-registration-policy-example</artifactId>
-
-   <packaging>jar</packaging>
-
+   <name>GateIn WSRP Examples: InvocationHandlerDelegate Implementation</name>
+   <artifactId>wsrp-invocation-handler-delegate-example</artifactId>
    <dependencies>
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-producer-lib</artifactId>
+         <artifactId>wsrp-integration-api</artifactId>
       </dependency>
    </dependencies>
 
-   <build>
-      <finalName>registration-policy-example.wsrp</finalName>
-   </build>
+
 </project>
