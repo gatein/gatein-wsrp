@@ -395,66 +395,53 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       {
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
-            log.debug("Using registration policy: " + policyClassName);
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            try
-            {
-               Class policyClass = loader.loadClass(policyClassName);
-               if (!RegistrationPolicy.class.isAssignableFrom(policyClass))
-               {
-                  throw new IllegalArgumentException("Policy class does not implement RegistrationPolicy!");
-               }
-               RegistrationPolicy policy = (RegistrationPolicy)policyClass.newInstance();
-
-               setPolicy(policy);
-            }
-            catch (ClassNotFoundException e)
-            {
-               throw new IllegalArgumentException("Couldn't find policy class " + policyClassName + ".", e);
-            }
-            catch (Exception e)
-            {
-               throw new IllegalArgumentException("Couldn't instantiate policy class.", e);
-            }
+            log.debug("Trying to use registration policy: " + policyClassName);
+            setPolicy(createInstancePlugin(policyClassName, RegistrationPolicy.class, new DefaultRegistrationPolicy()));
          }
          else
          {
             log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
-            RegistrationPropertyValidator validator;
+            RegistrationPropertyValidator validator = new DefaultRegistrationPropertyValidator();
             if (validatorClassName != null && validatorClassName.length() > 0 && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
             {
-               log.debug("Using registration property validator: " + validatorClassName);
-               ClassLoader loader = Thread.currentThread().getContextClassLoader();
-               try
-               {
-                  Class validatorClass = loader.loadClass(validatorClassName);
-                  if (!RegistrationPropertyValidator.class.isAssignableFrom(validatorClass))
-                  {
-                     throw new IllegalArgumentException("Validator class does not implement RegistrationPropertyValidator!");
-                  }
-                  validator = (RegistrationPropertyValidator)validatorClass.newInstance();
-               }
-               catch (ClassNotFoundException e)
-               {
-                  throw new IllegalArgumentException("Couldn't find validator class " + validatorClassName + ".", e);
-               }
-               catch (Exception e)
-               {
-                  throw new IllegalArgumentException("Couldn't instantiate validator class.", e);
-               }
+               log.debug("Trying to use registration property validator: " + validatorClassName);
+               validator = createInstancePlugin(validatorClassName, RegistrationPropertyValidator.class, validator);
             }
-            else
-            {
-               log.debug("Using default registration property validator: " + DEFAULT_VALIDATOR_CLASS_NAME);
-               validator = new DefaultRegistrationPropertyValidator();
-            }
-
 
             DefaultRegistrationPolicy delegate = new DefaultRegistrationPolicy();
             delegate.setValidator(validator);
             setPolicy(delegate);
          }
       }
+   }
+
+   private <T> T createInstancePlugin(String className, Class<T> pluginClass, T defaultInstance)
+   {
+      Object instance = defaultInstance;
+
+      try
+      {
+         ClassLoader loader = Thread.currentThread().getContextClassLoader();
+         Class clazz = loader.loadClass(className);
+         if (!pluginClass.isAssignableFrom(clazz))
+         {
+            log.debug("Class does not implement" + pluginClass.getCanonicalName() + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName());
+         }
+         else
+         {
+            instance = clazz.newInstance();
+         }
+      }
+      catch (ClassNotFoundException e)
+      {
+         log.debug("Couldn't find class " + className + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName(), e);
+      }
+      catch (Exception e)
+      {
+         log.debug("Couldn't instantiate class" + className + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName(), e);
+      }
+
+      return pluginClass.cast(instance);
    }
 
    @Override
