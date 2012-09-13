@@ -212,7 +212,7 @@ public class ResourceFinder
       {
          URL url = resources.nextElement();
          String string = readContents(url);
-         strings.add(string);
+         Collections.addAll(strings, string.split("\\s"));
       }
       return strings;
    }
@@ -240,7 +240,7 @@ public class ResourceFinder
          try
          {
             String string = readContents(url);
-            strings.add(string);
+            Collections.addAll(strings, string.split("\\s"));
          }
          catch (IOException notAvailable)
          {
@@ -327,7 +327,11 @@ public class ResourceFinder
          try
          {
             String value = readContents(url);
-            strings.put(name, value);
+            final String[] split = value.split("\\s");
+            for (String s : split)
+            {
+               strings.put(name, s);
+            }
          }
          catch (IOException notAvailable)
          {
@@ -1311,5 +1315,4 @@ public class ResourceFinder
       }
       return result.toString();
    }
-
 }
