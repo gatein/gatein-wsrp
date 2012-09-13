@@ -396,16 +396,20 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
             log.debug("Trying to use registration policy: " + policyClassName);
-            setPolicy(createInstancePlugin(policyClassName, RegistrationPolicy.class, new DefaultRegistrationPolicy()));
+            setPolicy(createInstancePlugin(policyClassName, RegistrationPolicy.class));
          }
          else
          {
             log.debug("Using default registration policy: " + DEFAULT_POLICY_CLASS_NAME);
-            RegistrationPropertyValidator validator = new DefaultRegistrationPropertyValidator();
+            RegistrationPropertyValidator validator;
             if (validatorClassName != null && validatorClassName.length() > 0 && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
             {
                log.debug("Trying to use registration property validator: " + validatorClassName);
-               validator = createInstancePlugin(validatorClassName, RegistrationPropertyValidator.class, validator);
+               validator = createInstancePlugin(validatorClassName, RegistrationPropertyValidator.class);
+            }
+            else
+            {
+               validator = new DefaultRegistrationPropertyValidator();
             }
 
             DefaultRegistrationPolicy delegate = new DefaultRegistrationPolicy();
@@ -415,21 +419,18 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
    }
 
-   private <T> T createInstancePlugin(String className, Class<T> pluginClass, T defaultInstance)
+   private <T> T createInstancePlugin(String className, Class<T> pluginClass)
    {
-      Object instance = defaultInstance;
-
       try
       {
-         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-         Class clazz = loader.loadClass(className);
+         final Class<?> clazz = getResourceFinder().findClass(className, pluginClass);
          if (!pluginClass.isAssignableFrom(clazz))
          {
             throw new IllegalArgumentException("Class does not implement" + pluginClass.getCanonicalName());
          }
          else
          {
-            instance = clazz.newInstance();
+            return pluginClass.cast(clazz.newInstance());
          }
       }
       catch (ClassNotFoundException e)
@@ -440,8 +441,6 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       {
          throw new IllegalArgumentException("Couldn't instantiate class " + className, e);
       }
-
-      return pluginClass.cast(instance);
    }
 
    @Override
@@ -538,7 +537,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
                @Override
                public boolean accept(File dir, String name)
                {
-                  return dir.equals(servicesDirectory) && name.endsWith(".wsrp.jar");
+                  return dir.equals(servicesDirectory) && name.endsWith(".jar");
                }
             });
 
