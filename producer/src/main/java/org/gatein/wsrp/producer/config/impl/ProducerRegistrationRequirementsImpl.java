@@ -425,7 +425,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          Class clazz = loader.loadClass(className);
          if (!pluginClass.isAssignableFrom(clazz))
          {
-            log.debug("Class does not implement" + pluginClass.getCanonicalName() + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName());
+            throw new IllegalArgumentException("Class does not implement" + pluginClass.getCanonicalName());
          }
          else
          {
@@ -434,11 +434,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
       catch (ClassNotFoundException e)
       {
-         log.debug("Couldn't find class " + className + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName(), e);
+         throw new IllegalArgumentException("Couldn't find class " + className, e);
       }
       catch (Exception e)
       {
-         log.debug("Couldn't instantiate class" + className + ". Reverting to use the default: " + defaultInstance.getClass().getCanonicalName(), e);
+         throw new IllegalArgumentException("Couldn't instantiate class " + className, e);
       }
 
       return pluginClass.cast(instance);
