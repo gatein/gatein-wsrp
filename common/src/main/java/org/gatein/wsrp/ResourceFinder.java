@@ -358,6 +358,20 @@ public class ResourceFinder
       return classLoader.loadClass(className);
    }
 
+   public <T> Class<? extends T> findClass(String className, Class<T> pluginClass) throws IOException, ClassNotFoundException
+   {
+      List<String> strings = findAllStrings(pluginClass.getCanonicalName());
+      for (String name : strings)
+      {
+         if(className.equals(name))
+         {
+            return classLoader.loadClass(className).asSubclass(pluginClass);
+         }
+      }
+
+      throw new ClassNotFoundException("Couldn't find an implementation of " + pluginClass.getCanonicalName() + " named " + className);
+   }
+
    /**
     * Executes findAllStrings assuming the strings are
     * the names of a classes that should be loaded and returned.
