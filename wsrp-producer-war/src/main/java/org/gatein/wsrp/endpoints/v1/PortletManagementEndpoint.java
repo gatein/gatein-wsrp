@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
+import org.apache.cxf.feature.Features;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -90,6 +91,7 @@ import java.util.List;
    endpointInterface = "org.oasis.wsrp.v1.WSRPV1PortletManagementPortType"
 )
 @HandlerChain(file="../producer-handler-chains.xml")
+@Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class PortletManagementEndpoint extends WSRPBaseEndpoint implements WSRPV1PortletManagementPortType
 {
    public void getPortletPropertyDescription(

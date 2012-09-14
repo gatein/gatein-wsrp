@@ -24,6 +24,7 @@
 package org.gatein.wsrp.endpoints.v1;
 
 import com.google.common.collect.Lists;
+import org.apache.cxf.feature.Features;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.gatein.wsrp.spec.v1.V1ToV2Converter;
@@ -98,6 +99,7 @@ import java.util.List;
    endpointInterface = "org.oasis.wsrp.v1.WSRPV1MarkupPortType"
 )
 @HandlerChain(file="../producer-handler-chains.xml")
+@Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class MarkupEndpoint extends WSRPBaseEndpoint implements WSRPV1MarkupPortType
 {
    public void performBlockingInteraction(

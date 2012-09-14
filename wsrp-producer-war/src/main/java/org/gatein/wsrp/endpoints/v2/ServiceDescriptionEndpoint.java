@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v2;
 
+import org.apache.cxf.feature.Features;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.CookieProtocol;
@@ -63,6 +64,7 @@ import java.util.List;
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2ServiceDescriptionPortType"
 )
 @HandlerChain(file = "../producer-handler-chains.xml")
+@Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRPV2ServiceDescriptionPortType
 {
    public void getServiceDescription(
