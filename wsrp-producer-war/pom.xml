@@ -279,6 +279,14 @@
          <artifactId>pc-federation</artifactId>
       </dependency>
 
+      <!-- CXF Dependencies for service class annotations. -->
+      <dependency>
+         <groupId>org.apache.cxf</groupId>
+         <artifactId>cxf-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+
+
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
@@ -460,6 +468,9 @@
                   <manifest>
                      <addClasspath>true</addClasspath>
                   </manifest>
+                  <manifestEntries>
+                    <Dependencies>org.apache.cxf</Dependencies>
+                  </manifestEntries>
                </archive>
             </configuration>
          </plugin>

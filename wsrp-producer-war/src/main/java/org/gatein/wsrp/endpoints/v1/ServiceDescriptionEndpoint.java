@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.endpoints.v1;
 
+import org.apache.cxf.feature.Features;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
@@ -64,6 +65,7 @@ import java.util.List;
    endpointInterface = "org.oasis.wsrp.v1.WSRPV1ServiceDescriptionPortType"
 )
 @HandlerChain(file="../producer-handler-chains.xml")
+@Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRPV1ServiceDescriptionPortType
 {
    public void getServiceDescription(
