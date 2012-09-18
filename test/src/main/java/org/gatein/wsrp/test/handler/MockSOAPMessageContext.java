@@ -24,10 +24,14 @@
 package org.gatein.wsrp.test.handler;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.wsrp.handler.MockSOAPMessageContext">Chris
@@ -38,6 +42,7 @@ import java.lang.reflect.Proxy;
 public class MockSOAPMessageContext implements InvocationHandler
 {
    MockSOAPMessage message;
+   Map<String, List<String>> httpHeaders = new HashMap<String, List<String>>();
 
 
    public MockSOAPMessageContext(MockSOAPMessage message)
@@ -70,8 +75,23 @@ public class MockSOAPMessageContext implements InvocationHandler
          {
             return "http://jboss.com";
          }
+         if (MessageContext.HTTP_REQUEST_HEADERS.equals(args[0]))
+         {
+            return httpHeaders;
+         }
          throw new IllegalArgumentException("MockSOAPMessageContext.get method should only be called to retrieve "
-            + BindingProvider.ENDPOINT_ADDRESS_PROPERTY + " value. Requested: " + args[0]);
+            + BindingProvider.ENDPOINT_ADDRESS_PROPERTY + " or " + MessageContext.HTTP_REQUEST_HEADERS +
+            " values. Requested: " + args[0]);
+      }
+      else if ("put".equals(methodName))
+      {
+         if (MessageContext.HTTP_REQUEST_HEADERS.equals(args[0]))
+         {
+            httpHeaders = (Map<String, List<String>>)args[1];
+            return null;
+         }
+
+         throw new IllegalArgumentException("MockSOAPMessageContext.put method should only be called to add Cookies. Tried to add " + args[0] + " with value " + args[1]);
       }
       else if ("toString".equals(methodName))
       {

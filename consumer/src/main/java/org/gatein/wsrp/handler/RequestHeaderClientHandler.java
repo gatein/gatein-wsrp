@@ -35,6 +35,10 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -92,13 +96,19 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       }
 
       SOAPMessage message = msgContext.getMessage();
-      MimeHeaders mimeHeaders = message.getMimeHeaders();
 
       String cookie = createCookie(info, sessionInfo);
 
       if (cookie.length() != 0)
       {
+         // Legacy JBossWS native approach
+         MimeHeaders mimeHeaders = message.getMimeHeaders();
          mimeHeaders.setHeader(CookieUtil.COOKIE, cookie);
+
+         // proper approach through MessageContext.HTTP_REQUEST_HEADERS
+         Map<String, List<String>> httpHeaders = new HashMap<String, List<String>>();
+         httpHeaders.put(CookieUtil.COOKIE, Collections.singletonList(cookie));
+         msgContext.put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
       }
 
       return true;
@@ -150,8 +160,22 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
    {
       SOAPMessageContext smc = (SOAPMessageContext)msgContext;
       SOAPMessage message = smc.getMessage();
+
+      // Legacy JBossWS native approach
       MimeHeaders mimeHeaders = message.getMimeHeaders();
       String[] cookieValues = mimeHeaders.getHeader(CookieUtil.SET_COOKIE);
+
+      // proper approach through MessageContext.HTTP_RESPONSE_HEADERS
+      if (cookieValues == null)
+      {
+         @SuppressWarnings("unchecked")
+         Map<String, List<String>> httpHeaders = (Map<String, List<String>>)smc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+         List<String> l = httpHeaders.get(CookieUtil.SET_COOKIE);
+         if (l != null && !l.isEmpty())
+         {
+            cookieValues = l.toArray(new String[l.size()]);
+         }
+      }
 
       String endpointAddress = (String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
       if (cookieValues != null)
@@ -171,7 +195,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             // should not happen
             throw new IllegalArgumentException(endpointAddress + " is not a valid URL for the endpoint address.");
          }
-         Cookie[] cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
+         final Cookie[] cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;
