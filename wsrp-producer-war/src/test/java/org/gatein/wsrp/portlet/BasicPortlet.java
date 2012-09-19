@@ -22,6 +22,8 @@
  */
 package org.gatein.wsrp.portlet;
 
+import org.gatein.wsrp.WSRPConstants;
+
 import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
 import javax.portlet.GenericPortlet;
@@ -40,6 +42,10 @@ public class BasicPortlet extends GenericPortlet
 
    protected void doView(RenderRequest request, RenderResponse response) throws PortletException, PortletSecurityException, IOException
    {
+      if (!Boolean.TRUE.equals(request.getAttribute(WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME)))
+      {
+         throw new IllegalStateException("Invocation should be marked as coming from WSRP using the WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME attribute!");
+      }
       System.out.println("do view");
    }
 
