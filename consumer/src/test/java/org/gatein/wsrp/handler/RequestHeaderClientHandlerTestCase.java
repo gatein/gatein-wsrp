@@ -30,7 +30,12 @@ import org.gatein.wsrp.test.handler.MockSOAPMessage;
 import org.gatein.wsrp.test.handler.MockSOAPMessageContext;
 
 import javax.xml.soap.MimeHeaders;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.handler.RequestHeaderClientHandlerTestCase">Chris
@@ -55,18 +60,14 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       SOAPMessageContext msgContext = MockSOAPMessageContext.createMessageContext(message, getClass().getClassLoader());
 
       handler.handleRequest(msgContext);
-      MimeHeaders headers = message.getMimeHeaders();
-      assertNull(headers.getHeader("Cookie"));
+      checkCookies(msgContext, 0, (String[])null);
 
       ProducerSessionInformation sessionInformation = new ProducerSessionInformation();
       sessionInformation.setUserCookie(new Cookie[]{createCookie("name", "value", 1)});
       RequestHeaderClientHandler.setCurrentInfo(null, sessionInformation);
       handler.handleRequest(msgContext);
 
-      headers = message.getMimeHeaders();
-      String[] cookie = headers.getHeader("Cookie");
-      assertEquals(1, cookie.length);
-      assertEquals("name=value", cookie[0]);
+      checkCookies(msgContext, 1, "name=value");
    }
 
    public void testGroupCookieHandleRequest()
@@ -94,10 +95,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleRequest(msgContext);
 
-      MimeHeaders headers = message.getMimeHeaders();
-      String[] cookie = headers.getHeader("Cookie");
-      assertEquals(1, cookie.length);
-      assertEquals("name=value", cookie[0]);
+      checkCookies(msgContext, 1, "name=value");
    }
 
    public void testBothCookiesHandleRequest()
@@ -114,19 +112,15 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
 
       handler.handleRequest(msgContext);
-      MimeHeaders headers = message.getMimeHeaders();
-      String[] cookie = headers.getHeader("Cookie");
-      assertEquals(1, cookie.length);
-      assertEquals("name=value,usercookie=uservalue", cookie[0]);
+
+      checkCookies(msgContext, 1, "name=value,usercookie=uservalue");
    }
 
    public void testCookieWithoutInitHandleResponse()
    {
       MockSOAPMessage message = new MockSOAPMessage();
       SOAPMessageContext msgContext = MockSOAPMessageContext.createMessageContext(message, getClass().getClassLoader());
-      MimeHeaders headers = new MimeHeaders();
-      headers.setHeader("Set-Cookie", "name=value");
-      message.setMimeHeaders(headers);
+      setCookies(msgContext, "name=value");
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
@@ -139,11 +133,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
    {
       MockSOAPMessage message = new MockSOAPMessage();
       SOAPMessageContext msgContext = MockSOAPMessageContext.createMessageContext(message, getClass().getClassLoader());
-      MimeHeaders headers = new MimeHeaders();
-      headers.addHeader("Set-Cookie", "name1=value1");
-      headers.addHeader("Set-Cookie", "name2=value2");
-      headers.addHeader("Set-Cookie", "name3=value3");
-      message.setMimeHeaders(headers);
+      setCookies(msgContext, "name1=value1", "name2=value2", "name3=value3");
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
@@ -171,6 +161,49 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       assertSame(info, RequestHeaderClientHandler.getCurrentProducerSessionInformation());
       assertEquals(groupId, RequestHeaderClientHandler.getCurrentGroupId());
+   }
+
+   private void setCookies(SOAPMessageContext context, String... values)
+   {
+      Map<String, List<String>> httpHeaders = new HashMap<String, List<String>>();
+      final List<String> cookies = new ArrayList<String>(values.length);
+
+      for (String value : values)
+      {
+         context.getMessage().getMimeHeaders().addHeader(CookieUtil.SET_COOKIE, value);
+         cookies.add(value);
+      }
+
+      httpHeaders.put(CookieUtil.COOKIE, cookies);
+      context.put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
+   }
+
+   private void checkCookies(SOAPMessageContext messageContext, int number, String... values)
+   {
+      final MimeHeaders mimeHeaders = messageContext.getMessage().getMimeHeaders();
+      final String[] cookies = mimeHeaders.getHeader(CookieUtil.COOKIE);
+
+      @SuppressWarnings("unchecked")
+      Map<String, List<String>> httpHeaders = (Map<String, List<String>>)messageContext.get(MessageContext.HTTP_REQUEST_HEADERS);
+      List<String> cookiesList = httpHeaders.get(CookieUtil.COOKIE);
+
+      if (number == 0)
+      {
+         assertNull(cookies);
+         assertNull(cookiesList);
+      }
+      else
+      {
+         assertEquals(number, cookies.length);
+         assertEquals(number, cookiesList.size());
+         int i = 0;
+         for (String value : values)
+         {
+            assertEquals(value, cookies[i]);
+            assertEquals(value, cookiesList.get(i));
+            i++;
+         }
+      }
    }
 
    private Cookie createCookie(String name, String value, int secondsBeforeExpiration)
