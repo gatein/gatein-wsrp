@@ -219,6 +219,7 @@ public final class WSRPConstants
    public static final QName XSD_TIME = new QName("http://www.w3.org/2001/XMLSchema", "time");
    public static final QName XSD_DATE = new QName("http://www.w3.org/2001/XMLSchema", "date");
    public static final QName XSD_ANY_SIMPLE_TYPE = new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType");
+   public static final String FROM_WSRP_ATTRIBUTE_NAME = "org.gatein.invocation.fromWSRP";
 
    private WSRPConstants()
    {
