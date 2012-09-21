@@ -32,14 +32,16 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.security.SecurityContext;
+import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.WSUsernameTokenPrincipal;
+import org.apache.ws.security.handler.WSHandlerConstants;
 import org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -47,10 +49,17 @@ import org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingIntercepto
  */
 public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
 {
+   private static Logger log = LoggerFactory.getLogger(GTNSubjectCreatingInterceptor.class);
 
+   private static final String USERNAME_TOKEN_IFAVAILABLE = "gtn.UsernameToken.ifAvailable";
+   
+   protected boolean gtnUsernameTokenIfAvailable = false;
+   
+   private WSUsernameTokenPrincipal wsUsernameTokenPrincipal = null;
+   
    public GTNSubjectCreatingInterceptor()
    {
-      this(new HashMap<String, Object>());
+      this(new HashMap<String, Object>()); 
    }
 
    public GTNSubjectCreatingInterceptor(Map<String, Object> properties)
@@ -61,48 +70,34 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
    @Override
    public void handleMessage(SoapMessage msg) throws Fault
    {
-      boolean modifiedActionProperty = false;
-      String actionProperty = (String)this.getProperties().get("action");
-      if (actionProperty.contains("gtn.UsernameToken.ifAvailable"))
+      String actionProperty = (String)this.getProperties().get(WSHandlerConstants.ACTION);
+      if (actionProperty.contains(USERNAME_TOKEN_IFAVAILABLE))
       {
-         QName wsseQName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
-         Header wsseHeader = msg.getHeader(wsseQName);
-
-         QName wsse11QName = new QName("http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd", "Security");
-         Header wsse11Header = msg.getHeader(wsse11QName);
-         
-         //If we don't have the security header, don't do anything with the SubjectCreatingInterceptor
-         if (wsseHeader == null && wsse11Header == null)
-         {
-            return;
-         }
-         else
-         {
-            modifiedActionProperty = true;
-            this.setProperty("action", actionProperty.replace("gtn.UsernameToken.ifAvailable", "UsernameToken"));
-         }
-
+         gtnUsernameTokenIfAvailable = true;
+         this.setProperty(WSHandlerConstants.ACTION, actionProperty.replace(USERNAME_TOKEN_IFAVAILABLE, WSHandlerConstants.USERNAME_TOKEN));
       }
 
-      //handle the message here which will create the SecurityContext containing the username and password
-      super.handleMessage(msg);
-      
-      //Replace the action property with the original property after the parent has handled the message
-      //Note: needed since on the next invocation, the user may have logged out but the action property will  have already been set as "UsernameToken" and the above checks will not be performed.
-      if (modifiedActionProperty)
+      try
       {
-         this.setProperty("action", actionProperty);
+         //handle the message here which will create the SecurityContext containing the username and password
+         super.handleMessage(msg);
       }
-      
-      SecurityContext context = msg.get(SecurityContext.class);
-
-      Principal principal = context.getUserPrincipal();
-      if (principal instanceof WSUsernameTokenPrincipal)
+      finally
+      {
+         //Replace the action property with the original property after the parent has handled the message
+         //Note: needed since on the next invocation, the user may have logged out but the action property will  have already been set as "UsernameToken" and the above checks will not be performed.
+         if (gtnUsernameTokenIfAvailable)
+         {
+            this.setProperty(WSHandlerConstants.ACTION, actionProperty);
+         }
+      }
+    
+      if (wsUsernameTokenPrincipal != null)
       {
          HttpServletRequest request = (HttpServletRequest)msg.get("HTTP.REQUEST");
          
-         String username = ((WSUsernameTokenPrincipal)principal).getName();
-         String password = ((WSUsernameTokenPrincipal)principal).getPassword();
+         String username = wsUsernameTokenPrincipal.getName();
+         String password = wsUsernameTokenPrincipal.getPassword();
          
          try
          {
@@ -114,7 +109,6 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
             e.printStackTrace();
          }
       }
-      
    }
    
    /* NOTE: this method should be removed when JBWS-3541 has been fixed in the supported version of JBossAS
@@ -154,5 +148,48 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
       return originalSubject;
    }
    
+
+   @Override
+   protected boolean checkReceiverResultsAnyOrder(List<WSSecurityEngineResult> wsResults, List<Integer> actions)
+   {
+      // if the action contains gtn.UsernameToken.ifAvailable then we need to override how this method works
+      // so that we don't run into an error that the actions are mismatched. Otherwise the method will fail
+      // if we have a username token in the soap message but didn't specify it, or the other way around.
+      if (gtnUsernameTokenIfAvailable)
+      {
+         boolean foundUsernameTokenResult = false;
+
+         for (WSSecurityEngineResult wsResult: wsResults)
+         {
+            Integer actInt = (Integer) wsResult.get(WSSecurityEngineResult.TAG_ACTION);
+            if (actInt == WSConstants.UT)
+            {
+               //usernametokenResult = wsResult;
+               foundUsernameTokenResult = true;
+
+               //since we already have the result and the result contains the username and
+               //password, its easiest to just grab the data here and store it for later.
+               Object principal = wsResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
+               if (principal != null && principal instanceof WSUsernameTokenPrincipal)
+               {
+                  this.wsUsernameTokenPrincipal = (WSUsernameTokenPrincipal)principal;
+               }
+
+               break;
+            }
+         }
+
+         if (foundUsernameTokenResult && !actions.contains(WSConstants.UT))
+         {
+            actions.add(WSConstants.UT);
+         }
+         else if (!foundUsernameTokenResult && actions.contains(WSConstants.UT))
+         {
+            actions.remove(actions.indexOf(WSConstants.UT)); //NOTE:careful here when using remove(Integer) since it removes the index not the Object!
+         }
+
+      }
+      return super.checkReceiverResults(wsResults, actions);
+   }
 }
 

@@ -29,6 +29,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
+import org.apache.ws.security.handler.WSHandlerConstants;
 import org.gatein.wci.security.Credentials;
 import org.gatein.wsrp.wss.CustomizePortListener;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
@@ -45,6 +46,10 @@ public class CXFCustomizePortListener implements CustomizePortListener
 {
    private static Logger log = LoggerFactory.getLogger(CXFCustomizePortListener.class);
 
+   protected static String GTN_CURRENT_USER = "gtn.current.user";
+   protected static String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
+   protected static String GTN_NO_USER = "gtn.no.user";
+   
    @Override
    public void customizePort(Object service)
    {
@@ -107,44 +112,44 @@ public class CXFCustomizePortListener implements CustomizePortListener
 
    protected boolean handleUserAuthentication(Map<String, Object> propertyMap)
    {  
-      String GTN_CURRENT_USER = "gtn.current.user";
-      String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
-      
-      if (propertyMap.containsKey("user") && propertyMap.get("user").equals(GTN_CURRENT_USER))
+      if (propertyMap.containsKey(WSHandlerConstants.USER) && propertyMap.get(WSHandlerConstants.USER).equals(GTN_CURRENT_USER))
       {
          CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
          if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
          {
             Credentials credentials = credentialsAccessor.getCredentials();
-            propertyMap.put("user", credentials.getUsername());
+            propertyMap.put(WSHandlerConstants.USER, credentials.getUsername());
             
-            String actionProperty = (String)propertyMap.get("action");
+            String actionProperty = (String)propertyMap.get(WSHandlerConstants.ACTION);
             //Note: the action property can contain a space separated list of multiple actions
             if (actionProperty != null && actionProperty.contains(GTN_USERNAME_TOKEN_IF_AUTHENTICATED))
             {
                if (credentials.getPassword() != null)
                {
-                  actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, "UsernameToken");
+                  actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, WSHandlerConstants.USERNAME_TOKEN);
                }
                else
                {
-                  actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, "UsernameTokenNoPassword");
+                  actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, WSHandlerConstants.USERNAME_TOKEN_NO_PASSWORD);
                }
                //replace the old action property with the updated one
-               propertyMap.put("action", actionProperty);
+               propertyMap.put(WSHandlerConstants.ACTION, actionProperty);
             }
          }
          else // we don't have a logged in user
          {
-            propertyMap.remove("user"); //remove user since they are not logged in
+            //NOTE: ideally we would be removing the 'user' attribute here, but WSS4J has a weird bug
+            // where the user has to be specified even if it is not used (ie in the case of a signature or
+            // encrypt action where 'signatureUser' or 'encryptionUser' would be used instead.
+            propertyMap.put(WSHandlerConstants.USER, GTN_NO_USER);
             
             //remove the GTN_USERNAME_TOKEN_IF_AUTHENTICATED from the action property
-            String actionProperty = (String)propertyMap.get("action");
+            String actionProperty = (String)propertyMap.get(WSHandlerConstants.ACTION);
             if (actionProperty != null && actionProperty.contains(GTN_USERNAME_TOKEN_IF_AUTHENTICATED))
             {
                actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, "");
             }
-            propertyMap.put("action", actionProperty);
+            propertyMap.put(WSHandlerConstants.ACTION, actionProperty);
             
             //if we don't have any other actions specified, then the only action specified was to use UsernameToken
             //only if we had an authenticated user. Since we don't have an authenticated user, we should not add the WSS4JInterceptor
