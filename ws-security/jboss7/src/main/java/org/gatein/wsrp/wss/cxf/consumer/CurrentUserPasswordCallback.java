@@ -51,24 +51,28 @@ public class CurrentUserPasswordCallback implements CallbackHandler
          if (callback instanceof WSPasswordCallback)
          {
             WSPasswordCallback wspasswordCallBack = (WSPasswordCallback) callback;
-            
-            CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
 
-            if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
+            //This callback is only for Username Tokens, not for authentication/signing of the soap message
+            if (wspasswordCallBack.getUsage() == (WSPasswordCallback.USERNAME_TOKEN))
             {
-               Credentials credentials = credentialsAccessor.getCredentials();
-               if (credentials.getUsername() == wspasswordCallBack.getIdentifier())
+               CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
+
+               if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
                {
-                  wspasswordCallBack.setPassword(credentials.getPassword());
+                  Credentials credentials = credentialsAccessor.getCredentials();
+                  if (credentials.getUsername() == wspasswordCallBack.getIdentifier())
+                  {
+                     wspasswordCallBack.setPassword(credentials.getPassword());
+                  }
+                  else
+                  {
+                     log.warn("The username in the callback does not match the currently authenticated user. Password not added to callback.");
+                  }
                }
                else
                {
-                  log.warn("The username in the callback does not match the currently authenticated user. Password not added to callback.");
+                  log.warn("Could not find credentials to put in WS-Security header");
                }
-            }
-            else
-            {
-               log.warn("Could not find credentials to put in WS-Security header");
             }
          }
       }
