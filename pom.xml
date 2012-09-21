@@ -71,9 +71,9 @@
    </repositories>
 
    <properties>
-      <org.gatein.pc.version>2.3.2-GA</org.gatein.pc.version>
-      <org.gatein.common.version>2.0.4-GA</org.gatein.common.version>
-      <org.gatein.wci.version>2.2.0-Beta02</org.gatein.wci.version>
+      <org.gatein.pc.version>2.4.0.Alpha02</org.gatein.pc.version>
+      <org.gatein.common.version>2.1.0.Alpha04</org.gatein.common.version>
+      <org.gatein.wci.version>2.3.0.Alpha04</org.gatein.wci.version>
 
       <jsf.version>2.1</jsf.version>
       <version.jsf2.impl>2.1.9</version.jsf2.impl>
@@ -226,11 +226,18 @@
             <groupId>javax.faces</groupId>
             <artifactId>jsf-api</artifactId>
             <version>${jsf.version}</version>
+            <scope>provided</scope>
          </dependency>
          <dependency>
             <groupId>com.sun.faces</groupId>
             <artifactId>jsf-impl</artifactId>
             <version>${version.jsf2.impl}</version>
+            <scope>provided</scope>
+         </dependency>
+         <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>el-api</artifactId>
+            <version>1.0</version>
             <scope>provided</scope>
          </dependency>
 
@@ -304,6 +311,7 @@
       <module>hibernate-impl</module>
       <module>jcr-impl</module>
       <module>ws-security</module>
+      <module>examples</module>
       <module>cxf-integration</module>
    </modules>
 

@@ -77,6 +77,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +179,11 @@ public abstract class RequestProcessor<Response>
       // prepare the invocation
       WSRPPortletInvocationContext context = new WSRPPortletInvocationContext(streamInfo, securityContext, portalContext, userContext, instanceContext, windowContext);
       PortletInvocation invocation = initInvocation(context);
+
+      // mark the invocation as coming from WSRP
+      final HashMap<String, Object> attributes = new HashMap<String, Object>();
+      attributes.put(WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME, Boolean.TRUE);
+      invocation.setRequestAttributes(attributes);
 
       invocation.setTarget(portlet.getContext());
       invocation.setWindowState(WSRPUtils.getJSR168WindowStateFromWSRPName(markupRequest.getWindowState()));
