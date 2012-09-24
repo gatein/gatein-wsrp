@@ -579,7 +579,7 @@ public abstract class RequestProcessor<Response>
             }
             else
             {
-               return runtimeContext.getUserAuthentication();
+               return null;
             }
          }
 
@@ -591,10 +591,6 @@ public abstract class RequestProcessor<Response>
             }
             else
             {
-               if (wsrpUserContext != null)
-               {
-                  return wsrpUserContext.getUserContextKey();
-               }
                return null;
             }
          }
@@ -625,15 +621,7 @@ public abstract class RequestProcessor<Response>
 
          public boolean isAuthenticated()
          {
-            if (useSecurity)
-            {
-               //TODO: is this correct?
-               return request.getUserPrincipal() != null;
-            }
-            else
-            {
-               return wsrpUserContext != null;
-            }
+            return useSecurity && request.getUserPrincipal() != null;
          }
       };
    }
