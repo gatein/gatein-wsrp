@@ -99,9 +99,14 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
          String username = wsUsernameTokenPrincipal.getName();
          String password = wsUsernameTokenPrincipal.getPassword();
          
+         wsUsernameTokenPrincipal = null;
          try
          {
-            request.login(username, password);
+            //only perform a login if the user is not already authenticated
+            if (request.getRemoteUser() == null)
+            {
+               request.login(username, password);
+            }
          }
          catch (ServletException e)
          {
@@ -155,10 +160,11 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
       // if the action contains gtn.UsernameToken.ifAvailable then we need to override how this method works
       // so that we don't run into an error that the actions are mismatched. Otherwise the method will fail
       // if we have a username token in the soap message but didn't specify it, or the other way around.
+      wsUsernameTokenPrincipal = null;
       if (gtnUsernameTokenIfAvailable)
       {
          boolean foundUsernameTokenResult = false;
-
+         
          for (WSSecurityEngineResult wsResult: wsResults)
          {
             Integer actInt = (Integer) wsResult.get(WSSecurityEngineResult.TAG_ACTION);
