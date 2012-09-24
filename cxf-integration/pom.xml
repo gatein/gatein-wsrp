@@ -30,15 +30,21 @@
       <version>2.2.0-Beta05-SNAPSHOT</version>
    </parent>
 
-   <artifactId>wsrp-wss-parent</artifactId>
-   <packaging>pom</packaging>
+   <artifactId>wsrp-cxf-integration</artifactId>
+   <packaging>jar</packaging>
+   <name>GateIn WSRP CXF Integration</name>
+   <description>Provides an integration point into cxf for advanced configuration and customizations.</description>
 
-   <name>GateIn WSRP WS Security Integration</name>
-   <description>GateIn WSRP Integration extension parent</description>
-   <modules>
-      <module>wss</module>
-      <module>jboss5</module>
-      <module>wsrp-producer-jb5wss-producer-war</module>
-      <module>jboss7</module>
-   </modules>
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.cxf</groupId>
+         <artifactId>cxf-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+   </dependencies>
 </project>
