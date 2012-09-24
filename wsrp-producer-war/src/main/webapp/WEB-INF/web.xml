@@ -180,6 +180,11 @@
       <url-pattern>/v1/PortletManagementService</url-pattern>
    </servlet-mapping>
 
+   <!-- Needed to perfrom programmtic web authentication over ws-security on JBossAS7 -->
+   <security-constraint>
+     <web-resource-collection/>
+   </security-constraint>
+
 </web-app>
 
 
