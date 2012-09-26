@@ -34,37 +34,43 @@
    <name>GateIn WSRP WS Security Integration: JBoss AS 7</name>
 
    <dependencies>
-     <dependency>
-       <groupId>org.gatein.wsrp</groupId>
-       <artifactId>wsrp-cxf-integration</artifactId>
-       <scope>provided</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.apache.cxf</groupId>
-       <artifactId>cxf-api</artifactId>
-       <scope>provided</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-api</artifactId>
-       <scope>provided</scope>
-     </dependency>
-     <dependency>
-       <groupId>org.jboss.ws.cxf</groupId>
-       <artifactId>jbossws-cxf-server</artifactId>
-       <scope>provided</scope>
-       <version>4.0.2.GA</version>
-     </dependency>
-     <dependency>
-       <groupId>javax.servlet</groupId>
-       <artifactId>javax.servlet-api</artifactId>
-       <scope>provided</scope>
-       <version>3.0.1</version>
-     </dependency>
-     <dependency>
-       <groupId>org.gatein.wsrp</groupId>
-       <artifactId>wsrp-wss</artifactId>
-     </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-cxf-integration</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.cxf</groupId>
+         <artifactId>cxf-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.ws.cxf</groupId>
+         <artifactId>jbossws-cxf-server</artifactId>
+         <scope>provided</scope>
+         <version>4.0.2.GA</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.jboss.jaxr</groupId>
+               <artifactId>juddi-service</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>javax.servlet-api</artifactId>
+         <scope>provided</scope>
+         <version>3.0.1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-wss</artifactId>
+      </dependency>
    </dependencies>
 
    <!-- Ignore all classes in the org.gatein.wsrp.test packages as they are not tests -->
