@@ -22,6 +22,7 @@
 
 package org.gatein.wsrp.producer.config;
 
+import org.gatein.wsrp.api.plugins.PluginsAccess;
 import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationFactory;
 import org.jboss.xb.binding.JBossXBException;
 import org.jboss.xb.binding.ObjectModelFactory;
@@ -39,6 +40,14 @@ public class JAXBProducerConfigurationTestCase extends ProducerConfigurationTest
 {
    private Unmarshaller unmarshaller;
    private ObjectModelFactory factory;
+
+   static
+   {
+      if (PluginsAccess.getPlugins() == null)
+      {
+         PluginsAccess.register(new TestPlugins());
+      }
+   }
 
    protected void setUp() throws Exception
    {
