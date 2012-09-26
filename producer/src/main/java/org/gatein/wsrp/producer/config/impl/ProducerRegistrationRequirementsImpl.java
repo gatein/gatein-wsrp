@@ -32,18 +32,14 @@ import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
-import org.gatein.wsrp.ResourceFinder;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.api.plugins.PluginsAccess;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,7 +75,6 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    private Set<RegistrationPropertyChangeListener> propertyChangeListeners = new HashSet<RegistrationPropertyChangeListener>(3);
    private Set<RegistrationPolicyChangeListener> policyChangeListeners = new HashSet<RegistrationPolicyChangeListener>(3);
-   private ResourceFinder resourceFinder;
 
    public ProducerRegistrationRequirementsImpl(boolean requiresMarshalling, boolean requiresRegistration, boolean fullServiceDescriptionRequiresRegistration)
    {
@@ -396,7 +391,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
             log.debug("Trying to use registration policy: " + policyClassName);
-            setPolicy(createInstancePlugin(policyClassName, RegistrationPolicy.class));
+            setPolicy(PluginsAccess.getPlugins().createPluginInstance(policyClassName, RegistrationPolicy.class));
          }
          else
          {
@@ -405,7 +400,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
             if (validatorClassName != null && validatorClassName.length() > 0 && !DEFAULT_VALIDATOR_CLASS_NAME.equals(validatorClassName))
             {
                log.debug("Trying to use registration property validator: " + validatorClassName);
-               validator = createInstancePlugin(validatorClassName, RegistrationPropertyValidator.class);
+               validator = PluginsAccess.getPlugins().createPluginInstance(validatorClassName, RegistrationPropertyValidator.class);
             }
             else
             {
@@ -419,59 +414,16 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
    }
 
-   private <T> T createInstancePlugin(String className, Class<T> pluginClass)
-   {
-      try
-      {
-         final Class<?> clazz = getResourceFinder().findClass(className, pluginClass);
-         if (!pluginClass.isAssignableFrom(clazz))
-         {
-            throw new IllegalArgumentException("Class does not implement" + pluginClass.getCanonicalName());
-         }
-         else
-         {
-            return pluginClass.cast(clazz.newInstance());
-         }
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new IllegalArgumentException("Couldn't find class " + className, e);
-      }
-      catch (Exception e)
-      {
-         throw new IllegalArgumentException("Couldn't instantiate class " + className, e);
-      }
-   }
-
    @Override
    public List<String> getAvailableRegistrationPolicies()
    {
-      return getImplementationNames(RegistrationPolicy.class, DEFAULT_POLICY_CLASS_NAME);
+      return PluginsAccess.getPlugins().getPluginImplementationNames(RegistrationPolicy.class, DEFAULT_POLICY_CLASS_NAME);
    }
 
    @Override
    public List<String> getAvailableRegistrationPropertyValidators()
    {
-      return getImplementationNames(RegistrationPropertyValidator.class, DEFAULT_VALIDATOR_CLASS_NAME);
-   }
-
-   private List<String> getImplementationNames(Class pluginClass, String defaultImplementationClassName)
-   {
-      try
-      {
-         // find all available implementations
-         final List<String> registrationPolicies = getResourceFinder().findAllStrings(pluginClass.getCanonicalName());
-         // add the default one
-         registrationPolicies.add(defaultImplementationClassName);
-         // sort alphabetically
-         Collections.sort(registrationPolicies);
-
-         return registrationPolicies;
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+      return PluginsAccess.getPlugins().getPluginImplementationNames(RegistrationPropertyValidator.class, DEFAULT_VALIDATOR_CLASS_NAME);
    }
 
    public void propertyHasBeenRenamed(RegistrationPropertyDescription propertyDescription, QName oldName)
@@ -516,7 +468,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       return validatorClassName;
    }
 
-   private ResourceFinder getResourceFinder()
+   /*private ResourceFinder getResourceFinder()
    {
       synchronized (this)
       {
@@ -571,5 +523,5 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       }
 
       return resourceFinder;
-   }
+   }*/
 }
