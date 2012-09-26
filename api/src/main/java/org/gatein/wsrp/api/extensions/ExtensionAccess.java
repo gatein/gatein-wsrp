@@ -47,7 +47,7 @@ public class ExtensionAccess
    {
       if (consumer != null)
       {
-         throw new IllegalStateException("A ConsumerExtensionAccessor has already been registered!");
+         throw new IllegalStateException("A ConsumerExtensionAccessor (" + consumer.getClass().getCanonicalName() + ") has already been registered!");
       }
       else
       {
@@ -59,7 +59,7 @@ public class ExtensionAccess
    {
       if (producer != null)
       {
-         throw new IllegalStateException("A ProducerExtensionAccessor has already been registered!");
+         throw new IllegalStateException("A ProducerExtensionAccessor (" + producer.getClass().getCanonicalName() + ") has already been registered!");
       }
       else
       {
