@@ -26,6 +26,7 @@ import org.gatein.wsrp.ResourceFinder;
 import org.gatein.wsrp.api.plugins.AbstractPlugins;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
@@ -39,11 +40,14 @@ public class TestPlugins extends AbstractPlugins
    }
 
    @Override
-   protected List<String> getImplementationNamesFor(Class pluginClass)
+   protected List<String> getImplementationNamesFor(String pluginClassName, String defaultImplementationClassName)
    {
       try
       {
-         return resourceFinder.findAllStrings(pluginClass.getCanonicalName());
+         final List<String> allStrings = resourceFinder.findAllStrings(pluginClassName);
+         List<String> implementations = new ArrayList<String>(allStrings.size() + 1);
+         implementations.add(defaultImplementationClassName);
+         return implementations;
       }
       catch (IOException e)
       {

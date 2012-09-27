@@ -48,10 +48,8 @@ public abstract class AbstractPlugins implements Plugins
    {
       try
       {
-         // find all available implementations
-         final List<String> implementations = getImplementationNamesFor(pluginClass);
-         // add the default one
-         implementations.add(defaultImplementationClassName);
+         // find all available implementations, including at least the default one
+         final List<String> implementations = getImplementationNamesFor(pluginClass.getCanonicalName(), defaultImplementationClassName);
          // sort alphabetically
          Collections.sort(implementations);
 
@@ -63,7 +61,7 @@ public abstract class AbstractPlugins implements Plugins
       }
    }
 
-   protected abstract List<String> getImplementationNamesFor(Class pluginClass);
+   protected abstract List<String> getImplementationNamesFor(String pluginClassName, String defaultImplementationClassName);
 
    @Override
    public <T> T createPluginInstance(String className, Class<T> pluginClass)
