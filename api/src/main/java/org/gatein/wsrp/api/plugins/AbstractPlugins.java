@@ -22,12 +22,26 @@
 
 package org.gatein.wsrp.api.plugins;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public abstract class AbstractPlugins implements Plugins
 {
+   private static final List<String> KNOWN_PLUGIN_INTERFACES = new ArrayList<String>(3);
+   static
+   {
+      KNOWN_PLUGIN_INTERFACES.add("org.gatein.registration.RegistrationPolicy");
+      KNOWN_PLUGIN_INTERFACES.add("org.gatein.registration.policies.RegistrationPropertyValidator");
+      KNOWN_PLUGIN_INTERFACES.add("org.gatein.wsrp.api.extensions.InvocationHandlerDelegate");
+   }
+
+   @Override
+   public List<String> getKnownPluginInterfaceNames()
+   {
+      return Collections.unmodifiableList(KNOWN_PLUGIN_INTERFACES);
+   }
 
    @Override
    public List<String> getPluginImplementationNames(Class pluginClass, String defaultImplementationClassName)

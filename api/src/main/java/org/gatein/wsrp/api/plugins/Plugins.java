@@ -27,6 +27,7 @@ import java.util.List;
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public interface Plugins
 {
+   List<String> getKnownPluginInterfaceNames();
 
    List<String> getPluginImplementationNames(Class pluginClass, String defaultImplementationClassName);
 
