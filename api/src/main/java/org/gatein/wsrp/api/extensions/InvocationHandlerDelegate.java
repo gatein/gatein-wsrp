@@ -24,6 +24,8 @@ package org.gatein.wsrp.api.extensions;
 
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.wsrp.api.plugins.Plugins;
+import org.gatein.wsrp.api.plugins.PluginsAccess;
 
 /**
  * A delegate that can be used to intercept PortletInvocations and PortletInvocationReponses before they are processed
@@ -55,37 +57,39 @@ public abstract class InvocationHandlerDelegate
 
    static
    {
-      consumerDelegate = createDelegate(System.getProperty(CONSUMER_DELEGATE_CLASSNAME));
-      producerDelegate = createDelegate(System.getProperty(PRODUCER_DELEGATE_CLASSNAME));
+      final Plugins plugins = PluginsAccess.getPlugins();
+      consumerDelegate = createInstance(CONSUMER_DELEGATE_CLASSNAME, plugins);
+      producerDelegate = createInstance(PRODUCER_DELEGATE_CLASSNAME, plugins);
    }
 
-   private static InvocationHandlerDelegate createDelegate(String delegateClassName)
+   private static InvocationHandlerDelegate createInstance(String propertyName, Plugins plugins)
    {
+      String delegateClassName = System.getProperty(propertyName);
       if (delegateClassName != null && !delegateClassName.isEmpty())
       {
-         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-         try
-         {
-            Class delegateClass = loader.loadClass(delegateClassName);
-            if (!InvocationHandlerDelegate.class.isAssignableFrom(delegateClass))
-            {
-               throw new IllegalArgumentException("Invocation handler delegate class " + delegateClassName + "does not extends " + InvocationHandlerDelegate.class.getName());
-            }
-            return (InvocationHandlerDelegate)delegateClass.newInstance();
-         }
-         catch (Exception e)
-         {
-            throw new RuntimeException(e);
-         }
+         return plugins.createPluginInstance(delegateClassName, InvocationHandlerDelegate.class);
       }
-      return null;
+      else
+      {
+         return null;
+      }
    }
 
+   /**
+    * Only public for testing purposes
+    *
+    * @param delegate
+    */
    public synchronized static void registerConsumerDelegate(InvocationHandlerDelegate delegate)
    {
       consumerDelegate = delegate;
    }
 
+   /**
+    * Only public for testing purposes
+    *
+    * @param delegate
+    */
    public synchronized static void registerProducerDelegate(InvocationHandlerDelegate delegate)
    {
       producerDelegate = delegate;
