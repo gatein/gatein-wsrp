@@ -27,6 +27,8 @@ import java.util.List;
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public interface Plugins
 {
+   String WSRP_PLUGIN_EXTENSION_SUFFIX = ".wsrp.jar";
+
    List<String> getKnownPluginInterfaceNames();
 
    List<String> getPluginImplementationNames(Class pluginClass, String defaultImplementationClassName);
