@@ -443,19 +443,6 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
       public String getValidatorClassName()
       {
-         final String validatorClassName = getValidatorClassNameOrNullIfNotDefault();
-         if (validatorClassName != null)
-         {
-            return validatorClassName;
-         }
-         else
-         {
-            throw new IllegalStateException("getValidatorClassName shouldn't be called if we're not using the default registration");
-         }
-      }
-
-      private String getValidatorClassNameOrNullIfNotDefault()
-      {
          if (isDefaultRegistrationPolicy())
          {
             if (validatorClassName == null)

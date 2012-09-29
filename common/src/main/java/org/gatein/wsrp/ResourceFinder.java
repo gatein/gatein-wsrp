@@ -212,7 +212,7 @@ public class ResourceFinder
       {
          URL url = resources.nextElement();
          String string = readContents(url);
-         strings.add(string);
+         Collections.addAll(strings, string.split("\\s"));
       }
       return strings;
    }
@@ -240,7 +240,7 @@ public class ResourceFinder
          try
          {
             String string = readContents(url);
-            strings.add(string);
+            Collections.addAll(strings, string.split("\\s"));
          }
          catch (IOException notAvailable)
          {
@@ -327,7 +327,11 @@ public class ResourceFinder
          try
          {
             String value = readContents(url);
-            strings.put(name, value);
+            final String[] split = value.split("\\s");
+            for (String s : split)
+            {
+               strings.put(name, s);
+            }
          }
          catch (IOException notAvailable)
          {
@@ -356,6 +360,20 @@ public class ResourceFinder
    {
       String className = findString(uri);
       return classLoader.loadClass(className);
+   }
+
+   public <T> Class<? extends T> findClass(String className, Class<T> pluginClass) throws IOException, ClassNotFoundException
+   {
+      List<String> strings = findAllStrings(pluginClass.getCanonicalName());
+      for (String name : strings)
+      {
+         if(className.equals(name))
+         {
+            return classLoader.loadClass(className).asSubclass(pluginClass);
+         }
+      }
+
+      throw new ClassNotFoundException("Couldn't find an implementation of " + pluginClass.getCanonicalName() + " named " + className);
    }
 
    /**
@@ -1297,5 +1315,4 @@ public class ResourceFinder
       }
       return result.toString();
    }
-
 }
