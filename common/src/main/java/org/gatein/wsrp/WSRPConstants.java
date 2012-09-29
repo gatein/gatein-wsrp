@@ -68,10 +68,11 @@ public final class WSRPConstants
       }
       WSRP_SERVICE_VERSION = props.getProperty("wsrp.service.version");
 
-      final String serverPath = System.getProperty("jboss.server.base.dir");
+      // we should really get the path from a system property instead of hardcoding it
+      final String serverPath = System.getProperty("jboss.home.dir");
       if (serverPath != null)
       {
-         SERVICES_DIRECTORY_URL = serverPath + "/deployments";
+         SERVICES_DIRECTORY_URL = serverPath + "/gatein/deployments";
       }
       else
       {

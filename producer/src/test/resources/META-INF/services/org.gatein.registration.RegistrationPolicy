@@ -1,0 +1,2 @@
+org.gatein.wsrp.producer.config.TestRegistrationPolicy
+org.gatein.wsrp.producer.config.FooRegistrationPolicy # added to check that ResourceFinder can properly deal with multiple service providers
