@@ -7,10 +7,12 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
+   <name>GateIn WSRP Examples</name>
    <artifactId>wsrp-examples</artifactId>
    <packaging>pom</packaging>
    <modules>
       <module>policy</module>
+      <module>invocation-handler-delegate</module>
    </modules>
 
 

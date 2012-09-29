@@ -30,6 +30,7 @@ import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.api.plugins.PluginsAccess;
 import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
 import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationProvider;
 import org.gatein.wsrp.registration.LocalizedString;
@@ -70,6 +71,10 @@ public abstract class ProducerConfigurationTestCase extends TestCase
       RESOLVER.setCacheResolvedSchemas(true);
       RESOLVER.addSchemaLocation("http://www.w3.org/XML/1998/namespace", "xsd/xml.xsd");
       RESOLVER.addSchemaLocation("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "xsd/gatein_wsrp_producer_1_0.xsd");
+      if (PluginsAccess.getPlugins() == null)
+      {
+         PluginsAccess.register(new TestPlugins());
+      }
    }
 
    public void testCustomPolicyUnmarshalling() throws Exception

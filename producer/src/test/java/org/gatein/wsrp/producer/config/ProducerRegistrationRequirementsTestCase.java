@@ -31,6 +31,7 @@ import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.api.plugins.PluginsAccess;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
@@ -46,6 +47,14 @@ import java.util.Map;
  */
 public class ProducerRegistrationRequirementsTestCase extends TestCase
 {
+   static
+   {
+      if (PluginsAccess.getPlugins() == null)
+      {
+         PluginsAccess.register(new TestPlugins());
+      }
+   }
+
    public void testSetRegistrationProperties()
    {
       ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
