@@ -110,7 +110,7 @@ public class ExtendedAssert extends Assert
       return expectedBuffer.toString();
    }
 
-   private static String format(String message, Object expected, Object actual)
+   public static String format(String message, Object expected, Object actual)
    {
       String formatted = "";
       if (message != null)
