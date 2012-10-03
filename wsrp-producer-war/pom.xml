@@ -258,7 +258,7 @@
 
       <dependency>
          <groupId>javax.servlet</groupId>
-         <artifactId>servlet-api</artifactId>
+         <artifactId>javax.servlet-api</artifactId>
       </dependency>
 
       <dependency>
@@ -316,7 +316,7 @@
       </dependency>
       <dependency>
          <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-jdk14</artifactId>
+         <artifactId>slf4j-simple</artifactId>
          <scope>test</scope>
       </dependency>
 
@@ -345,7 +345,6 @@
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
-         <version>4.8.1</version>
          <scope>test</scope>
       </dependency>
       <dependency>
