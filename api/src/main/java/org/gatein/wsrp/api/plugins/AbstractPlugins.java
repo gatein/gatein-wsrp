@@ -30,11 +30,13 @@ import java.util.List;
 public abstract class AbstractPlugins implements Plugins
 {
    private static final List<String> KNOWN_PLUGIN_INTERFACES = new ArrayList<String>(3);
+
    static
    {
       KNOWN_PLUGIN_INTERFACES.add("org.gatein.registration.RegistrationPolicy");
       KNOWN_PLUGIN_INTERFACES.add("org.gatein.registration.policies.RegistrationPropertyValidator");
       KNOWN_PLUGIN_INTERFACES.add("org.gatein.wsrp.api.extensions.InvocationHandlerDelegate");
+      KNOWN_PLUGIN_INTERFACES.add("javax.security.auth.callback.CallbackHandler");
    }
 
    @Override
