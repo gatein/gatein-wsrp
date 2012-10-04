@@ -22,13 +22,14 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -38,14 +39,14 @@ public class Utils
 {
 
    private static Logger log = LoggerFactory.getLogger(Utils.class);
-   
+
    public static final String WS_SECURITY_CONF_DIR_NAME = "ws-security";
    public static final String CONSUMER_CONF_DIR_NAME = "consumer";
    public static final String PRODUCER_CONF_DIR_NAME = "producer";
-   
+
    public static final String WSS4J_ININTERCEPTOR_PROPERTY_FILE = "WSS4JInInterceptor.properties";
    public static final String WSS4J_OUTINTERCEPTOR_PROPERTY_FILE = "WSS4JOutInterceptor.properties";
-   
+
    public static Map<String, Object> getCXFConfigProperties(String path)
    {
       String interceptorPropertyFileName = getCXFWSSecurityConfigDir() + File.separator + path;
@@ -53,7 +54,7 @@ public class Utils
       {
          Map<String, Object> outProperties = new HashMap<String, Object>();
 
-         File interceptorPropertyFile = new File (interceptorPropertyFileName);
+         File interceptorPropertyFile = new File(interceptorPropertyFileName);
          if (interceptorPropertyFile.exists())
          {
             Properties properties = new Properties();
@@ -72,11 +73,11 @@ public class Utils
       }
       catch (Exception e)
       {
-         log.error("Exception occured trying to read the interceptor property file (" + interceptorPropertyFileName + ").", e);
+         log.error("Exception occurred trying to read the interceptor property file (" + interceptorPropertyFileName + ").", e);
       }
       return null;
    }
-   
+
    protected static String getCXFWSSecurityConfigDir()
    {
       return org.gatein.wsrp.cxf.Utils.getWSRPCXFConfigDirectory() + File.separator + WS_SECURITY_CONF_DIR_NAME;
