@@ -22,17 +22,6 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf.producer;
 
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.ws.security.WSConstants;
@@ -43,6 +32,16 @@ import org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingIntercepto
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
@@ -52,21 +51,21 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
    private static Logger log = LoggerFactory.getLogger(GTNSubjectCreatingInterceptor.class);
 
    private static final String USERNAME_TOKEN_IFAVAILABLE = "gtn.UsernameToken.ifAvailable";
-   
+
    protected boolean gtnUsernameTokenIfAvailable = false;
-   
+
    private WSUsernameTokenPrincipal wsUsernameTokenPrincipal = null;
-   
+
    public GTNSubjectCreatingInterceptor()
    {
-      this(new HashMap<String, Object>()); 
+      this(new HashMap<String, Object>());
    }
 
    public GTNSubjectCreatingInterceptor(Map<String, Object> properties)
    {
       super(properties);
    }
-   
+
    @Override
    public void handleMessage(SoapMessage msg) throws Fault
    {
@@ -91,14 +90,14 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
             this.setProperty(WSHandlerConstants.ACTION, actionProperty);
          }
       }
-    
+
       if (wsUsernameTokenPrincipal != null)
       {
          HttpServletRequest request = (HttpServletRequest)msg.get("HTTP.REQUEST");
-         
+
          String username = wsUsernameTokenPrincipal.getName();
          String password = wsUsernameTokenPrincipal.getPassword();
-         
+
          wsUsernameTokenPrincipal = null;
          try
          {
@@ -115,7 +114,7 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
          }
       }
    }
-   
+
    /* NOTE: this method should be removed when JBWS-3541 has been fixed in the supported version of JBossAS
     * See https://issues.jboss.org/browse/JBWS-3541
     */
@@ -123,12 +122,12 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
    public Subject createSubject(String name, String password, boolean isDigest, String nonce, String created)
    {
       Subject originalSubject = super.createSubject(name, password, isDigest, nonce, created);
-      
+
       Set<Principal> principals = originalSubject.getPrincipals();
-      if (principals.iterator().next().getName() != name)
+      if (!principals.iterator().next().getName().equals(name))
       {
          Principal namePrincipal = null;
-         for (Principal principal: principals)
+         for (Principal principal : principals)
          {
             if (principal.getName().equals(name))
             {
@@ -136,7 +135,7 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
                break;
             }
          }
-         
+
          if (namePrincipal != null)
          {
             principals.remove(namePrincipal);
@@ -146,13 +145,13 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
 
             originalSubject.getPrincipals().clear();
             originalSubject.getPrincipals().addAll(newPrincipals);
-         }           
+         }
       }
-      
-      
+
+
       return originalSubject;
    }
-   
+
 
    @Override
    protected boolean checkReceiverResultsAnyOrder(List<WSSecurityEngineResult> wsResults, List<Integer> actions)
@@ -164,10 +163,10 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
       if (gtnUsernameTokenIfAvailable)
       {
          boolean foundUsernameTokenResult = false;
-         
-         for (WSSecurityEngineResult wsResult: wsResults)
+
+         for (WSSecurityEngineResult wsResult : wsResults)
          {
-            Integer actInt = (Integer) wsResult.get(WSSecurityEngineResult.TAG_ACTION);
+            Integer actInt = (Integer)wsResult.get(WSSecurityEngineResult.TAG_ACTION);
             if (actInt == WSConstants.UT)
             {
                //usernametokenResult = wsResult;

@@ -22,18 +22,17 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf.consumer;
 
-import java.io.IOException;
-
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-
 import org.apache.ws.security.WSPasswordCallback;
 import org.gatein.wci.security.Credentials;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -45,12 +44,12 @@ public class CurrentUserPasswordCallback implements CallbackHandler
 
    @Override
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException
-   {  
-      for (Callback callback: callbacks)
+   {
+      for (Callback callback : callbacks)
       {
          if (callback instanceof WSPasswordCallback)
          {
-            WSPasswordCallback wspasswordCallBack = (WSPasswordCallback) callback;
+            WSPasswordCallback wspasswordCallBack = (WSPasswordCallback)callback;
 
             //This callback is only for Username Tokens, not for authentication/signing of the soap message
             if (wspasswordCallBack.getUsage() == (WSPasswordCallback.USERNAME_TOKEN))
@@ -60,7 +59,7 @@ public class CurrentUserPasswordCallback implements CallbackHandler
                if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
                {
                   Credentials credentials = credentialsAccessor.getCredentials();
-                  if (credentials.getUsername() == wspasswordCallBack.getIdentifier())
+                  if (credentials.getUsername().equals(wspasswordCallBack.getIdentifier()))
                   {
                      wspasswordCallBack.setPassword(credentials.getPassword());
                   }
