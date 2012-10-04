@@ -22,9 +22,6 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf.consumer;
 
-import java.io.File;
-import java.util.Map;
-
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
@@ -38,6 +35,9 @@ import org.gatein.wsrp.wss.cxf.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.Map;
+
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
@@ -49,59 +49,59 @@ public class CXFCustomizePortListener implements CustomizePortListener
    protected static String GTN_CURRENT_USER = "gtn.current.user";
    protected static String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
    protected static String GTN_NO_USER = "gtn.no.user";
-   
+
    @Override
    public void customizePort(Object service)
    {
       log.debug("Customizing the port for the wsrp cxf client.");
 
       Client client = ClientProxy.getClient(service);
-      
+
       Map<String, Object> inPropertyMap = getWSS4JInInterceptorProperties();
       Map<String, Object> outPropertyMap = getWSS4JOutInterceptorProperties();
-      
+
       if (inPropertyMap != null && handleSpecialProperties(inPropertyMap))
       {
          WSS4JInInterceptor inInterceptor = new WSS4JInInterceptor(inPropertyMap);
          client.getInInterceptors().add(inInterceptor);
       }
-      
+
       if (outPropertyMap != null && handleSpecialProperties(outPropertyMap))
       {
          WSS4JOutInterceptor outInterceptor = new WSS4JOutInterceptor(outPropertyMap);
          client.getOutInterceptors().add(outInterceptor);
       }
    }
-   
+
    protected Map<String, Object> getWSS4JInInterceptorProperties()
    {
       String wss4jInInterceptorConfigPath = Utils.CONSUMER_CONF_DIR_NAME + File.separator + Utils.WSS4J_ININTERCEPTOR_PROPERTY_FILE;
       Map<String, Object> inInterceptorProperties = Utils.getCXFConfigProperties(wss4jInInterceptorConfigPath);
-      
+
       if (inInterceptorProperties == null)
       {
          log.debug("The WSS4JInInterceptor configuration file could not be found. No WSS4JInInterceptor will be added to the wsrp consumer.");
       }
-      
+
       return inInterceptorProperties;
    }
-   
+
    protected Map<String, Object> getWSS4JOutInterceptorProperties()
    {
       String wss4jOutInterceptorConfigPath = Utils.CONSUMER_CONF_DIR_NAME + File.separator + Utils.WSS4J_OUTINTERCEPTOR_PROPERTY_FILE;
       Map<String, Object> outInterceptorProperties = Utils.getCXFConfigProperties(wss4jOutInterceptorConfigPath);
-      
+
       if (outInterceptorProperties == null)
       {
          log.debug("The WSS4JOutInterceptor configuration file could not be found. No WSS4JOutInterceptor will be added to the wsrp consumer.");
       }
-      
+
       return outInterceptorProperties;
    }
-   
+
    /**
     * Handles special properties which are specific to our wsrp configuration
-    * 
+    *
     * @param propertyMap The map of properties to consider
     * @return True only if the propertymap should be used
     */
@@ -111,7 +111,7 @@ public class CXFCustomizePortListener implements CustomizePortListener
    }
 
    protected boolean handleUserAuthentication(Map<String, Object> propertyMap)
-   {  
+   {
       if (propertyMap.containsKey(WSHandlerConstants.USER) && propertyMap.get(WSHandlerConstants.USER).equals(GTN_CURRENT_USER))
       {
          CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
@@ -119,7 +119,7 @@ public class CXFCustomizePortListener implements CustomizePortListener
          {
             Credentials credentials = credentialsAccessor.getCredentials();
             propertyMap.put(WSHandlerConstants.USER, credentials.getUsername());
-            
+
             String actionProperty = (String)propertyMap.get(WSHandlerConstants.ACTION);
             //Note: the action property can contain a space separated list of multiple actions
             if (actionProperty != null && actionProperty.contains(GTN_USERNAME_TOKEN_IF_AUTHENTICATED))
@@ -142,21 +142,24 @@ public class CXFCustomizePortListener implements CustomizePortListener
             // where the user has to be specified even if it is not used (ie in the case of a signature or
             // encrypt action where 'signatureUser' or 'encryptionUser' would be used instead.
             propertyMap.put(WSHandlerConstants.USER, GTN_NO_USER);
-            
+
             //remove the GTN_USERNAME_TOKEN_IF_AUTHENTICATED from the action property
             String actionProperty = (String)propertyMap.get(WSHandlerConstants.ACTION);
-            if (actionProperty != null && actionProperty.contains(GTN_USERNAME_TOKEN_IF_AUTHENTICATED))
+            if (actionProperty != null)
             {
-               actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, "");
-            }
-            propertyMap.put(WSHandlerConstants.ACTION, actionProperty);
-            
-            //if we don't have any other actions specified, then the only action specified was to use UsernameToken
-            //only if we had an authenticated user. Since we don't have an authenticated user, we should not add the WSS4JInterceptor
-            //NOTE: we could also set the action to NoSecurity, but its probably best to just not add it.
-            if (actionProperty.trim().isEmpty())
-            {
-               return false;
+               if (actionProperty.contains(GTN_USERNAME_TOKEN_IF_AUTHENTICATED))
+               {
+                  actionProperty = actionProperty.replace(GTN_USERNAME_TOKEN_IF_AUTHENTICATED, "");
+               }
+               propertyMap.put(WSHandlerConstants.ACTION, actionProperty);
+
+               //if we don't have any other actions specified, then the only action specified was to use UsernameToken
+               //only if we had an authenticated user. Since we don't have an authenticated user, we should not add the WSS4JInterceptor
+               //NOTE: we could also set the action to NoSecurity, but its probably best to just not add it.
+               if (actionProperty.trim().isEmpty())
+               {
+                  return false;
+               }
             }
          }
       }
