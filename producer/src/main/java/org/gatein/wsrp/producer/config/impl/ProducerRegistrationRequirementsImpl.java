@@ -87,6 +87,9 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    public ProducerRegistrationRequirementsImpl()
    {
       registrationProperties = new HashMap<QName, RegistrationPropertyDescription>(7);
+
+      // always use the default RegistrationPolicy by default
+      setPolicy(new DefaultRegistrationPolicy());
    }
 
    public ProducerRegistrationRequirementsImpl(ProducerRegistrationRequirements other)
@@ -345,26 +348,25 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    {
       if (ParameterValidation.isOldAndNewDifferent(this.policy, policy))
       {
-         if (policy != null)
+         // make sure we always have a RegistrationPolicy
+         if (policy == null)
          {
-            this.policy = RegistrationPolicyWrapper.wrap(policy);
-            policyClassName = policy.getClassName();
+            log.debug("Specified RegistrationPolicy was null, using the default one instead.");
+            policy = new DefaultRegistrationPolicy();
+         }
 
-            if (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
-            {
-               DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(policy);
-               validatorClassName = registrationPolicy.getValidator().getClass().getName();
-            }
-            else
-            {
-               validatorClassName = null;
-            }
+         this.policy = RegistrationPolicyWrapper.wrap(policy);
+         policyClassName = policy.getClassName();
+
+         if (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
+         {
+            DefaultRegistrationPolicy registrationPolicy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(policy);
+            validatorClassName = registrationPolicy.getValidator().getClass().getName();
          }
          else
          {
-            this.policy = null;
+            validatorClassName = null;
          }
-
          modifyNow();
          notifyRegistrationPolicyChangeListeners();
       }
@@ -372,10 +374,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public RegistrationPolicy getPolicy()
    {
-      if (policy == null && requiresRegistration)
-      {
-         reloadPolicyFrom(policyClassName, validatorClassName);
-      }
+      reloadPolicyFrom(policyClassName, validatorClassName);
 
       return policy;
    }
@@ -384,9 +383,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    {
       // only reload if we don't already have a policy or if the requested policy/validator classes are different
       // from the ones we already have 
-      if (policy == null || ParameterValidation.isOldAndNewDifferent(this.policyClassName, policyClassName) ||
-         (DEFAULT_POLICY_CLASS_NAME.equals(policyClassName) && ParameterValidation.isOldAndNewDifferent(this.validatorClassName, validatorClassName))
-         )
+      if (requiresRegistration && (!policy.getClassName().equals(policyClassName) || isCurrentValidatorClassDifferentFrom(validatorClassName)))
       {
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
@@ -404,6 +401,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
             }
             else
             {
+               log.debug("Using default registration property validator: " + DEFAULT_VALIDATOR_CLASS_NAME);
                validator = new DefaultRegistrationPropertyValidator();
             }
 
@@ -426,6 +424,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       return PluginsAccess.getPlugins().getPluginImplementationNames(RegistrationPropertyValidator.class, DEFAULT_VALIDATOR_CLASS_NAME);
    }
 
+   private boolean isCurrentValidatorClassDifferentFrom(String validatorClassName)
+   {
+      return policy instanceof DefaultRegistrationPolicy && !((DefaultRegistrationPolicy)policy).getValidator().getClass().getCanonicalName().equals(validatorClassName);
+   }
+
    public void propertyHasBeenRenamed(RegistrationPropertyDescription propertyDescription, QName oldName)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyDescription, "RegistrationPropertyDescription");
@@ -446,6 +449,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    public void setPolicyClassName(String policyClassName)
    {
       this.policyClassName = policyClassName;
+      setValidatorClassName(null); // reset validator class name when the policy class name changes
    }
 
    public String getPolicyClassName()

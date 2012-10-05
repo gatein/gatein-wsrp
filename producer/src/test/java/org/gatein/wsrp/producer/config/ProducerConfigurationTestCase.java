@@ -143,7 +143,9 @@ public abstract class ProducerConfigurationTestCase extends TestCase
       assertFalse(requirements.isRegistrationRequired());
       assertFalse(requirements.isRegistrationRequiredForFullDescription());
       assertTrue(requirements.getRegistrationProperties().isEmpty());
-      assertNull(requirements.getPolicy());
+
+      // make sure that we always have a RegistrationPolicy regardless of registration requirements
+      assertNotNull(requirements.getPolicy());
    }
 
    public void testInvalidMultipleRegistrationConfiguration() throws Exception
