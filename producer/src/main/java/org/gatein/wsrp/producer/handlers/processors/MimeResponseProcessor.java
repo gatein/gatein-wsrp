@@ -87,6 +87,11 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
             break;
          case ContentResponse.TYPE_BYTES:
             itemBinary = content.getBytes(); // fix-me: might need to convert to Base64?
+            // set rewriting to true for javascript and css
+            if (contentType.contains("javacript") || contentType.contains("css") || contentType.contains("ecmascript"))
+            {
+               requiresRewriting = Boolean.TRUE;
+            }
             break;
          case ContentResponse.TYPE_EMPTY:
             itemString = EMPTY;
