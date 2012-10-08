@@ -24,47 +24,58 @@
 <ui:decorate template="../consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:h="http://java.sun.com/jsf/html">
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:c="http://java.sun.com/jsp/jstl/core">
 
    <ui:define name="content">
 
       <h:form id="exports-form">
-         <h:dataTable id="exportsList" value="#{consumer.existingExports}" var="export" rowClasses="EvenRow,OddRow"
-                      styleClass="UIGrid" width="100%">
-            <h:column>
-               <f:facet name="header">#{i18n.export_detail_export_time}</f:facet>
-               #{export.exportTime}
-            </h:column>
+         <h:panelGroup styleClass="portlet-area-body">
+            <c:choose>
+               <c:when test="#{consumer.exportsAvailable}">
+                  <h:dataTable id="exportsList" value="#{consumer.existingExports}" var="export" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
+                     <h:column>
+                        <f:facet name="header">#{i18n.export_detail_export_time}</f:facet>
+                        #{export.exportTime}
+                     </h:column>
 
-            <ui:remove>
-               <h:column>
-                  <f:facet name="header">#{i18n.export_detail_expiration_time}</f:facet>
-                  #{export.expirationTime}
-               </h:column>
-            </ui:remove>
+                     <ui:remove>
+                        <h:column>
+                           <f:facet name="header">#{i18n.export_detail_expiration_time}</f:facet>
+                           #{export.expirationTime}
+                        </h:column>
+                     </ui:remove>
 
-            <h:column headerClass="hasFailedColumn">
-               <f:facet name="header">#{i18n.export_detail_has_failed}</f:facet>
-               <h:selectBooleanCheckbox id="hasFailed" value="#{export.hasFailedPortlets}" disabled="true"/>
-            </h:column>
+                     <h:column headerClass="hasFailedColumn">
+                        <f:facet name="header">#{i18n.export_detail_has_failed}</f:facet>
+                        <h:selectBooleanCheckbox id="hasFailed" value="#{export.hasFailedPortlets}" disabled="true"/>
+                     </h:column>
 
-            <h:column>
-               <f:facet name="header">#{i18n.exports_actions}</f:facet>
+                     <h:column>
+                        <f:facet name="header">#{i18n.exports_actions}</f:facet>
 
-               <h:commandLink action="#{consumer.viewExport}" styleClass="actionConfigure" id="view">
-                  #{i18n.exports_actions_view}
-               </h:commandLink>
-               |
-               <h:commandLink action="confirmDeleteExport" actionListener="#{consumer.selectExport}"
-                              styleClass="actionDelete" id="delete">
-                  #{i18n.exports_actions_delete}
-               </h:commandLink>
-               |
-               <h:commandLink action="import" actionListener="#{consumer.selectExport}" styleClass="actionImport" id="use">
-                  #{i18n.exports_actions_use}
-               </h:commandLink>
-            </h:column>
-         </h:dataTable>
+                        <h:commandLink action="#{consumer.viewExport}" styleClass="actionConfigure" id="view">
+                           <f:param name="currentExportTime" value="#{export.export.exportTime}"/>
+                           #{i18n.exports_actions_view}
+                        </h:commandLink>
+                        |
+                        <h:commandLink action="confirmDeleteExport" styleClass="actionDelete" id="delete">
+                           <f:param name="currentExportTime" value="#{export.export.exportTime}"/>
+                           #{i18n.exports_actions_delete}
+                        </h:commandLink>
+                        |
+                        <h:commandLink action="import" actionListener="#{consumer.selectExport}" styleClass="actionImport" id="use">
+                           #{i18n.exports_actions_use}
+                        </h:commandLink>
+                     </h:column>
+                  </h:dataTable>
+               </c:when>
+               <c:otherwise>
+                  <p>#{i18n.exports_no_exports}</p>
+               </c:otherwise>
+            </c:choose>
+         </h:panelGroup>
+
          <h:commandButton id="consumers" action="consumers" value="#{i18n.export_detail_consumers}" styleClass="ActionButton"/>
          <h:commandLink action="#{consumersMgr.configureConsumer}" id="configure" styleClass="ActionButton">
             <f:param name="id" value="#{consumer.id}"/>
