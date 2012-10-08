@@ -28,51 +28,53 @@
 
    <ui:define name="content">
 
-      <table width="100%" class="portlet-table-body">
-         <tr>
-            <th width="20%">#{i18n.export_detail_export_time}</th>
-            <td>#{consumer.currentExport.exportTime}</td>
-         </tr>
-         <ui:remove>
+      <h:panelGroup styleClass="portlet-area-body">
+         <table width="100%" class="portlet-table-body">
             <tr>
-               <th>#{i18n.export_detail_expiration_time}</th>
-               <td>#{consumer.currentExport.expirationTime}</td>
+               <th width="20%">#{i18n.export_detail_export_time}</th>
+               <td>#{consumer.currentExport.exportTime}</td>
             </tr>
-         </ui:remove>
-         <tr>
-            <th>#{i18n.export_detail_portlets}</th>
-            <td>
-               <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
-                            rowClasses="EvenRow,OddRow"
-                            styleClass="UIGrid" width="100%">
-                  <h:column>
-                     <f:facet name="header">#{i18n.export_detail_exported_portlet_name}</f:facet>
-                     #{portlet.handle}
-                  </h:column>
-               </h:dataTable>
-            </td>
-         </tr>
-         <tr>
-            <th>#{i18n.export_detail_failed}</th>
-            <td>
-               <h:dataTable id="failed-portlets"
-                            value="#{consumer.currentExport.failedPortlets}"
-                            rendered="#{consumer.currentExport.hasFailedPortlets}"
-                            var="failedPortlet" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
-                  <h:column>
-                     <f:facet name="header">#{i18n.export_detail_failed_portlet_error}</f:facet>
-                     #{failedPortlet.errorCode}
-                  </h:column>
-                  <h:column>
-                     <f:facet name="header">#{i18n.export_detail_failed_portlet_portlets}</f:facet>
-                     #{failedPortlet.failedPortlets}
-                  </h:column>
-               </h:dataTable>
-               <h:outputText rendered="#{!consumer.currentExport.hasFailedPortlets}"
-                             value="#{i18n.export_detail_failed_portlet_none}"/>
-            </td>
-         </tr>
-      </table>
+            <ui:remove>
+               <tr>
+                  <th>#{i18n.export_detail_expiration_time}</th>
+                  <td>#{consumer.currentExport.expirationTime}</td>
+               </tr>
+            </ui:remove>
+            <tr>
+               <th>#{i18n.export_detail_portlets}</th>
+               <td>
+                  <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
+                               rowClasses="EvenRow,OddRow"
+                               styleClass="UIGrid" width="100%">
+                     <h:column>
+                        <f:facet name="header">#{i18n.export_detail_exported_portlet_name}</f:facet>
+                        #{portlet.handle}
+                     </h:column>
+                  </h:dataTable>
+               </td>
+            </tr>
+            <tr>
+               <th>#{i18n.export_detail_failed}</th>
+               <td>
+                  <h:dataTable id="failed-portlets"
+                               value="#{consumer.currentExport.failedPortlets}"
+                               rendered="#{consumer.currentExport.hasFailedPortlets}"
+                               var="failedPortlet" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
+                     <h:column>
+                        <f:facet name="header">#{i18n.export_detail_failed_portlet_error}</f:facet>
+                        #{failedPortlet.errorCode}
+                     </h:column>
+                     <h:column>
+                        <f:facet name="header">#{i18n.export_detail_failed_portlet_portlets}</f:facet>
+                        #{failedPortlet.failedPortlets}
+                     </h:column>
+                  </h:dataTable>
+                  <h:outputText rendered="#{!consumer.currentExport.hasFailedPortlets}"
+                                value="#{i18n.export_detail_failed_portlet_none}"/>
+               </td>
+            </tr>
+         </table>
+      </h:panelGroup>
 
       <h:form id="exportDetail-form">
          <h:commandLink action="import" id="use" styleClass="ActionButton">

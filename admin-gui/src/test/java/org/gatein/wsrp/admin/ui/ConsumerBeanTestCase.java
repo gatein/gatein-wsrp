@@ -33,6 +33,7 @@ import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
 import org.gatein.wsrp.test.support.MockEndpointConfigurationInfo;
 
 import javax.faces.model.DataModel;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -130,7 +131,7 @@ public class ConsumerBeanTestCase extends TestCase
    {
       public String getParameter(String key)
       {
-         throw new NotYetImplemented();
+         return null;
       }
 
       protected void createMessage(String target, String message, Object severity, Object... addtionalParams)
@@ -160,7 +161,7 @@ public class ConsumerBeanTestCase extends TestCase
 
       public Map<String, Object> getSessionMap()
       {
-         throw new NotYetImplemented();
+         return Collections.emptyMap();
       }
 
       @Override

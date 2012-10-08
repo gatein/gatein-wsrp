@@ -71,6 +71,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    private boolean modified;
    private String wsdl;
    private String id;
+   private long currentExportTime;
 
    private static final String NULL_ID_CONSUMER = "bean_consumer_null_id";
    private static final String CANNOT_FIND_CONSUMER = "bean_consumer_cannot_find_consumer";
@@ -86,6 +87,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    private static final String IMPORT_SUCCESS = "bean_consumer_import_success";
    private static final String FAILED_PORTLETS = "bean_consumer_import_failed_portlets";
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
+   private static final String CURRENT_EXPORT_TIME = "currentExportTime";
 
    private transient DataModel portletHandles;
    private transient DataModel existingExports;
@@ -593,7 +595,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
          try
          {
-            currentExport = new ExportInfoDisplay(consumer.exportPortlets(selectedHandles), beanContext.getLocale(), consumer.getMigrationService().getStructureProvider());
+            setCurrentExport(new ExportInfoDisplay(consumer.exportPortlets(selectedHandles), beanContext.getLocale(), consumer.getMigrationService().getStructureProvider()));
          }
          catch (Exception e)
          {
@@ -609,7 +611,66 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
    public ExportInfoDisplay getCurrentExport()
    {
-      return currentExport;
+      return getCurrentExport(currentExportTime);
+   }
+
+   private ExportInfoDisplay getCurrentExport(long exportTime)
+   {
+      if (currentExport != null)
+      {
+         if (exportTime == currentExport.getExport().getExportTime())
+         {
+            return currentExport;
+         }
+         else
+         {
+            throw new IllegalArgumentException("Current Export doesn't match given export time");
+         }
+      }
+      else
+      {
+         // if we don't have an export time to load from, try to get it from the request params
+         if (exportTime <= 0)
+         {
+            final String time = beanContext.getParameter(CURRENT_EXPORT_TIME);
+            if (!ParameterValidation.isNullOrEmpty(time))
+            {
+               exportTime = Long.parseLong(time);
+            }
+            else
+            {
+               // check the session as we might have put it there (needed for exportPortlets scenario)
+               final Long fromSession = beanContext.getFromSession(CURRENT_EXPORT_TIME, Long.class);
+               if (fromSession != null)
+               {
+                  exportTime = fromSession;
+
+                  // remove from session to avoid potential changes shadowing later
+                  beanContext.removeFromSession(CURRENT_EXPORT_TIME);
+               }
+               else
+               {
+                  // if we still don't have a time to load from, there's nothing we can do except return null
+                  return null;
+               }
+            }
+         }
+
+         setCurrentExport(new ExportInfoDisplay(this, exportTime));
+         return currentExport;
+      }
+   }
+
+   private void setCurrentExport(ExportInfoDisplay currentExport)
+   {
+      this.currentExport = currentExport;
+      this.currentExportTime = currentExport != null ? currentExport.getExport().getExportTime() : -1;
+      beanContext.getSessionMap().put(CURRENT_EXPORT_TIME, currentExportTime);
+   }
+
+   public boolean isExportsAvailable()
+   {
+      return getExistingExports().getRowCount() > 0;
    }
 
    public DataModel getExistingExports()
@@ -637,8 +698,9 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       return ConsumerManagerBean.EXPORT_DETAIL;
    }
 
-   public String importPortlets()
+   public String importPortlets(long exportTime)
    {
+      final ExportInfoDisplay currentExport = getCurrentExport(exportTime);
       List<SelectablePortletHandle> exportedPortlets = currentExport.getExportedPortlets();
 
       try
@@ -698,7 +760,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
    public String deleteExport()
    {
-      ExportInfo export = currentExport.getExport();
+      ExportInfo export = getCurrentExport().getExport();
       final WSRPConsumer consumer = getConsumer();
       if (consumer.getMigrationService().remove(export) == export)
       {
@@ -717,7 +779,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          }
 
          existingExports = null; // force rebuild of export list
-         currentExport = null;
+         setCurrentExport(null);
       }
 
       return ConsumerManagerBean.EXPORTS;
@@ -730,7 +792,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
    public void selectExport()
    {
-      currentExport = (ExportInfoDisplay)getExistingExports().getRowData();
+      setCurrentExport((ExportInfoDisplay)getExistingExports().getRowData());
    }
 
    public boolean isImportExportSupported()
@@ -894,6 +956,11 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
       public ExportInfoDisplay(ExportInfo export, Locale locale, ConsumerStructureProvider provider)
       {
+         init(export, locale, provider);
+      }
+
+      private void init(ExportInfo export, Locale locale, ConsumerStructureProvider provider)
+      {
          this.export = export;
          this.locale = locale;
 
@@ -924,6 +991,13 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          {
             failedPortlets = Collections.emptyList();
          }
+      }
+
+      public ExportInfoDisplay(ConsumerBean bean, long exportTime)
+      {
+         final MigrationService migrationService = bean.getConsumer().getMigrationService();
+
+         init(migrationService.getExportInfo(exportTime), bean.beanContext.getLocale(), migrationService.getStructureProvider());
       }
 
       public String getExportTime()
