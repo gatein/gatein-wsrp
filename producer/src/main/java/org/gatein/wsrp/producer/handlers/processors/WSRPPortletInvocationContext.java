@@ -35,7 +35,6 @@ import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.portlet.impl.spi.AbstractClientContext;
 import org.gatein.pc.portlet.impl.spi.AbstractPortletInvocationContext;
-import org.gatein.pc.portlet.impl.spi.AbstractServerContext;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
 import org.gatein.wsrp.WSRPPortletURL;
@@ -154,13 +153,16 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    public void contextualize(PortletInvocation invocation)
    {
       invocation.setClientContext(new AbstractClientContext(request));
-      invocation.setServerContext(new AbstractServerContext(request, response));
+      invocation.setServerContext(new WSRPServerContext(request, response));
 
       invocation.setSecurityContext(securityContext);
       invocation.setInstanceContext(instanceContext);
       invocation.setWindowContext(windowContext);
       invocation.setPortalContext(portalContext);
       invocation.setUserContext(userContext);
+
+      invocation.setRequest(request);
+      invocation.setResponse(response);
    }
 
    WindowContext getWindowContext()
