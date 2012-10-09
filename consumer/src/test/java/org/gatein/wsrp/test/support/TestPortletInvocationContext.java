@@ -50,7 +50,7 @@ public class TestPortletInvocationContext extends AbstractPortletInvocationConte
 
    public TestPortletInvocationContext()
    {
-      super(new MarkupInfo(MediaType.TEXT_HTML, "UTF-8"));  // character set same as WSRPConstants.DEFAULT_CHARACTER_SET
+      super(MediaType.TEXT_HTML);
 
       mockRequest = MockHttpServletRequest.createMockRequest(null);
       mockResponse = MockHttpServletResponse.createMockResponse();

@@ -169,7 +169,7 @@ public abstract class RequestProcessor<Response>
       checkUserContext(wsrpUserContext);
 
       SecurityContext securityContext = createSecurityContext(params, runtimeContext, wsrpUserContext);
-      MarkupInfo streamInfo = createStreamInfo(markupRequest);
+      final MediaType mediaType = createMediaType(markupRequest);
       PortalContext portalContext = createPortalContext(params, markupRequest);
       UserContext userContext = createUserContext(wsrpUserContext, markupRequest.getLocale(), desiredLocales);
       String portletInstanceKey = runtimeContext.getPortletInstanceKey();
@@ -177,7 +177,7 @@ public abstract class RequestProcessor<Response>
       WindowContext windowContext = createWindowContext(portletContext.getId(), runtimeContext);
 
       // prepare the invocation
-      WSRPPortletInvocationContext context = new WSRPPortletInvocationContext(streamInfo, securityContext, portalContext, userContext, instanceContext, windowContext);
+      WSRPPortletInvocationContext context = new WSRPPortletInvocationContext(mediaType, securityContext, portalContext, userContext, instanceContext, windowContext);
       PortletInvocation invocation = initInvocation(context);
 
       // mark the invocation as coming from WSRP
@@ -526,18 +526,16 @@ public abstract class RequestProcessor<Response>
       };
    }
 
-   private MarkupInfo createStreamInfo(MarkupRequest markupRequest) throws UnsupportedMimeType
+   private MediaType createMediaType(MarkupRequest markupRequest) throws UnsupportedMimeType
    {
-      MarkupInfo markupInfo;
       try
       {
-         markupInfo = new MarkupInfo(MediaType.create(markupRequest.getMediaType()), markupRequest.getCharacterSet());
+         return MediaType.create(markupRequest.getMediaType());
       }
       catch (IllegalArgumentException e)
       {
          throw WSRP2ExceptionFactory.throwWSException(UnsupportedMimeType.class, e.getLocalizedMessage(), e);
       }
-      return markupInfo;
    }
 
    // fix-me: check that the correct semantics is used.

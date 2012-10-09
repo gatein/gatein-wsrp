@@ -24,7 +24,7 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
-import org.gatein.common.util.MarkupInfo;
+import org.gatein.common.net.media.MediaType;
 import org.gatein.pc.api.ContainerURL;
 import org.gatein.pc.api.URLFormat;
 import org.gatein.pc.api.invocation.PortletInvocation;
@@ -66,10 +66,10 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
    private HttpServletRequest request;
    private HttpServletResponse response;
 
-   public WSRPPortletInvocationContext(MarkupInfo markupInfo, SecurityContext securityContext, PortalContext portalContext, UserContext userContext,
+   public WSRPPortletInvocationContext(MediaType mediaType, SecurityContext securityContext, PortalContext portalContext, UserContext userContext,
                                        WSRPInstanceContext instanceContext, WindowContext windowContext)
    {
-      super(markupInfo);
+      super(mediaType);
 
       this.securityContext = securityContext;
       this.portalContext = portalContext;

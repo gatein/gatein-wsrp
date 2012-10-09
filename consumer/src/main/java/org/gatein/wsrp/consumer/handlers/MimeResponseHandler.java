@@ -152,7 +152,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
       }
 
-      return createContentResponse(mimeResponse, invocation, null, null, mimeType, binary, markup, createCacheControl(mimeResponse));
+      return createContentResponse(mimeResponse, invocation, mimeType, binary, markup, createCacheControl(mimeResponse));
    }
 
    private String processMarkup(String markup, Invocation invocation)
@@ -170,11 +170,17 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
    }
 
    protected PortletInvocationResponse createContentResponse(LocalMimeResponse mimeResponse, Invocation invocation,
-                                                             ResponseProperties properties, Map<String, Object> attributes,
                                                              String mimeType, byte[] bytes, String markup,
                                                              org.gatein.pc.api.cache.CacheControl cacheControl)
    {
-      return new ContentResponse(properties, attributes, mimeType, bytes, markup, cacheControl);
+      if (markup != null)
+      {
+         return new ContentResponse(null, null, mimeType, null, markup, createCacheControl(mimeResponse));
+      }
+      else
+      {
+         return new ContentResponse(null, null, mimeType, MIMEUtils.UTF_8, bytes, createCacheControl(mimeResponse));
+      }
    }
 
    static String processMarkup(String markup, String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, WSRPConsumer consumer)

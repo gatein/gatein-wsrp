@@ -23,7 +23,7 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.gatein.common.util.ContentInfo;
+import org.gatein.common.net.media.MediaType;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
@@ -336,7 +336,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       private static final String SECURITY_CONTEXT = "security context";
       private static final String USER_CONTEXT = "user context";
       private static final String INVOCATION_CONTEXT = "invocation context";
-      private static final String STREAM_INFO = "stream info in invocation context";
+      private static final String CONTENT_TYPE = "response content type in invocation context";
       private static final String USER_AGENT = "User-Agent";
 
       public RequestPrecursor(WSRPConsumerSPI wsrpConsumer, Invocation invocation) throws PortletInvokerException
@@ -380,8 +380,8 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          ParameterValidation.throwIllegalArgExceptionIfNull(userContext, USER_CONTEXT);
          PortletInvocationContext context = invocation.getContext();
          ParameterValidation.throwIllegalArgExceptionIfNull(context, INVOCATION_CONTEXT);
-         ContentInfo streamInfo = context.getMarkupInfo();
-         ParameterValidation.throwIllegalArgExceptionIfNull(streamInfo, STREAM_INFO);
+         final MediaType contentType = context.getResponseContentType();
+         ParameterValidation.throwIllegalArgExceptionIfNull(contentType, CONTENT_TYPE);
 
          String mode;
          try
@@ -407,7 +407,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
          this.markupParams = WSRPTypeFactory.createMarkupParams(securityContext.isSecure(),
             WSRPUtils.convertLocalesToRFC3066LanguageTags(userContext.getLocales()),
-            Collections.singletonList(streamInfo.getMediaType().getValue()), mode, windowState);
+            Collections.singletonList(contentType.getValue()), mode, windowState);
          String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
          getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
          getMarkupParams().getExtensions().addAll(ExtensionAccess.getConsumerExtensionAccessor().getRequestExtensionsFor(MarkupParams.class));

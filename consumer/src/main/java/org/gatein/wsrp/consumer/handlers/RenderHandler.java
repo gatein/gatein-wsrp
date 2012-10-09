@@ -69,12 +69,19 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
 
    @Override
    protected PortletInvocationResponse createContentResponse(MarkupContext markupContext, RenderInvocation invocation,
-                                                             ResponseProperties properties, Map<String, Object> attributes,
                                                              String mimeType, byte[] bytes, String markup,
                                                              org.gatein.pc.api.cache.CacheControl cacheControl)
    {
-      return new FragmentResponse(properties, attributes, mimeType, bytes, markup, markupContext.getPreferredTitle(),
-         cacheControl, invocation.getPortalContext().getModes());
+
+      // encoding should be ignored here TODO: check that this is true
+      if (markup != null)
+      {
+         return new FragmentResponse(null, null, mimeType, null, markup, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
+      }
+      else
+      {
+         return new FragmentResponse(null, null, mimeType, null, bytes, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
+      }
    }
 
    protected GetMarkup prepareRequest(RequestPrecursor<RenderInvocation> requestPrecursor, RenderInvocation invocation)
