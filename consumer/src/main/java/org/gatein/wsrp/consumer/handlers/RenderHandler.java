@@ -27,7 +27,6 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.oasis.wsrp.v2.Extension;
@@ -40,7 +39,6 @@ import org.oasis.wsrp.v2.SessionContext;
 
 import javax.xml.ws.Holder;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>

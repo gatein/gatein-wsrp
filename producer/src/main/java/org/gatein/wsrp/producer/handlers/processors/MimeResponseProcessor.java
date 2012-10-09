@@ -28,6 +28,7 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.wsrp.MIMEUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -87,8 +88,8 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
             break;
          case ContentResponse.TYPE_BYTES:
             itemBinary = content.getBytes(); // fix-me: might need to convert to Base64?
-            // set rewriting to true for javascript and css
-            if (contentType.contains("javacript") || contentType.contains("css") || contentType.contains("ecmascript"))
+            // set rewriting to true if needed
+            if (MIMEUtils.needsRewriting(contentType))
             {
                requiresRewriting = Boolean.TRUE;
             }

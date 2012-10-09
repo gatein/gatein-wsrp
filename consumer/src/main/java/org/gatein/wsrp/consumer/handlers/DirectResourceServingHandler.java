@@ -25,11 +25,10 @@ package org.gatein.wsrp.consumer.handlers;
 
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.io.IOTools;
-import org.gatein.common.net.media.MediaType;
-import org.gatein.common.net.media.SubtypeDef;
 import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.invocation.response.ResponseProperties;
+import org.gatein.wsrp.MIMEUtils;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.handler.CookieUtil;
@@ -114,33 +113,17 @@ public class DirectResourceServingHandler extends ResourceHandler
       length = (length > 0 ? length : Tools.DEFAULT_BUFFER_SIZE * 8);
       byte[] bytes = IOTools.getBytes(urlConnection.getInputStream(), length);
 
-
       ResourceContext resourceContext;
-      MediaType type = MediaType.create(contentType);
-
       // GTNCOMMON-14
-      if (isInterpretableAsText(type))
+      if (MIMEUtils.isInterpretableAsText(contentType))
       {
-         // determine the charset of the content, if any
-         String charset = "UTF-8";
-         if (contentType != null)
-         {
-            for (String part : contentType.split(";"))
-            {
-               if (part.startsWith("charset="))
-               {
-                  charset = part.substring("charset=".length());
-               }
-            }
-         }
-
+         // determine the charset of the content, defaulting to UTF-8 if there isn't one
+         String charset = MIMEUtils.getCharsetFrom(contentType);
          String markup = new String(bytes, charset);
-
          resourceContext = WSRPTypeFactory.createResourceContext(contentType, markup, null);
 
          // process markup if needed
-         SubtypeDef subtype = type.getSubtype();
-         if (SubtypeDef.HTML.equals(subtype) || SubtypeDef.CSS.equals(subtype) || subtype.getName().contains("javascript") || SubtypeDef.XML.equals(subtype))
+         if (MIMEUtils.needsRewriting(contentType))
          {
             resourceContext.setRequiresRewriting(true);
          }
@@ -150,6 +133,7 @@ public class DirectResourceServingHandler extends ResourceHandler
          resourceContext = WSRPTypeFactory.createResourceContext(contentType, null, bytes);
          resourceContext.setRequiresRewriting(false);
       }
+
 
       return WSRPTypeFactory.createResourceResponse(resourceContext);
    }

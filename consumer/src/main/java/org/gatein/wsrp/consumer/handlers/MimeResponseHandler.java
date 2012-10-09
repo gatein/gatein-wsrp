@@ -23,8 +23,6 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.gatein.common.net.media.MediaType;
-import org.gatein.common.net.media.TypeDef;
 import org.gatein.common.text.TextTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
@@ -34,9 +32,9 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.pc.api.spi.SecurityContext;
+import org.gatein.wsrp.MIMEUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.WSRPPortletURL;
@@ -49,7 +47,6 @@ import org.oasis.wsrp.v2.MimeResponse;
 import org.oasis.wsrp.v2.SessionContext;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,19 +60,6 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
    protected MimeResponseHandler(WSRPConsumerSPI consumer)
    {
       super(consumer);
-   }
-
-   /**
-    * TODO: handle this better, we should probably have a class in the common module to determine if the MediaType
-    * should be treated as a text file or as binary content. We also need to implement the algorithm to determine the
-    * character encoding. See GTNCOMMON-14
-    *
-    * @param type
-    * @return
-    */
-   public static boolean isInterpretableAsText(MediaType type)
-   {
-      return TypeDef.TEXT.equals(type.getType()) || (TypeDef.APPLICATION.equals(type.getType()) && (type.getSubtype().getName().contains("javascript")));
    }
 
    protected abstract SessionContext getSessionContextFrom(Response response);
@@ -131,22 +115,20 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
             markup = processMarkup(markup, invocation);
          }
 
-         // GTNWSRP-189:
-         // if we have binary and we require rewriting, convert binary to a string assuming UTF-8 encoding and process
-         // this is seen with NetUnity producer's resource download portlet which sends CSS and JS as binary for example
-         if (binary != null && binary.length > 0 && isInterpretableAsText(MediaType.create(mimeType)))
+         // GTNWSRP-189: if we have binary and we require rewriting, convert binary to a string and process
+         if (binary != null && binary.length > 0 && MIMEUtils.isInterpretableAsText(mimeType))
          {
             try
             {
-               String binaryAsString = new String(binary, "UTF-8");
+               final String charset = MIMEUtils.getCharsetFrom(mimeType);
+               String binaryAsString = new String(binary, charset);
                binaryAsString = processMarkup(binaryAsString, invocation);
 
                // reconvert to binary
-               binary = binaryAsString.getBytes("UTF-8");
+               binary = binaryAsString.getBytes(charset);
             }
             catch (UnsupportedEncodingException e)
             {
-               // shouldn't happen since UTF-8 is always supported...
                throw new PortletInvokerException("Couldn't convert binary as String.", e);
             }
          }
