@@ -7,7 +7,8 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>wss-callback</artifactId>
+   <name>GateIn WSRP Examples: WSS Callback Implementation</name>
+   <artifactId>wsrp-wss-callback-example</artifactId>
    <dependencies>
       <dependency>
          <groupId>org.apache.ws.security</groupId>
