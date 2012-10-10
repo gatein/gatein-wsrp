@@ -25,7 +25,7 @@
 <s0:definitions targetNamespace="urn:bea:wsrp:ext:v2:bind" xmlns="" xmlns:s0="http://schemas.xmlsoap.org/wsdl/"
                 xmlns:s1="urn:oasis:names:tc:wsrp:v2:types" xmlns:s2="urn:bea:wsrp:ext:v2:types"
                 xmlns:s3="urn:bea:wsrp:ext:v2:bind" xmlns:s4="http://schemas.xmlsoap.org/wsdl/soap/"
-                xmlns:s5="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:s6="http://schemas.xmlsoap.org/wsdl/mime/"
+                xmlns:s6="http://schemas.xmlsoap.org/wsdl/mime/"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema">
    <xs:import namespace="urn:bea:wsrp:ext:v2:types" schemaLocation="wlp-wsrp-2.0-types.xsd"/>
    <s0:message name="AccessDenied">
@@ -236,9 +236,9 @@
       <s0:operation name="getMarkup">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:getMarkup"/>
          <s0:input name="getMarkup">
-            <s5:Policy>
-               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            <!--<s5:Policy>-->
+            <!--<s5:PolicyReference URI="#ProducerDefaultPolicy"/>-->
+            <!--</s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output name="getMarkupResponse">
@@ -291,9 +291,9 @@
       <s0:operation name="getResource">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:getResource"/>
          <s0:input name="getResource">
-            <s5:Policy>
+            <!--<s5:Policy>
                <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            </s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output name="getResourceResponse">
@@ -349,9 +349,9 @@
       <s0:operation name="performBlockingInteraction">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:performBlockingInteraction"/>
          <s0:input name="performBlockingInteraction">
-            <s5:Policy>
-               <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            <!--<s5:Policy>-->
+            <!--<s5:PolicyReference URI="#ProducerDefaultPolicy"/>-->
+            <!--</s5:Policy>-->
             <s6:multipartRelated>
                <s6:part>
                   <s4:body parts="performBlockingInteraction" use="literal"/>
@@ -407,9 +407,9 @@
       <s0:operation name="releaseSessions">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:releaseSessions"/>
          <s0:input name="releaseSessions">
-            <s5:Policy>
+            <!--<s5:Policy>
                <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            </s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output name="releaseSessionsResponse">
@@ -431,9 +431,9 @@
       <s0:operation name="initCookie">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:initCookie"/>
          <s0:input name="initCookie">
-            <s5:Policy>
+            <!--<s5:Policy>
                <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            </s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output name="initCookieResponse">
@@ -452,9 +452,9 @@
       <s0:operation name="handleEvents">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:handleEvents"/>
          <s0:input>
-            <s5:Policy>
+            <!--<s5:Policy>
                <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            </s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output>
@@ -515,9 +515,9 @@
       <s0:operation name="getRenderDependencies">
          <s4:operation soapAction="urn:bea:wsrp:ext:v2:getRenderDependencies"/>
          <s0:input>
-            <s5:Policy>
+            <!--<s5:Policy>
                <s5:PolicyReference URI="#ProducerDefaultPolicy"/>
-            </s5:Policy>
+            </s5:Policy>-->
             <s4:body use="literal"/>
          </s0:input>
          <s0:output>
