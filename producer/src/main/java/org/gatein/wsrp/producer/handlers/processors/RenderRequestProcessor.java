@@ -109,7 +109,9 @@ class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, Markup
 
    protected PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context)
    {
-      return new RenderInvocation(context);
+      final RenderInvocation renderInvocation = new RenderInvocation(context);
+      renderInvocation.setEncoding(markupRequest.getCharacterSet());
+      return renderInvocation;
    }
 
    @Override

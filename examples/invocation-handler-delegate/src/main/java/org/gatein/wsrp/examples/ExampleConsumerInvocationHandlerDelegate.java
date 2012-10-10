@@ -56,7 +56,7 @@ public class ExampleConsumerInvocationHandlerDelegate extends InvocationHandlerD
       if (invocation instanceof RenderInvocation)
       {
          // retrieve the session id from the portlet invocation
-         final String id = invocation.getDispatchedRequest().getSession().getId();
+         final String id = invocation.getRequest().getSession().getId();
          log.info("Session id: " + id);
 
          // Create an "OriginalSessionId" element containing the session id within a "MarkupParamsExtension" element extension
@@ -91,7 +91,7 @@ public class ExampleConsumerInvocationHandlerDelegate extends InvocationHandlerD
             log.info("Got response: " + textContent);
 
             // put the response value in the session so that portlets use it
-            invocation.getDispatchedRequest().getSession().setAttribute("producerAnswered", textContent);
+            invocation.getRequest().getSession().setAttribute("producerAnswered", textContent);
          }
       }
    }

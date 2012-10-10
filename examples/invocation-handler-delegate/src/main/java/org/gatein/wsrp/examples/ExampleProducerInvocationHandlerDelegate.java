@@ -59,7 +59,7 @@ public class ExampleProducerInvocationHandlerDelegate extends InvocationHandlerD
                final String textContent = element.getTextContent();
 
                // and put the value in the session so that the portlet the invocation targets can use it
-               invocation.getDispatchedRequest().getSession().setAttribute("consumerSaid", textContent);
+               invocation.getRequest().getSession().setAttribute("consumerSaid", textContent);
             }
          }
       }
@@ -71,7 +71,7 @@ public class ExampleProducerInvocationHandlerDelegate extends InvocationHandlerD
       if (response instanceof ContentResponse)
       {
          // retrieve the value of the "consumerSaid" attribute
-         final Object consumerSaid = invocation.getDispatchedRequest().getSession().getAttribute("consumerSaid");
+         final Object consumerSaid = invocation.getRequest().getSession().getAttribute("consumerSaid");
 
          // create a DOM element to set as a response extension
          final String namespaceURI = "urn:gatein:wsrp:ext:examples"; // please choose a more appropriate namespace for your own extensions
