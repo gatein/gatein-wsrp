@@ -38,11 +38,19 @@ import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
+import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.ServiceDescription;
 
 import javax.xml.namespace.QName;
+
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -144,5 +152,20 @@ public abstract class V2ProducerBaseTest extends WSRPProducerBaseTest
       {
          return null;
       }
+   }
+
+   protected static Archive createDeployment()
+   {
+      EnterpriseArchive archive = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, new File("target/test-archives/test-producer.ear"));
+      JavaArchive testJar = ShrinkWrap.create(JavaArchive.class, "test.jar").addClasses(V2ProducerBaseTest.class, WSRPProducerBaseTest.class);
+      testJar = testJar.addClasses(MarkupTestCase.class, NeedPortletHandleTest.class, PortletManagementTestCase.class, ServiceDescriptionTestCase.class);
+      archive = archive.addAsLibraries(testJar);
+      
+      WebArchive pcWebArchive = ShrinkWrap.create(WebArchive.class, "producer-test-portlet-container.war");
+      pcWebArchive.merge(ShrinkWrap.create(WebArchive.class).as(ExplodedImporter.class).importDirectory("src/test/portlet-container-war").as(WebArchive.class));
+      
+      archive.addAsModule(pcWebArchive);
+      
+      return archive;
    }
 }

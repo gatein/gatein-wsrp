@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ JBoss, a division of Red Hat
+  ~ Copyright 2011, Red Hat Middleware, LLC, and individual
+  ~ contributors as indicated by the @authors tag. See the
+  ~ copyright.txt in the distribution for a full listing of
+  ~ individual contributors.
+  ~
+  ~ This is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as
+  ~ published by the Free Software Foundation; either version 2.1 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ This software is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with this software; if not, write to the Free
+  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  -->
+<deployment xmlns="urn:jboss:pojo:7.0">
+   <!--
+      <bean name="TestDriverServer" class="org.jboss.unit.remote.driver.RemoteTestDriverServer"/>
+
+      <bean name="TestDriverServerExporter"
+            class="org.jboss.portal.test.framework.impl.generic.server.GenericServiceExporter">
+         <constructor>
+            <parameter>socket://localhost:5400</parameter>
+            <parameter><inject bean="TestDriverServer"/></parameter>
+            <parameter>org.jboss.unit.remote.driver.RemoteTestDriver</parameter>
+         </constructor>
+      </bean>
+   -->
+   <bean name="WSRPProducer" class="org.gatein.wsrp.producer.WSRPProducerImpl">
+      <constructor factory-class="org.gatein.wsrp.producer.ProducerHolder" factory-method="getProducer">
+         <parameter><value>true</value>
+<!--           <value class="java.lang.Boolean">true</value> -->
+         </parameter>
+      </constructor>
+      <property name="portletInvoker">
+         <inject bean="WSRPPortletInvoker"/>
+      </property>
+      <property name="registrationManager">
+         <inject bean="RegistrationManagerService"/>
+      </property>
+      <property name="configurationService">
+         <inject bean="ConfigurationService"/>
+      </property>
+      <property name="exportManager">
+         <inject bean="ExportManager"/>
+      </property>
+   </bean>
+
+   <bean name="TestWebAppListener" class="org.gatein.wsrp.config.wci.TestWebAppListener">
+     <property name="portletApplicationDeployer">
+       <inject bean="PortletApplicationRegistry"/>
+     </property>
+   </bean>
+
+   <bean name="PortletInvoker" class="org.gatein.pc.portlet.state.producer.ProducerPortletInvoker">
+      <property name="next">
+         <inject bean="ContainerPortletInvoker"/>
+      </property>
+      <property name="persistenceManager">
+         <inject bean="ProducerPersistenceManagerService"/>
+      </property>
+      <property name="stateManagementPolicy">
+         <inject bean="StateManagementPolicyService"/>
+      </property>
+      <property name="stateConverter">
+         <inject bean="StateConverterService"/>
+      </property>
+   </bean>
+
+   <bean name="WSRPPortletInvoker" class="org.gatein.wsrp.producer.invoker.RegistrationCheckingPortletInvoker">
+      <property name="next">
+         <inject bean="PortletInvoker"/>
+      </property>
+      <property name="registrationManager">
+         <inject bean="RegistrationManagerService"/>
+      </property>
+   </bean>
+
+   <!-- TODO: may need to write a new class for this -->
+   <bean name="ProducerPersistenceManagerService"
+         class="org.gatein.pc.portlet.impl.state.producer.PortletStatePersistenceManagerService"/>
+
+   <bean name="StateManagementPolicyService" class="org.gatein.pc.portlet.impl.state.StateManagementPolicyService">
+      <property name="persistLocally">
+         <value>true</value>
+      </property>
+   </bean>
+
+   <bean name="StateConverterService" class="org.gatein.pc.portlet.impl.state.StateConverterV0"/>
+
+   <bean name="RegistrationManagerService" class="org.gatein.registration.impl.RegistrationManagerImpl">
+      <property name="persistenceManager">
+         <inject bean="RegistrationPersistenceManagerService"/>
+      </property>
+   </bean>
+
+   <!-- TODO: may need to write a new class for this -->
+   <bean name="RegistrationPersistenceManagerService"
+         class="org.gatein.registration.impl.RegistrationPersistenceManagerImpl">
+   </bean>
+
+   <bean name="ConfigurationService" class="org.gatein.wsrp.config.FileSystemXmlProducerConfigWithReload">
+      <property name="configFile">
+         <value>conf/producer-config.xml</value>
+      </property>
+      <!--      <property name="configFile">/tmp/producer-config.xml</property> -->
+   </bean>
+
+   <bean name="ServletAccess" class="org.gatein.wsrp.api.servlet.ServletAccess"/>
+
+   <bean name="ExportManager" class="org.gatein.exports.impl.ExportManagerImpl"/>
+
+   <!-- NOTE: All of the following beans should really be in the war to setup the test producer, but there are issues
+              on AS7 with duplication beans somehow being created. Once AS7 fixes itself these should be moved back to
+              the test producer war
+    -->
+   <bean name="PortletApplicationDeployer" class="org.gatein.pc.portlet.impl.deployment.PortletApplicationDeployer">
+      <alias>PortletApplicationRegistry</alias>
+<!--      <property name="servletContainerFactory">
+         <inject bean="ServletContainerFactory"/>
+      </property> -->
+      <property name="containerPortletInvoker">
+         <inject bean="ContainerPortletInvoker"/>
+      </property>
+   </bean>
+
+   <!-- The ServletContainerFactory -->
+<!--   <bean name="ServletContainerFactory" class="org.gatein.wci.ServletContainerFactory">
+   </bean>
+-->
+   <!-- The servlet container obtained from the ServletContainerFactory -->
+<!--   <bean name="ServletContainer" class="org.gatein.wci.ServletContainer">
+      <constructor factory-class="org.gatein.wci.ServletContainerFactory" factory-method="getServletContainer"/>
+   </bean>
+-->
+   <!-- The producer persistence manager -->
+   <bean name="ProducerPersistenceManager"
+         class="org.gatein.pc.portlet.impl.state.producer.PortletStatePersistenceManagerService"/>
+
+   <!-- The producer state management policy -->
+   <bean name="ProducerStateManagementPolicy" class="org.gatein.pc.portlet.impl.state.StateManagementPolicyService">
+      <property name="persistLocally">
+         <value>true</value>
+      </property>
+   </bean>
+
+   <!-- The producer state converter -->
+   <bean name="ProducerStateConverter" class="org.gatein.pc.portlet.impl.state.StateConverterV0"/>
+
+   <!-- The consumer portlet invoker -->
+   <bean name="ConsumerPortletInvoker" class="org.gatein.pc.portlet.PortletInvokerInterceptor">
+      <property name="next">
+         <inject bean="ConsumerCacheInterceptor"/>
+      </property>
+   </bean>
+   <bean name="ConsumerCacheInterceptor" class="org.gatein.pc.portlet.aspects.ConsumerCacheInterceptor">
+      <property name="next">
+         <inject bean="PortletCustomizationInterceptor"/>
+      </property>
+   </bean>
+   <bean name="PortletCustomizationInterceptor" class="org.gatein.pc.portlet.aspects.PortletCustomizationInterceptor">
+      <property name="next">
+         <inject bean="ProducerPortletInvoker"/>
+      </property>
+   </bean>
+
+   <!-- The producer portlet invoker -->
+   <bean name="ProducerPortletInvoker" class="org.gatein.pc.portlet.state.producer.ProducerPortletInvoker">
+      <property name="next">
+         <inject bean="ContainerPortletInvoker"/>
+      </property>
+      <property name="persistenceManager">
+         <inject bean="ProducerPersistenceManager"/>
+      </property>
+      <property name="stateManagementPolicy">
+         <inject bean="ProducerStateManagementPolicy"/>
+      </property>
+      <property name="stateConverter">
+         <inject bean="ProducerStateConverter"/>
+      </property>
+   </bean>
+
+   <!-- The portlet container invoker -->
+   <bean name="ContainerPortletInvoker" class="org.gatein.pc.portlet.container.ContainerPortletInvoker">
+      <property name="next">
+         <inject bean="ValveInterceptor"/>
+      </property>
+   </bean>
+
+   <!-- Container stack -->
+   <bean name="ValveInterceptor" class="org.gatein.pc.portlet.aspects.ValveInterceptor">
+      <property name="portletApplicationRegistry">
+         <inject bean="PortletApplicationRegistry" state="Instantiated"/>
+      </property>
+      <property name="next">
+         <inject bean="SecureTransportInterceptor"/>
+      </property>
+   </bean>
+   <bean name="SecureTransportInterceptor" class="org.gatein.pc.portlet.aspects.SecureTransportInterceptor">
+      <property name="next">
+         <inject bean="ContextDispatcherInterceptor"/>
+      </property>
+   </bean>
+   <bean name="ContextDispatcherInterceptor" class="org.gatein.pc.portlet.aspects.ContextDispatcherInterceptor">
+<!--      <property name="servletContainerFactory">
+         <inject bean="ServletContainerFactory"/>
+      </property> -->
+      <property name="next">
+         <inject bean="ProducerCacheInterceptor"/>
+      </property>
+   </bean>
+   <bean name="ProducerCacheInterceptor" class="org.gatein.pc.portlet.aspects.ProducerCacheInterceptor">
+      <property name="next">
+         <inject bean="CCPPInterceptor"/>
+      </property>
+   </bean>
+   <bean name="CCPPInterceptor" class="org.gatein.pc.portlet.aspects.CCPPInterceptor">
+      <property name="next">
+         <inject bean="RequestAttributeConversationInterceptor"/>
+      </property>
+   </bean>
+   <bean name="RequestAttributeConversationInterceptor"
+         class="org.gatein.pc.portlet.aspects.RequestAttributeConversationInterceptor">
+      <property name="next">
+         <inject bean="EventPayloadInterceptor"/>
+      </property>
+   </bean>
+   <bean name="EventPayloadInterceptor" class="org.gatein.wsrp.payload.WSRPEventPayloadInterceptor">
+      <property name="next">
+         <inject bean="PortletContainerDispatcher"/>
+      </property>
+   </bean>
+   <bean name="PortletContainerDispatcher" class="org.gatein.pc.portlet.container.ContainerPortletDispatcher">
+   </bean>
+   <!-- END Test Producer Beans -->
+</deployment>
