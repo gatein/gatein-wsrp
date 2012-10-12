@@ -24,18 +24,21 @@
 package org.gatein.wsrp.protocol.v2;
 
 import com.google.common.base.Function;
+
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.RequestFacade;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.servlet.ServletAccess;
-import org.gatein.wsrp.producer.WSRPProducerBaseTest;
-import org.gatein.wsrp.protocol.v1.NeedPortletHandleTest;
+import org.gatein.wsrp.portlet.utils.MockRequest;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
 import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
-import org.jboss.arquillian.api.Deployment;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
@@ -68,13 +71,10 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
    }
 
    @Deployment
-   public static JavaArchive createDeployment()
+   @OverProtocol("Servlet 2.5")
+   public static Archive createDeployment()
    {
-      JavaArchive jar = ShrinkWrap.create("test.jar", JavaArchive.class);
-      jar.addClass(NeedPortletHandleTest.class);
-      jar.addClass(V2ProducerBaseTest.class);
-      jar.addClass(WSRPProducerBaseTest.class);
-      return jar;
+      return V2ProducerBaseTest.createDeployment();
    }
 
    @Override
@@ -86,22 +86,26 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
    @Before
    public void setUp() throws Exception
    {
-      if (System.getProperty("test.deployables.dir") != null)
-      {
-         super.setUp();
-         //hack to get around having to have a httpservletrequest when accessing the producer services
-         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
-         ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse.createMockResponse());
-      }
+      super.setUp();
+      //hack to get around having to have a httpservletrequest when accessing the producer services
+      //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+
+      //NOTE: ideally we could just use the MockHttpServlerRequest and Response, but JBossWeb is looking for particular implementations,
+      //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
+      //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
+      //            .createMockResponse());
+      
+      Request request = new MockRequest();
+      request.setCoyoteRequest(new org.apache.coyote.Request());
+      
+      RequestFacade requestFacade = new RequestFacade(request);
+      ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
 
    @After
    public void tearDown() throws Exception
    {
-      if (System.getProperty("test.deployables.dir") != null)
-      {
-         super.tearDown();
-      }
+      super.tearDown();
    }
 
    @Test

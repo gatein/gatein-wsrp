@@ -39,6 +39,15 @@ import org.gatein.wsrp.producer.v1.WSRP1Producer;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.OverProtocol;
+import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
+import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.oasis.wsrp.v1.V1GetMarkup;
 import org.oasis.wsrp.v1.V1GetServiceDescription;
 import org.oasis.wsrp.v1.V1LocalizedString;
@@ -55,6 +64,8 @@ import org.oasis.wsrp.v1.V1RuntimeContext;
 import org.oasis.wsrp.v1.V1ServiceDescription;
 
 import javax.xml.namespace.QName;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -348,6 +359,7 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
          }
       }
    }*/
+   
    @Override
    protected Collection<String> getPortletHandles() throws Exception
    {
@@ -355,5 +367,20 @@ public abstract class V1ProducerBaseTest extends WSRPProducerBaseTest
       V1ServiceDescription serviceDescription = producer.getServiceDescription(getServiceDescription);
       List<V1PortletDescription> offered = serviceDescription.getOfferedPortlets();
       return Collections2.transform(offered, PORTLET_DESCRIPTION_TO_HANDLE);
+   }
+
+   protected static Archive createDeployment()
+   {
+      EnterpriseArchive archive = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, new File("target/test-archives/test-producer.ear"));
+      JavaArchive testJar = ShrinkWrap.create(JavaArchive.class, "test.jar").addClasses(V1ProducerBaseTest.class, WSRPProducerBaseTest.class);
+      testJar = testJar.addClasses(MarkupTestCase.class, NeedPortletHandleTest.class, PortletManagementTestCase.class, RegistrationTestCase.class, ReleaseSessionTestCase.class, ServiceDescriptionTestCase.class);
+      archive = archive.addAsLibraries(testJar);
+      
+      WebArchive pcWebArchive = ShrinkWrap.create(WebArchive.class, "producer-test-portlet-container.war");
+      pcWebArchive.merge(ShrinkWrap.create(WebArchive.class).as(ExplodedImporter.class).importDirectory("src/test/portlet-container-war").as(WebArchive.class));
+      
+      archive.addAsModule(pcWebArchive);
+      
+      return archive;
    }
 }

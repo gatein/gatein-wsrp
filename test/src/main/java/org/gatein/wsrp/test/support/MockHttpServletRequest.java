@@ -89,7 +89,7 @@ public class MockHttpServletRequest implements InvocationHandler, Serializable
       }
       if ("toString".equals(methodName))
       {
-         return "MockHttpServletResponse";
+         return "MockHttpServletRequest";
       }
       if ("getAttribute".equals(methodName))
       {

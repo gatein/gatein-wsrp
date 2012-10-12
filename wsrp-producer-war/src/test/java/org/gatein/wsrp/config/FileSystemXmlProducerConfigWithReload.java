@@ -41,9 +41,7 @@ public class FileSystemXmlProducerConfigWithReload extends SimpleXMLProducerConf
 
    public void setConfigFile(String configLocation) throws Exception
    {
-//      this.inputStream = new FileInputStream(configLocation);
-//      this.reloadConfiguration();
-      Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(configLocation);
+      Enumeration<URL> resources = getClass().getClassLoader().getResources(configLocation);
 
       URL configURL = null;
       while (resources.hasMoreElements())
