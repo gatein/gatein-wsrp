@@ -242,8 +242,7 @@ public class Utils
 
    public static void throwOperationFaultOnSessionOperation() throws OperationFailed
    {
-      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "JBoss Portal's Producer" +
-         " manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
+      throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "GateIn's Producer manages sessions completely on the server side, passing or trying to release sessionIDs is therefore an error.",
          null);
    }
 }
