@@ -72,7 +72,7 @@
    <properties>
       <org.gatein.pc.version>2.4.0.Beta02</org.gatein.pc.version>
       <org.gatein.common.version>2.1.0.Beta01</org.gatein.common.version>
-      <org.gatein.wci.version>2.3.0.Beta02-SNAPSHOT</org.gatein.wci.version>
+      <org.gatein.wci.version>2.3.0.Beta02</org.gatein.wci.version>
 
       <jsf.version>2.1</jsf.version>
       <version.jsf2.impl>2.1.9</version.jsf2.impl>
