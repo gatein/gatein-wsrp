@@ -208,11 +208,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.jboss.arquillian.junit</groupId>
-         <artifactId>arquillian-junit-container</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
          <groupId>org.jboss.arquillian.protocol</groupId>
          <artifactId>arquillian-protocol-servlet</artifactId>
          <scope>test</scope>
@@ -314,40 +309,7 @@
               <systemPropertyVariables>
                 <JBOSS_HOME>${project.build.directory}/servers/jboss-as-${jbossas.version}</JBOSS_HOME>
               </systemPropertyVariables>
-
-<!--               <argLine>-Xmx512m -XX:MaxPermSize=128m -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y</argLine> -->
-<!--               <skip>true</skip>
-               <excludes>
-                  <exclude>org/gatein/wsrp/protocol/v1/*</exclude>
-               </excludes> -->
-               <!--<parallel>classes</parallel>
-               <threadCount>2</threadCount>-->
             </configuration>
-            <executions>
-               <execution>
-                  <id>integration-tests</id>
-                  <phase>integration-test</phase>
-                  <goals>
-                     <goal>test</goal>
-                  </goals>
-                  <configuration>
-                     <skip>${skipTests}</skip>
-                     <includes>
-                        <include>org/gatein/wsrp/protocol/v1/MarkupTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v1/PortletManagementTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v1/ReleaseSessionTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v1/ServiceDescriptionTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v1/RegistrationTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v2/MarkupTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v2/ServiceDescriptionTestCase.class</include>
-                        <include>org/gatein/wsrp/protocol/v2/PortletManagementTestCase.class</include>
-                     </includes>
-                     <excludes>
-                        <exclude>org/gatein/wsrp/producer/**</exclude>
-                     </excludes>
-                  </configuration>
-               </execution>
-            </executions>
          </plugin>
       </plugins>
    </build>
