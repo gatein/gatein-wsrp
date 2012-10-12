@@ -1,0 +1,24 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+   <!-- Standard XML -->
+   <system systemId="http://www.w3.org/2001/xml.xsd" uri="wsrp/xml.xsd"/>
+   <system systemId="http://www.w3.org/XML/1998/namespace" uri="wsrp/xml.xsd"/>
+
+   <!-- WSRP 1 -->
+   <system systemId="http://www.oasis-open.org/committees/wsrp/specifications/version1/wsrp_v1_interfaces.wsdl" uri="wsrp/wsrp_v1_interfaces.wsdl"/>
+   <system systemId="http://www.oasis-open.org/committees/wsrp/specifications/version1/wsrp_v1_bindings.wsdl" uri="wsrp/wsrp_v1_bindings.wsdl"/>
+   <system systemId="http://www.oasis-open.org/committees/wsrp/specifications/version1/wsrp_v1_types.xsd" uri="wsrp/wsrp_v1_types.xsd"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v1:intf" uri="wsrp/wsrp_v1_interfaces.wsdl"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v1:bind" uri="wsrp/wsrp_v1_bindings.wsdl"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v1:types" uri="wsrp/wsrp_v1_types.xsd"/>
+
+
+   <!-- WSRP 2-->
+   <system systemId="http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-interfaces.wsdl" uri="wsrp/wsrp-2.0-interfaces.wsdl"/>
+   <system systemId="http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-bindings.wsdl" uri="wsrp/wsrp-2.0-bindings.wsdl"/>
+   <system systemId="http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-types.xsd" uri="wsrp/wsrp-2.0-types.xsd"/>
+   <system systemId="http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-extra.xsd" uri="wsrp/wsrp-2.0-extra.xsd"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v2:intf" uri="wsrp/wsrp-2.0-interfaces.wsdl"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v2:bind" uri="wsrp/wsrp-2.0-bindings.wsdl"/>
+   <public publicId="urn:oasis:names:tc:wsrp:v2:types" uri="wsrp/wsrp-2.0-types.xsd"/>
+   <public publicId="urn:oasis:names:tc:wsrp:extra" uri="wsrp/wsrp-2.0-extra.xsd"/>
+</catalog>

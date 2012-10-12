@@ -206,6 +206,11 @@
            <artifactId>test-framework</artifactId>
            <version>${project.version}</version>
          </dependency>
+         <dependency>
+            <groupId>org.gatein.wsrp</groupId>
+            <artifactId>wsrp-catalog</artifactId>
+            <version>${project.version}</version>
+         </dependency>
 
          <dependency>
             <groupId>org.gatein.common</groupId>
@@ -351,6 +356,7 @@
       <module>ws-security</module>
       <module>cxf-integration</module>
       <module>examples</module>
+      <module>wsrp-catalog</module>
    </modules>
 
 </project>
