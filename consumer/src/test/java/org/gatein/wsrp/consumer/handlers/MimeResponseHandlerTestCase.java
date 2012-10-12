@@ -188,41 +188,6 @@ public class MimeResponseHandlerTestCase extends TestCase
       processMarkupAndCheck(markup, expected);
    }*/
 
-   public void testGTNWSRP12Workaround()
-   {
-      String timeout = "%3ftimeout%3d100000";
-      String beforeTimeout = "http%3a%2f%2fwsrp.netunitysoftware.com%2fWSRPTestService%2fWSRPTestService.asmx";
-      String afterTimeout = "%2fgetResource%3fportletHandle%3d781F3EE5-22DF-4ef9-9664-F5FC759065DB%26Function%3dResource%26Name%3dNetUnity%26Type%3dGIF";
-      String originalURL = beforeTimeout + timeout + afterTimeout;
-      String markup = "<table cellpadding=\"2\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n" +
-         "\t<tr class=\"portlet-table-header\">\n" +
-         "\t\t<td>Symbol</td>\n" +
-         "\t\t<td>Name</td>\n" +
-         "\t\t<td align=\"right\">Price</td>\n" +
-         "\t\t<td></td>\n" +
-         "\t\t<td align=\"right\">Change</td>\n" +
-         "\t\t<td align=\"right\">% Chg</td>\n" +
-         "\t</tr>\n" +
-         "</table>\n" +
-         "<A HREF=\"http://www.netunitysoftware.com\" TITLE=\"NetUnity WSRP .NET Framework\" >" +
-         "<img src=\"" + originalURL + "\" border=\"0\" /></A>";
-
-      String expected = "<table cellpadding=\"2\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n" +
-         "\t<tr class=\"portlet-table-header\">\n" +
-         "\t\t<td>Symbol</td>\n" +
-         "\t\t<td>Name</td>\n" +
-         "\t\t<td align=\"right\">Price</td>\n" +
-         "\t\t<td></td>\n" +
-         "\t\t<td align=\"right\">Change</td>\n" +
-         "\t\t<td align=\"right\">% Chg</td>\n" +
-         "\t</tr>\n" +
-         "</table>\n" +
-         "<A HREF=\"http://www.netunitysoftware.com\" TITLE=\"NetUnity WSRP .NET Framework\" >" +
-         "<img src=\"" + beforeTimeout + afterTimeout + "\" border=\"0\" /></A>";
-
-      processMarkupAndCheck(markup, expected);
-   }
-
    public void testRewritingRequiredWithBinaryContent() throws UnsupportedEncodingException, PortletInvokerException
    {
       String expected = "/* Style Sheet */\n" +

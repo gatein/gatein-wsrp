@@ -167,14 +167,6 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
    static String processMarkup(String markup, String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, WSRPConsumer consumer)
    {
-      // fix-me: how to deal with fragment header? => interceptor?
-
-      // todo: remove, this is a work-around for GTNWSRP-12
-      if (!WSRPConstants.RUNS_IN_EPP)
-      {
-         markup = markup.replaceFirst("%3ftimeout%3d.*%2f", "%2f");
-      }
-
       markup = TextTools.replaceBoundedString(
          markup,
          WSRPRewritingConstants.BEGIN_WSRP_REWRITE,
