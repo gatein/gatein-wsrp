@@ -20,35 +20,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
-package org.wsrp.wss.jboss5.handlers.consumer;
-
-import org.gatein.wsrp.wss.CustomizePortListener;
-import org.jboss.ws.core.StubExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.gatein.wsrp;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class JBWSCustomizePortListener implements CustomizePortListener
+public interface PortCustomizer
 {
-
-   private static Logger log = LoggerFactory.getLogger(JBWSCustomizePortListener.class);
-
-   @Override
-   public void customizePort(Object service)
-   {
-      if (service instanceof StubExt)
-      {
-         StubExt stub = (StubExt)service;
-         stub.setConfigName("GateIn Consumer WSSecurity", "META-INF/gatein-consumer-config.xml");
-      }
-      else
-      {
-         log.warn("Service not an instance of StubExt, cannot customize the port for WS-Security.");
-      }
-   }
-
+   public void customizePort(Object service);
 }
 

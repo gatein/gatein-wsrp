@@ -28,7 +28,7 @@ import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.gatein.wci.security.Credentials;
-import org.gatein.wsrp.wss.CustomizePortListener;
+import org.gatein.wsrp.PortCustomizer;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.gatein.wsrp.wss.cxf.Utils;
@@ -41,18 +41,18 @@ import java.util.Map;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class CXFCustomizePortListener implements CustomizePortListener
+public class CXFPortCustomizer implements PortCustomizer
 {
-   private static Logger log = LoggerFactory.getLogger(CXFCustomizePortListener.class);
+   private final static Logger log = LoggerFactory.getLogger(CXFPortCustomizer.class);
 
-   protected static String GTN_CURRENT_USER = "gtn.current.user";
-   protected static String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
-   protected static String GTN_NO_USER = "gtn.no.user";
+   protected final static String GTN_CURRENT_USER = "gtn.current.user";
+   protected final static String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
+   protected final static String GTN_NO_USER = "gtn.no.user";
 
    @Override
    public void customizePort(Object service)
    {
-      log.debug("Customizing the port for the wsrp cxf client.");
+      log.debug("Customizing the port for the WSRP CXF client.");
 
       Client client = ClientProxy.getClient(service);
 

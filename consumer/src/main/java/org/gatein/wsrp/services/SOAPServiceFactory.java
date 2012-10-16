@@ -25,6 +25,7 @@ package org.gatein.wsrp.services;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Version;
+import org.gatein.wsrp.PortCustomizer;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
@@ -34,7 +35,6 @@ import org.gatein.wsrp.services.v2.V2MarkupService;
 import org.gatein.wsrp.services.v2.V2PortletManagementService;
 import org.gatein.wsrp.services.v2.V2RegistrationService;
 import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
-import org.gatein.wsrp.wss.CustomizePortListener;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
@@ -517,14 +517,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    public boolean isWSSAvailable()
    {
       WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-      if (wssFactory != null && wssFactory.getCustomizePortListeners() != null && !wssFactory.getCustomizePortListeners().isEmpty())
-      {
-         return true;
-      }
-      else
-      {
-         return false;
-      }
+      return wssFactory != null && wssFactory.getPortCustomizers() != null && !wssFactory.getPortCustomizers().isEmpty();
    }
 
    protected void configureWSS(Object service)
@@ -532,9 +525,9 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       if (wssEnabled)
       {
          WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-         if (wssFactory.getCustomizePortListeners() != null)
+         if (wssFactory.getPortCustomizers() != null)
          {
-            for (CustomizePortListener listener : wssFactory.getCustomizePortListeners())
+            for (PortCustomizer listener : wssFactory.getPortCustomizers())
             {
                listener.customizePort(service);
             }
