@@ -37,6 +37,10 @@ public class WebServiceSecurityFactory
    public List<CustomizePortListener> customizePortListeners;
    private CredentialsAccessor credentialsAccessor;
 
+   private WebServiceSecurityFactory()
+   {
+   }
+
    public static WebServiceSecurityFactory getInstance()
    {
       return instance;
