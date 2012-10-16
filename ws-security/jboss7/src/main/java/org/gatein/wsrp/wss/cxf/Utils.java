@@ -47,9 +47,15 @@ public class Utils
    public static final String WSS4J_ININTERCEPTOR_PROPERTY_FILE = "WSS4JInInterceptor.properties";
    public static final String WSS4J_OUTINTERCEPTOR_PROPERTY_FILE = "WSS4JOutInterceptor.properties";
 
-   public static Map<String, Object> getCXFConfigProperties(String path)
+   public static Map<String, Object> getWSS4JInterceptorConfiguration(boolean consumer, boolean in)
    {
-      String interceptorPropertyFileName = getCXFWSSecurityConfigDir() + File.separator + path;
+      return getCXFConfiguration(consumer, (in ? WSS4J_ININTERCEPTOR_PROPERTY_FILE : WSS4J_OUTINTERCEPTOR_PROPERTY_FILE), (in ? "In" : "Out"));
+   }
+
+   public static Map<String, Object> getCXFConfiguration(boolean consumer, String fileName, String interceptorName)
+   {
+      String path = (consumer ? CONSUMER_CONF_DIR_NAME : PRODUCER_CONF_DIR_NAME) + File.pathSeparatorChar + fileName;
+      String interceptorPropertyFileName = getCXFWSSecurityConfigDir() + File.pathSeparatorChar + path;
       try
       {
          Map<String, Object> outProperties = new HashMap<String, Object>();
@@ -66,7 +72,8 @@ public class Utils
          }
          else
          {
-            log.debug("The interceptor property file (" + interceptorPropertyFileName + ") does not exist.");
+            log.debug("The interceptor property file (" + interceptorPropertyFileName + ") does not exist. No " + interceptorName + " interceptors will be added to the WSRP "
+               + (consumer ? "Consumers." : "Producer."));
             return null;
          }
          return outProperties;
@@ -80,7 +87,7 @@ public class Utils
 
    protected static String getCXFWSSecurityConfigDir()
    {
-      return org.gatein.wsrp.cxf.Utils.getWSRPCXFConfigDirectory() + File.separator + WS_SECURITY_CONF_DIR_NAME;
+      return org.gatein.wsrp.cxf.Utils.getWSRPCXFConfigDirectory() + File.pathSeparatorChar + WS_SECURITY_CONF_DIR_NAME;
    }
 }
 

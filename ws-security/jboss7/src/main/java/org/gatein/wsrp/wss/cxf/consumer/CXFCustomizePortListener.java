@@ -35,7 +35,6 @@ import org.gatein.wsrp.wss.cxf.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -57,8 +56,8 @@ public class CXFCustomizePortListener implements CustomizePortListener
 
       Client client = ClientProxy.getClient(service);
 
-      Map<String, Object> inPropertyMap = getWSS4JInInterceptorProperties();
-      Map<String, Object> outPropertyMap = getWSS4JOutInterceptorProperties();
+      Map<String, Object> inPropertyMap = Utils.getWSS4JInterceptorConfiguration(true, true);
+      Map<String, Object> outPropertyMap = Utils.getWSS4JInterceptorConfiguration(true, false);
 
       if (inPropertyMap != null && handleSpecialProperties(inPropertyMap))
       {
@@ -71,32 +70,6 @@ public class CXFCustomizePortListener implements CustomizePortListener
          WSS4JOutInterceptor outInterceptor = new WSS4JOutInterceptor(outPropertyMap);
          client.getOutInterceptors().add(outInterceptor);
       }
-   }
-
-   protected Map<String, Object> getWSS4JInInterceptorProperties()
-   {
-      String wss4jInInterceptorConfigPath = Utils.CONSUMER_CONF_DIR_NAME + File.separator + Utils.WSS4J_ININTERCEPTOR_PROPERTY_FILE;
-      Map<String, Object> inInterceptorProperties = Utils.getCXFConfigProperties(wss4jInInterceptorConfigPath);
-
-      if (inInterceptorProperties == null)
-      {
-         log.debug("The WSS4JInInterceptor configuration file could not be found. No WSS4JInInterceptor will be added to the wsrp consumer.");
-      }
-
-      return inInterceptorProperties;
-   }
-
-   protected Map<String, Object> getWSS4JOutInterceptorProperties()
-   {
-      String wss4jOutInterceptorConfigPath = Utils.CONSUMER_CONF_DIR_NAME + File.separator + Utils.WSS4J_OUTINTERCEPTOR_PROPERTY_FILE;
-      Map<String, Object> outInterceptorProperties = Utils.getCXFConfigProperties(wss4jOutInterceptorConfigPath);
-
-      if (outInterceptorProperties == null)
-      {
-         log.debug("The WSS4JOutInterceptor configuration file could not be found. No WSS4JOutInterceptor will be added to the wsrp consumer.");
-      }
-
-      return outInterceptorProperties;
    }
 
    /**
