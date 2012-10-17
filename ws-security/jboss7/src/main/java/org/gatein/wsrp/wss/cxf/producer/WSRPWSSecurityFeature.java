@@ -27,7 +27,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
-import org.gatein.wsrp.wss.cxf.Utils;
+import org.gatein.wsrp.wss.cxf.WSSConfiguration;
 import org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +52,9 @@ public class WSRPWSSecurityFeature extends AbstractFeature
    @Override
    public void initialize(Server server, Bus bus)
    {
-      Map<String, Object> inPropertyMap = Utils.getWSS4JInterceptorConfiguration(false, true);
-      Map<String, Object> outPropertyMap = Utils.getWSS4JInterceptorConfiguration(false, false);
-      Map<String, Object> sciPropertyMap = Utils.getCXFConfiguration(false, GTN_SCI_INTERCEPTOR_CONFIG_FILE, "GTNSubjectCreatingInterceptor");
+      Map<String, Object> inPropertyMap = WSSConfiguration.getWSS4JInterceptorConfiguration(false, true);
+      Map<String, Object> outPropertyMap = WSSConfiguration.getWSS4JInterceptorConfiguration(false, false);
+      Map<String, Object> sciPropertyMap = WSSConfiguration.getCXFConfiguration(false, GTN_SCI_INTERCEPTOR_CONFIG_FILE, "GTNSubjectCreatingInterceptor");
 
       if (sciPropertyMap != null)
       {

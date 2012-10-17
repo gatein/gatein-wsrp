@@ -31,7 +31,7 @@ import org.gatein.wci.security.Credentials;
 import org.gatein.wsrp.PortCustomizer;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
-import org.gatein.wsrp.wss.cxf.Utils;
+import org.gatein.wsrp.wss.cxf.WSSConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ public class CXFPortCustomizer implements PortCustomizer
 
       Client client = ClientProxy.getClient(service);
 
-      Map<String, Object> inPropertyMap = Utils.getWSS4JInterceptorConfiguration(true, true);
-      Map<String, Object> outPropertyMap = Utils.getWSS4JInterceptorConfiguration(true, false);
+      Map<String, Object> inPropertyMap = WSSConfiguration.getWSS4JInterceptorConfiguration(true, true);
+      Map<String, Object> outPropertyMap = WSSConfiguration.getWSS4JInterceptorConfiguration(true, false);
 
       if (inPropertyMap != null && handleSpecialProperties(inPropertyMap))
       {

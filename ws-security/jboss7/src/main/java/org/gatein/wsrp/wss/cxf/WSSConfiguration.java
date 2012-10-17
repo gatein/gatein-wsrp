@@ -35,10 +35,10 @@ import java.util.Properties;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class Utils
+public class WSSConfiguration
 {
 
-   private static Logger log = LoggerFactory.getLogger(Utils.class);
+   private static Logger log = LoggerFactory.getLogger(WSSConfiguration.class);
 
    public static final String WS_SECURITY_CONF_DIR_NAME = "ws-security";
    public static final String CONSUMER_CONF_DIR_NAME = "consumer";
