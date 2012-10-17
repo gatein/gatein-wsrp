@@ -22,11 +22,12 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
-      <version>2.2.0.CR01-SNAPSHOT</version>
+      <version>2.2.0.Beta09-SNAPSHOT</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
@@ -57,12 +58,12 @@
                      <attach>false</attach>
                      <outputDirectory>${project.build.directory}/test-archives</outputDirectory>
                      <archiverConfig>
-                       <appxml>src/test/producer-ear/META-INF/application.xml</appxml>
+                        <appxml>src/test/producer-ear/META-INF/application.xml</appxml>
                      </archiverConfig>
                      <archive>
-                       <manifestEntries>
-                         <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc</Dependencies>
-                       </manifestEntries>
+                        <manifestEntries>
+                           <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc</Dependencies>
+                        </manifestEntries>
                      </archive>
                      <descriptors>
                         <descriptor>src/test/assembly/test-producer.xml</descriptor>
@@ -114,12 +115,12 @@
                         </configuration>
                      </execution>
                      <execution>
-                         <id>unpack-as7</id>
-                         <goals>
+                        <id>unpack-as7</id>
+                        <goals>
                            <goal>unpack</goal>
-                         </goals>
-                         <phase>process-test-sources</phase>
-                         <configuration>
+                        </goals>
+                        <phase>process-test-sources</phase>
+                        <configuration>
                            <artifactItems>
                               <artifactItem>
                                  <groupId>org.jboss.as</groupId>
@@ -128,28 +129,28 @@
                                  <outputDirectory>${project.build.directory}/servers</outputDirectory>
                               </artifactItem>
                            </artifactItems>
-                         </configuration>
+                        </configuration>
                      </execution>
                   </executions>
                </plugin>
                <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
+                  <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-resources-plugin</artifactId>
                   <version>2.6</version>
                   <executions>
                      <execution>
                         <id>configure-AS</id>
                         <goals>
-                          <goal>copy-resources</goal>
+                           <goal>copy-resources</goal>
                         </goals>
                         <phase>process-test-resources</phase>
                         <configuration>
-                          <outputDirectory>${project.build.directory}/servers/jboss-as-${jbossas.version}</outputDirectory>
-                          <resources>
-                            <resource>
-                              <directory>src/test/jboss</directory>
-                            </resource>
-                          </resources>
+                           <outputDirectory>${project.build.directory}/servers/jboss-as-${jbossas.version}</outputDirectory>
+                           <resources>
+                              <resource>
+                                 <directory>src/test/jboss</directory>
+                              </resource>
+                           </resources>
                         </configuration>
                      </execution>
                   </executions>
@@ -169,7 +170,7 @@
             </dependency>
             <dependency>
                <groupId>org.jboss.as</groupId>
-               <artifactId>jboss-as-arquillian-container-managed</artifactId> 
+               <artifactId>jboss-as-arquillian-container-managed</artifactId>
                <version>${jbossas.version}</version>
                <scope>test</scope>
             </dependency>
@@ -193,7 +194,7 @@
          <artifactId>wsrp-wsrp2-ws</artifactId>
          <scope>provided</scope>
       </dependency>
- 
+
       <!-- CXF Dependencies for service class annotations. -->
       <dependency>
          <groupId>org.apache.cxf</groupId>
@@ -203,9 +204,9 @@
 
       <!-- test dependencies -->
       <dependency>
-        <groupId>org.gatein.wsrp</groupId>
-        <artifactId>test-framework</artifactId>
-        <scope>test</scope>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>test-framework</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.protocol</groupId>
@@ -213,15 +214,17 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <scope>test</scope>
-        <version>4.10</version> <!--TODO: move version to parent pom -->
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+         <version>4.10</version>
+         <!--TODO: move version to parent pom -->
       </dependency>
       <dependency>
          <groupId>org.mockito</groupId>
          <artifactId>mockito-core</artifactId>
-         <version>${org.mockito.version}</version> <!--TODO: move version to parent pom -->
+         <version>${org.mockito.version}</version>
+         <!--TODO: move version to parent pom -->
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -230,14 +233,14 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <scope>test</scope>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-simple</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.jboss.shrinkwrap.resolver</groupId>
-        <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-        <scope>test</scope>
+         <groupId>org.jboss.shrinkwrap.resolver</groupId>
+         <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.gatein.pc</groupId>
@@ -255,21 +258,23 @@
          <groupId>javax.ccpp</groupId>
          <artifactId>ccpp</artifactId>
          <scope>test</scope>
-         <version>1.0</version> <!--TODO: move version to parent pom -->
+         <version>1.0</version>
+         <!--TODO: move version to parent pom -->
       </dependency>
 
       <dependency>
          <groupId>org.jboss.web</groupId>
          <artifactId>jbossweb</artifactId>
          <scope>test</scope>
-         <version>7.0.16.Final</version> <!-- TODO: figure out this dependency issue -->
+         <version>7.0.16.Final</version>
+         <!-- TODO: figure out this dependency issue -->
       </dependency>
 
       <dependency>
-        <groupId>org.gatein.wci</groupId>
-        <artifactId>wci-jboss7</artifactId>
-        <version>${org.gatein.wci.version}</version>
-        <scope>test</scope>
+         <groupId>org.gatein.wci</groupId>
+         <artifactId>wci-jboss7</artifactId>
+         <version>${org.gatein.wci.version}</version>
+         <scope>test</scope>
       </dependency>
 
    </dependencies>
@@ -282,7 +287,7 @@
             <configuration>
                <archive>
                   <manifestEntries>
-                    <Dependencies>org.apache.cxf</Dependencies>
+                     <Dependencies>org.apache.cxf</Dependencies>
                   </manifestEntries>
                </archive>
             </configuration>
@@ -290,8 +295,8 @@
          <plugin>
             <artifactId>maven-jar-plugin</artifactId>
             <configuration>
-              <finalName>producer</finalName>
-              <outputDirectory>target/test-archives</outputDirectory>
+               <finalName>producer</finalName>
+               <outputDirectory>target/test-archives</outputDirectory>
             </configuration>
             <executions>
                <execution>
@@ -306,9 +311,9 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <systemPropertyVariables>
-                <JBOSS_HOME>${project.build.directory}/servers/jboss-as-${jbossas.version}</JBOSS_HOME>
-              </systemPropertyVariables>
+               <systemPropertyVariables>
+                  <JBOSS_HOME>${project.build.directory}/servers/jboss-as-${jbossas.version}</JBOSS_HOME>
+               </systemPropertyVariables>
             </configuration>
          </plugin>
       </plugins>
