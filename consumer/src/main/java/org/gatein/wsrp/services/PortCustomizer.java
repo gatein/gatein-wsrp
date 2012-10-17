@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
-package org.gatein.wsrp;
+package org.gatein.wsrp.services;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -28,6 +28,8 @@ package org.gatein.wsrp;
  */
 public interface PortCustomizer
 {
-   public void customizePort(Object service);
+   void customizePort(Object service);
+
+   boolean isWSSFocused();
 }
 

@@ -22,7 +22,7 @@
  ******************************************************************************/
 package org.wsrp.wss.jboss5.handlers.consumer;
 
-import org.gatein.wsrp.PortCustomizer;
+import org.gatein.wsrp.services.PortCustomizer;
 import org.jboss.ws.core.StubExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +48,12 @@ public class JBWSPortCustomizer implements PortCustomizer
       {
          log.warn("Service not an instance of StubExt, cannot customize the port for WS-Security.");
       }
+   }
+
+   @Override
+   public boolean isWSSFocused()
+   {
+      return true;
    }
 
 }

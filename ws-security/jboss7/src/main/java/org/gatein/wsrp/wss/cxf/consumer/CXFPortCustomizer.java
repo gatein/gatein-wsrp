@@ -28,7 +28,7 @@ import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.gatein.wci.security.Credentials;
-import org.gatein.wsrp.PortCustomizer;
+import org.gatein.wsrp.services.PortCustomizer;
 import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.gatein.wsrp.wss.cxf.WSSConfiguration;
@@ -70,6 +70,12 @@ public class CXFPortCustomizer implements PortCustomizer
          WSS4JOutInterceptor outInterceptor = new WSS4JOutInterceptor(outPropertyMap);
          client.getOutInterceptors().add(outInterceptor);
       }
+   }
+
+   @Override
+   public boolean isWSSFocused()
+   {
+      return true;
    }
 
    /**

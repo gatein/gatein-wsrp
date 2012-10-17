@@ -22,11 +22,7 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss;
 
-import org.gatein.wsrp.PortCustomizer;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -35,7 +31,6 @@ import java.util.List;
 public class WebServiceSecurityFactory
 {
    public static final WebServiceSecurityFactory instance = new WebServiceSecurityFactory();
-   public List<PortCustomizer> portCustomizers;
    private CredentialsAccessor credentialsAccessor;
 
    private WebServiceSecurityFactory()
@@ -56,29 +51,5 @@ public class WebServiceSecurityFactory
    {
       return credentialsAccessor;
    }
-
-   public void addPortCustomizer(PortCustomizer listener)
-   {
-      if (this.portCustomizers == null)
-      {
-         portCustomizers = new ArrayList<PortCustomizer>();
-      }
-      portCustomizers.add(listener);
-   }
-
-   public void removePortCustomizer(PortCustomizer listener)
-   {
-      if (portCustomizers != null)
-      {
-         portCustomizers.remove(listener);
-      }
-   }
-
-   public List<PortCustomizer> getPortCustomizers()
-   {
-      return portCustomizers;
-   }
-
-
 }
 

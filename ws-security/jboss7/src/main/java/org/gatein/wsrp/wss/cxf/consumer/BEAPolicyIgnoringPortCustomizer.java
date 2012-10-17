@@ -32,7 +32,7 @@ import org.apache.cxf.ws.policy.AbstractPolicyInterceptorProvider;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry;
-import org.gatein.wsrp.PortCustomizer;
+import org.gatein.wsrp.services.PortCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +76,12 @@ public class BEAPolicyIgnoringPortCustomizer implements PortCustomizer
          final PolicyInterceptorProviderRegistry providerRegistry = client.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
          providerRegistry.register(IGNORABLE_POLICY_INTERCEPTOR_PROVIDER);
       }
+   }
+
+   @Override
+   public boolean isWSSFocused()
+   {
+      return false;
    }
 
    /** This policy interceptor provider can be used to implicitly handle unknown policy assertions. */

@@ -25,7 +25,6 @@ package org.gatein.wsrp.services;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Version;
-import org.gatein.wsrp.PortCustomizer;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.services.v1.V1MarkupService;
 import org.gatein.wsrp.services.v1.V1PortletManagementService;
@@ -35,7 +34,6 @@ import org.gatein.wsrp.services.v2.V2MarkupService;
 import org.gatein.wsrp.services.v2.V2PortletManagementService;
 import org.gatein.wsrp.services.v2.V2RegistrationService;
 import org.gatein.wsrp.services.v2.V2ServiceDescriptionService;
-import org.gatein.wsrp.wss.WebServiceSecurityFactory;
 import org.oasis.wsrp.v1.WSRPV1MarkupPortType;
 import org.oasis.wsrp.v1.WSRPV1PortletManagementPortType;
 import org.oasis.wsrp.v1.WSRPV1RegistrationPortType;
@@ -111,7 +109,21 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    private <T> T customizePort(Class<T> expectedServiceInterface, Object service, String portAddress)
    {
-      configureWSS(service);
+      PortCustomizerRegistry registry = PortCustomizerRegistry.getInstance();
+      final Iterable<PortCustomizer> customizers = registry.getPortCustomizers();
+      for (PortCustomizer customizer : customizers)
+      {
+         // only add WSS focused customizer if WSS is enabled
+         if (wssEnabled && customizer.isWSSFocused())
+         {
+            customizer.customizePort(service);
+         }
+         else
+         {
+            customizer.customizePort(service);
+         }
+      }
+
       BindingProvider bindingProvider = (BindingProvider)service;
       Map<String, Object> requestContext = bindingProvider.getRequestContext();
 
@@ -516,31 +528,8 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public boolean isWSSAvailable()
    {
-      WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-      return wssFactory != null && wssFactory.getPortCustomizers() != null && !wssFactory.getPortCustomizers().isEmpty();
-   }
-
-   protected void configureWSS(Object service)
-   {
-      if (wssEnabled)
-      {
-         WebServiceSecurityFactory wssFactory = WebServiceSecurityFactory.getInstance();
-         if (wssFactory.getPortCustomizers() != null)
-         {
-            for (PortCustomizer listener : wssFactory.getPortCustomizers())
-            {
-               listener.customizePort(service);
-            }
-         }
-         else
-         {
-            log.debug("WSS enabled, but no CustomizePortListeners provided. WSS will not be able to work properly.");
-         }
-      }
-      else
-      {
-         log.debug("WSS disabled");
-      }
+      PortCustomizerRegistry registry = PortCustomizerRegistry.getInstance();
+      return registry != null && registry.hasWSSFocusedCustomizers();
    }
 
    protected static class WSDLInfo
