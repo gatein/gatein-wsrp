@@ -21,7 +21,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-wss-parent</artifactId>
@@ -36,6 +37,11 @@
       <dependency>
          <groupId>org.gatein.wsrp</groupId>
          <artifactId>wsrp-cxf-integration</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.gatein.wsrp</groupId>
+         <artifactId>wsrp-common</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
@@ -57,6 +63,154 @@
             <exclusion>
                <groupId>org.jboss.jaxr</groupId>
                <artifactId>juddi-service</artifactId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jbossws-cxf-client</artifactId>
+               <groupId>org.jboss.ws.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-tools-java2ws</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-tools-wsdlto-core</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-xjc-boolean</artifactId>
+               <groupId>org.apache.cxf.xjcplugins</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-xjc-dv</artifactId>
+               <groupId>org.apache.cxf.xjcplugins</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-xjc-ts</artifactId>
+               <groupId>org.apache.cxf.xjcplugins</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>velocity</artifactId>
+               <groupId>org.apache.velocity</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>velocity</artifactId>
+               <groupId>org.apache.velocity</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-jaxrpc-api_1.1_spec</artifactId>
+               <groupId>org.jboss.spec.javax.xml.rpc</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>stax-api</artifactId>
+               <groupId>javax.xml.stream</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jaxb-impl</artifactId>
+               <groupId>com.sun.xml.bind</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-jaxb-api_2.2_spec</artifactId>
+               <groupId>org.jboss.spec.javax.xml.bind</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>commons-collections</artifactId>
+               <groupId>commons-collections</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>commons-lang</artifactId>
+               <groupId>commons-lang</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>xmlsec</artifactId>
+               <groupId>org.apache.santuario</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>wstx-lgpl</artifactId>
+               <groupId>org.codehaus.woodstox</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>asm</artifactId>
+               <groupId>asm</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jsr181-api</artifactId>
+               <groupId>javax.jws</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jaxb-xjc</artifactId>
+               <groupId>com.sun.xml.bind</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-saaj-api_1.3_spec</artifactId>
+               <groupId>org.jboss.spec.javax.xml.soap</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-jms-api_1.1_spec</artifactId>
+               <groupId>org.jboss.spec.javax.jms</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+               <groupId>org.jboss.spec.javax.ejb</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+               <groupId>org.jboss.spec.javax.servlet</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jbossws-common</artifactId>
+               <groupId>org.jboss.ws</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jbossws-spi</artifactId>
+               <groupId>org.jboss.ws</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jbossws-cxf-factories</artifactId>
+               <groupId>org.jboss.ws.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-bindings-http</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-bindings-object</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-bindings-coloc</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-management</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-transports-http</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-transports-jms</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-transports-local</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-ws-rm</artifactId>
+               <groupId>org.apache.cxf</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>cxf-rt-ws-policy</artifactId>
+               <groupId>org.apache.cxf</groupId>
             </exclusion>
          </exclusions>
       </dependency>
