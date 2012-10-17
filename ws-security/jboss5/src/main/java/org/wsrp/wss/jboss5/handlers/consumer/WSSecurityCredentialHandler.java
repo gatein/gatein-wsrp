@@ -23,7 +23,7 @@
 package org.wsrp.wss.jboss5.handlers.consumer;
 
 import org.gatein.wci.security.Credentials;
-import org.gatein.wsrp.wss.WebServiceSecurityFactory;
+import org.gatein.wsrp.wss.CredentialsAccess;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.jboss.ws.core.CommonMessageContext;
 import org.wsrp.wss.jboss5.handlers.AbstractWSSecurityCredentialHandler;
@@ -47,7 +47,7 @@ public class WSSecurityCredentialHandler extends AbstractWSSecurityCredentialHan
 
          CommonMessageContext ctx = (CommonMessageContext)soapMessageContext;
 
-         CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
+         CredentialsAccessor credentialsAccessor = CredentialsAccess.getInstance().getCredentialsAccessor();
 
          if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
          {

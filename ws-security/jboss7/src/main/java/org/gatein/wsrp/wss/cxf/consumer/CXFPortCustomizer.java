@@ -29,7 +29,7 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.gatein.wci.security.Credentials;
 import org.gatein.wsrp.services.PortCustomizer;
-import org.gatein.wsrp.wss.WebServiceSecurityFactory;
+import org.gatein.wsrp.wss.CredentialsAccess;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.gatein.wsrp.wss.cxf.WSSConfiguration;
 import org.slf4j.Logger;
@@ -93,7 +93,7 @@ public class CXFPortCustomizer implements PortCustomizer
    {
       if (propertyMap.containsKey(WSHandlerConstants.USER) && propertyMap.get(WSHandlerConstants.USER).equals(GTN_CURRENT_USER))
       {
-         CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
+         CredentialsAccessor credentialsAccessor = CredentialsAccess.getInstance().getCredentialsAccessor();
          if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
          {
             Credentials credentials = credentialsAccessor.getCredentials();

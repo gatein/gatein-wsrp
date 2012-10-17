@@ -24,7 +24,7 @@ package org.gatein.wsrp.wss.cxf.consumer;
 
 import org.apache.ws.security.WSPasswordCallback;
 import org.gatein.wci.security.Credentials;
-import org.gatein.wsrp.wss.WebServiceSecurityFactory;
+import org.gatein.wsrp.wss.CredentialsAccess;
 import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class CurrentUserPasswordCallback implements CallbackHandler
             //This callback is only for Username Tokens, not for authentication/signing of the soap message
             if (wspasswordCallBack.getUsage() == (WSPasswordCallback.USERNAME_TOKEN))
             {
-               CredentialsAccessor credentialsAccessor = WebServiceSecurityFactory.getInstance().getCredentialsAccessor();
+               CredentialsAccessor credentialsAccessor = CredentialsAccess.getInstance().getCredentialsAccessor();
 
                if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
                {

@@ -28,16 +28,16 @@ import org.gatein.wsrp.wss.credentials.CredentialsAccessor;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class WebServiceSecurityFactory
+public class CredentialsAccess
 {
-   public static final WebServiceSecurityFactory instance = new WebServiceSecurityFactory();
+   public static final CredentialsAccess instance = new CredentialsAccess();
    private CredentialsAccessor credentialsAccessor;
 
-   private WebServiceSecurityFactory()
+   private CredentialsAccess()
    {
    }
 
-   public static WebServiceSecurityFactory getInstance()
+   public static CredentialsAccess getInstance()
    {
       return instance;
    }
