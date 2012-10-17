@@ -55,7 +55,7 @@ public abstract class AbstractJBWSSecurityHandlerWrapper extends WSSecurityHandl
       if (configFile == null)
       {
          String gateInConfDirectory = System.getProperty(GATEIN_CONF_DIR);
-         configFile = gateInConfDirectory + File.separator + getDefaultConfigFileName();
+         configFile = gateInConfDirectory + File.pathSeparatorChar + getDefaultConfigFileName();
       }
 
       File file = new File(configFile);

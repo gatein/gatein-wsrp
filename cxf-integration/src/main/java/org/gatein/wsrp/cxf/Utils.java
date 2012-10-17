@@ -30,34 +30,28 @@ import java.io.File;
  */
 public class Utils
 {
-   /**
-    * System property to specify location of wsrp configuration files
-    */
+   /** System property to specify location of wsrp configuration files */
    public static final String GATEIN_WSRP_CONF_DIR = "gatein.wsrp.conf.dir";
 
-   /**
-    * System property to specify location of gatein configuration files
-    */
+   /** System property to specify location of gatein configuration files */
    public static final String GATEIN_CONF_DIR = "gatein.conf.dir";
-   
-   /**
-    * Default names for the cxf configuration directory
-    */
+
+   /** Default names for the cxf configuration directory */
    public static final String DEFAULT_WSRP_CONF_DIR_NAME = "wsrp";
    public static final String DEFAULT_WSRP_CXF_CONF_DIR_NAME = "cxf";
-   
+
    public static String getWSRPCXFConfigDirectory()
    {
       String gateinWSRPConfDir = System.getProperty(GATEIN_WSRP_CONF_DIR);
-      
+
       if (gateinWSRPConfDir == null)
       {
          String gateinConfDir = System.getProperty(GATEIN_CONF_DIR);
-         gateinWSRPConfDir = gateinConfDir + File.separator + DEFAULT_WSRP_CONF_DIR_NAME;
+         gateinWSRPConfDir = gateinConfDir + File.pathSeparatorChar + DEFAULT_WSRP_CONF_DIR_NAME;
       }
-      
-      String wsrpCXFConfDir = gateinWSRPConfDir + File.separator + DEFAULT_WSRP_CXF_CONF_DIR_NAME;
-      
+
+      String wsrpCXFConfDir = gateinWSRPConfDir + File.pathSeparatorChar + DEFAULT_WSRP_CXF_CONF_DIR_NAME;
+
       return wsrpCXFConfDir;
    }
 }

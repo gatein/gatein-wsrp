@@ -22,6 +22,10 @@
  ******************************************************************************/
 package org.gatein.wsrp.cxf;
 
+import org.apache.cxf.feature.AbstractFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,18 +33,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.feature.AbstractFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The role of this class is to provide a means to add a list of features to wsrp-service classes at
  * runtime since cxf lacks a means of externally configuring these classes outside of using spring.
- * 
+ * <p/>
  * This class with look for a specific property file located in the configuration directory with a list
  * of feature classes. It will then use reflection to create these classes. The WSRPEndpointFeature will
  * call these classes, if any are configured, when ever its own feature methods are called.
- * 
+ *
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
@@ -57,16 +57,16 @@ public class FeatureIntegratorFactory
    public FeatureIntegratorFactory()
    {
       try
-      {  
+      {
          String wsrpCXFConfDir = Utils.getWSRPCXFConfigDirectory();
 
-         File featuresPropertyFile = new File(wsrpCXFConfDir + File.separator + DEFAULT_CXF_FEATURES_CONFIG_FILE_NAME);
+         File featuresPropertyFile = new File(wsrpCXFConfDir + File.pathSeparatorChar + DEFAULT_CXF_FEATURES_CONFIG_FILE_NAME);
 
          if (featuresPropertyFile.exists())
          {
             FileInputStream fileInStream = new FileInputStream(featuresPropertyFile);
             BufferedReader reader = new BufferedReader(new InputStreamReader(fileInStream));
-            
+
             String featureClassName = reader.readLine();
             while (featureClassName != null)
             {
@@ -79,7 +79,7 @@ public class FeatureIntegratorFactory
                   {
                      features.add(feature);
                   }
-               }  
+               }
                featureClassName = reader.readLine();
             }
             reader.close();
@@ -97,7 +97,7 @@ public class FeatureIntegratorFactory
 
    /**
     * Returns an instance of the FeatureIntegratorFactory
-    * 
+    *
     * @return The FeatureIntegratorFactory instance
     */
    public static FeatureIntegratorFactory getInstance()
@@ -107,7 +107,7 @@ public class FeatureIntegratorFactory
 
    /**
     * Returns the features
-    * 
+    *
     * @return The features
     */
    public List<AbstractFeature> getFeatures()
@@ -117,19 +117,19 @@ public class FeatureIntegratorFactory
 
    /**
     * Constructs an AbstractFeature class based on the passed classname.
-    * 
+    * <p/>
     * Note: the AbstractFeature must have an empty constructor.
-    * 
+    *
     * @param className The class to create
     * @return The constructed AbstractFeature
     */
-   protected AbstractFeature createFeature (String className)
+   protected AbstractFeature createFeature(String className)
    {
       try
       {
          Class clazz = Class.forName(className);
          Object object = clazz.getConstructor().newInstance();
-         
+
          if (object instanceof AbstractFeature)
          {
             return (AbstractFeature)object;
@@ -143,8 +143,8 @@ public class FeatureIntegratorFactory
       {
          log.error("Error try to create class " + className + " listed in the the feature file. This entry will be ignored.", e);
       }
-      
+
       return null;
    }
-   
+
 }
