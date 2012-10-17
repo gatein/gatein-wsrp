@@ -28,8 +28,10 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.ws.policy.AbstractPolicyInterceptorProvider;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry;
 import org.gatein.wsrp.PortCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +45,9 @@ public class BEAPolicyIgnoringPortCustomizer implements PortCustomizer
    private final static Logger log = LoggerFactory.getLogger(BEAPolicyIgnoringPortCustomizer.class);
 
    public static final String IGNORE_BEA_POLICY_PROPERTY_NAME = "org.gatein.wsrp.consumer.ignoreDefaultBEAPolicy";
-   public static final IgnorableAssertionsInterceptor IGNORABLE_ASSERTIONS_INTERCEPTOR = new IgnorableAssertionsInterceptor();
+   private static final QName BEA_DEFAULT_POLICY = new QName("http://www.bea.com/wls90/security/policy", "Identity");
+   private static final IgnorableAssertionsInterceptor IGNORABLE_ASSERTIONS_INTERCEPTOR = new IgnorableAssertionsInterceptor();
+   private static final IgnorablePolicyInterceptorProvider IGNORABLE_POLICY_INTERCEPTOR_PROVIDER = new IgnorablePolicyInterceptorProvider();
    private static boolean ignore = true;
 
    public BEAPolicyIgnoringPortCustomizer()
@@ -67,15 +71,29 @@ public class BEAPolicyIgnoringPortCustomizer implements PortCustomizer
          log.debug("Injecting interceptor to ignore BEA WebLogic 10's default WS-Policy.");
 
          Client client = ClientProxy.getClient(service);
-         // Fix for BEA policies
-         client.getOutInterceptors().add(IGNORABLE_ASSERTIONS_INTERCEPTOR);
+
+         // CXF needs Policy interceptors to be provided by a provider otherwise it will be ignored
+         final PolicyInterceptorProviderRegistry providerRegistry = client.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
+         providerRegistry.register(IGNORABLE_POLICY_INTERCEPTOR_PROVIDER);
+      }
+   }
+
+   /** This policy interceptor provider can be used to implicitly handle unknown policy assertions. */
+   private static class IgnorablePolicyInterceptorProvider extends AbstractPolicyInterceptorProvider
+   {
+      public IgnorablePolicyInterceptorProvider()
+      {
+         super(BEA_DEFAULT_POLICY);
+
+         getInInterceptors().add(IGNORABLE_ASSERTIONS_INTERCEPTOR);
+         getOutInterceptors().add(IGNORABLE_ASSERTIONS_INTERCEPTOR);
+         getInFaultInterceptors().add(IGNORABLE_ASSERTIONS_INTERCEPTOR);
+         getOutFaultInterceptors().add(IGNORABLE_ASSERTIONS_INTERCEPTOR);
       }
    }
 
    private static class IgnorableAssertionsInterceptor extends AbstractPhaseInterceptor<Message>
    {
-      private final static QName BEA_DEFAULT_POLICY = new QName("http://www.bea.com/wls90/security/policy", "ProducerDefaultPolicy");
-
       public IgnorableAssertionsInterceptor()
       {
          // somewhat irrelevant
