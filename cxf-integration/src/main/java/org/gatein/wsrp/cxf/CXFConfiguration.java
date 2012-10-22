@@ -56,10 +56,5 @@ public class CXFConfiguration
 
       GATEIN_WSRP_CXF_CONF_DIR = new File(gateinWSRPConfDir, DEFAULT_WSRP_CXF_CONF_DIR_NAME);
    }
-
-   public static File getWSRPCXFConfigDirectory()
-   {
-      return GATEIN_WSRP_CXF_CONF_DIR;
-   }
 }
 
