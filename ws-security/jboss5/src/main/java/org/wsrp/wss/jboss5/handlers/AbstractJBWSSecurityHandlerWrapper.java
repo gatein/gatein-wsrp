@@ -51,23 +51,27 @@ public abstract class AbstractJBWSSecurityHandlerWrapper extends WSSecurityHandl
    @Override
    protected String getConfigResourceName()
    {
-      String configFile = System.getProperty(getConfigPropertyName());
-      if (configFile == null)
+      File configFile;
+      String configFileName = System.getProperty(getConfigPropertyName());
+      if (configFileName == null)
       {
          String gateInConfDirectory = System.getProperty(GATEIN_CONF_DIR);
-         configFile = gateInConfDirectory + File.pathSeparatorChar + getDefaultConfigFileName();
+         configFile = new File(gateInConfDirectory, getDefaultConfigFileName());
+      }
+      else
+      {
+         configFile = new File(configFileName);
       }
 
-      File file = new File(configFile);
-      if (file.exists())
+      if (configFile.exists())
       {
          try
          {
-            return file.toURI().toURL().toString();
+            return configFile.toURI().toURL().toString();
          }
          catch (MalformedURLException e)
          {
-            log.warn("Couldn't retrieve GateIn's WS Security " + getHandlerType() + " configuration file : " + configFile, e);
+            log.warn("Couldn't retrieve GateIn's WS Security " + getHandlerType() + " configuration file : " + configFileName, e);
          }
       }
       else

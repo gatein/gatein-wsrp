@@ -22,6 +22,7 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf;
 
+import org.gatein.wsrp.cxf.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,8 @@ public class WSSConfiguration
    public static final String WSS4J_ININTERCEPTOR_PROPERTY_FILE = "WSS4JInInterceptor.properties";
    public static final String WSS4J_OUTINTERCEPTOR_PROPERTY_FILE = "WSS4JOutInterceptor.properties";
 
+   private static final File CXF_WSS_CONFIG_DIR = new File(Utils.getWSRPCXFConfigDirectory(), WS_SECURITY_CONF_DIR_NAME);
+
    public static Map<String, Object> getWSS4JInterceptorConfiguration(boolean consumer, boolean in)
    {
       return getCXFConfiguration(consumer, (in ? WSS4J_ININTERCEPTOR_PROPERTY_FILE : WSS4J_OUTINTERCEPTOR_PROPERTY_FILE), (in ? "In" : "Out"));
@@ -54,13 +57,12 @@ public class WSSConfiguration
 
    public static Map<String, Object> getCXFConfiguration(boolean consumer, String fileName, String interceptorName)
    {
-      String path = (consumer ? CONSUMER_CONF_DIR_NAME : PRODUCER_CONF_DIR_NAME) + File.pathSeparatorChar + fileName;
-      String interceptorPropertyFileName = getCXFWSSecurityConfigDir() + File.pathSeparatorChar + path;
+      String path = (consumer ? CONSUMER_CONF_DIR_NAME : PRODUCER_CONF_DIR_NAME) + File.separatorChar + fileName;
+      File interceptorPropertyFile = new File(CXF_WSS_CONFIG_DIR, path);
       try
       {
          Map<String, Object> outProperties = new HashMap<String, Object>();
 
-         File interceptorPropertyFile = new File(interceptorPropertyFileName);
          if (interceptorPropertyFile.exists())
          {
             Properties properties = new Properties();
@@ -72,7 +74,7 @@ public class WSSConfiguration
          }
          else
          {
-            log.debug("The interceptor property file (" + interceptorPropertyFileName + ") does not exist. No " + interceptorName + " interceptors will be added to the WSRP "
+            log.debug("The interceptor property file (" + interceptorPropertyFile + ") does not exist. No " + interceptorName + " interceptors will be added to the WSRP "
                + (consumer ? "Consumers." : "Producer."));
             return null;
          }
@@ -80,14 +82,9 @@ public class WSSConfiguration
       }
       catch (Exception e)
       {
-         log.error("Exception occurred trying to read the interceptor property file (" + interceptorPropertyFileName + ").", e);
+         log.error("Exception occurred trying to read the interceptor property file (" + interceptorPropertyFile + ").", e);
       }
       return null;
-   }
-
-   protected static String getCXFWSSecurityConfigDir()
-   {
-      return org.gatein.wsrp.cxf.Utils.getWSRPCXFConfigDirectory() + File.pathSeparatorChar + WS_SECURITY_CONF_DIR_NAME;
    }
 }
 
