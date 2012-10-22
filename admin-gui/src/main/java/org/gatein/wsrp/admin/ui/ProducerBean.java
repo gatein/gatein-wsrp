@@ -112,9 +112,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public List<RegistrationPropertyDescription> getRegistrationProperties()
    {
-      ArrayList<RegistrationPropertyDescription> propertyDescriptions = new ArrayList<RegistrationPropertyDescription>(getLocalConfiguration().getRegistrationProperties().values());
-      Collections.sort(propertyDescriptions);
-      return propertyDescriptions;
+      return getLocalConfiguration().getRegistrationProperties();
    }
 
    public boolean isRegistrationPropertiesEmpty()
@@ -365,9 +363,9 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          return registrationRequirements.getPolicy();
       }
 
-      public Map<QName, RegistrationPropertyDescription> getRegistrationProperties()
+      public List<RegistrationPropertyDescription> getRegistrationProperties()
       {
-         return registrationRequirements.getRegistrationProperties();
+         return registrationProperties;
       }
 
       public void addEmptyRegistrationProperty(String propertyName)

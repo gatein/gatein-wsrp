@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,13 +118,13 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       return lastModified;
    }
 
-   public void setRegistrationProperties(Map<QName, RegistrationPropertyDescription> regProps)
+   public void setRegistrationProperties(Collection<RegistrationPropertyDescription> regProps)
    {
-      if (!registrationProperties.equals(regProps))
+      if (!registrationProperties.values().equals(regProps))
       {
          registrationProperties.clear();
 
-         for (RegistrationPropertyDescription propertyDescription : regProps.values())
+         for (RegistrationPropertyDescription propertyDescription : regProps)
          {
             addRegistrationProperty(new RegistrationPropertyDescription(propertyDescription));
          }

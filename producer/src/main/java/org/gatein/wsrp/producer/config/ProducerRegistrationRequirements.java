@@ -30,6 +30,7 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.registration.ValueChangeListener;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,7 +119,7 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
 
    long getLastModified();
 
-   void setRegistrationProperties(Map<QName, RegistrationPropertyDescription> registrationProperties);
+   void setRegistrationProperties(Collection<RegistrationPropertyDescription> registrationProperties);
 
    String getPolicyClassName();
 

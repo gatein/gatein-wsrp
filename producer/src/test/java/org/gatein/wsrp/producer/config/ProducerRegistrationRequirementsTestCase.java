@@ -37,8 +37,9 @@ import org.gatein.wsrp.registration.PropertyDescription;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,9 +62,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       requirements.addEmptyRegistrationProperty("foo");
       requirements.addEmptyRegistrationProperty("bar");
 
-      final Map<QName, RegistrationPropertyDescription> expected = new HashMap<QName, RegistrationPropertyDescription>();
-      RegistrationPropertyDescription newFoo = new RegistrationPropertyDescription("newFoo", WSRPConstants.XSD_STRING);
-      expected.put(newFoo.getName(), newFoo);
+      final Collection<RegistrationPropertyDescription> expected = new ArrayList<RegistrationPropertyDescription>();
+      expected.add(new RegistrationPropertyDescription("newFoo", WSRPConstants.XSD_STRING));
 
       long lastModified = requirements.getLastModified();
 
@@ -120,9 +120,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
       requirements.addEmptyRegistrationProperty("foo");
 
-      final Map<QName, RegistrationPropertyDescription> expected = new HashMap<QName, RegistrationPropertyDescription>();
-      RegistrationPropertyDescription newFoo = new RegistrationPropertyDescription("foo", WSRPConstants.XSD_STRING);
-      expected.put(newFoo.getName(), newFoo);
+      final Collection<RegistrationPropertyDescription> expected = new ArrayList<RegistrationPropertyDescription>();
+      expected.add(new RegistrationPropertyDescription("foo", WSRPConstants.XSD_STRING));
 
       long lastModified = requirements.getLastModified();
 
@@ -144,7 +143,7 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       ProducerRegistrationRequirements requirements = new ProducerRegistrationRequirementsImpl();
       requirements.addEmptyRegistrationProperty("foo");
 
-      final Map<QName, RegistrationPropertyDescription> expected = Collections.emptyMap();
+      final Collection<RegistrationPropertyDescription> expected = Collections.emptyList();
 
       long lastModified = requirements.getLastModified();
 
