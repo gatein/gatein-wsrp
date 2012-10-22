@@ -58,7 +58,7 @@ public class FeatureIntegratorFactory
    {
       try
       {
-         File featuresPropertyFile = new File(Utils.getWSRPCXFConfigDirectory(), DEFAULT_CXF_FEATURES_CONFIG_FILE_NAME);
+         File featuresPropertyFile = new File(CXFConfiguration.getWSRPCXFConfigDirectory(), DEFAULT_CXF_FEATURES_CONFIG_FILE_NAME);
 
          if (featuresPropertyFile.exists())
          {

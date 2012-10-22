@@ -28,7 +28,7 @@ import java.io.File;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class Utils
+public class CXFConfiguration
 {
    /** System property to specify location of wsrp configuration files */
    private static final String GATEIN_WSRP_CONF_DIR_NAME_PROPERTY = "gatein.wsrp.conf.dir";
@@ -40,6 +40,7 @@ public class Utils
    private static final String DEFAULT_WSRP_CONF_DIR_NAME = "wsrp";
    private static final String DEFAULT_WSRP_CXF_CONF_DIR_NAME = "cxf";
 
+   /** Directory containing the CXF configuration files */
    public static final File GATEIN_WSRP_CXF_CONF_DIR;
 
    static

@@ -22,7 +22,7 @@
  ******************************************************************************/
 package org.gatein.wsrp.wss.cxf;
 
-import org.gatein.wsrp.cxf.Utils;
+import org.gatein.wsrp.cxf.CXFConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class WSSConfiguration
    public static final String WSS4J_ININTERCEPTOR_PROPERTY_FILE = "WSS4JInInterceptor.properties";
    public static final String WSS4J_OUTINTERCEPTOR_PROPERTY_FILE = "WSS4JOutInterceptor.properties";
 
-   private static final File CXF_WSS_CONFIG_DIR = new File(Utils.getWSRPCXFConfigDirectory(), WS_SECURITY_CONF_DIR_NAME);
+   private static final File CXF_WSS_CONFIG_DIR = new File(CXFConfiguration.getWSRPCXFConfigDirectory(), WS_SECURITY_CONF_DIR_NAME);
 
    public static Map<String, Object> getWSS4JInterceptorConfiguration(boolean consumer, boolean in)
    {
