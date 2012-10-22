@@ -59,7 +59,6 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private transient ProducerConfigurationService configurationService;
    private static final String PROPERTY = "property";
-   private static final String PRODUCER = "producer";
    private String selectedProp;
    private transient LocalProducerConfiguration localProducerConfiguration;
 
@@ -165,7 +164,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          log.debug("Couldn't save producer", e);
          beanContext.createErrorMessage("bean_producer_cannot_save", e.getLocalizedMessage());
       }
-      return PRODUCER;
+      return null;
    }
 
    public String reloadConfiguration()
@@ -184,19 +183,19 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          log.debug("Couldn't reload producer configuration", e);
          beanContext.createErrorMessage("bean_producer_cannot_reload", e.getLocalizedMessage());
       }
-      return PRODUCER;
+      return null;
    }
 
    public String addRegistrationProperty()
    {
       getLocalConfiguration().addEmptyRegistrationProperty(PROPERTY + System.currentTimeMillis());
-      return PRODUCER;
+      return null;
    }
 
    public String deleteRegistrationProperty()
    {
-      getLocalConfiguration().removeRegistrationProperty(selectedProp);
-      return PRODUCER;
+      getLocalConfiguration().removeRegistrationProperty(getSelectedPropertyName());
+      return "producer";
    }
 
    public void requireRegistrationListener(ValueChangeEvent event)
