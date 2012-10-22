@@ -76,9 +76,7 @@
 
                <div class="bar">
                   <h:outputText value="#{i18n.producer_config_reg_props}" style="font-weight: bold; margin-right: .3em;"/>
-                  <h:commandLink id="add-reg-prop" styleClass="ActionButton"
-                                 action="#{producer.addRegistrationProperty}"
-                                 value="#{i18n.producer_config_add_reg_prop}"/>
+                  <h:commandLink id="add-reg-prop" styleClass="ActionButton" action="#{producer.addRegistrationProperty}" value="#{i18n.producer_config_add_reg_prop}"/>
                </div>
 
 
@@ -110,8 +108,9 @@
                         <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
                         <h:commandLink id="confirm-delete" action="confirmPropDeletion"
                                        value="#{i18n.producer_config_reg_prop_remove}"
-                                       styleClass="actionDelete"
-                                       actionListener="#{producer.selectProperty}"/>
+                                       styleClass="actionDelete">
+                           <f:param name="selectedProp" value="#{property.nameAsString}"/>
+                        </h:commandLink>
                      </h:column>
                   </h:dataTable>
                </f:subview>

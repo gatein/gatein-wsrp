@@ -35,9 +35,7 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
@@ -57,9 +55,10 @@ import java.util.Map;
 public class ProducerBean extends WSRPManagedBean implements Serializable
 {
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
+   private static final String SELECTED_PROP = "selectedProp";
    private transient ProducerConfigurationService configurationService;
    private static final String PROPERTY = "property";
-   private String selectedProp;
+   private transient String selectedProp;
    private transient LocalProducerConfiguration localProducerConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
@@ -130,6 +129,12 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public String getSelectedPropertyName()
    {
+      if(selectedProp == null)
+      {
+         // get selected property from request params
+         selectedProp = beanContext.getParameter(SELECTED_PROP);
+      }
+
       return selectedProp;
    }
 
@@ -217,30 +222,6 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       setRegistrationRequiredForFullDescription((Boolean)event.getNewValue());
 
       bypassAndRedisplay();
-   }
-
-   public void selectProperty(ActionEvent event)
-   {
-      // Retrieve parent table from event
-      HtmlDataTable table = getParentDataTable((UIComponent)event.getSource());
-
-      // Get selected prop
-      RegistrationPropertyDescription prop = (RegistrationPropertyDescription)table.getRowData();
-
-      selectedProp = prop.getNameAsString();
-   }
-
-   private HtmlDataTable getParentDataTable(UIComponent component)
-   {
-      if (component == null)
-      {
-         return null;
-      }
-      if (component instanceof HtmlDataTable)
-      {
-         return (HtmlDataTable)component;
-      }
-      return getParentDataTable(component.getParent());
    }
 
    protected String getObjectTypeName()
