@@ -106,11 +106,9 @@
                      </h:column>
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
-                        <h:commandLink id="confirm-delete" action="confirmPropDeletion"
+                        <h:commandLink id="confirm-delete" action="#{producer.confirmPropDeletion(property.nameAsString)}"
                                        value="#{i18n.producer_config_reg_prop_remove}"
-                                       styleClass="actionDelete">
-                           <f:param name="selectedProp" value="#{property.nameAsString}"/>
-                        </h:commandLink>
+                                       styleClass="actionDelete"/>
                      </h:column>
                   </h:dataTable>
                </f:subview>

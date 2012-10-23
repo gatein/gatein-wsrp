@@ -36,13 +36,13 @@
          <div class="portlet-msg-body">
             <h3>
                <h:outputFormat value="#{i18n.confirm_delete_reg_property_title}">
-                  <f:param value="#{producer.selectedPropertyName}"/>
+                  <f:param value="#{sessionScope.selectedProp}"/>
                </h:outputFormat>
             </h3>
 
             <p class="portlet-msg-alert">
                <h:outputFormat value="#{i18n.confirm_delete_reg_property_message}">
-                  <f:param value="#{producer.selectedPropertyName}"/>
+                  <f:param value="#{sessionScope.selectedProp}"/>
                </h:outputFormat>
             </p>
 

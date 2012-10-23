@@ -23,13 +23,12 @@
 
 package org.gatein.wsrp.admin.ui;
 
-import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
+import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
-import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
@@ -41,7 +40,6 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,10 +54,10 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 {
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private static final String SELECTED_PROP = "selectedProp";
-   private transient ProducerConfigurationService configurationService;
    private static final String PROPERTY = "property";
+   private transient ProducerConfigurationService configurationService;
    private transient String selectedProp;
-   private transient LocalProducerConfiguration localProducerConfiguration;
+   private LocalProducerConfiguration localProducerConfiguration;
 
    public ProducerConfigurationService getConfigurationService()
    {
@@ -127,7 +125,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public String getSelectedPropertyName()
    {
-      if(selectedProp == null)
+      if (selectedProp == null)
       {
          // get selected property from request params
          selectedProp = beanContext.getParameter(SELECTED_PROP);
@@ -195,9 +193,20 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       return null;
    }
 
+   public String confirmPropDeletion(String selectedProp)
+   {
+      beanContext.replaceInSession(SELECTED_PROP, selectedProp);
+      return "confirmPropDeletion";
+   }
+
    public String deleteRegistrationProperty()
    {
-      getLocalConfiguration().removeRegistrationProperty(getSelectedPropertyName());
+      final String propertyName = beanContext.getFromSession(SELECTED_PROP, String.class);
+      if (propertyName != null)
+      {
+         getLocalConfiguration().removeRegistrationProperty(propertyName);
+      }
+      beanContext.removeFromSession(SELECTED_PROP);
       return "producer";
    }
 
@@ -276,7 +285,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public List<SelectItem> getAvailableRegistrationPolicies()
    {
-      return getSelectItemsFrom(localProducerConfiguration.getRegistrationRequirements().getAvailableRegistrationPolicies());
+      return getSelectItemsFrom(getConfiguration().getRegistrationRequirements().getAvailableRegistrationPolicies());
    }
 
    public void policyChangeListener(ValueChangeEvent event)
@@ -313,54 +322,49 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public List<SelectItem> getAvailableValidators()
    {
-      return getSelectItemsFrom(localProducerConfiguration.getRegistrationRequirements().getAvailableRegistrationPropertyValidators());
+      return getSelectItemsFrom(getConfiguration().getRegistrationRequirements().getAvailableRegistrationPropertyValidators());
    }
 
-   private static class LocalProducerConfiguration
+   private static class LocalProducerConfiguration implements Serializable
    {
       private List<RegistrationPropertyDescription> registrationProperties;
-      private ProducerRegistrationRequirements registrationRequirements;
       private boolean strictMode;
       private String policyClassName;
       private String validatorClassName;
+      private boolean registrationRequiredForFullDescription;
+      private boolean registrationRequired;
 
       public void initFrom(ProducerRegistrationRequirements registrationRequirements, boolean usingStrictMode)
       {
-         this.registrationRequirements = new ProducerRegistrationRequirementsImpl(registrationRequirements);
-
          Map<QName, RegistrationPropertyDescription> descriptions = registrationRequirements.getRegistrationProperties();
          registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
          Collections.sort(registrationProperties);
 
-         policyClassName = this.registrationRequirements.getPolicyClassName();
-         validatorClassName = getValidatorClassName();
+         policyClassName = registrationRequirements.getPolicyClassName();
+         if (isDefaultRegistrationPolicy())
+         {
+            DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(registrationRequirements.getPolicy());
+            validatorClassName = policy.getValidator().getClass().getName();
+         }
+         else
+         {
+            validatorClassName = null;
+         }
+
+         registrationRequiredForFullDescription = registrationRequirements.isRegistrationRequiredForFullDescription();
+         registrationRequired = registrationRequirements.isRegistrationRequired();
 
          this.strictMode = usingStrictMode;
       }
 
       public boolean isRegistrationRequiredForFullDescription()
       {
-         return registrationRequirements.isRegistrationRequiredForFullDescription();
+         return registrationRequiredForFullDescription;
       }
 
-      public void setRegistrationRequiredForFullDescription(boolean requireRegForFullDescription)
+      public void setRegistrationRequiredForFullDescription(boolean registrationRequiredForFullDescription)
       {
-         registrationRequirements.setRegistrationRequiredForFullDescription(requireRegForFullDescription);
-      }
-
-      public boolean isRegistrationRequired()
-      {
-         return registrationRequirements.isRegistrationRequired();
-      }
-
-      public void setRegistrationRequired(boolean requireRegistration)
-      {
-         registrationRequirements.setRegistrationRequired(requireRegistration);
-      }
-
-      public RegistrationPolicy getPolicy()
-      {
-         return registrationRequirements.getPolicy();
+         this.registrationRequiredForFullDescription = registrationRequiredForFullDescription;
       }
 
       public List<RegistrationPropertyDescription> getRegistrationProperties()
@@ -370,7 +374,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
       public void addEmptyRegistrationProperty(String propertyName)
       {
-         RegistrationPropertyDescription prop = registrationRequirements.addEmptyRegistrationProperty(propertyName);
+         RegistrationPropertyDescription prop = new RegistrationPropertyDescription(propertyName, WSRPConstants.XSD_STRING);
 
          // Search for the non-existent item
          int index = Collections.binarySearch(registrationProperties, prop);
@@ -384,14 +388,22 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
       public void removeRegistrationProperty(String propertyName)
       {
-         RegistrationPropertyDescription prop = registrationRequirements.removeRegistrationProperty(propertyName);
+         int toRemove = -1;
+         int index = 0;
+         for (RegistrationPropertyDescription property : registrationProperties)
+         {
+            if (property.getName().equals(QName.valueOf(propertyName)))
+            {
+               toRemove = index;
+               break;
+            }
+            index++;
+         }
 
-         registrationProperties.remove(prop);
-      }
-
-      public ProducerRegistrationRequirements getRegistrationRequirements()
-      {
-         return registrationRequirements;
+         if (toRemove != -1)
+         {
+            registrationProperties.remove(toRemove);
+         }
       }
 
       public boolean isUsingStrictMode()
@@ -421,25 +433,22 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
       public String getValidatorClassName()
       {
-         if (isDefaultRegistrationPolicy())
-         {
-            if (validatorClassName == null)
-            {
-               DefaultRegistrationPolicy policy = (DefaultRegistrationPolicy)RegistrationPolicyWrapper.unwrap(getPolicy());
-               validatorClassName = policy.getValidator().getClass().getName();
-            }
-
-            return validatorClassName;
-         }
-         else
-         {
-            return null;
-         }
+         return validatorClassName;
       }
 
       public void setValidatorClassName(String className)
       {
          validatorClassName = className;
+      }
+
+      public boolean isRegistrationRequired()
+      {
+         return registrationRequired;
+      }
+
+      public void setRegistrationRequired(boolean registrationRequired)
+      {
+         this.registrationRequired = registrationRequired;
       }
    }
 }
