@@ -71,7 +71,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       {
          public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
          {
-            assertEquals(expected, newRegistrationProperties);
+            assertEquals(expected.size(), newRegistrationProperties.size());
+            assertTrue(expected.containsAll(newRegistrationProperties.values()));
          }
       });
 
@@ -151,7 +152,8 @@ public class ProducerRegistrationRequirementsTestCase extends TestCase
       {
          public void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties)
          {
-            assertEquals(expected, newRegistrationProperties);
+            assertEquals(expected.size(), newRegistrationProperties.size());
+            assertTrue(expected.containsAll(newRegistrationProperties.values()));
          }
       });
 

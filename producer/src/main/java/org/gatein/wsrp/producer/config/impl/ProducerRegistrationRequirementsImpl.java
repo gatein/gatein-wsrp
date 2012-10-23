@@ -120,7 +120,9 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationProperties(Collection<RegistrationPropertyDescription> regProps)
    {
-      if (!registrationProperties.values().equals(regProps))
+      Set<RegistrationPropertyDescription> original = new HashSet<RegistrationPropertyDescription>(registrationProperties.values());
+      Set<RegistrationPropertyDescription> newProps = new HashSet<RegistrationPropertyDescription>(regProps);
+      if (!original.equals(newProps))
       {
          registrationProperties.clear();
 
