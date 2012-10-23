@@ -132,5 +132,17 @@ public class BeanContextTestCase extends TestCase
       {
          throw new UnsupportedOperationException();
       }
+
+      @Override
+      public void putInFlash(String name, Object value)
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public <T> T getFromFlash(String name, Class<T> type)
+      {
+         throw new UnsupportedOperationException();
+      }
    }
 }

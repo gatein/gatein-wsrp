@@ -298,4 +298,8 @@ public abstract class BeanContext implements Serializable
    }
 
    public abstract <T> T findBean(String name, Class<T> type);
+
+   public abstract void putInFlash(String name, Object value);
+
+   public abstract <T> T getFromFlash(String name, Class<T> type);
 }

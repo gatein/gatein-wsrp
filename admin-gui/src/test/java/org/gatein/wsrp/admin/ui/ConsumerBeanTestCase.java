@@ -169,6 +169,18 @@ public class ConsumerBeanTestCase extends TestCase
       {
          throw new NotYetImplemented();
       }
+
+      @Override
+      public void putInFlash(String name, Object value)
+      {
+         throw new NotYetImplemented();
+      }
+
+      @Override
+      public <T> T getFromFlash(String name, Class<T> type)
+      {
+         throw new NotYetImplemented();
+      }
    }
 
    private static class TestInMemoryConsumerRegistry extends InMemoryConsumerRegistry

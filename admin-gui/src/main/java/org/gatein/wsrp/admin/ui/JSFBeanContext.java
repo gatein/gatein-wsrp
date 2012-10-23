@@ -30,6 +30,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.portlet.PortletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -83,6 +84,28 @@ public class JSFBeanContext extends BeanContext implements Serializable
       if (candidate != null)
       {
          return checkObject(candidate, type, "Bean named '" + name + "' is not of type '" + type.getSimpleName() + "'");
+      }
+      else
+      {
+         return null;
+      }
+   }
+
+   @Override
+   public void putInFlash(String name, Object value)
+   {
+      final Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+      flash.put(name, value);
+   }
+
+   @Override
+   public <T> T getFromFlash(String name, Class<T> type)
+   {
+      final Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
+      final Object result = flash.get(name);
+      if (result != null)
+      {
+         return checkObject(result, type, "Flash-scoped object named '" + name + "' is not of type '" + type.getSimpleName() + "'");
       }
       else
       {
