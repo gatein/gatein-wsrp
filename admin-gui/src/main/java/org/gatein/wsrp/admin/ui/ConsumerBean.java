@@ -754,6 +754,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       catch (Exception e)
       {
          beanContext.createErrorMessageFrom(e);
+         e.printStackTrace();
          return null;
       }
    }
