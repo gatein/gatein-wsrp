@@ -60,7 +60,7 @@
             </h:column>
          </h:dataTable>
 
-         <h:commandButton id="import" action="#{consumer.importPortlets}" disabled="#{!consumer.currentExport.readyForImport}"
+         <h:commandButton id="import" action="#{consumer.importPortlets(consumer.currentExport.export.exportTime)}" disabled="#{!consumer.currentExport.readyForImport}"
                           value="#{i18n.import_import}" styleClass="ActionButton"/>
          <h:commandLink action="#{consumersMgr.configureConsumer}" id="configure" styleClass="ActionButton">
             <f:param name="id" value="#{consumer.id}"/>
