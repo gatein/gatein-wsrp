@@ -299,6 +299,13 @@ public abstract class BeanContext implements Serializable
 
    public abstract <T> T findBean(String name, Class<T> type);
 
+   /**
+    * Puts the given value in a flash scope that survives across a single request to be retrieved later via the specified name. Using a <code>null</code> value switches to a
+    * "remove" semantics where the value (if any) associated with the specified name is removed from the scope.
+    *
+    * @param name  the name with which the value can be later retrieved
+    * @param value the value to put in the scope. Using <code>null</code> removes any existing association between the specified name and value in the scope.
+    */
    public abstract void putInFlash(String name, Object value);
 
    public abstract <T> T getFromFlash(String name, Class<T> type);

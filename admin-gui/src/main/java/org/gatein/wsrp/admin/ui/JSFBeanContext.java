@@ -95,8 +95,16 @@ public class JSFBeanContext extends BeanContext implements Serializable
    public void putInFlash(String name, Object value)
    {
       final Flash flash = FacesContext.getCurrentInstance().getExternalContext().getFlash();
-      flash.setKeepMessages(true);
-      flash.put(name, value);
+      if (value != null)
+      {
+         flash.put(name, value);
+         flash.putNow(name, value);
+         flash.keep(name);
+      }
+      else
+      {
+         flash.remove(name);
+      }
    }
 
    @Override
