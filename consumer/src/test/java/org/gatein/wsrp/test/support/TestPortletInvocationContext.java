@@ -104,7 +104,7 @@ public class TestPortletInvocationContext extends AbstractPortletInvocationConte
       else //dealing with a resource
       {
          //fake setup which approximates what the actual PortletInvocationContext should be doing.
-         String url = "http://test/mock:type=resource?mock:ComponentID=foobar";
+         String url = "http://test/mock:type=resource?mock:ComponentID=foo-bar";
          ResourceURL resourceURL = ((ResourceURL)containerURL);
          
          if (urlFormat.getWantEscapeXML())

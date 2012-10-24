@@ -115,17 +115,22 @@ public class MimeResponseHandlerTestCase extends TestCase
 
       //test with &amp;
       markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&amp;wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&amp;mock:resourceID=" + resourceID + "'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo-bar&amp;mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
 
       //test with &
       markup = "<img src='wsrp_rewrite?wsrp-urlType=resource&wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif&wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar&mock:resourceID=" + resourceID + "'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo-bar&mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
 
-      //test with /x26
-      markup = "<img src='wsrp_rewrite?wsrp-urlType=resource\\x26wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest-resource-portlet%2Fgif%2Flogo.gif\\x26wsrp-requiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foobar\\x26mock:resourceID=" + resourceID + "'/>";
+      //test with /x26 and /x2D
+      markup = "<img src='wsrp_rewrite?wsrp\\x2DurlType=resource\\x26wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest\\x2Dresource\\x2Dportlet%2Fgif%2Flogo.gif\\x26wsrp\\x2DrequiresRewrite=true/wsrp_rewrite'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo\\x2Dbar\\x26mock:resourceID=" + resourceID + "'/>";
+      processMarkupAndCheck(markup, expected);
+      
+      //test with u002D and u0026
+      markup = "<img src='wsrp_rewrite?wsrp\\u002DurlType=resource\\u0026wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest\\u002Dresource\\u002Dportlet%2Fgif%2Flogo.gif\\u0026wsrp\\u002DrequiresRewrite=true/wsrp_rewrite'/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo\\u002Dbar\\u0026mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
    }
 
