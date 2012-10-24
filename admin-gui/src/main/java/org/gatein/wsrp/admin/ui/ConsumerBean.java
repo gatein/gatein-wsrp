@@ -736,7 +736,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
             beanContext.createLocalizedMessage(BeanContext.STATUS, IMPORT_SUCCESS, beanContext.getInfoSeverity(), importCount);
          }
 
-         SortedMap<QName, List<String>> errorCodesToFailedPortletHandlesMapping = info.getErrorCodesToFailedPortletHandlesMapping();
+         Map<QName, List<String>> errorCodesToFailedPortletHandlesMapping = info.getErrorCodesToFailedPortletHandlesMapping();
          if (!errorCodesToFailedPortletHandlesMapping.isEmpty())
          {
             for (Map.Entry<QName, List<String>> entry : errorCodesToFailedPortletHandlesMapping.entrySet())
@@ -979,7 +979,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
             exportedPortlets = Collections.emptyList();
          }
 
-         SortedMap<QName, List<String>> errorCodesToFailedPortletHandlesMapping = export.getErrorCodesToFailedPortletHandlesMapping();
+         Map<QName, List<String>> errorCodesToFailedPortletHandlesMapping = export.getErrorCodesToFailedPortletHandlesMapping();
          if (ParameterValidation.existsAndIsNotEmpty(errorCodesToFailedPortletHandlesMapping))
          {
             failedPortlets = new ArrayList<FailedPortletsDisplay>(errorCodesToFailedPortletHandlesMapping.size());
