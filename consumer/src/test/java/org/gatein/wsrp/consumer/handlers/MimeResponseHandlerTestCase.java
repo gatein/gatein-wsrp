@@ -128,9 +128,9 @@ public class MimeResponseHandlerTestCase extends TestCase
       expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo\\x2Dbar\\x26mock:resourceID=" + resourceID + "'/>";
       processMarkupAndCheck(markup, expected);
       
-      //test with u002D and u0026
-      markup = "<img src='wsrp_rewrite?wsrp\\u002DurlType=resource\\u0026wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest\\u002Dresource\\u002Dportlet%2Fgif%2Flogo.gif\\u0026wsrp\\u002DrequiresRewrite=true/wsrp_rewrite'/>";
-      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo\\u002Dbar\\u0026mock:resourceID=" + resourceID + "'/>";
+      //test with u002D and u0026 and \/
+      markup = "<img src='wsrp_rewrite?wsrp\\u002DurlType=resource\\u0026wsrp-url=http%3A%2F%2Flocalhost%3A8080%2Ftest\\u002Dresource\\u002Dportlet%2Fgif%2Flogo.gif\\u0026wsrp\\u002DrequiresRewrite=true/wsrp_rewrite'\\/>";
+      expected = "<img src='http://test/mock:type=resource?mock:ComponentID=foo\\u002Dbar\\u0026mock:resourceID=" + resourceID + "'\\/>";
       processMarkupAndCheck(markup, expected);
    }
 

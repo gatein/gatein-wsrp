@@ -257,6 +257,14 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          
          // NOTE: the wsrp specification only covers the situation of & and &amp; otherwise its acceptable for use to throw an error or ignore rewriting
 
+         
+         // a work around for PBR-421
+         // sometimes the /wsrp-rewrite will be escaped as \/wsrp-rewrite
+         if (match.endsWith("\\"))
+         {
+            match = match.substring(0, match.length() -1);
+         }
+         
          boolean useJavaScriptEscaping = false;
          boolean useISO_8859_1Encoding = false;
          // work around for GTNWSRP-93 && PBR-421
