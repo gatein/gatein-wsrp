@@ -112,6 +112,13 @@ public abstract class BaseChromatticPersister implements ChromatticPersister
       sessionHolder.set(null);
    }
 
+   @Override
+   public boolean isSessionClosed()
+   {
+      final ChromatticSession session = sessionHolder.get();
+      return session == null || session.isClosed();
+   }
+
    private ChromatticSession getOpenedSessionOrFail()
    {
       ChromatticSession session = sessionHolder.get();
