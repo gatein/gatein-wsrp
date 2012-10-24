@@ -251,13 +251,24 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          // we need to assume that is the correct encoding for the situation.
 
          // NOTE: there may be other encoding situations we are not currently dealing with :(
+         
+         // Since the url to be written has to be of format wsrp-urlType=[render|resource|blockingAction]&key1=value1&key2=....
+         // we should be able to extract what the '-' is being encoded as and use that as a reference to determine what the '&' is encoded as
+         
+         // NOTE: the wsrp specification only covers the situation of & and &amp; otherwise its acceptable for use to throw an error or ignore rewriting
 
          boolean useJavaScriptEscaping = false;
-         // work around for GTNWSRP-93:
+         boolean useISO_8859_1Encoding = false;
+         // work around for GTNWSRP-93 && PBR-421
          if (match.contains("\\x2D") || match.contains("\\x26"))
          {
             useJavaScriptEscaping = true;
             match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
+         }
+         else if (match.contains("\\u002D") || match.contains("\\u0026"))
+         {
+            useISO_8859_1Encoding = true;
+            match = match.replaceAll("\\\\u002D", "-").replaceAll("\\\\u0026", "&amp;");
          }
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
@@ -280,6 +291,10 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          if (useJavaScriptEscaping)
          {
             value = value.replaceAll("-", "\\\\x2D").replaceAll("&amp;", "\\\\x26");
+         }
+         else if (useISO_8859_1Encoding)
+         {
+            value = value.replaceAll("-", "\\\\u002D").replaceAll("&amp;", "\\\\u0026");
          }
 
          return value;
