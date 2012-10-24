@@ -104,7 +104,7 @@
    <managed-bean>
       <managed-bean-name>producer</managed-bean-name>
       <managed-bean-class>org.gatein.wsrp.admin.ui.ProducerBean</managed-bean-class>
-      <managed-bean-scope>session</managed-bean-scope>
+      <managed-bean-scope>view</managed-bean-scope>
       <managed-property>
          <property-name>configurationService</property-name>
          <property-class>org.gatein.wsrp.producer.config.ProducerConfigurationService</property-class>
@@ -119,11 +119,6 @@
          <property-name>cancelOutcome</property-name>
          <value>producer</value>
       </managed-property>
-   </managed-bean>
-   <managed-bean>
-      <managed-bean-name>resource</managed-bean-name>
-      <managed-bean-class>org.gatein.wsrp.admin.ui.ResourceBean</managed-bean-class>
-      <managed-bean-scope>application</managed-bean-scope>
    </managed-bean>
 
    <navigation-rule>

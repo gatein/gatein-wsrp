@@ -32,6 +32,7 @@ import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -55,9 +56,32 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    private static final String REGISTRATION_PROPERTY_TYPE = "REGISTRATION_PROPERTY_TYPE";
    private static final String SELECTED_PROP = "selectedProp";
    private static final String PROPERTY = "property";
+   private static final String CURRENT_CONFIG = "currentConfig";
    private transient ProducerConfigurationService configurationService;
-   private transient String selectedProp;
    private LocalProducerConfiguration localProducerConfiguration;
+
+   @PostConstruct
+   public void init()
+   {
+      if (localProducerConfiguration == null)
+      {
+         // try to get the local configuration from session to restore it after a property deletion for example
+         localProducerConfiguration = beanContext.getFromSession(CURRENT_CONFIG, LocalProducerConfiguration.class);
+
+         // if it's still null, load it from persistence
+         if (localProducerConfiguration == null)
+         {
+            localProducerConfiguration = new LocalProducerConfiguration();
+            ProducerConfiguration configuration = getConfiguration();
+            localProducerConfiguration.initFrom(configuration.getRegistrationRequirements(), configuration.isUsingStrictMode());
+         }
+         else
+         {
+            beanContext.removeFromSession(CURRENT_CONFIG);
+         }
+      }
+   }
+
 
    public ProducerConfigurationService getConfigurationService()
    {
@@ -123,17 +147,6 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       return Collections.singletonList(new SelectItem("xsd:string"));
    }
 
-   public String getSelectedPropertyName()
-   {
-      if (selectedProp == null)
-      {
-         // get selected property from request params
-         selectedProp = beanContext.getParameter(SELECTED_PROP);
-      }
-
-      return selectedProp;
-   }
-
    public String save()
    {
       try
@@ -196,6 +209,8 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    public String confirmPropDeletion(String selectedProp)
    {
       beanContext.replaceInSession(SELECTED_PROP, selectedProp);
+      beanContext.replaceInSession(CURRENT_CONFIG, getLocalConfiguration());
+
       return "confirmPropDeletion";
    }
 
@@ -205,6 +220,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       if (propertyName != null)
       {
          getLocalConfiguration().removeRegistrationProperty(propertyName);
+         beanContext.replaceInSession(CURRENT_CONFIG, getLocalConfiguration());
       }
       beanContext.removeFromSession(SELECTED_PROP);
       return "producer";
@@ -244,13 +260,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    private LocalProducerConfiguration getLocalConfiguration()
    {
-      if (localProducerConfiguration == null)
-      {
-         localProducerConfiguration = new LocalProducerConfiguration();
-         ProducerConfiguration configuration = getConfiguration();
-         localProducerConfiguration.initFrom(configuration.getRegistrationRequirements(), configuration.isUsingStrictMode());
-      }
-
+      init();
       return localProducerConfiguration;
    }
 
