@@ -96,6 +96,7 @@ import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -956,11 +957,11 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
                   }
                }
 
-               SortedMap<QName, List<String>> errorCodeToHandle = null;
+               Map<QName, List<String>> errorCodeToHandle = null;
                List<ImportPortletsFailed> failedPortlets = failedPortletsHolder.value;
                if (ParameterValidation.existsAndIsNotEmpty(failedPortlets))
                {
-                  errorCodeToHandle = new TreeMap<QName, List<String>>();
+                  errorCodeToHandle = new HashMap<QName, List<String>>();
                   for (ImportPortletsFailed failedPortletsForReason : failedPortlets)
                   {
                      errorCodeToHandle.put(failedPortletsForReason.getErrorCode(), failedPortletsForReason.getImportID());

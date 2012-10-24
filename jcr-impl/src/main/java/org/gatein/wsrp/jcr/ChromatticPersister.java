@@ -41,6 +41,8 @@ public interface ChromatticPersister
 
    <T> boolean delete(T toDelete, StoresByPathManager<T> manager);
 
+   boolean isSessionClosed();
+
    public static class QNameFormatter implements ObjectFormatter
    {
       private static final String OPEN_BRACE_REPLACEMENT = "-__";

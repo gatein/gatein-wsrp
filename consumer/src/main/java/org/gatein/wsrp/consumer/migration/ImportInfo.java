@@ -28,6 +28,7 @@ import org.gatein.pc.api.PortletContext;
 
 import javax.xml.namespace.QName;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -40,7 +41,7 @@ public class ImportInfo extends BaseMigrationInfo
    private final SortedMap<String, PortletContext> importIdToPortletContext;
    private static final SortedMap<String, PortletContext> EMPTY_IMPORTED = new TreeMap<String, PortletContext>();
 
-   public ImportInfo(long exportTime, SortedMap<QName, List<String>> errorCodeToHandles, SortedMap<String, PortletContext> importIdToPortletContext)
+   public ImportInfo(long exportTime, Map<QName, List<String>> errorCodeToHandles, SortedMap<String, PortletContext> importIdToPortletContext)
    {
       super(exportTime, errorCodeToHandles);
       if (ParameterValidation.existsAndIsNotEmpty(importIdToPortletContext))

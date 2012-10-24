@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -39,11 +40,11 @@ import java.util.TreeMap;
  */
 public class BaseMigrationInfo
 {
-   protected final static SortedMap<QName, List<String>> EMPTY_FAILED = new TreeMap<QName, List<String>>();
-   protected final SortedMap<QName, List<String>> errorCodeToHandles;
+   protected final static Map<QName, List<String>> EMPTY_FAILED = new TreeMap<QName, List<String>>();
+   protected final Map<QName, List<String>> errorCodeToHandles;
    protected final long exportTime;
 
-   public BaseMigrationInfo(long exportTime, SortedMap<QName, List<String>> errorCodeToHandles)
+   public BaseMigrationInfo(long exportTime, Map<QName, List<String>> errorCodeToHandles)
    {
       if (ParameterValidation.existsAndIsNotEmpty(errorCodeToHandles))
       {
@@ -56,9 +57,9 @@ public class BaseMigrationInfo
       this.exportTime = exportTime;
    }
 
-   public SortedMap<QName, List<String>> getErrorCodesToFailedPortletHandlesMapping()
+   public Map<QName, List<String>> getErrorCodesToFailedPortletHandlesMapping()
    {
-      return Collections.unmodifiableSortedMap(errorCodeToHandles);
+      return Collections.unmodifiableMap(errorCodeToHandles);
    }
 
    public long getExportTime()
