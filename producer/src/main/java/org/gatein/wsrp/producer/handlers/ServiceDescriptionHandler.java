@@ -138,8 +138,8 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          boolean needsPortletDescriptions = !(registration == null && requirements.isRegistrationRequired()
             && requirements.isRegistrationRequiredForFullDescription());
 
-         final List<String> portletHandles = replaceByEmptyListIfNeeded(gs.getPortletHandles());
-         final List<String> desiredLocales = replaceByEmptyListIfNeeded(gs.getDesiredLocales());
+         final List<String> portletHandles = WSRPUtils.replaceByEmptyListIfNeeded(gs.getPortletHandles());
+         final List<String> desiredLocales = WSRPUtils.replaceByEmptyListIfNeeded(gs.getDesiredLocales());
          return serviceDescription.getServiceDescription(needsRegistrationProperties, needsPortletDescriptions, portletHandles, desiredLocales);
       }
       finally

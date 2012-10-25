@@ -44,27 +44,4 @@ class ServiceHandler
    {
       this.producer = producer;
    }
-
-   protected <T> List<T> replaceByEmptyListIfNeeded(List<T> list)
-   {
-      // workaround for GTNWSRP-290
-      if(isSingletonListWithNullOrEmptyElement(list))
-      {
-         return Collections.emptyList();
-      }
-      return list;
-   }
-
-   protected <T> boolean isSingletonListWithNullOrEmptyElement(List<T> list)
-   {
-      if (list.size() == 1)
-      {
-         final T element = list.get(0);
-         if (element == null || (element instanceof String && ((String)element).isEmpty()))
-         {
-            return true;
-         }
-      }
-      return false;
-   }
 }

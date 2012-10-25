@@ -152,7 +152,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(userContext);
 
       // RegistrationLocal.setRegistration is called further down the invocation in ServiceDescriptionHandler.getPortletDescription
-      final List<String> desiredLocales = replaceByEmptyListIfNeeded(getPortletDescription.getDesiredLocales());
+      final List<String> desiredLocales = WSRPUtils.replaceByEmptyListIfNeeded(getPortletDescription.getDesiredLocales());
       PortletDescription description = producer.getPortletDescription(portletContext, desiredLocales, registration);
       return WSRPTypeFactory.createPortletDescriptionResponse(description);
    }
@@ -195,7 +195,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                   //todo: check what we should use key
                   //todo: right now we only support String properties
                   List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
-                  desiredLocales = replaceByEmptyListIfNeeded(desiredLocales);
+                  desiredLocales = WSRPUtils.replaceByEmptyListIfNeeded(desiredLocales);
                   PropertyDescription desc = WSRPTypeFactory.createPropertyDescription(prefInfo.getKey(), WSRPConstants.XSD_STRING);
                   desc.setLabel(Utils.convertToWSRPLocalizedString(prefInfo.getDisplayName(), desiredLocales));
                   desc.setHint(Utils.convertToWSRPLocalizedString(prefInfo.getDescription(), desiredLocales));
@@ -259,7 +259,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
       List<String> handles = destroyPortlets.getPortletHandles();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(handles, "portlet handles to be destroyed", "DestroyPortlets");
-      handles = replaceByEmptyListIfNeeded(handles);
+      handles = WSRPUtils.replaceByEmptyListIfNeeded(handles);
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(destroyPortlets.getRegistrationContext());
 
@@ -329,7 +329,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(copyPortlets, "copyPortlets");
 
       List<PortletContext> portletContexts = copyPortlets.getFromPortletContexts();
-      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || isSingletonListWithNullOrEmptyElement(portletContexts))
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || WSRPUtils.isSingletonListWithNullOrEmptyElement(portletContexts))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in CopyPortlets.", null);
       }
@@ -452,9 +452,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(setPortletProperties.getUserContext());
 
       List<Property> properties = propertyList.getProperties();
-      properties = replaceByEmptyListIfNeeded(properties);
+      properties = WSRPUtils.replaceByEmptyListIfNeeded(properties);
       List<ResetProperty> resetProperties = propertyList.getResetProperties();
-      resetProperties = replaceByEmptyListIfNeeded(resetProperties);
+      resetProperties = WSRPUtils.replaceByEmptyListIfNeeded(resetProperties);
       int changesCount = 0;
       if (ParameterValidation.existsAndIsNotEmpty(properties))
       {
@@ -561,7 +561,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(userContext);
 
       List<String> names = getPortletProperties.getNames();
-      names = replaceByEmptyListIfNeeded(names);
+      names = WSRPUtils.replaceByEmptyListIfNeeded(names);
 
       Set<String> keys = new HashSet<String>(names);
 
@@ -630,7 +630,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(exportPortlets, "ExportPortlets", "ExportPortlets");
 
       List<PortletContext> portletContexts = exportPortlets.getPortletContext();
-      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || isSingletonListWithNullOrEmptyElement(portletContexts))
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || WSRPUtils.isSingletonListWithNullOrEmptyElement(portletContexts))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required list of portlets to export in ExportPortlets.", null);
       }
@@ -781,7 +781,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(importPortlets, "ImportPortlets");
 
       List<ImportPortlet> importPortletList = importPortlets.getImportPortlet();
-      if (!ParameterValidation.existsAndIsNotEmpty(importPortletList) || isSingletonListWithNullOrEmptyElement(importPortletList))
+      if (!ParameterValidation.existsAndIsNotEmpty(importPortletList) || WSRPUtils.isSingletonListWithNullOrEmptyElement(importPortletList))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required list of portlets to import in ImportPortlets.", null);
       }
