@@ -111,8 +111,8 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
                {
                   params.put(paramName, new String[]{paramValue});
                }
-               formParameters = new ParameterMap(params);
             }
+            formParameters = new ParameterMap(params);
          }
          else
          {
@@ -144,6 +144,9 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
       private boolean usingStream;
       private boolean usingReader;
       private String contentType;
+      private ParameterMap formParameters;
+      private InputStream inputStream;
+      private BufferedReader bufferedReader;
 
       protected WSRPMultiRequestContext(String characterEncoding, List<NamedString> formParams, List<UploadContext> uploadContexts) throws IOException, MessagingException
       {
@@ -172,8 +175,9 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
          }
 
          final String paramContentDispositionHeader = FileUpload.FORM_DATA + "; name=\"";
-         if (formParams != null)
+         if (formParams != null && !formParams.isEmpty())
          {
+            Map<String, String[]> params = new HashMap<String, String[]>(formParams.size());
             for (NamedString formParam : formParams)
             {
                InternetHeaders headers = new InternetHeaders();
@@ -185,7 +189,26 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
 
                MimeBodyPart mimeBodyPart = new MimeBodyPart(headers, formParam.getValue().getBytes());
                parts.addBodyPart(mimeBodyPart);
+               
+               
+               String paramName = formParam.getName();
+               String paramValue = formParam.getValue();
+               if (params.containsKey(paramName))
+               {
+                  // handle multi-valued parameters...
+                  String[] oldValues = params.get(paramName);
+                  int valuesLength = oldValues.length;
+                  String[] newValues = new String[valuesLength + 1];
+                  System.arraycopy(oldValues, 0, newValues, 0, valuesLength);
+                  newValues[valuesLength] = paramValue;
+                  params.put(paramName, newValues);
+               }
+               else
+               {
+                  params.put(paramName, new String[]{paramValue});
+               }
             }
+            formParameters = new ParameterMap(params);
          }
 
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -196,7 +219,11 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
 
       public ParameterMap getForm()
       {
-         return new ParameterMap();
+         if (formParameters == null)
+         {
+            formParameters = new ParameterMap();
+         }
+         return formParameters;
       }
 
       public String getContentType()
@@ -216,7 +243,12 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
             throw new IllegalStateException("getInputStream has already been called on this ActionContext!");
          }
          usingReader = true;
-         return new BufferedReader(new InputStreamReader(getInputStreamFromContent()));
+         
+         if (bufferedReader == null)
+         {
+            bufferedReader = new BufferedReader(new InputStreamReader(getInputStreamFromContent()));
+         }
+         return bufferedReader;
       }
 
       public InputStream getInputStream() throws IOException
@@ -232,7 +264,11 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
 
       private InputStream getInputStreamFromContent()
       {
-         return new ByteArrayInputStream(content);
+         if (inputStream == null)
+         {
+            inputStream = new ByteArrayInputStream(content);
+         }
+         return inputStream;
       }
    }
 
