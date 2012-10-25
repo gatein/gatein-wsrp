@@ -302,7 +302,8 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
    protected void processExtensions(Response response)
    {
-      for (Extension extension : getExtensionsFrom(response))
+      final List<Extension> extensions = WSRPUtils.replaceByEmptyListIfNeeded(getExtensionsFrom(response));
+      for (Extension extension : extensions)
       {
          try
          {

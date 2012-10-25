@@ -182,7 +182,7 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
       ResourceResponse resourceResponse = WSRPTypeFactory.createResourceResponse(resourceContextHolder.value);
       resourceResponse.setPortletContext(portletContextHolder.value);
       resourceResponse.setSessionContext(sessionContextHolder.value);
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          resourceResponse.getExtensions().addAll(extensions.value);
       }
