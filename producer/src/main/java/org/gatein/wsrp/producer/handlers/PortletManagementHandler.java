@@ -151,8 +151,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       UserContext userContext = getPortletDescription.getUserContext();
       checkUserAuthorization(userContext);
 
-      // RegistrationLocal.setRegistration is called further down the invocation in ServiceDescriptionHandler.getPortletDescription 
-      PortletDescription description = producer.getPortletDescription(portletContext, getPortletDescription.getDesiredLocales(), registration);
+      // RegistrationLocal.setRegistration is called further down the invocation in ServiceDescriptionHandler.getPortletDescription
+      final List<String> desiredLocales = WSRPUtils.replaceByEmptyListIfNeeded(getPortletDescription.getDesiredLocales());
+      PortletDescription description = producer.getPortletDescription(portletContext, desiredLocales, registration);
       return WSRPTypeFactory.createPortletDescriptionResponse(description);
    }
 
@@ -194,6 +195,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                   //todo: check what we should use key
                   //todo: right now we only support String properties
                   List<String> desiredLocales = getPortletPropertyDescription.getDesiredLocales();
+                  desiredLocales = WSRPUtils.replaceByEmptyListIfNeeded(desiredLocales);
                   PropertyDescription desc = WSRPTypeFactory.createPropertyDescription(prefInfo.getKey(), WSRPConstants.XSD_STRING);
                   desc.setLabel(Utils.convertToWSRPLocalizedString(prefInfo.getDisplayName(), desiredLocales));
                   desc.setHint(Utils.convertToWSRPLocalizedString(prefInfo.getDescription(), desiredLocales));
@@ -257,6 +259,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
       List<String> handles = destroyPortlets.getPortletHandles();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(handles, "portlet handles to be destroyed", "DestroyPortlets");
+      handles = WSRPUtils.replaceByEmptyListIfNeeded(handles);
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(destroyPortlets.getRegistrationContext());
 
@@ -326,8 +329,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(copyPortlets, "copyPortlets");
 
       List<PortletContext> portletContexts = copyPortlets.getFromPortletContexts();
-
-      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || WSRPUtils.isSingletonListWithNullOrEmptyElement(portletContexts))
       {
          throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in CopyPortlets.", null);
       }
@@ -450,7 +452,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(setPortletProperties.getUserContext());
 
       List<Property> properties = propertyList.getProperties();
+      properties = WSRPUtils.replaceByEmptyListIfNeeded(properties);
       List<ResetProperty> resetProperties = propertyList.getResetProperties();
+      resetProperties = WSRPUtils.replaceByEmptyListIfNeeded(resetProperties);
       int changesCount = 0;
       if (ParameterValidation.existsAndIsNotEmpty(properties))
       {
@@ -557,15 +561,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       checkUserAuthorization(userContext);
 
       List<String> names = getPortletProperties.getNames();
-      // workaround for GTNWSRP-290: remove when GTNWSRP-293 is fixed
-      if (names.size() == 1)
-      {
-         final String name = names.get(0);
-         if (ParameterValidation.isNullOrEmpty(name))
-         {
-            names = Collections.emptyList();
-         }
-      }
+      names = WSRPUtils.replaceByEmptyListIfNeeded(names);
 
       Set<String> keys = new HashSet<String>(names);
 
@@ -634,9 +630,9 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(exportPortlets, "ExportPortlets", "ExportPortlets");
 
       List<PortletContext> portletContexts = exportPortlets.getPortletContext();
-      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts))
+      if (!ParameterValidation.existsAndIsNotEmpty(portletContexts) || WSRPUtils.isSingletonListWithNullOrEmptyElement(portletContexts))
       {
-         throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required portletContext in ExportPortlets.", null);
+         throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required list of portlets to export in ExportPortlets.", null);
       }
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(exportPortlets.getRegistrationContext());
@@ -683,7 +679,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
             exportContext = producer.getExportManager().createExportContext(exportByValueRequired, -1, -1, -1);
          }
 
-         for (PortletContext portletContext : exportPortlets.getPortletContext())
+         for (PortletContext portletContext : portletContexts)
          {
             try
             {
@@ -785,7 +781,10 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
       WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(importPortlets, "ImportPortlets");
 
       List<ImportPortlet> importPortletList = importPortlets.getImportPortlet();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(importPortletList, "ImportPortlet", "ImportPortlets");
+      if (!ParameterValidation.existsAndIsNotEmpty(importPortletList) || WSRPUtils.isSingletonListWithNullOrEmptyElement(importPortletList))
+      {
+         throw WSRP2ExceptionFactory.createWSException(MissingParameters.class, "Missing required list of portlets to import in ImportPortlets.", null);
+      }
 
       Registration registration = producer.getRegistrationOrFailIfInvalid(importPortlets.getRegistrationContext());
 

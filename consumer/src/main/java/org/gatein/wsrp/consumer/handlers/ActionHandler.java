@@ -119,7 +119,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
          response = WSRPTypeFactory.createBlockingInteractionResponse(updateResponseHolder.value);
       }
 
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          response.getExtensions().addAll(extensions.value);
       }

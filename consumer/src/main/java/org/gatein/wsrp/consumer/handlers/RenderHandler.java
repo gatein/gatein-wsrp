@@ -28,6 +28,7 @@ import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
@@ -132,7 +133,7 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
 
       MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          markupResponse.getExtensions().addAll(extensions.value);
       }

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -685,6 +686,29 @@ public class WSRPUtils
          propertyAccessor = new DefaultPropertyAccessor();
       }
       return propertyAccessor;
+   }
+
+   public static <T> List<T> replaceByEmptyListIfNeeded(List<T> list)
+   {
+      // workaround for GTNWSRP-290
+      if(isSingletonListWithNullOrEmptyElement(list))
+      {
+         return Collections.emptyList();
+      }
+      return list;
+   }
+
+   public static <T> boolean isSingletonListWithNullOrEmptyElement(List<T> list)
+   {
+      if (list.size() == 1)
+      {
+         final T element = list.get(0);
+         if (element == null || (element instanceof String && ((String)element).isEmpty()))
+         {
+            return true;
+         }
+      }
+      return false;
    }
 
    /**

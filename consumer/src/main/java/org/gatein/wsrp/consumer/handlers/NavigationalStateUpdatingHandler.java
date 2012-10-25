@@ -94,6 +94,7 @@ public abstract class NavigationalStateUpdatingHandler<Invocation extends Portle
       List<Event> events = updateResponse.getEvents();
       if (ParameterValidation.existsAndIsNotEmpty(events))
       {
+         events = WSRPUtils.replaceByEmptyListIfNeeded(events);
          for (Event event : events)
          {
             Serializable payloadAsSerializable = null;

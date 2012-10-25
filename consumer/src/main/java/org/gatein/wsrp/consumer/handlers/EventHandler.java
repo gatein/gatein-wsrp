@@ -98,11 +98,11 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       HandleEventsResponse response = WSRPTypeFactory.createHandleEventsReponse();
       response.setUpdateResponse(updateResponse.value);
 
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          response.getExtensions().addAll(extensions.value);
       }
-      if (ParameterValidation.existsAndIsNotEmpty(failedEvents.value))
+      if (ParameterValidation.existsAndIsNotEmpty(failedEvents.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(failedEvents.value))
       {
          response.getFailedEvents().addAll(failedEvents.value);
       }
@@ -143,7 +143,7 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
    @Override
    protected PortletInvocationResponse processResponse(HandleEventsResponse response, EventInvocation invocation, RequestPrecursor<EventInvocation> requestPrecursor) throws PortletInvokerException
    {
-      List<HandleEventsFailed> failed = response.getFailedEvents();
+      final List<HandleEventsFailed> failed = WSRPUtils.replaceByEmptyListIfNeeded(response.getFailedEvents());
       if (ParameterValidation.existsAndIsNotEmpty(failed))
       {
          return new ErrorResponse("Couldn't process events: " + failed);
