@@ -27,6 +27,9 @@ import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 8784 $
@@ -40,5 +43,28 @@ class ServiceHandler
    ServiceHandler(WSRPProducerImpl producer)
    {
       this.producer = producer;
+   }
+
+   protected <T> List<T> replaceByEmptyListIfNeeded(List<T> list)
+   {
+      // workaround for GTNWSRP-290
+      if(isSingletonListWithNullOrEmptyElement(list))
+      {
+         return Collections.emptyList();
+      }
+      return list;
+   }
+
+   protected <T> boolean isSingletonListWithNullOrEmptyElement(List<T> list)
+   {
+      if (list.size() == 1)
+      {
+         final T element = list.get(0);
+         if (element == null || (element instanceof String && ((String)element).isEmpty()))
+         {
+            return true;
+         }
+      }
+      return false;
    }
 }

@@ -119,6 +119,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       ConsumerCapabilities capabilities = consumer.getCapabilities();
 
       List<String> modeStrings = registrationData.getConsumerModes();
+      modeStrings = replaceByEmptyListIfNeeded(modeStrings);
       int modesNb = modeStrings.size();
       if (modesNb > 0)
       {
@@ -131,6 +132,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       }
 
       List<String> wsStrings = registrationData.getConsumerWindowStates();
+      wsStrings = replaceByEmptyListIfNeeded(wsStrings);
       int wsNb = wsStrings.size();
       if (wsNb > 0)
       {
@@ -376,6 +378,7 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
    private Map<QName, Object> createRegistrationProperties(RegistrationData registrationData)
    {
       List<Property> regProperties = registrationData.getRegistrationProperties();
+      regProperties = replaceByEmptyListIfNeeded(regProperties);
       Map<QName, Object> properties;
       if (regProperties != null && !regProperties.isEmpty())
       {
