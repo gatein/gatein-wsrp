@@ -232,28 +232,27 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
             interactionParams.getUploadContexts().addAll(uploadContexts);
             interactionParams.getFormParameters().addAll(formParameters);
          }
-         else
+
+         // Also check for form parameters from the Invocation
+         Map<String, String[]> params = actionInvocation.getForm();
+         if (params != null && !params.isEmpty())
          {
-            // if the content is not multipart, then check for form parameters
-            Map<String, String[]> params = actionInvocation.getForm();
-            if (params != null && !params.isEmpty())
+            int capacity = params.size();
+            List<NamedString> formParameters = new ArrayList<NamedString>(capacity);
+            for (Map.Entry param : params.entrySet())
             {
-               int capacity = params.size();
-               List<NamedString> formParameters = new ArrayList<NamedString>(capacity);
-               for (Map.Entry param : params.entrySet())
+               String name = (String)param.getKey();
+               String[] values = (String[])param.getValue();
+               NamedString formParameter;
+               for (String value : values)
                {
-                  String name = (String)param.getKey();
-                  String[] values = (String[])param.getValue();
-                  NamedString formParameter;
-                  for (String value : values)
-                  {
-                     formParameter = WSRPTypeFactory.createNamedString(name, value);
-                     formParameters.add(formParameter);
-                  }
+                  formParameter = WSRPTypeFactory.createNamedString(name, value);
+                  formParameters.add(formParameter);
                }
-               interactionParams.getFormParameters().addAll(formParameters);
             }
+            interactionParams.getFormParameters().addAll(formParameters);
          }
+         
       }
       catch (Exception e)
       {
