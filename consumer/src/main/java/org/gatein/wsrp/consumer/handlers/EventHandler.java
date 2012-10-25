@@ -98,11 +98,11 @@ public class EventHandler extends NavigationalStateUpdatingHandler<EventInvocati
       HandleEventsResponse response = WSRPTypeFactory.createHandleEventsReponse();
       response.setUpdateResponse(updateResponse.value);
 
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          response.getExtensions().addAll(extensions.value);
       }
-      if (ParameterValidation.existsAndIsNotEmpty(failedEvents.value) && WSRPUtils.isSingletonListWithNullOrEmptyElement(failedEvents.value))
+      if (ParameterValidation.existsAndIsNotEmpty(failedEvents.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(failedEvents.value))
       {
          response.getFailedEvents().addAll(failedEvents.value);
       }

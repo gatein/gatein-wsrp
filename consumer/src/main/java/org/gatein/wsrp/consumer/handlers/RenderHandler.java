@@ -133,7 +133,7 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
 
       MarkupResponse markupResponse = WSRPTypeFactory.createMarkupResponse(markupContextHolder.value);
       markupResponse.setSessionContext(sessionContextHolder.value);
-      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
+      if (ParameterValidation.existsAndIsNotEmpty(extensions.value) && !WSRPUtils.isSingletonListWithNullOrEmptyElement(extensions.value))
       {
          markupResponse.getExtensions().addAll(extensions.value);
       }
