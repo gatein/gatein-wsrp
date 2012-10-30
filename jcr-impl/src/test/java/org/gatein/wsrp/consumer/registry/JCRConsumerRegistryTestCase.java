@@ -31,6 +31,9 @@ import org.gatein.wsrp.jcr.ChromatticPersister;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Session;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
  * This is essentially the same class as org.gatein.wsrp.state.consumer.ConsumerRegistryTestCase in WSRP consumer
@@ -92,5 +95,22 @@ public class JCRConsumerRegistryTestCase extends ConsumerRegistryTestCase
    {
       // override to bypass this test as I couldn't find a way to make it work properly (i.e. how to inject a Mock
       // into the registry to check that start is only called once)
+   }
+
+   @Override
+   protected void loadConsumersConfiguration(URL location) throws IOException
+   {
+      final JCRConsumerRegistry jcrConsumerRegistry = (JCRConsumerRegistry)registry;
+      try
+      {
+         final InputStream inputStream = location.openStream();
+         jcrConsumerRegistry.setConfigurationIS(inputStream);
+         jcrConsumerRegistry.setLoadFromXMLIfNeeded(true);
+         jcrConsumerRegistry.reloadConsumers();
+      }
+      finally
+      {
+         jcrConsumerRegistry.setLoadFromXMLIfNeeded(false);
+      }
    }
 }

@@ -31,6 +31,8 @@ import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -39,7 +41,7 @@ import java.util.Collections;
  * @version $Revision: 12686 $
  * @since 2.6
  */
-public class ConsumerRegistryTestCase extends TestCase
+public abstract class ConsumerRegistryTestCase extends TestCase
 {
    protected AbstractConsumerRegistry registry;
 
@@ -242,4 +244,44 @@ public class ConsumerRegistryTestCase extends TestCase
       // retrieving the consumer with its new id should work
       assertEquals(consumer1, registry.getConsumer("foo"));
    }
+
+   public void testDefaultConfiguration() throws Exception
+   {
+      final String selfv1 = "selfv1";
+      final String selfv2 = "selfv2";
+
+      loadConsumersConfiguration("default.xml");
+
+      assertEquals(2, registry.getConfiguredConsumerNumber());
+      assertTrue(registry.containsConsumer(selfv1));
+      assertTrue(registry.containsConsumer(selfv2));
+
+      checkConsumer(selfv1, 500, 50000, false, "http://localhost:8080/wsrp-producer/v1/MarkupService?wsdl");
+      checkConsumer(selfv2, 500, 50000, false, "http://localhost:8080/wsrp-producer/v2/MarkupService?wsdl");
+   }
+
+   private void checkConsumer(String id, int expirationCache, int wsTimeOut, boolean wssEnabled, String wsdlURL)
+   {
+      final WSRPConsumer consumer = registry.getConsumer(id);
+      assertNotNull(consumer);
+      final ProducerInfo producerInfo = consumer.getProducerInfo();
+      assertNotNull(producerInfo);
+      assertEquals(id, producerInfo.getId());
+      assertEquals(expirationCache, (int)producerInfo.getExpirationCacheSeconds());
+      final EndpointConfigurationInfo endpoint = producerInfo.getEndpointConfigurationInfo();
+      assertEquals(wsTimeOut, endpoint.getWSOperationTimeOut());
+      assertEquals(wssEnabled, endpoint.getWSSEnabled());
+      assertEquals(wsdlURL, endpoint.getWsdlDefinitionURL());
+   }
+
+   protected void loadConsumersConfiguration(String fileName) throws Exception
+   {
+      URL location = Thread.currentThread().getContextClassLoader().getResource(fileName);
+      assertNotNull(location);
+      System.out.println("Loading consumers configuration = " + location);
+
+      loadConsumersConfiguration(location);
+   }
+
+   protected abstract void loadConsumersConfiguration(URL location) throws IOException;
 }
