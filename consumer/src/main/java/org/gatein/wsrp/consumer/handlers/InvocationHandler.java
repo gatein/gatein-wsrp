@@ -39,7 +39,6 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.api.extensions.UnmarshalledExtension;
-import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
@@ -240,17 +239,11 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
       else if (error instanceof InvalidRegistration)
       {
-         log.debug("Invalid registration");
          consumer.handleInvalidRegistrationFault();
       }
       else if (error instanceof ModifyRegistrationRequired)
       {
-         ProducerInfo producerInfo = consumer.getProducerInfo();
-
-         log.debug("Producer " + producerInfo.getId() + " indicated that modifyRegistration should be called.");
-
-         producerInfo.setModifyRegistrationRequired(true);
-         producerInfo.setActiveAndSave(false);
+         consumer.handleModifyRegistrationRequiredFault();
 
          return new ErrorResponse(error);
       }

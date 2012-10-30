@@ -68,4 +68,6 @@ public interface WSRPConsumerSPI extends WSRPConsumer
    WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException;
 
    SessionRegistry getSessionRegistry();
+
+   void handleModifyRegistrationRequiredFault();
 }

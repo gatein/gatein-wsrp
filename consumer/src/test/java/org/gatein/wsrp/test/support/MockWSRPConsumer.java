@@ -111,6 +111,12 @@ public class MockWSRPConsumer implements WSRPConsumerSPI
       throw new NotYetImplemented();
    }
 
+   @Override
+   public void handleModifyRegistrationRequiredFault()
+   {
+      throw new NotYetImplemented();
+   }
+
    public void setSessionRegistry(SessionRegistry sessionInfos)
    {
       throw new NotYetImplemented();
