@@ -108,6 +108,16 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       initConsumerCache();
    }
 
+   /**
+    * for tests
+    *
+    * @param loadFromXMLIfNeeded
+    */
+   protected void setLoadFromXMLIfNeeded(boolean loadFromXMLIfNeeded)
+   {
+      this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
+   }
+
    @Override
    protected void initConsumerCache()
    {

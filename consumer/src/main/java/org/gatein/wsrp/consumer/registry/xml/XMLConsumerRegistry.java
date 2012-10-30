@@ -52,9 +52,18 @@ public class XMLConsumerRegistry extends InMemoryConsumerRegistry
 
    private EntityResolver entityResolver;
 
+   public XMLConsumerRegistry()
+   {
+   }
+
    public XMLConsumerRegistry(InputStream configurationInputStream)
    {
       configurationIS = configurationInputStream;
+   }
+
+   public void setConfigurationIS(InputStream configurationIS)
+   {
+      this.configurationIS = configurationIS;
    }
 
    public EntityResolver getEntityResolver()
