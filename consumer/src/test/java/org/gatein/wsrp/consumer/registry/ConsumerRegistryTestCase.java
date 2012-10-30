@@ -29,12 +29,17 @@ import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.EndpointConfigurationInfo;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.RegistrationInfo;
+import org.gatein.wsrp.services.ServiceFactory;
 import org.mockito.Mockito;
+import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.RegistrationData;
 
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -260,7 +265,16 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       checkConsumer(selfv2, 500, 50000, false, "http://localhost:8080/wsrp-producer/v2/MarkupService?wsdl");
    }
 
-   private void checkConsumer(String id, int expirationCache, int wsTimeOut, boolean wssEnabled, String wsdlURL)
+   public void testImproperCache() throws Exception
+   {
+      loadConsumersConfiguration("improper-cache.xml");
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
+      final String id = "improper-cache";
+      assertTrue(registry.containsConsumer(id));
+      checkConsumer(id, ProducerInfo.DEFAULT_CACHE_VALUE, ServiceFactory.DEFAULT_TIMEOUT_MS, false, "http://localhost:8080/wsrp-producer/v1/MarkupService?wsdl");
+   }
+
    public void testImproperUseWSS() throws Exception
    {
       loadConsumersConfiguration("improper-usewss.xml");
@@ -280,6 +294,28 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       assertTrue(registry.containsConsumer(id));
       checkConsumer(id, 400, ServiceFactory.DEFAULT_TIMEOUT_MS, true, "http://localhost:8080/wsrp-producer/v1/MarkupService?wsdl");
    }
+
+   public void testVignette() throws Exception
+   {
+      loadConsumersConfiguration("vignette.xml");
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
+      final String id = "vignette";
+      assertTrue(registry.containsConsumer(id));
+      final WSRPConsumer consumer = checkConsumer(id, 300, ServiceFactory.DEFAULT_TIMEOUT_MS, false, "http://wsrpdemo.vignette.com:8080/producer/wsdl");
+
+      final RegistrationData registrationData = consumer.getProducerInfo().getRegistrationInfo().getRegistrationData();
+      assertNotNull(registrationData);
+      final List<Property> registrationProperties = registrationData.getRegistrationProperties();
+      assertEquals(2, registrationProperties.size());
+      for (Property property : registrationProperties)
+      {
+         final QName name = property.getName();
+         assertTrue(name.equals(QName.valueOf("com.vignette.wsrp.registration.username")) || name.equals(QName.valueOf("com.vignette.wsrp.registration.password")));
+      }
+   }
+
+   private WSRPConsumer checkConsumer(String id, int expirationCache, int wsTimeOut, boolean wssEnabled, String wsdlURL)
    {
       final WSRPConsumer consumer = registry.getConsumer(id);
       assertNotNull(consumer);
@@ -288,9 +324,11 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       assertEquals(id, producerInfo.getId());
       assertEquals(expirationCache, (int)producerInfo.getExpirationCacheSeconds());
       final EndpointConfigurationInfo endpoint = producerInfo.getEndpointConfigurationInfo();
+      assertNotNull(endpoint);
       assertEquals(wsTimeOut, endpoint.getWSOperationTimeOut());
       assertEquals(wssEnabled, endpoint.getWSSEnabled());
       assertEquals(wsdlURL, endpoint.getWsdlDefinitionURL());
+      return consumer;
    }
 
    protected void loadConsumersConfiguration(String fileName) throws Exception

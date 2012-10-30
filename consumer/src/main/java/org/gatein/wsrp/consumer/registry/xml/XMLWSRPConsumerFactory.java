@@ -160,8 +160,8 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
          }
 
          String expirationCache = attrs.getValue("expiration-cache");
-         Integer expirationCacheSeconds = null;
-         if (expirationCache != null)
+         Integer expirationCacheSeconds = ProducerInfo.DEFAULT_CACHE_VALUE;
+         if (!ParameterValidation.isNullOrEmpty(expirationCache))
          {
             try
             {
@@ -169,13 +169,13 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
             }
             catch (NumberFormatException e)
             {
-               log.info("Ignoring bad expiration cache value " + expirationCache + " for producer '" + id + "'");
+               log.info("Ignoring bad expiration cache value " + expirationCache + " for producer '" + id + "'. Using default value instead.");
             }
          }
 
          String wsTimeout = attrs.getValue("ws-timeout");
          Integer wsTimeoutMS = ServiceFactory.DEFAULT_TIMEOUT_MS;
-         if (wsTimeout != null)
+         if (!ParameterValidation.isNullOrEmpty(wsTimeout))
          {
             try
             {
@@ -189,7 +189,7 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
 
          final String useWSS = attrs.getValue("use-wss");
          boolean enableWSS = false;
-         if(!ParameterValidation.isNullOrEmpty(useWSS))
+         if (!ParameterValidation.isNullOrEmpty(useWSS))
          {
             enableWSS = Boolean.parseBoolean(useWSS);
          }
