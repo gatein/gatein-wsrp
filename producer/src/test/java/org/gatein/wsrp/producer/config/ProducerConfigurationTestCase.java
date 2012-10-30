@@ -312,7 +312,7 @@ public abstract class ProducerConfigurationTestCase extends TestCase
    {
       URL location = Thread.currentThread().getContextClassLoader().getResource(fileName);
       assertNotNull(location);
-      System.out.println("location = " + location);
+      System.out.println("Loading producer configuration = " + location);
 
       return getProducerConfiguration(location);
    }
