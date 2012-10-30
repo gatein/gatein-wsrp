@@ -187,9 +187,18 @@ public class XMLWSRPConsumerFactory implements GenericObjectModelFactory
             }
          }
 
+         final String useWSS = attrs.getValue("use-wss");
+         boolean enableWSS = false;
+         if(!ParameterValidation.isNullOrEmpty(useWSS))
+         {
+            enableWSS = Boolean.parseBoolean(useWSS);
+         }
+
          // consumer didn't exist in the database, so create one and configure it
          consumer = consumerRegistry.createConsumer(id, expirationCacheSeconds, null);
-         consumer.getProducerInfo().getEndpointConfigurationInfo().setWSOperationTimeOut(wsTimeoutMS);
+         final EndpointConfigurationInfo endpoint = consumer.getProducerInfo().getEndpointConfigurationInfo();
+         endpoint.setWSOperationTimeOut(wsTimeoutMS);
+         endpoint.setWSSEnabled(enableWSS);
 
          return consumer;
       }

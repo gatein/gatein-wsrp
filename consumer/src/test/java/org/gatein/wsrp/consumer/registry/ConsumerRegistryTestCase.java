@@ -261,6 +261,25 @@ public abstract class ConsumerRegistryTestCase extends TestCase
    }
 
    private void checkConsumer(String id, int expirationCache, int wsTimeOut, boolean wssEnabled, String wsdlURL)
+   public void testImproperUseWSS() throws Exception
+   {
+      loadConsumersConfiguration("improper-usewss.xml");
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
+      final String id = "improper-usewss";
+      assertTrue(registry.containsConsumer(id));
+      checkConsumer(id, ProducerInfo.DEFAULT_CACHE_VALUE, ServiceFactory.DEFAULT_TIMEOUT_MS, false, "http://localhost:8080/wsrp-producer/v1/MarkupService?wsdl");
+   }
+
+   public void testWSSEnabled() throws Exception
+   {
+      loadConsumersConfiguration("wssEnabled.xml");
+
+      assertEquals(1, registry.getConfiguredConsumerNumber());
+      final String id = "wss-enabled";
+      assertTrue(registry.containsConsumer(id));
+      checkConsumer(id, 400, ServiceFactory.DEFAULT_TIMEOUT_MS, true, "http://localhost:8080/wsrp-producer/v1/MarkupService?wsdl");
+   }
    {
       final WSRPConsumer consumer = registry.getConsumer(id);
       assertNotNull(consumer);
