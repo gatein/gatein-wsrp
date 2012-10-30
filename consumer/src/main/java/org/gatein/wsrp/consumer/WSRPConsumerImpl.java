@@ -74,7 +74,9 @@ import org.oasis.wsrp.v2.ImportPortletsFailed;
 import org.oasis.wsrp.v2.ImportedPortlet;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.Lifetime;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyList;
@@ -367,29 +369,16 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       {
          throw new IllegalArgumentException(inconsistentParameters);
       }
-      /*
-      // GTNWSRP-62
       catch (InvalidRegistration invalidRegistration)
       {
-      }
-      catch (MissingParameters missingParameters)
-      {
-      }
-      catch (ResourceSuspended resourceSuspended)
-      {
-      }
-      catch (OperationFailed operationFailed)
-      {
-      }
-      catch (AccessDenied accessDenied)
-      {
-      }
-      catch (InvalidUserCategory invalidUserCategory)
-      {
+         handleInvalidRegistrationFault();
+         throw new PortletInvokerException(invalidRegistration);
       }
       catch (ModifyRegistrationRequired modifyRegistrationRequired)
       {
-      }*/
+         handleModifyRegistrationRequiredFault();
+         throw new PortletInvokerException(modifyRegistrationRequired);
+      }
       catch (Exception e)
       {
          throw new PortletInvokerException(e);
@@ -544,6 +533,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public void handleInvalidRegistrationFault() throws PortletInvokerException
    {
+      log.debug("Invalid registration '" + producerInfo.getRegistrationContext().getRegistrationHandle() + "' for producer '" + producerInfo.getId() + "'");
       // reset registration data and try again
       producerInfo.resetRegistration();
       refreshProducerInfo(true);
@@ -847,44 +837,16 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
             {
                throw new IllegalArgumentException(inconsistentParameters);
             }
-            /*
-            // GTNWSRP-62
-            catch (AccessDenied accessDenied)
-            {
-               accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (ExportByValueNotSupported exportByValueNotSupported)
-            {
-               exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (InvalidHandle invalidHandle)
-            {
-               invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
             catch (InvalidRegistration invalidRegistration)
             {
-               invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (InvalidUserCategory invalidUserCategory)
-            {
-               invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (MissingParameters missingParameters)
-            {
-               missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+               handleInvalidRegistrationFault();
+               throw new PortletInvokerException(invalidRegistration);
             }
             catch (ModifyRegistrationRequired modifyRegistrationRequired)
             {
-               modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+               handleModifyRegistrationRequiredFault();
+               throw new PortletInvokerException(modifyRegistrationRequired);
             }
-            catch (OperationFailed operationFailed)
-            {
-               operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (ResourceSuspended resourceSuspended)
-            {
-               resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }*/
             catch (Exception e)
             {
                throw new PortletInvokerException(e.getLocalizedMessage(), e);
@@ -978,44 +940,16 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
             {
                throw new IllegalArgumentException(inconsistentParameters);
             }
-            /*
-            // GTNWSRP-62
-            catch (AccessDenied accessDenied)
-            {
-               accessDenied.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (ExportByValueNotSupported exportByValueNotSupported)
-            {
-               exportByValueNotSupported.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (InvalidHandle invalidHandle)
-            {
-               invalidHandle.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
             catch (InvalidRegistration invalidRegistration)
             {
-               invalidRegistration.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (InvalidUserCategory invalidUserCategory)
-            {
-               invalidUserCategory.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (MissingParameters missingParameters)
-            {
-               missingParameters.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+               handleInvalidRegistrationFault();
+               throw new PortletInvokerException(invalidRegistration);
             }
             catch (ModifyRegistrationRequired modifyRegistrationRequired)
             {
-               modifyRegistrationRequired.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+               handleModifyRegistrationRequiredFault();
+               throw new PortletInvokerException(modifyRegistrationRequired);
             }
-            catch (OperationFailed operationFailed)
-            {
-               operationFailed.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            catch (ResourceSuspended resourceSuspended)
-            {
-               resourceSuspended.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }*/
             catch (Exception e)
             {
                throw new PortletInvokerException(e.getLocalizedMessage(), e);
@@ -1051,5 +985,14 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    public SessionRegistry getSessionRegistry()
    {
       return getConsumerRegistry().getSessionRegistry();
+   }
+
+   @Override
+   public void handleModifyRegistrationRequiredFault()
+   {
+      log.debug("Producer " + producerInfo.getId() + " indicated that modifyRegistration should be called.");
+
+      producerInfo.setModifyRegistrationRequired(true);
+      producerInfo.setActiveAndSave(false);
    }
 }
