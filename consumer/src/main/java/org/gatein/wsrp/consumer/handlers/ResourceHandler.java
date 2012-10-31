@@ -37,6 +37,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.consumer.handlers.ActionHandler.RequestContextWrapper;
+import org.gatein.wsrp.consumer.handlers.MultiPartUtil.MultiPartResult;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import org.oasis.wsrp.v2.Extension;
@@ -171,7 +172,12 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
          }
       }
       
-      handleMultipartContent(new RequestContextWrapper(invocation.getRequestContext()), resourceParams);
+      MultiPartResult multiPartResult = MultiPartUtil.getMultiPartContent(invocation.getRequestContext());
+      if (multiPartResult != null)
+      {
+         resourceParams.getFormParameters().addAll(multiPartResult.getFormParameters());
+         resourceParams.getUploadContexts().addAll(multiPartResult.getUploadContexts());
+      }
 
       return WSRPTypeFactory.createGetResource(requestPrecursor.getRegistrationContext(), portletContext,
          requestPrecursor.getRuntimeContext(), requestPrecursor.getUserContext(), resourceParams);
@@ -202,81 +208,5 @@ public class ResourceHandler extends MimeResponseHandler<ResourceInvocation, Get
          resourceResponse.getExtensions().addAll(extensions.value);
       }
       return resourceResponse;
-   }
-
-   //TODO: this code is very similar to what happens in the ActionHandler, we should be reusing this code instead of duplicating it
-   protected void handleMultipartContent(RequestContextWrapper requestContext, ResourceParams resourceParams)
-   {
-      try
-      {
-         if (FileUpload.isMultipartContent(requestContext))
-         {
-            // content is multipart, we need to parse it (that includes form parameters)
-            FileUpload upload = new FileUpload();
-            FileItemIterator iter = upload.getItemIterator(requestContext);
-            List<UploadContext> uploadContexts = new ArrayList<UploadContext>(7);
-            List<NamedString> formParameters = new ArrayList<NamedString>(7);
-            while (iter.hasNext())
-            {
-               FileItemStream item = iter.next();
-               InputStream stream = item.openStream();
-               if (!item.isFormField())
-               {
-                  String contentType = item.getContentType();
-                  if (debug)
-                  {
-                     log.debug("File field " + item.getFieldName() + " with file name " + item.getName() + " and content type "
-                        + contentType + " detected.");
-                  }
-
-                  BufferedInputStream bufIn = new BufferedInputStream(stream);
-
-                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                  BufferedOutputStream bos = new BufferedOutputStream(baos);
-
-                  int c = bufIn.read();
-                  while (c != -1)
-                  {
-                     bos.write(c);
-                     c = bufIn.read();
-                  }
-
-                  bos.flush();
-                  baos.flush();
-                  bufIn.close();
-                  bos.close();
-
-                  UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, baos.toByteArray());
-
-                  List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
-
-                  String value = FileUpload.FORM_DATA + ";"
-                     + " name=\"" + item.getFieldName() + "\";"
-                     + " filename=\"" + item.getName() + "\"";
-                  NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
-                  mimeAttributes.add(mimeAttribute);
-
-                  mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
-                  mimeAttributes.add(mimeAttribute);
-
-                  uploadContext.getMimeAttributes().addAll(mimeAttributes);
-
-                  uploadContexts.add(uploadContext);
-               }
-               else
-               {
-                  NamedString formParameter = WSRPTypeFactory.createNamedString(item.getFieldName(), Streams.asString(stream));
-                  formParameters.add(formParameter);
-               }
-            }
-            
-            resourceParams.getUploadContexts().addAll(uploadContexts);
-            resourceParams.getFormParameters().addAll(formParameters);
-         }
-      }
-      catch (Exception e)
-      {
-         log.debug("Couldn't create UploadContext", e);
-      }
    }
 }
