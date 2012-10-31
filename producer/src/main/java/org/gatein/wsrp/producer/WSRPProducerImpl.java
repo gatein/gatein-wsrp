@@ -54,6 +54,7 @@ import org.oasis.wsrp.v2.ClonePortlet;
 import org.oasis.wsrp.v2.CookieProtocol;
 import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
+import org.oasis.wsrp.v2.Deregister;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.ExportByValueNotSupported;
@@ -95,8 +96,8 @@ import org.oasis.wsrp.v2.PortletDescriptionResponse;
 import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.Register;
 import org.oasis.wsrp.v2.RegistrationContext;
-import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ReleaseSessions;
@@ -235,12 +236,12 @@ public class WSRPProducerImpl implements WSRP2Producer, ProducerHelper
 
    // Registration implementation **************************************************************************************
 
-   public RegistrationContext register(RegistrationData register) throws MissingParameters, OperationFailed, OperationNotSupported
+   public RegistrationContext register(Register register) throws MissingParameters, OperationFailed, OperationNotSupported
    {
       return registrationHandler.register(register);
    }
 
-   public List<Extension> deregister(RegistrationContext deregister) throws OperationFailed, InvalidRegistration, ResourceSuspended, OperationNotSupported
+   public List<Extension> deregister(Deregister deregister) throws OperationFailed, InvalidRegistration, ResourceSuspended, OperationNotSupported
    {
       return registrationHandler.deregister(deregister);
    }

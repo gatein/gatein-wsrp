@@ -51,6 +51,7 @@ import org.oasis.wsrp.v2.Contact;
 import org.oasis.wsrp.v2.CopiedPortlet;
 import org.oasis.wsrp.v2.CopyPortlets;
 import org.oasis.wsrp.v2.CopyPortletsResponse;
+import org.oasis.wsrp.v2.Deregister;
 import org.oasis.wsrp.v2.DestroyPortlets;
 import org.oasis.wsrp.v2.DestroyPortletsResponse;
 import org.oasis.wsrp.v2.EmployerInfo;
@@ -67,6 +68,7 @@ import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.GetPortletDescription;
 import org.oasis.wsrp.v2.GetPortletProperties;
 import org.oasis.wsrp.v2.GetPortletPropertyDescription;
+import org.oasis.wsrp.v2.GetPortletsLifetime;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.HandleEvents;
@@ -105,6 +107,7 @@ import org.oasis.wsrp.v2.Postal;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.PropertyDescription;
 import org.oasis.wsrp.v2.PropertyList;
+import org.oasis.wsrp.v2.Register;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.ReleaseExport;
@@ -123,6 +126,7 @@ import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
+import org.oasis.wsrp.v2.SetPortletsLifetime;
 import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.Telecom;
 import org.oasis.wsrp.v2.TelephoneNum;
@@ -1839,5 +1843,55 @@ public class WSRPTypeFactory
       }
 
       return null;
+   }
+
+   public static GetPortletsLifetime createGetPortletsLifetime(RegistrationContext registrationContext, List<PortletContext> portletContext, UserContext userContext)
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(portletContext))
+      {
+         final GetPortletsLifetime getPortletsLifetime = new GetPortletsLifetime();
+         getPortletsLifetime.setRegistrationContext(registrationContext);
+         getPortletsLifetime.setUserContext(userContext);
+         return getPortletsLifetime;
+      }
+
+      throw new IllegalArgumentException("List of portlet contexts must not be null or empty");
+   }
+
+   public static SetPortletsLifetime createSetPortletsLifetime(RegistrationContext registrationContext, List<PortletContext> portletContext, UserContext userContext, Lifetime lifetime)
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(portletContext))
+      {
+         final SetPortletsLifetime setPortletsLifetime = new SetPortletsLifetime();
+         setPortletsLifetime.setRegistrationContext(registrationContext);
+         setPortletsLifetime.setUserContext(userContext);
+         setPortletsLifetime.setLifetime(lifetime);
+         return setPortletsLifetime;
+      }
+
+      throw new IllegalArgumentException("List of portlet contexts must not be null or empty");
+   }
+
+   public static Register createRegister(RegistrationData registrationData, Lifetime lifetime, UserContext userContext)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationData, "RegistrationData");
+
+      Register register = new Register();
+      register.setRegistrationData(registrationData);
+      register.setLifetime(lifetime);
+      register.setUserContext(userContext);
+
+      return register;
+   }
+
+   public static Deregister createDeregister(RegistrationContext registrationContext, UserContext userContext)
+   {
+      ParameterValidation.throwIllegalArgExceptionIfNull(registrationContext, "RegistrationContext");
+
+      Deregister deregister = new Deregister();
+      deregister.setRegistrationContext(registrationContext);
+      deregister.setUserContext(userContext);
+
+      return deregister;
    }
 }

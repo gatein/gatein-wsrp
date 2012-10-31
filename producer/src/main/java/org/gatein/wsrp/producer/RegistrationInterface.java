@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer;
 
 import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Deregister;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -34,8 +35,8 @@ import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.Register;
 import org.oasis.wsrp.v2.RegistrationContext;
-import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.SetRegistrationLifetime;
@@ -48,10 +49,10 @@ import java.util.List;
  */
 public interface RegistrationInterface
 {
-   RegistrationContext register(RegistrationData register)
+   RegistrationContext register(Register register)
       throws MissingParameters, OperationFailed, OperationNotSupported;
 
-   List<Extension> deregister(RegistrationContext deregister)
+   List<Extension> deregister(Deregister deregister)
       throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended;
 
    RegistrationState modifyRegistration(ModifyRegistration modifyRegistration)

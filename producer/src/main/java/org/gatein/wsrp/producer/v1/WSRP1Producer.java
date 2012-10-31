@@ -30,10 +30,10 @@ import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEvent;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationManager;
+import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.api.context.ProducerContext;
 import org.gatein.wsrp.producer.ProducerHolder;
 import org.gatein.wsrp.producer.WSRPProducer;
-import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
 import org.gatein.wsrp.producer.v2.WSRP2Producer;
@@ -99,6 +99,7 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.RegistrationContext;
+import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
 import org.oasis.wsrp.v2.ResourceSuspended;
 import org.oasis.wsrp.v2.ServiceDescription;
@@ -249,7 +250,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-         RegistrationContext registrationContext = producer.register(V1ToV2Converter.toV2RegistrationData(register));
+         final RegistrationData registrationData = V1ToV2Converter.toV2RegistrationData(register);
+         RegistrationContext registrationContext = producer.register(WSRPTypeFactory.createRegister(registrationData, null, null));
          return V2ToV1Converter.toV1RegistrationContext(registrationContext);
       }
       catch (MissingParameters missingParameters)
@@ -270,7 +272,8 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
    {
       try
       {
-         producer.deregister(V1ToV2Converter.toV2RegistrationContext(deregister));
+         final RegistrationContext registrationContext = V1ToV2Converter.toV2RegistrationContext(deregister);
+         producer.deregister(WSRPTypeFactory.createDeregister(registrationContext, null));
          return null;
       }
       catch (InvalidRegistration invalidRegistration)
@@ -288,6 +291,10 @@ public class WSRP1Producer implements WSRPProducer, V1MarkupInterface, V1Portlet
       catch (OperationNotSupported operationNotSupported)
       {
          throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Not supported", operationNotSupported);
+      }
+      catch (Exception e)
+      {
+         throw WSRP1ExceptionFactory.createWSException(V1OperationFailed.class, "Operation failed", e);
       }
    }
 

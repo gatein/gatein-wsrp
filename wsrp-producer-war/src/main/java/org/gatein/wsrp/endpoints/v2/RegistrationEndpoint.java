@@ -27,6 +27,7 @@ import org.apache.cxf.feature.Features;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.endpoints.WSRPBaseEndpoint;
 import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Deregister;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -37,6 +38,7 @@ import org.oasis.wsrp.v2.ModifyRegistration;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.Register;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
@@ -48,6 +50,7 @@ import org.oasis.wsrp.v2.WSRPV2RegistrationPortType;
 import javax.jws.HandlerChain;
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -63,7 +66,7 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2RegistrationPortType"
 )
-@HandlerChain(file="../producer-handler-chains.xml")
+@HandlerChain(file = "../producer-handler-chains.xml")
 @Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2RegistrationPortType
 {
@@ -74,23 +77,29 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2Regi
       @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState,
       @WebParam(name = "scheduledDestruction", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<Lifetime> scheduledDestruction,
       @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions,
-      @WebParam(name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> registrationHandle)
-      throws MissingParameters, OperationFailed, OperationNotSupported
+      @WebParam(name = "registrationHandle", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<String> registrationHandle
+   ) throws MissingParameters, OperationFailed, OperationNotSupported
    {
-      RegistrationContext registrationContext = producer.register(registrationData);
+      Register register = WSRPTypeFactory.createRegister(registrationData, lifetime, userContext);
+
+      RegistrationContext registrationContext = producer.register(register);
 
       registrationHandle.value = registrationContext.getRegistrationHandle();
       registrationState.value = registrationContext.getRegistrationState();
+      scheduledDestruction.value = registrationContext.getScheduledDestruction();
       extensions.value = registrationContext.getExtensions();
    }
 
    public List<Extension> deregister(
       @WebParam(name = "registrationContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") RegistrationContext registrationContext,
-      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext)
-      throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended
+      @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext
+   ) throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      producer.deregister(registrationContext);
-      return null;
+      Deregister deregister = WSRPTypeFactory.createDeregister(registrationContext, userContext);
+
+      producer.deregister(deregister);
+
+      return Collections.emptyList();
    }
 
    public void modifyRegistration(
@@ -99,10 +108,11 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2Regi
       @WebParam(name = "userContext", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types") UserContext userContext,
       @WebParam(name = "registrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<byte[]> registrationState,
       @WebParam(name = "scheduledDestruction", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<Lifetime> scheduledDestruction,
-      @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
-      throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended
+      @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions
+   ) throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended
    {
       ModifyRegistration modifyRegistration = WSRPTypeFactory.createModifyRegistration(registrationContext, registrationData);
+      modifyRegistration.setUserContext(userContext);
 
       RegistrationState result = producer.modifyRegistration(modifyRegistration);
 
@@ -110,21 +120,22 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2Regi
       if (result != null)
       {
          registrationState.value = result.getRegistrationState();
+         scheduledDestruction.value = result.getScheduledDestruction();
          extensions.value = result.getExtensions();
       }
    }
 
    public Lifetime getRegistrationLifetime(
-      @WebParam(name = "getRegistrationLifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", partName = "getRegistrationLifetime") GetRegistrationLifetime getRegistrationLifetime)
-      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+      @WebParam(name = "getRegistrationLifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", partName = "getRegistrationLifetime") GetRegistrationLifetime getRegistrationLifetime
+   ) throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return producer.getRegistrationLifetime(getRegistrationLifetime);
    }
 
    public Lifetime setRegistrationLifetime(
-      @WebParam(name = "setRegistrationLifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", partName = "setRegistrationLifetime") SetRegistrationLifetime setRegistrationLifetime)
-      throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
+      @WebParam(name = "setRegistrationLifetime", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", partName = "setRegistrationLifetime") SetRegistrationLifetime setRegistrationLifetime
+   ) throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended
    {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return producer.setRegistrationLifetime(setRegistrationLifetime);
    }
 }
