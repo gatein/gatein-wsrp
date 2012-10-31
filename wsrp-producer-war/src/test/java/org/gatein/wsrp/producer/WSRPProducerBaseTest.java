@@ -36,6 +36,8 @@ import org.gatein.wsrp.portlet.ApplicationScopeSetPortlet;
 import org.gatein.wsrp.portlet.BasicPortlet;
 import org.gatein.wsrp.portlet.DispatcherPortlet;
 import org.gatein.wsrp.portlet.EncodeURLPortlet;
+import org.gatein.wsrp.portlet.EventConsumerPortlet;
+import org.gatein.wsrp.portlet.EventGeneratorPortlet;
 import org.gatein.wsrp.portlet.GetLocalesPortlet;
 import org.gatein.wsrp.portlet.ImplicitCloningPortlet;
 import org.gatein.wsrp.portlet.MarkupPortlet;
@@ -404,7 +406,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
    {
       WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "test-events-portlet.war");
       webArchive.merge(ShrinkWrap.create(WebArchive.class).as(ExplodedImporter.class).importDirectory("src/test/test-portlets/test-events-portlet-war").as(WebArchive.class));
-      webArchive.addClass(RenderParamPortlet.class);
+      webArchive.addClass(EventGeneratorPortlet.class);
+      webArchive.addClass(EventConsumerPortlet.class);
       return webArchive;
    }
    
