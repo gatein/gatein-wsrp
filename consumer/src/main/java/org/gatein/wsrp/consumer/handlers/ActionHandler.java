@@ -41,6 +41,7 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.extensions.ExtensionAccess;
 import org.gatein.wsrp.consumer.WSRPConsumerImpl;
+import org.gatein.wsrp.consumer.handlers.MultiPartUtil.MultiPartResult;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.InteractionParams;
@@ -169,68 +170,11 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       RequestContextWrapper requestContext = new RequestContextWrapper(actionInvocation.getRequestContext());
       try
       {
-         if (FileUpload.isMultipartContent(requestContext))
+         MultiPartResult multiPartResult = MultiPartUtil.getMultiPartContent(invocation.getRequestContext());
+         if (multiPartResult != null)
          {
-            // content is multipart, we need to parse it (that includes form parameters)
-            FileUpload upload = new FileUpload();
-            FileItemIterator iter = upload.getItemIterator(requestContext);
-            List<UploadContext> uploadContexts = new ArrayList<UploadContext>(7);
-            List<NamedString> formParameters = new ArrayList<NamedString>(7);
-            while (iter.hasNext())
-            {
-               FileItemStream item = iter.next();
-               InputStream stream = item.openStream();
-               if (!item.isFormField())
-               {
-                  String contentType = item.getContentType();
-                  if (debug)
-                  {
-                     log.debug("File field " + item.getFieldName() + " with file name " + item.getName() + " and content type "
-                        + contentType + " detected.");
-                  }
-
-                  BufferedInputStream bufIn = new BufferedInputStream(stream);
-
-                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                  BufferedOutputStream bos = new BufferedOutputStream(baos);
-
-                  int c = bufIn.read();
-                  while (c != -1)
-                  {
-                     bos.write(c);
-                     c = bufIn.read();
-                  }
-
-                  bos.flush();
-                  baos.flush();
-                  bufIn.close();
-                  bos.close();
-
-                  UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, baos.toByteArray());
-
-                  List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
-
-                  String value = FileUpload.FORM_DATA + ";"
-                     + " name=\"" + item.getFieldName() + "\";"
-                     + " filename=\"" + item.getName() + "\"";
-                  NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
-                  mimeAttributes.add(mimeAttribute);
-
-                  mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
-                  mimeAttributes.add(mimeAttribute);
-
-                  uploadContext.getMimeAttributes().addAll(mimeAttributes);
-
-                  uploadContexts.add(uploadContext);
-               }
-               else
-               {
-                  NamedString formParameter = WSRPTypeFactory.createNamedString(item.getFieldName(), Streams.asString(stream));
-                  formParameters.add(formParameter);
-               }
-            }
-            interactionParams.getUploadContexts().addAll(uploadContexts);
-            interactionParams.getFormParameters().addAll(formParameters);
+            interactionParams.getFormParameters().addAll(multiPartResult.getFormParameters());
+            interactionParams.getUploadContexts().addAll(multiPartResult.getUploadContexts());
          }
 
          // Also check for form parameters from the Invocation
