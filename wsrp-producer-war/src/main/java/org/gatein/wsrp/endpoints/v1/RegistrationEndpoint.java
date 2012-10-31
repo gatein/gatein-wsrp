@@ -67,7 +67,7 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp_services.wsdl",
    endpointInterface = "org.oasis.wsrp.v1.WSRPV1RegistrationPortType"
 )
-@HandlerChain(file="../producer-handler-chains.xml")
+@HandlerChain(file = "../producer-handler-chains.xml")
 @Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1RegistrationPortType
 {
@@ -112,7 +112,7 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
             registrationData.getExtensions().addAll(WSRPUtils.transform(extensions.value, V1ToV2Converter.EXTENSION));
          }
 
-         RegistrationContext registrationContext = producer.register(registrationData);
+         RegistrationContext registrationContext = producer.register(WSRPTypeFactory.createRegister(registrationData, null, null));
          registrationHandle.value = registrationContext.getRegistrationHandle();
          registrationState.value = registrationContext.getRegistrationState();
          extensions.value = WSRPUtils.transform(registrationContext.getExtensions(), V2ToV1Converter.EXTENSION);
@@ -141,7 +141,7 @@ public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV1Regi
       {
          RegistrationContext rc = WSRPTypeFactory.createRegistrationContext(registrationHandle);
          rc.setRegistrationState(registrationState);
-         producer.deregister(rc);
+         producer.deregister(WSRPTypeFactory.createDeregister(rc, null));
       }
       catch (InvalidRegistration invalidRegistration)
       {

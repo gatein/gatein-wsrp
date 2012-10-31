@@ -35,13 +35,11 @@ import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.spec.v1.V2ToV1Converter;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +77,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       Archive archive = V1ProducerBaseTest.createDeployment();
       return archive;
    }
+
    @Override
    protected boolean removeCurrent(String archiveName)
    {
@@ -429,7 +428,7 @@ public class RegistrationTestCase extends V1ProducerBaseTest
       try
       {
          producer.deregister(null);
-         ExtendedAssert.fail("Shouldn't be possible to modify registration if no registration is required.");
+         ExtendedAssert.fail("Shouldn't be possible to deregister if no registration is required.");
       }
       catch (V1OperationFailed operationFailedFault)
       {

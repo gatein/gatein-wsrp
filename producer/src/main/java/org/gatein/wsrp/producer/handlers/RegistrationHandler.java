@@ -40,6 +40,7 @@ import org.gatein.wsrp.producer.WSRPProducerImpl;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.AccessDenied;
+import org.oasis.wsrp.v2.Deregister;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetRegistrationLifetime;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -51,6 +52,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.Property;
+import org.oasis.wsrp.v2.Register;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RegistrationData;
 import org.oasis.wsrp.v2.RegistrationState;
@@ -77,11 +79,15 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       super(producer);
    }
 
-   public RegistrationContext register(RegistrationData registrationData) throws MissingParameters, OperationFailed, OperationNotSupported
+   public RegistrationContext register(Register register) throws MissingParameters, OperationFailed, OperationNotSupported
    {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(register, "Register");
+
+      RegistrationData registrationData = register.getRegistrationData();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(registrationData, "RegistrationData", "Register");
+
       ProducerRegistrationRequirements registrationRequirements = producer.getProducerRegistrationRequirements();
 
-      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationData, "RegistrationData");
       String consumerName = registrationData.getConsumerName();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(consumerName, "consumer name", "RegistrationData");
 
@@ -150,14 +156,18 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       producer.getRegistrationManager().getPersistenceManager().saveChangesTo(consumer);
    }
 
-   public List<Extension> deregister(RegistrationContext deregister)
+   public List<Extension> deregister(Deregister deregister)
       throws InvalidRegistration, OperationFailed, OperationNotSupported, ResourceSuspended
    {
+      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(deregister, "Deregister");
+
       if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
       {
-         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(deregister, "RegistrationContext");
 
-         String registrationHandle = deregister.getRegistrationHandle();
+         final RegistrationContext registrationContext = deregister.getRegistrationContext();
+         WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(registrationContext, "RegistrationContext");
+
+         String registrationHandle = registrationContext.getRegistrationHandle();
          if (ParameterValidation.isNullOrEmpty(registrationHandle))
          {
             throwInvalidRegistrationFault("Null or empty registration handle");

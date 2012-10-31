@@ -87,8 +87,8 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       @WebParam(name = "supportedOptions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<String>> supportedOptions,
       @WebParam(name = "exportDescription", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<ExportDescription> exportDescription,
       @WebParam(name = "mayReturnRegistrationState", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<Boolean> mayReturnRegistrationState,
-      @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions)
-      throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
+      @WebParam(name = "extensions", targetNamespace = "urn:oasis:names:tc:wsrp:v2:types", mode = WebParam.Mode.OUT) Holder<List<Extension>> extensions
+   ) throws InvalidRegistration, ModifyRegistrationRequired, OperationFailed, ResourceSuspended
    {
       GetServiceDescription getServiceDescription = WSRPTypeFactory.createGetServiceDescription(registrationContext, userContext);
       getServiceDescription.getDesiredLocales().addAll(desiredLocales);
@@ -99,7 +99,6 @@ public class ServiceDescriptionEndpoint extends WSRPBaseEndpoint implements WSRP
       requiresRegistration.value = description.isRequiresRegistration();
       offeredPortlets.value = description.getOfferedPortlets();
       userCategoryDescriptions.value = description.getUserCategoryDescriptions();
-//      customUserProfileItemDescriptions.value = description.getCustomUserProfileItemDescriptions();
       extensionDescriptions.value = description.getExtensionDescriptions();
       customWindowStateDescriptions.value = description.getCustomWindowStateDescriptions();
       customModeDescriptions.value = description.getCustomModeDescriptions();

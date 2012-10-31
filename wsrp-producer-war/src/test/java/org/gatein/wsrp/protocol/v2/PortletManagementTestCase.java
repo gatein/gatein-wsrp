@@ -40,13 +40,11 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.portlet.utils.MockRequest;
 import org.gatein.wsrp.support.TestMockExportPersistenceManager;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +71,6 @@ import org.oasis.wsrp.v2.MarkupResponse;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.OperationFailed;
-import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -121,10 +118,10 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
       //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
       //            .createMockResponse());
-      
+
       Request request = new MockRequest();
       request.setCoyoteRequest(new org.apache.coyote.Request());
-      
+
       RequestFacade requestFacade = new RequestFacade(request);
       ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
@@ -226,7 +223,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
 
          RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", "CONSUMERAGENT.0.0", true);
-         RegistrationContext registrationContext = producer.register(registrationData);
+         RegistrationContext registrationContext = producer.register(WSRPTypeFactory.createRegister(registrationData, null, null));
 
          List<PortletContext> portletContexts = createPortletContextList(getDefaultHandle());
 
@@ -413,7 +410,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       {
          producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
          RegistrationData registrationData = WSRPTypeFactory.createRegistrationData("CONSUMER", "CONSUMERAGENT.0.0", true);
-         RegistrationContext registrationContext = producer.register(registrationData);
+         RegistrationContext registrationContext = producer.register(WSRPTypeFactory.createRegister(registrationData, null, null));
 
          String importID = "foo";
 
@@ -1087,7 +1084,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       try
       {
          RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-         RegistrationContext toRegistrationContext = producer.register(toRegistrationData);
+         RegistrationContext toRegistrationContext = producer.register(WSRPTypeFactory.createRegister(toRegistrationData, null, null));
 
          String handle = getDefaultHandle();
          List<PortletContext> portletContexts = createPortletContextList(handle);
@@ -1133,7 +1130,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       //producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
 
       RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENAT.0.0", true);
-      RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
+      RegistrationContext fromRegistrationContext = producer.register(WSRPTypeFactory.createRegister(fromRegistrationData, null, null));
 
       String handle = getDefaultHandle();
       List<PortletContext> portletContexts = createPortletContextList(handle);
@@ -1168,9 +1165,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       //producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(true);
 
       RegistrationData fromRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
-      RegistrationContext fromRegistrationContext = producer.register(fromRegistrationData);
+      RegistrationContext fromRegistrationContext = producer.register(WSRPTypeFactory.createRegister(fromRegistrationData, null, null));
       RegistrationData toRegistrationData = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-      RegistrationContext toRegistrationContext = producer.register(toRegistrationData);
+      RegistrationContext toRegistrationContext = producer.register(WSRPTypeFactory.createRegister(toRegistrationData, null, null));
 
       String handle = getDefaultHandle();
       List<PortletContext> portletContexts = createPortletContextList(handle);
@@ -1417,9 +1414,9 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    public void checkClonePortletAvailability() throws Exception
    {
       RegistrationData registrationDataA = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
-      RegistrationContext registrationContextA = producer.register(registrationDataA);
+      RegistrationContext registrationContextA = producer.register(WSRPTypeFactory.createRegister(registrationDataA, null, null));
       RegistrationData registrationDataB = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-      RegistrationContext registrationContextB = producer.register(registrationDataB);
+      RegistrationContext registrationContextB = producer.register(WSRPTypeFactory.createRegister(registrationDataB, null, null));
 
       checkClonePortletAvailability(registrationContextA, registrationContextB);
    }
@@ -1455,7 +1452,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
 
       RegistrationData registrationDataA = WSRPTypeFactory.createRegistrationData("CONSUMERA", "CONSUMERAGENTA.0.0", true);
-      RegistrationContext registrationContextA = producer.register(registrationDataA);
+      RegistrationContext registrationContextA = producer.register(WSRPTypeFactory.createRegister(registrationDataA, null, null));
 
       checkClonePortletAvailability(registrationContextA, null);
    }
@@ -1466,7 +1463,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       producer.getConfigurationService().getConfiguration().getRegistrationRequirements().setRegistrationRequired(false);
 
       RegistrationData registrationDataB = WSRPTypeFactory.createRegistrationData("CONSUMERB", "CONSUMERAGENTB.0.0", true);
-      RegistrationContext registrationContextB = producer.register(registrationDataB);
+      RegistrationContext registrationContextB = producer.register(WSRPTypeFactory.createRegister(registrationDataB, null, null));
 
       checkClonePortletAvailability(null, registrationContextB);
    }
