@@ -25,6 +25,7 @@ package org.gatein.wsrp.protocol.v2;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.GetServiceDescription;
 import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -34,6 +35,7 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
+import org.oasis.wsrp.v2.ResourceParams;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.ServiceDescription;
 import org.oasis.wsrp.v2.StateChange;
@@ -166,6 +168,18 @@ public abstract class NeedPortletHandleTest extends V2ProducerBaseTest
       PortletContext portletContext = WSRPTypeFactory.createPortletContext(handle);
       return WSRPTypeFactory.createPerformBlockingInteraction(null, portletContext, createDefaultRuntimeContext(), null, createDefaultMarkupParams(),
          createDefaultInteractionParams());
+   }
+   
+   protected GetResource createGetResource(String archiveName, String resourceID)
+   {
+      PortletContext portletContext = WSRPTypeFactory.createPortletContext(getFirstHandleFor(archiveName));
+      RuntimeContext runtimeContext = createDefaultRuntimeContext();
+      return WSRPTypeFactory.createGetResource(null, portletContext, runtimeContext, null, createResourceParams(resourceID));
+   }
+   
+   protected ResourceParams createResourceParams(String resourceID)
+   {
+      return WSRPTypeFactory.createDefaultResourceParams(resourceID);
    }
 
    protected InteractionParams createDefaultInteractionParams()

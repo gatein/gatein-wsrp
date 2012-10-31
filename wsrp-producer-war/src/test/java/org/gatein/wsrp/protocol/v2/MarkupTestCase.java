@@ -57,6 +57,7 @@ import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsFailed;
 import org.oasis.wsrp.v2.HandleEventsResponse;
@@ -71,6 +72,7 @@ import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.SessionContext;
 import org.oasis.wsrp.v2.SessionParams;
@@ -78,7 +80,9 @@ import org.oasis.wsrp.v2.StateChange;
 import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
+import org.oasis.wsrp.v2.UploadContext;
 
+import javax.portlet.ActionRequest;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -1137,6 +1141,93 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       catch (Exception e)
       {
          ExtendedAssert.fail(e.getMessage());
+      }
+   }
+   
+   @Test
+   public void testGetResource() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-resource-portlet.war";
+      deploy(archive);
+
+      try
+      {
+         GetResource getResource = createGetResource(archive, "resourceFromWriter");
+         ResourceResponse response = producer.getResource(getResource);
+         
+         assertEquals("image/png", response.getResourceContext().getMimeType());
+         assertNull(response.getResourceContext().getItemBinary());
+         assertEquals("foo", response.getResourceContext().getItemString());
+         
+         getResource = createGetResource(archive, "resourceFromStream");
+         response = producer.getResource(getResource);
+         
+         assertEquals("image/png", response.getResourceContext().getMimeType());
+         byte[] expected = new byte[] {0, 1, 2, 3, 4};
+         byte[] actual = response.getResourceContext().getItemBinary();
+         assertEquals(expected.length, actual.length);
+         for (int i = 0; i < expected.length; i++){
+            assertEquals(expected[i], actual[i]);
+         }
+         assertNull(response.getResourceContext().getItemString());
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+   }
+   
+   @Test
+   public void testGetResourceUpload() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-resource-portlet.war";
+      deploy(archive);
+
+      try
+      {
+         byte[] uploadedBytes = new byte[]{0, 1, 2, 3, 4};
+         GetResource getResource = createGetResource(archive, "uploaded");
+         UploadContext uploadContext = WSRPTypeFactory.createUploadContext("image/png", uploadedBytes);
+         getResource.getResourceParams().getUploadContexts().add(uploadContext);
+         ResourceResponse response = producer.getResource(getResource);
+         
+         assertEquals("image/png", response.getResourceContext().getMimeType());
+        
+         byte[] actual = response.getResourceContext().getItemBinary();
+         assertEquals(uploadedBytes.length, actual.length);
+         for (int i = 0; i < uploadedBytes.length; i++){
+            assertEquals(uploadedBytes[i], actual[i]);
+         }
+         assertNull(response.getResourceContext().getItemString());
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+   }
+   
+   @Test
+   public void testPBIResourceUpload() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String archive = "test-resource-portlet.war";
+      deploy(archive);
+      
+      try
+      {
+         byte[] uploadedBytes = new byte[]{0, 1, 2, 3, 4};
+         PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+         UploadContext uploadContext = WSRPTypeFactory.createUploadContext("image/png", uploadedBytes);
+         pbi.getInteractionParams().getUploadContexts().add(uploadContext);
+        
+         pbi.getInteractionParams().getFormParameters().add(createNamedString(ActionRequest.ACTION_NAME, "uploadImage")); 
+         producer.performBlockingInteraction(pbi);
+      }
+      finally
+      {
+         undeploy(archive);
       }
    }
 
