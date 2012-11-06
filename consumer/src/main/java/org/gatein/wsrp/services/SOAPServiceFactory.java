@@ -133,9 +133,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       // set timeout
       setTimeout(requestContext);
 
-      // set port address
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
-
       // Set org.jboss.ws.core.StubExt.PROPERTY_CHUNKED_ENCODING_SIZE to 0 to deactive chunked encoding for
       // better interoperability as Oracle's producer doesn't support it, for example.
       // See https://jira.jboss.org/jira/browse/JBWS-2884 and
