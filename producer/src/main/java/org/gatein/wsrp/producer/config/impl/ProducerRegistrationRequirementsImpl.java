@@ -67,7 +67,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    private boolean requiresRegistration;
    private boolean fullServiceDescriptionRequiresRegistration;
-   private RegistrationPolicy policy;
+   private transient RegistrationPolicy policy;
    private String policyClassName;
    private String validatorClassName;
    private long lastModified;
@@ -386,7 +386,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    {
       // only reload if we don't already have a policy or if the requested policy/validator classes are different
       // from the ones we already have 
-      if (requiresRegistration && (!policy.getClassName().equals(policyClassName) || isCurrentValidatorClassDifferentFrom(validatorClassName)))
+      if (policy == null || (requiresRegistration && (!policy.getClassName().equals(policyClassName) || isCurrentValidatorClassDifferentFrom(validatorClassName))))
       {
          if (policyClassName != null && !DEFAULT_POLICY_CLASS_NAME.equals(policyClassName))
          {
