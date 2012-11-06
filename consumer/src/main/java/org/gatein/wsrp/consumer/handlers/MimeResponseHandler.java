@@ -157,11 +157,11 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
    {
       if (markup != null)
       {
-         return new ContentResponse(null, null, mimeType, null, markup, createCacheControl(mimeResponse));
+         return new ContentResponse(null, null, mimeType, null, markup, cacheControl);
       }
       else
       {
-         return new ContentResponse(null, null, mimeType, MIMEUtils.UTF_8, bytes, createCacheControl(mimeResponse));
+         return new ContentResponse(null, null, mimeType, MIMEUtils.UTF_8, bytes, cacheControl);
       }
    }
 
@@ -251,20 +251,20 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          // we need to assume that is the correct encoding for the situation.
 
          // NOTE: there may be other encoding situations we are not currently dealing with :(
-         
+
          // Since the url to be written has to be of format wsrp-urlType=[render|resource|blockingAction]&key1=value1&key2=....
          // we should be able to extract what the '-' is being encoded as and use that as a reference to determine what the '&' is encoded as
-         
+
          // NOTE: the wsrp specification only covers the situation of & and &amp; otherwise its acceptable for use to throw an error or ignore rewriting
 
-         
+
          // a work around for PBR-421
          // sometimes the /wsrp-rewrite will be escaped as \/wsrp-rewrite
          if (match.endsWith("\\"))
          {
-            match = match.substring(0, match.length() -1);
+            match = match.substring(0, match.length() - 1);
          }
-         
+
          boolean useJavaScriptEscaping = false;
          boolean useISO_8859_1Encoding = false;
          // work around for GTNWSRP-93 && PBR-421
