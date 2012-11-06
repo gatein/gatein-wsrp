@@ -44,7 +44,7 @@
    <parent>
       <groupId>org.gatein</groupId>
       <artifactId>gatein-parent</artifactId>
-      <version>1.2.0.Beta01</version>
+      <version>1.2.0.Final</version>
    </parent>
 
    <scm>
@@ -71,9 +71,9 @@
    </repositories>
 
    <properties>
-      <org.gatein.pc.version>2.4.0.Beta02</org.gatein.pc.version>
-      <org.gatein.common.version>2.1.0.Beta01</org.gatein.common.version>
-      <org.gatein.wci.version>2.3.0.Beta02</org.gatein.wci.version>
+      <org.gatein.pc.version>2.4.0.CR01</org.gatein.pc.version>
+      <org.gatein.common.version>2.1.0.Final</org.gatein.common.version>
+      <org.gatein.wci.version>2.3.0.CR03</org.gatein.wci.version>
 
       <jsf.version>2.1</jsf.version>
       <version.jsf2.impl>2.1.9</version.jsf2.impl>
@@ -138,7 +138,7 @@
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.2.0.Beta01</version>
+            <version>1.2.0.Final</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
