@@ -87,7 +87,7 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
       }
       else
       {
-         configuration = pcm.toProducerConfiguration();
+         configuration = pcm.toModel(null, this);
       }
 
 

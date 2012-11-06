@@ -99,4 +99,6 @@ public interface ProducerConfiguration
     *                              #INFINITE_SESSION_EXPIRATION_TIME} is passed, then the session will never expire.
     */
    void setSessionExpirationTime(int sessionExpirationTime);
+
+   void setRegistrationRequirements(ProducerRegistrationRequirements requirements);
 }

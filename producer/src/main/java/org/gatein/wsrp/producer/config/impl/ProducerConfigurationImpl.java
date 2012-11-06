@@ -94,6 +94,7 @@ public class ProducerConfigurationImpl implements ProducerConfiguration
       return listeners;
    }
 
+   @Override
    public void setRegistrationRequirements(ProducerRegistrationRequirements requirements)
    {
       this.requirements = requirements;
