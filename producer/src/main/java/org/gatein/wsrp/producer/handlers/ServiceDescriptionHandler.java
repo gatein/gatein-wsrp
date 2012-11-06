@@ -160,7 +160,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "portlet context");
 
-      return serviceDescription.getPortletDescription(portletContext, desiredLocales, registration);
+      final PortletDescription description = serviceDescription.getPortletDescription(portletContext, desiredLocales, registration);
+      if (description == null)
+      {
+         throw WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Couldn't find portlet '" + portletContext.getPortletHandle() + "'. Check that it's properly deployed.", null);
+      }
+      return description;
    }
 
    public void onEvent(ManagedObjectRegistryEvent event)
