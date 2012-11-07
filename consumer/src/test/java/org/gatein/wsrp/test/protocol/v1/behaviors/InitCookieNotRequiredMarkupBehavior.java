@@ -23,10 +23,14 @@
 
 package org.gatein.wsrp.test.protocol.v1.behaviors;
 
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.spec.v1.WSRP1ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v1.BehaviorRegistry;
 import org.oasis.wsrp.v1.V1AccessDenied;
 import org.oasis.wsrp.v1.V1Extension;
+import org.oasis.wsrp.v1.V1GetMarkup;
+import org.oasis.wsrp.v1.V1InvalidCookie;
 import org.oasis.wsrp.v1.V1InvalidRegistration;
 import org.oasis.wsrp.v1.V1OperationFailed;
 import org.oasis.wsrp.v1.V1RegistrationContext;
@@ -53,9 +57,9 @@ public class InitCookieNotRequiredMarkupBehavior extends InitCookieMarkupBehavio
    }
 
    @Override
-   protected String getMarkupString(String handle)
+   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, V1GetMarkup getMarkup) throws V1OperationFailed, V1InvalidCookie
    {
-      return handle;
+      return portletHandle;
    }
 
    @Override

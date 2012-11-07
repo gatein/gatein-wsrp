@@ -23,10 +23,14 @@
 
 package org.gatein.wsrp.test.protocol.v2.behaviors;
 
+import org.gatein.pc.api.Mode;
+import org.gatein.pc.api.WindowState;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorRegistry;
 import org.oasis.wsrp.v2.AccessDenied;
 import org.oasis.wsrp.v2.Extension;
+import org.oasis.wsrp.v2.GetMarkup;
+import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
@@ -54,6 +58,12 @@ public class PerGroupInitCookieMarkupBehavior extends InitCookieMarkupBehavior
    protected void initPortletHandle()
    {
       portletHandle = PER_GROUP_INIT_COOKIE_HANDLE;
+   }
+
+   @Override
+   protected String getMarkupString(Mode mode, WindowState windowState, String navigationalState, GetMarkup getMarkup) throws OperationFailed, InvalidCookie
+   {
+      return portletHandle;
    }
 
    @Override

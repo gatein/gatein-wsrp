@@ -248,7 +248,8 @@ public class MarkupTestCase extends V1ConsumerBaseTest
 
       ExtendedAssert.assertEquals(0, behavior.getInitCookieCallCount());
 
-      consumer.invoke(render);
+      final PortletInvocationResponse response = consumer.invoke(render);
+      assertFalse(response instanceof ErrorResponse);
 
       ExtendedAssert.assertEquals(cookieProtocol, consumer.getProducerInfo().getRequiresInitCookie().value());
 
