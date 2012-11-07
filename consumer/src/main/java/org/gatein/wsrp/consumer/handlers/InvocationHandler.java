@@ -109,25 +109,19 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       {
          if (!(e instanceof PortletInvokerException))
          {
-            ErrorResponse errorResponse = dealWithError(e, invocation, getRuntimeContextFrom(request));
-            if (errorResponse != null)
+            final PortletInvocationResponse response = dealWithError(e, invocation, getRuntimeContextFrom(request));
+            if (response instanceof ErrorResponse)
             {
-               return unwrapWSRPError(errorResponse);
+               return unwrapWSRPError((ErrorResponse)response);
             }
-            else
-            {
-               return new ErrorResponse(e);
-            }
+
+            return response;
          }
          else
          {
             throw (PortletInvokerException)e;
          }
       }
-      /*if (response instanceof ErrorResponse)
-      {
-         return unwrapWSRPError((ErrorResponse)response);
-      }*/
    }
 
    protected Response performRequest(Request request, PortletInvocation invocation) throws Exception
@@ -160,21 +154,10 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          {
             sessionHandler.initCookieIfNeeded(invocation);
 
-            // if we need cookies, set the current group id
-            sessionHandler.initProducerSessionInformation(invocation);
-
             response = performRequest(request);
 
             sessionHandler.updateCookiesIfNeeded(invocation);
          }
-         /*catch (Exception e)
-         {
-            ErrorResponse errorResponse = dealWithError(e, invocation, runtimeContext);
-            if (errorResponse != null)
-            {
-               return errorResponse;
-            }
-         }*/
          finally
          {
             // we're done: reset currently held information
@@ -184,9 +167,6 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
       if (retryCount >= MAXIMUM_RETRY_NUMBER)
       {
-         /*return new ErrorResponse(new RuntimeException("Tried to perform request " + MAXIMUM_RETRY_NUMBER
-            + " times before giving up. This usually happens if an error in the WS stack prevented the messages to be " +
-            "properly transmitted. Look at server.log for clues as to what happened..."));*/
          throw new RuntimeException("Tried to perform request " + MAXIMUM_RETRY_NUMBER
             + " times before giving up. This usually happens if an error in the WS stack prevented the messages to be " +
             "properly transmitted. Look at server.log for clues as to what happened...");
@@ -208,8 +188,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
     * @return an ErrorResponse if the error couldn't be dealt with or <code>null</code> if the error was correctly
     *         handled
     */
-   private ErrorResponse dealWithError(Exception error, Invocation invocation, RuntimeContext runtimeContext)
-      throws PortletInvokerException
+   private PortletInvocationResponse dealWithError(Exception error, Invocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       log.error("The portlet threw an exception", error);
 
@@ -225,6 +204,9 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          try
          {
             sessionHandler.initCookieIfNeeded(invocation);
+
+            // re-attempt invocation
+            return handle(invocation);
          }
          catch (Exception e)
          {
@@ -236,10 +218,14 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       {
          log.debug("Session invalidated after InvalidSessionFault, will re-send session-stored information.");
          sessionHandler.handleInvalidSessionFault(invocation, runtimeContext);
+
+         return handle(invocation);
       }
       else if (error instanceof InvalidRegistration)
       {
          consumer.handleInvalidRegistrationFault();
+
+         return new ErrorResponse(error);
       }
       else if (error instanceof ModifyRegistrationRequired)
       {
@@ -252,7 +238,6 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          // other errors cannot be dealt with: we have an error condition
          return new ErrorResponse(error);
       }
-      return null;
    }
 
    protected ErrorResponse unwrapWSRPError(ErrorResponse errorResponse)
