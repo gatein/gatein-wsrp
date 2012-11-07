@@ -84,23 +84,6 @@ public class SessionHandler implements SessionEventListener
       return getRequiresInitCookie() != null && !CookieProtocol.NONE.equals(getRequiresInitCookie());
    }
 
-   void initProducerSessionInformation(PortletInvocation invocation) throws PortletInvokerException
-   {
-      // if we need cookies, set the current group id
-      String groupId;
-      if (requiresGroupInitCookie())
-      {
-         WSRPPortletInfo info = consumer.getPortletInfo(invocation);
-         groupId = info.getGroupId();
-      }
-      else
-      {
-         groupId = null;
-      }
-
-      RequestHeaderClientHandler.setCurrentInfo(groupId, getProducerSessionInformation(invocation, true));
-   }
-
    private boolean requiresGroupInitCookie()
    {
       return requiresInitCookie() && CookieProtocol.PER_GROUP.equals(getRequiresInitCookie());
@@ -126,8 +109,21 @@ public class SessionHandler implements SessionEventListener
          return;
       }
 
+      // if we need cookies, set the current group id
+      final String portletGroupId;
+      if (requiresGroupInitCookie())
+      {
+         WSRPPortletInfo info = consumer.getPortletInfo(invocation);
+         portletGroupId = info.getGroupId();
+      }
+      else
+      {
+         portletGroupId = null;
+      }
+      final ProducerSessionInformation sessionInformation = getProducerSessionInformation(invocation, true);
+      RequestHeaderClientHandler.setCurrentInfo(portletGroupId, sessionInformation);
+
       // check if we have already initialized cookies for this user
-      ProducerSessionInformation sessionInformation = getProducerSessionInformation(invocation);
       if (sessionInformation.isInitCookieDone())
       {
          return;
