@@ -105,7 +105,7 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
          registrationProperties.put(entry.getKey(), new RegistrationPropertyDescription(entry.getValue()));
       }
 
-      modifyNow();
+      setLastModified(other.getLastModified());
    }
 
    public void setRegistrationProperties(Collection<RegistrationPropertyDescription> regProps)
@@ -120,8 +120,6 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
          {
             addRegistrationProperty(new RegistrationPropertyDescription(propertyDescription));
          }
-
-         modifyNow();
 
          notifyRegistrationPropertyChangeListeners();
       }
@@ -143,7 +141,6 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
          }
 
          this.requiresRegistration = requiresRegistration;
-         modifyNow();
       }
    }
 
@@ -171,10 +168,12 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
       QName name = propertyDescription.getName();
       ParameterValidation.throwIllegalArgExceptionIfNull(name, "Property name");
 
-      registrationProperties.put(name, propertyDescription);
-      modifyNow();
-      propertyDescription.setValueChangeListener(this);
-      notifyRegistrationPropertyChangeListeners();
+      final RegistrationPropertyDescription old = registrationProperties.put(name, propertyDescription);
+      if (modifyNowIfNeeded(old, propertyDescription))
+      {
+         propertyDescription.setValueChangeListener(this);
+         notifyRegistrationPropertyChangeListeners();
+      }
    }
 
    public RegistrationPropertyDescription addEmptyRegistrationProperty(String name)
@@ -232,9 +231,8 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyName, "Property name");
       RegistrationPropertyDescription prop = registrationProperties.remove(propertyName);
-      if (prop != null)
+      if (modifyNowIfNeeded(null, prop))
       {
-         modifyNow();
          notifyRegistrationPropertyChangeListeners();
       }
 
