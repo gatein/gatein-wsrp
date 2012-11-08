@@ -89,18 +89,23 @@ public class ProducerInfoTestCase extends TestCase
       final long initial = info.getLastModified();
 
       info.setActive(info.isActive());
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
 
       info.setActiveAndSave(info.isActive());
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
 
       info.setExpirationCacheSeconds(info.getExpirationCacheSeconds());
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
 
       info.setId(info.getId());
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
 
       info.setModifyRegistrationRequired(info.isModifyRegistrationRequired());
+      checkLastModifiedHasNotChangedSince(initial);
+   }
+
+   private void checkLastModifiedHasNotChangedSince(long initial)
+   {
       assertEquals(initial, info.getLastModified());
    }
 
@@ -109,37 +114,43 @@ public class ProducerInfoTestCase extends TestCase
       long initial = info.getLastModified();
       Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
       info.setActive(!info.isActive());
+      checkLastModifiedIsLaterThan(initial);
 
       initial = info.getLastModified();
       Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
       info.setActiveAndSave(!info.isActive());
-      assertTrue(initial != info.getLastModified());
+      checkLastModifiedIsLaterThan(initial);
 
       initial = info.getLastModified();
       Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
       info.setExpirationCacheSeconds(info.getExpirationCacheSeconds() + 1);
-      assertTrue(initial != info.getLastModified());
+      checkLastModifiedIsLaterThan(initial);
 
       initial = info.getLastModified();
       Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
       info.setId(info.getId() + "other");
-      assertTrue(initial != info.getLastModified());
+      checkLastModifiedIsLaterThan(initial);
 
       initial = info.getLastModified();
       Thread.sleep(10); // to allow for System.currentTimeMillis() to catch up
       info.setModifyRegistrationRequired(!info.isModifyRegistrationRequired());
-      assertTrue(initial != info.getLastModified());
+      checkLastModifiedIsLaterThan(initial);
+   }
+
+   private void checkLastModifiedIsLaterThan(long initial)
+   {
+      assertTrue(initial < info.getLastModified());
    }
 
    public void testSetKeyDoesNotChangeLastModified()
    {
       long initial = info.getLastModified();
       info.setKey(info.getKey());
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
 
       initial = info.getLastModified();
       info.setKey(info.getKey() + "other");
-      assertEquals(initial, info.getLastModified());
+      checkLastModifiedHasNotChangedSince(initial);
    }
 
    public void testSetRegistrationInfo()
