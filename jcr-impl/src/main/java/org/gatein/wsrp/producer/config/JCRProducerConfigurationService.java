@@ -119,4 +119,20 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
          persister.closeSession(false);
       }
    }
+
+   @Override
+   protected long getPersistedLastModifiedForConfiguration()
+   {
+      try
+      {
+         ChromatticSession session = persister.getSession();
+         ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
+
+         return (pcm == null) ? 0 : pcm.getLastModified();
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
 }

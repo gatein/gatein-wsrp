@@ -44,6 +44,18 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
    public ProducerConfiguration getConfiguration()
    {
+      if (configuration.getLastModified() < getPersistedLastModifiedForConfiguration())
+      {
+         try
+         {
+            reloadConfiguration();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException("Couldn't get Producer configuration", e);
+         }
+      }
+
       return configuration;
    }
 
@@ -118,4 +130,9 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
    }
 
    protected abstract void loadConfiguration() throws Exception;
+
+   protected long getPersistedLastModifiedForConfiguration()
+   {
+      return configuration.getLastModified();
+   }
 }
