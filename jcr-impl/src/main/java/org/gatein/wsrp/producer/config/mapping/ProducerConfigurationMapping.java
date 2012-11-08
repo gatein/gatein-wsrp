@@ -59,6 +59,8 @@ public abstract class ProducerConfigurationMapping extends LastModifiedMixinHold
    {
       setUsingStrictMode(configuration.isUsingStrictMode());
 
+      setLastModified(configuration.getLastModified());
+
       RegistrationRequirementsMapping rrm = getRegistrationRequirements();
       rrm.initFrom(configuration.getRegistrationRequirements());
    }
@@ -73,6 +75,7 @@ public abstract class ProducerConfigurationMapping extends LastModifiedMixinHold
       }
 
       configuration.setUsingStrictMode(getUsingStrictMode());
+      configuration.setLastModified(getLastModified());
 
       ProducerRegistrationRequirements req = getRegistrationRequirements().toModel(configuration.getRegistrationRequirements(), registry);
       configuration.setRegistrationRequirements(req);

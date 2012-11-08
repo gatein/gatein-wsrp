@@ -110,6 +110,8 @@ public abstract class RegistrationRequirementsMapping extends LastModifiedMixinH
          rpdms.add(rpdm);
          rpdm.initFrom(desc);
       }
+
+      setLastModified(registrationRequirements.getLastModified());
    }
 
    @Override
@@ -129,6 +131,8 @@ public abstract class RegistrationRequirementsMapping extends LastModifiedMixinH
       {
          req.addRegistrationProperty(rpdm.toRegistrationPropertyDescription());
       }
+
+      req.setLastModified(getLastModified());
 
       return req;
    }

@@ -119,6 +119,8 @@ public interface ProducerRegistrationRequirements extends ValueChangeListener
 
    long getLastModified();
 
+   void setLastModified(long lastModified);
+
    void setRegistrationProperties(Collection<RegistrationPropertyDescription> registrationProperties);
 
    String getPolicyClassName();

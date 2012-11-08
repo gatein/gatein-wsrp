@@ -24,6 +24,7 @@
 package org.gatein.wsrp.producer.config.impl;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
 import org.gatein.wsrp.producer.config.ProducerConfigurationChangeListener;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -37,7 +38,7 @@ import java.util.List;
  * @version $Revision: 12017 $
  * @since 2.6
  */
-public class ProducerConfigurationImpl implements ProducerConfiguration
+public class ProducerConfigurationImpl extends SupportsLastModified implements ProducerConfiguration
 {
    private ProducerRegistrationRequirements requirements;
 
@@ -67,7 +68,7 @@ public class ProducerConfigurationImpl implements ProducerConfiguration
 
    public void setUsingStrictMode(boolean strict)
    {
-      if (strictMode != strict)
+      if (modifyNowIfNeeded(strictMode, strict))
       {
          strictMode = strict;
          for (ProducerConfigurationChangeListener listener : listeners)
@@ -97,7 +98,10 @@ public class ProducerConfigurationImpl implements ProducerConfiguration
    @Override
    public void setRegistrationRequirements(ProducerRegistrationRequirements requirements)
    {
-      this.requirements = requirements;
+      if (modifyNowIfNeeded(this.requirements, requirements))
+      {
+         this.requirements = requirements;
+      }
    }
 
    public CookieProtocol getRequiresInitCookie()
@@ -107,7 +111,10 @@ public class ProducerConfigurationImpl implements ProducerConfiguration
 
    public void setRequiresInitCookie(CookieProtocol requiresInitCookie)
    {
-      this.requiresInitCookie = requiresInitCookie;
+      if (modifyNowIfNeeded(this.requiresInitCookie, requiresInitCookie))
+      {
+         this.requiresInitCookie = requiresInitCookie;
+      }
    }
 
    public int getSessionExpirationTime()
@@ -117,6 +124,9 @@ public class ProducerConfigurationImpl implements ProducerConfiguration
 
    public void setSessionExpirationTime(int sessionExpirationTime)
    {
-      this.sessionExpirationTime = sessionExpirationTime;
+      if (modifyNowIfNeeded(this.sessionExpirationTime, sessionExpirationTime))
+      {
+         this.sessionExpirationTime = sessionExpirationTime;
+      }
    }
 }

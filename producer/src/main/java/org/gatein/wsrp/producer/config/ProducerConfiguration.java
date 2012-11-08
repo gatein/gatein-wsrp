@@ -101,4 +101,8 @@ public interface ProducerConfiguration
    void setSessionExpirationTime(int sessionExpirationTime);
 
    void setRegistrationRequirements(ProducerRegistrationRequirements requirements);
+
+   long getLastModified();
+
+   void setLastModified(long lastModified);
 }
