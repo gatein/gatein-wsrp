@@ -32,6 +32,7 @@ import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPropertyValidator;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.api.plugins.PluginsAccess;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
@@ -53,7 +54,7 @@ import java.util.Set;
  * @version $Revision: 12017 $
  * @since 2.6
  */
-public class ProducerRegistrationRequirementsImpl implements ProducerRegistrationRequirements
+public class ProducerRegistrationRequirementsImpl extends SupportsLastModified implements ProducerRegistrationRequirements
 {
    private static final Logger log = LoggerFactory.getLogger(ProducerRegistrationRequirementsImpl.class);
    public static final Function<Class<? extends RegistrationPolicy>, String> CLASS_TO_NAME_FUNCTION = new Function<Class<? extends RegistrationPolicy>, String>()
@@ -70,7 +71,6 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
    private transient RegistrationPolicy policy;
    private String policyClassName;
    private String validatorClassName;
-   private long lastModified;
 
    private Map<QName, RegistrationPropertyDescription> registrationProperties;
 
@@ -108,21 +108,11 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
       modifyNow();
    }
 
-   private void modifyNow()
-   {
-      lastModified = System.nanoTime();
-   }
-
-   public long getLastModified()
-   {
-      return lastModified;
-   }
-
    public void setRegistrationProperties(Collection<RegistrationPropertyDescription> regProps)
    {
       Set<RegistrationPropertyDescription> original = new HashSet<RegistrationPropertyDescription>(registrationProperties.values());
       Set<RegistrationPropertyDescription> newProps = new HashSet<RegistrationPropertyDescription>(regProps);
-      if (!original.equals(newProps))
+      if (modifyNowIfNeeded(original, newProps))
       {
          registrationProperties.clear();
 
@@ -144,7 +134,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationRequired(boolean requiresRegistration)
    {
-      if (this.requiresRegistration != requiresRegistration)
+      if (modifyNowIfNeeded(this.requiresRegistration, requiresRegistration))
       {
          // if we switch from requiring registration to no registration, erase registration properties
          if (this.requiresRegistration && !requiresRegistration)
@@ -164,10 +154,9 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setRegistrationRequiredForFullDescription(boolean fullServiceDescriptionRequiresRegistration)
    {
-      if (this.fullServiceDescriptionRequiresRegistration != fullServiceDescriptionRequiresRegistration)
+      if (modifyNowIfNeeded(this.fullServiceDescriptionRequiresRegistration, fullServiceDescriptionRequiresRegistration))
       {
          this.fullServiceDescriptionRequiresRegistration = fullServiceDescriptionRequiresRegistration;
-         modifyNow();
       }
    }
 
@@ -349,7 +338,7 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
 
    public void setPolicy(RegistrationPolicy policy)
    {
-      if (ParameterValidation.isOldAndNewDifferent(this.policy, policy))
+      if (modifyNowIfNeeded(this.policy, policy))
       {
          // make sure we always have a RegistrationPolicy
          if (policy == null)
@@ -370,7 +359,6 @@ public class ProducerRegistrationRequirementsImpl implements ProducerRegistratio
          {
             validatorClassName = null;
          }
-         modifyNow();
          notifyRegistrationPolicyChangeListeners();
       }
    }
