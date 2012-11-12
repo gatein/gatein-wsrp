@@ -114,9 +114,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       for (PortCustomizer customizer : customizers)
       {
          // only add WSS focused customizer if WSS is enabled
-         if (wssEnabled && customizer.isWSSFocused())
+         if (customizer.isWSSFocused())
          {
-            customizer.customizePort(service);
+            if (wssEnabled)
+            {
+               customizer.customizePort(service);
+            }
          }
          else
          {
