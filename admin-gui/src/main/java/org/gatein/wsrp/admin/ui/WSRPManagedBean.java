@@ -71,6 +71,8 @@ public abstract class WSRPManagedBean implements Serializable
       ParameterValidation.ValidationErrorHandler getValidationErrorHandler(String name, String targetForErrorMessage);
 
       Pattern getValidationPattern();
+
+      String getErrorKey();
    }
 
    private PropertyValidator validator = new DefaultPropertyValidator();
@@ -78,6 +80,11 @@ public abstract class WSRPManagedBean implements Serializable
    protected void setValidator(PropertyValidator validator)
    {
       this.validator = validator;
+   }
+
+   protected PropertyValidator getValidator()
+   {
+      return validator;
    }
 
    public void setBeanContext(BeanContext beanContext)
@@ -102,7 +109,7 @@ public abstract class WSRPManagedBean implements Serializable
       String objectTypeName = validator.getObjectTypeName();
       if (ParameterValidation.isNullOrEmpty(name))
       {
-         beanContext.createTargetedErrorMessage(targetForErrorMessage, INVALID_NAME, name, getLocalizedType(objectTypeName));
+         beanContext.createTargetedErrorMessage(targetForErrorMessage, validator.getErrorKey(), name, getLocalizedType(objectTypeName));
          return null;
       }
       else
@@ -113,7 +120,7 @@ public abstract class WSRPManagedBean implements Serializable
          // we got an invalid name after simple checks, fail!
          if (name == null)
          {
-            beanContext.createTargetedErrorMessage(targetForErrorMessage, INVALID_NAME, original, getLocalizedType(objectTypeName));
+            beanContext.createTargetedErrorMessage(targetForErrorMessage, validator.getErrorKey(), original, getLocalizedType(objectTypeName));
             return null;
          }
 
@@ -255,6 +262,12 @@ public abstract class WSRPManagedBean implements Serializable
       public Pattern getValidationPattern()
       {
          return ParameterValidation.XSS_CHECK;
+      }
+
+      @Override
+      public String getErrorKey()
+      {
+         return INVALID_NAME;
       }
    }
 

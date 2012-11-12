@@ -276,6 +276,11 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
 
    public void validate(FacesContext facesContext, UIComponent uiComponent, Object o)
    {
+      validate(facesContext, uiComponent, o, getValidator());
+   }
+
+   private void validate(FacesContext facesContext, UIComponent uiComponent, Object o, PropertyValidator validator)
+   {
       String toValidate = null;
       if (o instanceof String)
       {
@@ -286,11 +291,16 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          toValidate = LocalizedStringConverter.getAsString(o);
       }
 
-      final String validated = this.checkNameValidity(toValidate, uiComponent.getClientId(facesContext));
+      final String validated = this.checkNameValidity(toValidate, uiComponent.getClientId(facesContext), validator);
       if (validated == null)
       {
          throw new ValidatorException(new FacesMessage()); // need a non-null FacesMessage to avoid NPE
       }
+   }
+
+   public void validateLabelOrHint(FacesContext facesContext, UIComponent uiComponent, Object o)
+   {
+      validate(facesContext, uiComponent, o, new LabelOrHintValidator());
    }
 
    public List<SelectItem> getAvailableRegistrationPolicies()
@@ -459,6 +469,32 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       public void setRegistrationRequired(boolean registrationRequired)
       {
          this.registrationRequired = registrationRequired;
+      }
+   }
+
+   private class LabelOrHintValidator extends DefaultPropertyValidator
+   {
+
+      public static final String INVALID_HINT_OR_LABEL_ERROR = "INVALID_HINT_OR_LABEL_ERROR";
+
+      @Override
+      public boolean checkForDuplicates()
+      {
+         // no need to check for duplicates
+         return false;
+      }
+
+      @Override
+      public String doSimpleChecks(String value)
+      {
+         // allow . in value
+         return (value.indexOf('/') != -1) ? null : value;
+      }
+
+      @Override
+      public String getErrorKey()
+      {
+         return INVALID_HINT_OR_LABEL_ERROR;
       }
    }
 }
