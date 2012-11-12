@@ -87,8 +87,7 @@
                                styleClass="UIGrid ConsumerGrid" width="100%">
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_name}</f:facet>
-                        <h:inputText id="name" value="#{property.nameAsString}" validator="#{producer.validate}"
-                                     size="21"/>
+                        <h:inputText id="name" value="#{property.nameAsString}" validator="#{producer.validate}" required="true" size="21"/>
                      </h:column>
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_type}</f:facet>
@@ -98,11 +97,11 @@
                      </h:column>
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_label}</f:facet>
-                        <h:inputText id="label" value="#{property.label}" validator="#{producer.validate}" size="21"/>
+                        <h:inputText id="label" value="#{property.label}" validator="#{producer.validateLabelOrHint}" size="21"/>
                      </h:column>
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_hint}</f:facet>
-                        <h:inputText id="hint" value="#{property.hint}" validator="#{producer.validate}" size="21"/>
+                        <h:inputText id="hint" value="#{property.hint}" validator="#{producer.validateLabelOrHint}" size="21"/>
                      </h:column>
                      <h:column>
                         <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
