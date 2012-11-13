@@ -91,10 +91,9 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
          }
       }
 
+      HttpServletRequest request = (HttpServletRequest)msg.get("HTTP.REQUEST");
       if (wsUsernameTokenPrincipal != null)
       {
-         HttpServletRequest request = (HttpServletRequest)msg.get("HTTP.REQUEST");
-
          String username = wsUsernameTokenPrincipal.getName();
          String password = wsUsernameTokenPrincipal.getPassword();
 
@@ -110,6 +109,20 @@ public class GTNSubjectCreatingInterceptor extends SubjectCreatingInterceptor
          catch (ServletException e)
          {
             // FIXME
+            e.printStackTrace();
+         }
+      }
+      // if we didn't get a wsUsernameTokenPrincipal but there is a remote user logged in, then we need to log out the user
+      // This handles the situations where ws-security was enabled, but has currently been disabled for the consumer
+      else if (request.getRemoteUser() != null)
+      {
+         try
+         {
+            request.logout();
+         }
+         catch (ServletException e)
+         {
+            //FIXME
             e.printStackTrace();
          }
       }
