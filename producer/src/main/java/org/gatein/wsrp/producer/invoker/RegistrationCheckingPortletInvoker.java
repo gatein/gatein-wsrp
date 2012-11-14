@@ -107,7 +107,23 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
          Set<PortletContext> contexts = registration.getKnownPortletContexts();
          for (PortletContext context : contexts)
          {
-            portlets.add(super.getPortlet(context));
+            try
+            {
+               portlets.add(super.getPortlet(context));
+            }
+            catch (NoSuchPortletException e)
+            {
+               final RegistrationSPI registrationSPI = getRegistrationAsSPI();
+               try
+               {
+                  registrationSPI.removePortletContext(context);
+                  log.debug("Removed '" + context + "' from Registration '" + registration.getRegistrationHandle() + "' because it cannot be resolved anymore.");
+               }
+               catch (RegistrationException e1)
+               {
+                  throw new PortletInvokerException(e1);
+               }
+            }
          }
       }
 
