@@ -56,7 +56,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SortedMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -561,6 +560,18 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       {
          beanContext.createErrorMessageFrom(e);
          return null;
+      }
+   }
+
+   public boolean isPortletsAvailable()
+   {
+      try
+      {
+         return !consumer.getProducerInfo().getPortletMap().isEmpty();
+      }
+      catch (PortletInvokerException e)
+      {
+         return false;
       }
    }
 

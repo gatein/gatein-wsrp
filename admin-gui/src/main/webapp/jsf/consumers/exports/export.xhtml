@@ -24,27 +24,37 @@
 <ui:decorate template="../consumerTemplate.xhtml" xmlns="http://www.w3.org/1999/xhtml"
              xmlns:f="http://java.sun.com/jsf/core"
              xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:h="http://java.sun.com/jsf/html">
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:c="http://java.sun.com/jsp/jstl/core">
 
    <ui:define name="content">
 
       <h:form id="portlets-form">
-         <h:dataTable id="portletsList" value="#{consumer.portlets}" var="portlet"
-                      rendered="#{! empty consumer.portlets}"
-                      rowClasses="EvenRow,OddRow"
-                      styleClass="UIGrid" width="100%">
-            <h:column>
-               <f:facet name="header">#{i18n.portlets_table_column_include}</f:facet>
 
-               <h:selectBooleanCheckbox value="#{portlet.selected}" valueChangeListener="#{portlet.select}"
-                                        immediate="true" onclick="this.form.submit()"/>
-            </h:column>
+         <c:choose>
+            <c:when test="#{consumer.portletsAvailable}">
+               <h:dataTable id="portletsList" value="#{consumer.portlets}" var="portlet"
+                            rendered="#{! empty consumer.portlets}"
+                            rowClasses="EvenRow,OddRow"
+                            styleClass="UIGrid" width="100%">
+                  <h:column>
+                     <f:facet name="header">#{i18n.portlets_table_column_include}</f:facet>
 
-            <h:column>
-               <f:facet name="header">#{i18n.portlets_table_column_portlet_name}</f:facet>
-               #{portlet.handle}
-            </h:column>
-         </h:dataTable>
+                     <h:selectBooleanCheckbox value="#{portlet.selected}" valueChangeListener="#{portlet.select}"
+                                              immediate="true" onclick="this.form.submit()"/>
+                  </h:column>
+
+                  <h:column>
+                     <f:facet name="header">#{i18n.portlets_table_column_portlet_name}</f:facet>
+                     #{portlet.handle}
+                  </h:column>
+               </h:dataTable>
+            </c:when>
+            <c:otherwise>
+               <p>#{i18n.portlets_table_no_portlets}</p>
+            </c:otherwise>
+         </c:choose>
+
          <h:commandButton id="exportButton" action="#{consumer.exportPortlets}" styleClass="ActionButton"
                           value="#{i18n.portlets_table_export}"
                           disabled="#{! consumer.readyForExport}"/>
