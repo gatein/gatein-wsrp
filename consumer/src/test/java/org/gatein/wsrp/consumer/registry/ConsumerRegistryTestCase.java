@@ -72,6 +72,7 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       assertTrue(regInfo.isUndetermined());
       assertEquals(registry, info.getRegistry());
       assertTrue(registry.containsConsumer(id));
+      final long initial = info.getLastModified();
 
       WSRPConsumer fromRegistry = registry.getConsumer(id);
       assertNotNull(fromRegistry);
@@ -82,6 +83,7 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       assertNotNull(fromRegistryInfo.getEndpointConfigurationInfo());
       assertTrue(fromRegistryInfo.getRegistrationInfo().isUndetermined());
       assertEquals(registry, fromRegistryInfo.getRegistry());
+      assertEquals(initial, info.getLastModified());
 
       assertEquals(info.getId(), fromRegistryInfo.getId());
       assertEquals(info.getEndpointConfigurationInfo(), fromRegistryInfo.getEndpointConfigurationInfo());
@@ -143,15 +145,18 @@ public abstract class ConsumerRegistryTestCase extends TestCase
       String id = "foo";
       WSRPConsumer consumer = registry.createConsumer(id, null, null);
       ProducerInfo info = consumer.getProducerInfo();
+      final long initial = info.getLastModified();
 
       // update unchanged ProducerInfo should return null
       String previousId = registry.updateProducerInfo(info);
       assertNull(previousId);
+      assertEquals(initial, info.getLastModified());
 
       // change the id on the consumer's producer info and save it
       info.setId("bar");
       previousId = registry.updateProducerInfo(info);
       assertEquals("foo", previousId);
+      assertTrue(initial < info.getLastModified());
 
       assertNull(registry.getConsumer(id));
       assertFalse(registry.containsConsumer(id));

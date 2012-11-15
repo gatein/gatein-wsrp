@@ -32,6 +32,7 @@ import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.info.EventInfo;
 import org.gatein.pc.api.info.TypeInfo;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
@@ -81,7 +82,7 @@ import java.util.Set;
  * @version $Revision: 12692 $
  * @since 2.6
  */
-public class ProducerInfo
+public class ProducerInfo extends SupportsLastModified
 {
    private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
    private final static boolean debug = log.isDebugEnabled();
@@ -112,9 +113,6 @@ public class ProducerInfo
     * mixin
     */
    private boolean isModifyRegistrationRequired;
-
-   /** GTNWSRP-239: last modification epoch: currently persistent via mixin */
-   private long lastModified;
 
    // Transient information
 
@@ -320,19 +318,6 @@ public class ProducerInfo
    {
       modifyNowIfNeeded(persistentId, id);
       this.persistentId = id;
-   }
-
-   private boolean modifyNowIfNeeded(Object oldValue, Object newValue)
-   {
-      if (ParameterValidation.isOldAndNewDifferent(oldValue, newValue))
-      {
-         modifyNow();
-         return true;
-      }
-      else
-      {
-         return false;
-      }
    }
 
    public void setActiveAndSave(boolean active)
@@ -1053,11 +1038,6 @@ public class ProducerInfo
       registry.updateProducerInfo(this);
    }
 
-   void modifyNow()
-   {
-      setLastModified(System.nanoTime());
-   }
-
    // make package only after package reorg
 
    public PortletPropertyDescriptionResponse getPropertyDescriptionsFor(String portletHandle)
@@ -1349,16 +1329,6 @@ public class ProducerInfo
       {
          return eventDescriptions.get(name);
       }
-   }
-
-   public long getLastModified()
-   {
-      return lastModified;
-   }
-
-   public void setLastModified(long lastModified)
-   {
-      this.lastModified = lastModified;
    }
 
    public Collection<String> getSupportedOptions()

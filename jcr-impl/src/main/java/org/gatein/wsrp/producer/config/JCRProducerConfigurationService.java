@@ -70,41 +70,69 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
 
    protected void loadConfiguration() throws Exception
    {
-      // Try loading configuration from JCR first
-      ChromatticSession session = persister.getSession();
-      ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
-
-      // if we don't have a configuration persisted in JCR already, force a reload from XML and save the resulting configuration
-      if (pcm == null)
+      try
       {
-         pcm = session.insert(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
+         // Try loading configuration from JCR first
+         ChromatticSession session = persister.getSession();
+         ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
 
-         ProducerConfigurationService service = new SimpleXMLProducerConfigurationService(defaultConfigurationIS);
+         // if we don't have a configuration persisted in JCR already, force a reload from XML and save the resulting configuration
+         if (pcm == null)
+         {
+            pcm = session.insert(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
 
-         service.reloadConfiguration();
-         configuration = service.getConfiguration();
-         pcm.initFrom(configuration);
+            ProducerConfigurationService service = new SimpleXMLProducerConfigurationService(defaultConfigurationIS);
+
+            service.reloadConfiguration();
+            configuration = service.getConfiguration();
+            pcm.initFrom(configuration);
+
+            persister.save();
+         }
+         else
+         {
+            configuration = pcm.toModel(null, this);
+         }
       }
-      else
+      finally
       {
-         configuration = pcm.toProducerConfiguration();
+         persister.closeSession(false);
       }
-
-
-      persister.closeSession(true);
    }
 
    public void saveConfiguration() throws Exception
    {
-      ChromatticSession session = persister.getSession();
-
-      ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
-      if (pcm == null)
+      try
       {
-         pcm = session.insert(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
-      }
-      pcm.initFrom(configuration);
+         ChromatticSession session = persister.getSession();
 
-      persister.closeSession(true);
+         ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
+         if (pcm == null)
+         {
+            pcm = session.insert(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
+         }
+         pcm.initFrom(configuration);
+         persister.save();
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
+   }
+
+   @Override
+   protected long getPersistedLastModifiedForConfiguration()
+   {
+      try
+      {
+         ChromatticSession session = persister.getSession();
+         ProducerConfigurationMapping pcm = session.findByPath(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
+
+         return (pcm == null) ? 0 : pcm.getLastModified();
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 }

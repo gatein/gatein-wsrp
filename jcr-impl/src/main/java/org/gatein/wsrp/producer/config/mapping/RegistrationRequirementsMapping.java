@@ -31,6 +31,9 @@ import org.chromattic.api.annotations.Property;
 import org.gatein.registration.RegistrationPolicy;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 import org.gatein.registration.policies.RegistrationPolicyWrapper;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModifiedMixinHolder;
+import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.config.impl.ProducerRegistrationRequirementsImpl;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
@@ -43,7 +46,7 @@ import java.util.List;
  * @version $Revision$
  */
 @PrimaryType(name = RegistrationRequirementsMapping.NODE_NAME)
-public abstract class RegistrationRequirementsMapping
+public abstract class RegistrationRequirementsMapping extends LastModifiedMixinHolder implements BaseMapping<ProducerRegistrationRequirements, ProducerConfigurationService>
 {
    public static final String NODE_NAME = "wsrp:registrationrequirements";
 
@@ -76,6 +79,7 @@ public abstract class RegistrationRequirementsMapping
    @FindById
    public abstract RegistrationPropertyDescriptionMapping findRegistrationPropertyDescriptionById(String id);
 
+   @Override
    public void initFrom(ProducerRegistrationRequirements registrationRequirements)
    {
       setRegistrationRequired(registrationRequirements.isRegistrationRequired());
@@ -106,11 +110,18 @@ public abstract class RegistrationRequirementsMapping
          rpdms.add(rpdm);
          rpdm.initFrom(desc);
       }
+
+      setLastModified(registrationRequirements.getLastModified());
    }
 
-   public ProducerRegistrationRequirements toProducerRegistrationRequirements()
+   @Override
+   public ProducerRegistrationRequirements toModel(ProducerRegistrationRequirements initial, ProducerConfigurationService registry)
    {
-      ProducerRegistrationRequirements req = new ProducerRegistrationRequirementsImpl();
+      ProducerRegistrationRequirements req = initial;
+      if (initial == null)
+      {
+         req = new ProducerRegistrationRequirementsImpl();
+      }
 
       req.setRegistrationRequired(getRegistrationRequired());
       req.setRegistrationRequiredForFullDescription(getRegistrationRequiredForFullDescription());
@@ -121,6 +132,14 @@ public abstract class RegistrationRequirementsMapping
          req.addRegistrationProperty(rpdm.toRegistrationPropertyDescription());
       }
 
+      req.setLastModified(getLastModified());
+
       return req;
+   }
+
+   @Override
+   public Class<ProducerRegistrationRequirements> getModelClass()
+   {
+      return ProducerRegistrationRequirements.class;
    }
 }

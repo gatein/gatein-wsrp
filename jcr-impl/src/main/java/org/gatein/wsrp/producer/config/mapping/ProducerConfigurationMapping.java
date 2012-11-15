@@ -28,7 +28,10 @@ import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
+import org.gatein.wsrp.jcr.mapping.mixins.LastModifiedMixinHolder;
 import org.gatein.wsrp.producer.config.ProducerConfiguration;
+import org.gatein.wsrp.producer.config.ProducerConfigurationService;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
 
@@ -37,7 +40,7 @@ import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
  * @version $Revision$
  */
 @PrimaryType(name = ProducerConfigurationMapping.NODE_NAME)
-public abstract class ProducerConfigurationMapping
+public abstract class ProducerConfigurationMapping extends LastModifiedMixinHolder implements BaseMapping<ProducerConfiguration, ProducerConfigurationService>
 {
    public static final String NODE_NAME = "wsrp:producerconfiguration";
 
@@ -51,23 +54,38 @@ public abstract class ProducerConfigurationMapping
    @MappedBy("registrationrequirements")
    public abstract RegistrationRequirementsMapping getRegistrationRequirements();
 
+   @Override
    public void initFrom(ProducerConfiguration configuration)
    {
       setUsingStrictMode(configuration.isUsingStrictMode());
+
+      setLastModified(configuration.getLastModified());
 
       RegistrationRequirementsMapping rrm = getRegistrationRequirements();
       rrm.initFrom(configuration.getRegistrationRequirements());
    }
 
-   public ProducerConfiguration toProducerConfiguration()
+   @Override
+   public ProducerConfiguration toModel(ProducerConfiguration initial, ProducerConfigurationService registry)
    {
-      ProducerConfigurationImpl configuration = new ProducerConfigurationImpl();
+      ProducerConfiguration configuration = initial;
+      if (initial == null)
+      {
+         configuration = new ProducerConfigurationImpl();
+      }
 
       configuration.setUsingStrictMode(getUsingStrictMode());
+      configuration.setLastModified(getLastModified());
 
-      ProducerRegistrationRequirements req = getRegistrationRequirements().toProducerRegistrationRequirements();
+      ProducerRegistrationRequirements req = getRegistrationRequirements().toModel(configuration.getRegistrationRequirements(), registry);
       configuration.setRegistrationRequirements(req);
 
       return configuration;
+   }
+
+   @Override
+   public Class<ProducerConfiguration> getModelClass()
+   {
+      return ProducerConfiguration.class;
    }
 }
