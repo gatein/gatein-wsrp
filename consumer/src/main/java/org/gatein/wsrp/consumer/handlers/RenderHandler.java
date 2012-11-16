@@ -24,9 +24,11 @@
 package org.gatein.wsrp.consumer.handlers;
 
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.pc.api.cache.CacheControl;
 import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.FragmentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
@@ -68,18 +70,18 @@ public class RenderHandler extends MimeResponseHandler<RenderInvocation, GetMark
 
    @Override
    protected PortletInvocationResponse createContentResponse(MarkupContext markupContext, RenderInvocation invocation,
-                                                             String mimeType, byte[] bytes, String markup,
-                                                             org.gatein.pc.api.cache.CacheControl cacheControl)
+                                                             ResponseProperties properties, String mimeType, byte[] bytes, String markup,
+                                                             CacheControl cacheControl)
    {
 
       // encoding should be ignored here TODO: check that this is true
       if (markup != null)
       {
-         return new FragmentResponse(null, null, mimeType, null, markup, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
+         return new FragmentResponse(properties, null, mimeType, null, markup, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
       }
       else
       {
-         return new FragmentResponse(null, null, mimeType, null, bytes, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
+         return new FragmentResponse(properties, null, mimeType, null, bytes, markupContext.getPreferredTitle(), cacheControl, invocation.getPortalContext().getModes());
       }
    }
 

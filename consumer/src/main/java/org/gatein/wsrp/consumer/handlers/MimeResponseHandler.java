@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
+import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.text.TextTools;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
@@ -32,6 +33,7 @@ import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.wsrp.MIMEUtils;
@@ -42,11 +44,23 @@ import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
+import org.gatein.wsrp.handler.CookieUtil;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.SessionContext;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -56,6 +70,23 @@ import java.util.Set;
 public abstract class MimeResponseHandler<Invocation extends PortletInvocation, Request, Response, LocalMimeResponse extends MimeResponse> extends InvocationHandler<Invocation, Request, Response>
 {
    private static final org.gatein.pc.api.cache.CacheControl DEFAULT_CACHE_CONTROL = new org.gatein.pc.api.cache.CacheControl(0, CacheScope.PRIVATE, null);
+
+   /** Keep a document builder in a thread local as it can create contention during its creation. */
+   private static final ThreadLocal<DocumentBuilder> builder = new ThreadLocal<DocumentBuilder>()
+   {
+      protected DocumentBuilder initialValue()
+      {
+         try
+         {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+         }
+         catch (ParserConfigurationException e)
+         {
+            throw new UndeclaredThrowableException(e);
+         }
+      }
+   };
+   private Document doc;
 
    protected MimeResponseHandler(WSRPConsumerSPI consumer)
    {
@@ -134,7 +165,69 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
       }
 
-      return createContentResponse(mimeResponse, invocation, mimeType, binary, markup, createCacheControl(mimeResponse));
+      // GTNWSRP-336
+      final ResponseProperties properties = getResponsePropertiesFrom(mimeResponse, consumer.getProducerInfo().getEndpointConfigurationInfo().getWsdlDefinitionURL());
+      return createContentResponse(mimeResponse, invocation, properties, mimeType, binary, markup, createCacheControl(mimeResponse));
+   }
+
+   private ResponseProperties getResponsePropertiesFrom(MimeResponse mimeResponse, String producerURLAsString)
+   {
+      final List<NamedString> clientAttributes = mimeResponse.getClientAttributes();
+      final ResponseProperties properties;
+      if (ParameterValidation.existsAndIsNotEmpty(clientAttributes))
+      {
+         URL producerURL;
+         try
+         {
+            producerURL = new URL(producerURLAsString);
+         }
+         catch (MalformedURLException e)
+         {
+            // shouldn't happen
+            throw new RuntimeException(e);
+         }
+         properties = new ResponseProperties();
+         for (NamedString attribute : clientAttributes)
+         {
+            final String name = attribute.getName();
+            final String value = attribute.getValue();
+            if (javax.portlet.MimeResponse.MARKUP_HEAD_ELEMENT.equals(name))
+            {
+               // TODO: is this correct?
+               final Element element = createElement(name);
+               element.setTextContent(value);
+               properties.getMarkupHeaders().addValue(name, element);
+            }
+            else if (CookieUtil.SET_COOKIE.equals(name))
+            {
+               final Cookie[] cookies = CookieUtil.extractCookiesFrom(producerURL, new String[]{value});
+               for (Cookie cookie : cookies)
+               {
+                  properties.getCookies().add(CookieUtil.convertFrom(cookie));
+               }
+            }
+            else
+            {
+               properties.getTransportHeaders().addValue(name, value);
+            }
+         }
+      }
+      else
+      {
+         properties = null;
+      }
+      return properties;
+   }
+
+   private Element createElement(String tagName) throws DOMException
+   {
+      if (doc == null)
+      {
+         doc = builder.get().newDocument();
+      }
+
+      //
+      return doc.createElement(tagName);
    }
 
    private String processMarkup(String markup, Invocation invocation)
@@ -152,16 +245,16 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
    }
 
    protected PortletInvocationResponse createContentResponse(LocalMimeResponse mimeResponse, Invocation invocation,
-                                                             String mimeType, byte[] bytes, String markup,
+                                                             ResponseProperties properties, String mimeType, byte[] bytes, String markup,
                                                              org.gatein.pc.api.cache.CacheControl cacheControl)
    {
       if (markup != null)
       {
-         return new ContentResponse(null, null, mimeType, null, markup, cacheControl);
+         return new ContentResponse(properties, null, mimeType, null, markup, cacheControl);
       }
       else
       {
-         return new ContentResponse(null, null, mimeType, MIMEUtils.UTF_8, bytes, cacheControl);
+         return new ContentResponse(properties, null, mimeType, MIMEUtils.UTF_8, bytes, cacheControl);
       }
    }
 

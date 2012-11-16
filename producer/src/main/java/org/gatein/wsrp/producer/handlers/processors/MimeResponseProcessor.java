@@ -24,16 +24,22 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
+import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.MIMEUtils;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.w3c.dom.Element;
+
+import javax.servlet.http.Cookie;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -127,9 +133,43 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
          mimeResponse.setCacheControl(WSRPTypeFactory.createCacheControl(expires, WSRPConstants.CACHE_PER_USER));
       }
 
+      // GTNWSRP-336
+      final ResponseProperties properties = content.getProperties();
+      if (properties != null)
+      {
+         populateClientAttributesWith(mimeResponse, properties.getTransportHeaders());
+         populateClientAttributesWith(mimeResponse, properties.getMarkupHeaders());
+         for (Cookie cookie : properties.getCookies())
+         {
+            mimeResponse.getClientAttributes().add(WSRPTypeFactory.createNamedString("Set-Cookie", cookie.getValue()));
+         }
+      }
+
       additionallyProcessIfNeeded(mimeResponse, response);
 
       return createResponse(mimeResponse);
+   }
+
+   private <T> void populateClientAttributesWith(LocalMimeResponse mimeResponse, MultiValuedPropertyMap<T> transportHeaders)
+   {
+      for (String key : transportHeaders.keySet())
+      {
+         final List<T> values = transportHeaders.getValues(key);
+         for (T value : values)
+         {
+            String valueAsString;
+            if (value instanceof Element)
+            {
+               Element element = (Element)value;
+               valueAsString = element.getTextContent();
+            }
+            else
+            {
+               valueAsString = value.toString();
+            }
+            mimeResponse.getClientAttributes().add(WSRPTypeFactory.createNamedString(key, valueAsString));
+         }
+      }
    }
 
    protected abstract Response createResponse(LocalMimeResponse mimeResponse);
