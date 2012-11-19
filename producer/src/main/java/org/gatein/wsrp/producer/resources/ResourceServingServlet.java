@@ -57,7 +57,11 @@ public class ResourceServingServlet extends HttpServlet
          byte[] itemBinary = resourceContext.getItemBinary();
          String itemString = resourceContext.getItemString();
 
-         resp.setContentType(resourceContext.getMimeType());
+         final String mimeType = resourceContext.getMimeType();
+         if (!ParameterValidation.isNullOrEmpty(mimeType))
+         {
+            resp.setContentType(mimeType);
+         }
 
          if (itemBinary != null && itemBinary.length > 0)
          {

@@ -635,8 +635,6 @@ public class WSRPTypeFactory
 
    public static <T extends MimeResponse> T createMimeResponse(String mimeType, String itemString, byte[] itemBinary, Class<T> clazz)
    {
-      //TODO: this should be allowed to be null
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(mimeType, "MIME type", "MimeResponse");
       if ((itemString == null) && (itemBinary == null || itemBinary.length == 0))
       {
          throw new IllegalArgumentException("MimeResponse requires either a non-null markup string or binary markup.");
