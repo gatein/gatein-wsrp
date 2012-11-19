@@ -133,11 +133,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
       }
 
-      String mimeType = mimeResponse.getMimeType();
-      if (ParameterValidation.isNullOrEmpty(mimeType))
-      {
-         return new ErrorResponse(new IllegalArgumentException("No MIME type was provided for portlet content."));
-      }
+      final String mimeType = mimeResponse.getMimeType();
 
       if (Boolean.TRUE.equals(mimeResponse.isRequiresRewriting()))
       {
