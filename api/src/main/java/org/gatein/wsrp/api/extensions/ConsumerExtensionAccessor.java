@@ -51,18 +51,14 @@ public interface ConsumerExtensionAccessor
    public List<Extension> getRequestExtensionsFor(Class targetClass);
 
    /**
-    * Adds an extension composed of the specified name / value pair to be added the specified request before it is sent
-    * to the producer to elements of the specified target class. For example, to add a <code>foo</code> extension with
-    * the <code>bar</code> value to outgoing {@link org.oasis.wsrp.v2.MarkupParams} instances, you would call this
-    * method as follows:
-    * <p><code>addRequestExtension(MarkupParams.class, "foo", "bar")</code></p>
+    * Adds an extension before it is sent to the producer to elements of the specified target class.
     * <p/>
     * Note that extensions can currently only be set on {@link org.oasis.wsrp.v2.InteractionParams}, {@link
     * org.oasis.wsrp.v2.EventParams}, {@link org.oasis.wsrp.v2.MarkupParams} or {@link
     * org.oasis.wsrp.v2.ResourceParams}
     *
     * @param targetClass the class of elements on which extensions need to be added before being sent to the producer
-    * @param extension
+    * @param extension   the extension to be added in the form of a {@link org.w3c.dom.Element} (<strong>strongly</strong> recommended) or a {@link java.io.Serializable} object
     */
    public void addRequestExtension(Class targetClass, Object extension);
 
@@ -72,7 +68,7 @@ public interface ConsumerExtensionAccessor
     * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.MarkupResponse},
     * {@link org.oasis.wsrp.v2.BlockingInteractionResponse}, {@link org.oasis.wsrp.v2.HandleEventsResponse} or {@link
     * org.oasis.wsrp.v2.ResourceResponse}. These classes are the ones that contain the specific information pertaining
-    * to markup, interaction, resource or event requests.
+    * to markup, interaction, resource or event responses.
     *
     * @param responseClass
     * @return
