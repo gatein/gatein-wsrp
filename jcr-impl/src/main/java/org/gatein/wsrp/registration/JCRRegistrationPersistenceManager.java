@@ -82,18 +82,19 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
       this.rootNodePath = rootNodePath.endsWith("/") ? rootNodePath : rootNodePath + "/";
       this.persister = persister;
 
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          if (mappings == null)
          {
             session.insert(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
+            persister.save();
          }
       }
       finally
       {
-         persister.closeSession(true);
+         persister.closeSession(false);
       }
    }
 
@@ -139,19 +140,24 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
    protected RegistrationSPI internalCreateRegistration(ConsumerSPI consumer, Map<QName, Object> registrationProperties) throws RegistrationException
    {
       RegistrationSPI registration = super.internalCreateRegistration(consumer, registrationProperties);
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          ConsumerMapping cm = session.findById(ConsumerMapping.class, consumer.getPersistentKey());
          RegistrationMapping rm = cm.createAndAddRegistrationMappingFrom(null);
          rm.initFrom(registration);
          registration.setPersistentKey(rm.getPersistentKey());
-         persister.closeSession(true);
+
+         persister.save();
       }
       catch (Exception e)
       {
-         persister.closeSession(false);
          throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
 
       return registration;
@@ -171,9 +177,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
 
    private <T extends BaseMapping, U> U remove(String name, Class<T> mappingClass, Class<U> modelClass)
    {
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          T toRemove = getMapping(session, mappingClass, name);
          if (toRemove == null)
          {
@@ -183,14 +190,17 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
          final U result = getModelFrom(toRemove, mappingClass, modelClass);
 
          session.remove(toRemove);
-         persister.closeSession(true);
+         persister.save();
 
          return result;
       }
       catch (Exception e)
       {
-         persister.closeSession(false);
          throw new RuntimeException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
    }
 
@@ -235,20 +245,25 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
    {
       ConsumerSPI consumer = super.internalCreateConsumer(consumerId, consumerName);
 
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          ConsumerMapping cm = mappings.createConsumer(consumerId);
          mappings.getConsumers().add(cm);
          cm.initFrom(consumer);
          consumer.setPersistentKey(cm.getPersistentKey());
-         persister.closeSession(true);
+
+         persister.save();
       }
       catch (Exception e)
       {
-         persister.closeSession(false);
          throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
 
       return consumer;
@@ -284,12 +299,15 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
       {
          RegistrationMapping cm = session.findById(RegistrationMapping.class, registration.getPersistentKey());
          cm.initFrom(registrationSPI);
-         persister.closeSession(true);
+         persister.save();
       }
       catch (Exception e)
       {
-         persister.closeSession(false);
          throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
 
       return registrationSPI;
@@ -312,20 +330,25 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
    {
       ConsumerGroupSPI group = super.internalCreateConsumerGroup(name);
 
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          ConsumerGroupMapping cgm = mappings.createConsumerGroup(name);
          mappings.getConsumerGroups().add(cgm);
          group.setPersistentKey(cgm.getPersistentKey());
          cgm.initFrom(group);
-         persister.closeSession(true);
+
+         persister.save();
       }
       catch (Exception e)
       {
-         persister.closeSession(false);
          throw new RegistrationException(e);
+      }
+      finally
+      {
+         persister.closeSession(false);
       }
 
       return group;
@@ -341,10 +364,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "identifier", null);
 
-      final ChromatticSession session = persister.getSession();
-
       try
       {
+         final ChromatticSession session = persister.getSession();
+
          return getModel(id, modelClass, mappingClass, session);
       }
       catch (Exception e)
@@ -389,10 +412,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
 
    public Collection<? extends ConsumerGroup> getConsumerGroups() throws RegistrationException
    {
-      final ChromatticSession session = persister.getSession();
-
       try
       {
+         final ChromatticSession session = persister.getSession();
+
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          final List<ConsumerGroupMapping> groupMappings = mappings.getConsumerGroups();
          List<ConsumerGroup> groups = new ArrayList<ConsumerGroup>(groupMappings.size());
@@ -412,10 +435,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(registrationId, "identifier", null);
 
-      final ChromatticSession session = persister.getSession();
-
       try
       {
+         final ChromatticSession session = persister.getSession();
+
          final RegistrationMapping mapping = session.findById(RegistrationMapping.class, registrationId);
          if (mapping == null)
          {
@@ -439,10 +462,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
 
    public Collection<? extends Consumer> getConsumers() throws RegistrationException
    {
-      final ChromatticSession session = persister.getSession();
-
       try
       {
+         final ChromatticSession session = persister.getSession();
+
          ConsumersAndGroupsMapping mappings = session.findByPath(ConsumersAndGroupsMapping.class, ConsumersAndGroupsMapping.NODE_NAME);
          final List<ConsumerMapping> consumerMappings = mappings.getConsumers();
          List<Consumer> consumers = new ArrayList<Consumer>(consumerMappings.size());
@@ -476,9 +499,10 @@ public class JCRRegistrationPersistenceManager extends AbstractRegistrationPersi
 
    private boolean exists(String name)
    {
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          return session.getJCRSession().itemExists(rootNodePath + ConsumersAndGroupsMapping.NODE_NAME + "/" + name);
       }
       catch (RepositoryException e)
