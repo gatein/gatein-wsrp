@@ -41,13 +41,11 @@ import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.payload.SerializableSimplePayload;
 import org.gatein.wsrp.portlet.utils.MockRequest;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,8 +79,10 @@ import org.oasis.wsrp.v2.UnsupportedLocale;
 import org.oasis.wsrp.v2.UnsupportedMode;
 import org.oasis.wsrp.v2.UpdateResponse;
 import org.oasis.wsrp.v2.UploadContext;
+import org.w3c.dom.Element;
 
 import javax.portlet.ActionRequest;
+import javax.portlet.MimeResponse;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -123,10 +123,10 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
       //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
       //            .createMockResponse());
-      
+
       Request request = new MockRequest();
       request.setCoyoteRequest(new org.apache.coyote.Request());
-      
+
       RequestFacade requestFacade = new RequestFacade(request);
       ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
@@ -534,6 +534,46 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
          MarkupResponse response = producer.getMarkup(getMarkup);
          checkMarkupResponse(response, "");
+      }
+      finally
+      {
+         undeploy(basicPortletArchive);
+      }
+   }
+
+   @Test
+   public void testGetMarkupWithProperties() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      String basicPortletArchive = "test-basic-portlet.war";
+      deploy(basicPortletArchive);
+
+      try
+      {
+         GetMarkup getMarkup = createMarkupRequestForCurrentlyDeployedPortlet();
+
+         MarkupResponse response = producer.getMarkup(getMarkup);
+         final List<NamedString> clientAttributes = response.getMarkupContext().getClientAttributes();
+         assertEquals(2, clientAttributes.size());
+         int pass = 0;
+         for (NamedString attribute : clientAttributes)
+         {
+            final String name = attribute.getName();
+            final String value = attribute.getValue();
+            if ("prop".equals(name))
+            {
+               assertEquals("propValue", value);
+               pass++;
+            }
+            if (MimeResponse.MARKUP_HEAD_ELEMENT.equals(name))
+            {
+               final Element element = PayloadUtils.parseFromXMLString(value);
+               assertEquals("style", element.getTagName());
+               assertEquals("bar", element.getAttribute("foo"));
+               pass++;
+            }
+         }
+         assertEquals(2, pass);
       }
       finally
       {
@@ -1143,7 +1183,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          ExtendedAssert.fail(e.getMessage());
       }
    }
-   
+
    @Test
    public void testGetResource() throws Exception
    {
@@ -1155,19 +1195,20 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       {
          GetResource getResource = createGetResource(archive, "resourceFromWriter");
          ResourceResponse response = producer.getResource(getResource);
-         
+
          assertEquals("image/png", response.getResourceContext().getMimeType());
          assertNull(response.getResourceContext().getItemBinary());
          assertEquals("foo", response.getResourceContext().getItemString());
-         
+
          getResource = createGetResource(archive, "resourceFromStream");
          response = producer.getResource(getResource);
-         
+
          assertEquals("image/png", response.getResourceContext().getMimeType());
-         byte[] expected = new byte[] {0, 1, 2, 3, 4};
+         byte[] expected = new byte[]{0, 1, 2, 3, 4};
          byte[] actual = response.getResourceContext().getItemBinary();
          assertEquals(expected.length, actual.length);
-         for (int i = 0; i < expected.length; i++){
+         for (int i = 0; i < expected.length; i++)
+         {
             assertEquals(expected[i], actual[i]);
          }
          assertNull(response.getResourceContext().getItemString());
@@ -1177,7 +1218,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          undeploy(archive);
       }
    }
-   
+
    @Test
    public void testGetResourceUpload() throws Exception
    {
@@ -1192,12 +1233,13 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          UploadContext uploadContext = WSRPTypeFactory.createUploadContext("image/png", uploadedBytes);
          getResource.getResourceParams().getUploadContexts().add(uploadContext);
          ResourceResponse response = producer.getResource(getResource);
-         
+
          assertEquals("image/png", response.getResourceContext().getMimeType());
-        
+
          byte[] actual = response.getResourceContext().getItemBinary();
          assertEquals(uploadedBytes.length, actual.length);
-         for (int i = 0; i < uploadedBytes.length; i++){
+         for (int i = 0; i < uploadedBytes.length; i++)
+         {
             assertEquals(uploadedBytes[i], actual[i]);
          }
          assertNull(response.getResourceContext().getItemString());
@@ -1207,22 +1249,22 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          undeploy(archive);
       }
    }
-   
+
    @Test
    public void testPBIResourceUpload() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
       String archive = "test-resource-portlet.war";
       deploy(archive);
-      
+
       try
       {
          byte[] uploadedBytes = new byte[]{0, 1, 2, 3, 4};
          PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
          UploadContext uploadContext = WSRPTypeFactory.createUploadContext("image/png", uploadedBytes);
          pbi.getInteractionParams().getUploadContexts().add(uploadContext);
-        
-         pbi.getInteractionParams().getFormParameters().add(createNamedString(ActionRequest.ACTION_NAME, "uploadImage")); 
+
+         pbi.getInteractionParams().getFormParameters().add(createNamedString(ActionRequest.ACTION_NAME, "uploadImage"));
          producer.performBlockingInteraction(pbi);
       }
       finally

@@ -78,16 +78,15 @@ public interface ProducerExtensionAccessor
    List<Extension> getResponseExtensionsFor(Class wsrpResponseClass);
 
    /**
-    * Add the specified extension (in the form a name / value pair) to be set to the targeted WSRP response class
-    * before it is sent to the consumer.
+    * Add the specified extension to be set to the targeted WSRP response class before it is sent to the consumer.
     * <p/>
-    * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.MarkupResponse},
-    * {@link org.oasis.wsrp.v2.BlockingInteractionResponse}, {@link org.oasis.wsrp.v2.HandleEventsResponse} or {@link
-    * org.oasis.wsrp.v2.ResourceResponse}. These classes are the ones that contain the specific information pertaining
-    * to markup, interaction, resource or event requests.
+    * Note that currently, GateIn WSRP only processes extensions from {@link org.oasis.wsrp.v2.MarkupResponse}, {@link org.oasis.wsrp.v2.BlockingInteractionResponse},
+    * {@link org.oasis.wsrp.v2.HandleEventsResponse} or {@link org.oasis.wsrp.v2.ResourceResponse}.
+    * These classes are the ones that contain the specific information pertaining to markup, interaction, resource or event responses.
     *
-    * @param wsrpResponseClass
-    * @param extension
+    * @param wsrpResponseClass the class of elements on which extensions need to be added before being sent to the producer
+    * @param extension         the extension to be added in the form of a {@link org.w3c.dom.Element} (<strong>strongly</strong> recommended) or a {@link java.io.Serializable}
+    *                          object
     */
    void addResponseExtension(Class wsrpResponseClass, Object extension);
 

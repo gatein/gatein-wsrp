@@ -35,10 +35,10 @@ import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.servlet.ServletAccess;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.MimeResponse;
 import org.w3c.dom.Element;
 
-import javax.servlet.http.Cookie;
 import java.util.List;
 
 /**
@@ -139,10 +139,6 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
       {
          populateClientAttributesWith(mimeResponse, properties.getTransportHeaders());
          populateClientAttributesWith(mimeResponse, properties.getMarkupHeaders());
-         for (Cookie cookie : properties.getCookies())
-         {
-            mimeResponse.getClientAttributes().add(WSRPTypeFactory.createNamedString("Set-Cookie", cookie.getValue()));
-         }
       }
 
       additionallyProcessIfNeeded(mimeResponse, response);
@@ -161,7 +157,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
             if (value instanceof Element)
             {
                Element element = (Element)value;
-               valueAsString = element.getTextContent();
+               valueAsString = PayloadUtils.outputToXML(element);
             }
             else
             {

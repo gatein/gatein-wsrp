@@ -77,22 +77,19 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
       // more optimized version of updateState
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyMap, "property map");
 
-      ChromatticSession session = persister.getSession();
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
          PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
          PortletStateMapping psm = pscm.getState();
          psm.setProperties(propertyMap);
 
-         persister.closeSession(true);
+         persister.save();
       }
       finally
       {
-         if (!persister.isSessionClosed())
-         {
-            persister.closeSession(false);
-         }
+         persister.closeSession(false);
       }
    }
 
@@ -100,10 +97,10 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
    @Override
    protected PortletStateContext getStateContext(String stateId)
    {
-      ChromatticSession session = persister.getSession();
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
          PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
          PortletStateContext context;
          if (pscm == null)
@@ -126,10 +123,10 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
    @Override
    protected String createStateContext(String portletId, PropertyMap propertyMap)
    {
-      ChromatticSession session = persister.getSession();
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
          String encodedForPath = ChromatticPersister.PortletNameFormatter.encode(portletId);
 
          PortletStateContextMapping pscm = session.findByPath(PortletStateContextMapping.class, PATH + encodedForPath);
@@ -147,27 +144,24 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
          // get the key
          final String key = pscm.getPersistentKey();
 
-         // then close the session
-         persister.closeSession(true);
+         // then save
+         persister.save();
 
          return key;
       }
       finally
       {
-         if (!persister.isSessionClosed())
-         {
-            persister.closeSession(false);
-         }
+         persister.closeSession(false);
       }
    }
 
    @Override
    protected PortletStateContext destroyStateContext(String stateId)
    {
-      ChromatticSession session = persister.getSession();
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
          PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
          PortletStateContext result;
          if (pscm == null)
@@ -180,15 +174,12 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
             result = pscm.toPortletStateContext();
          }
 
-         persister.closeSession(true);
+         persister.save();
          return result;
       }
       finally
       {
-         if (!persister.isSessionClosed())
-         {
-            persister.closeSession(false);
-         }
+         persister.closeSession(false);
       }
    }
 

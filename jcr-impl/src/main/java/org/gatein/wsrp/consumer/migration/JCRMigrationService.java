@@ -76,22 +76,27 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
 
    public List<ExportInfo> getAvailableExportInfos()
    {
-      ChromatticSession session = persister.getSession();
-
-      ExportInfosMapping exportInfosMapping = getExportInfosMapping(session);
-
-      List<ExportInfoMapping> exportInfoMappings = exportInfosMapping.getExportInfos();
-      List<ExportInfo> exportInfos = new ArrayList<ExportInfo>(exportInfoMappings.size());
-      for (ExportInfoMapping eim : exportInfoMappings)
+      try
       {
-         exportInfos.add(eim.toModel(null, null));
+         ChromatticSession session = persister.getSession();
+
+         ExportInfosMapping exportInfosMapping = getExportInfosMapping(session);
+
+         List<ExportInfoMapping> exportInfoMappings = exportInfosMapping.getExportInfos();
+         List<ExportInfo> exportInfos = new ArrayList<ExportInfo>(exportInfoMappings.size());
+         for (ExportInfoMapping eim : exportInfoMappings)
+         {
+            exportInfos.add(eim.toModel(null, null));
+         }
+
+         exportInfosCount = exportInfos.size();
+
+         return exportInfos;
       }
-
-      persister.closeSession(false);
-
-      exportInfosCount = exportInfos.size();
-
-      return exportInfos;
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    private ExportInfosMapping getExportInfosMapping(ChromatticSession session)
@@ -108,12 +113,11 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
 
    public ExportInfo getExportInfo(long exportTime)
    {
-      ChromatticSession session = persister.getSession();
-
-      ExportInfoMapping eim = session.findByPath(ExportInfoMapping.class, getPathFor(exportTime));
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
+         ExportInfoMapping eim = session.findByPath(ExportInfoMapping.class, getPathFor(exportTime));
          if (eim != null)
          {
             return eim.toModel(null, null);
@@ -131,26 +135,32 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
 
    public void add(ExportInfo info)
    {
-      ChromatticSession session = persister.getSession();
+      try
+      {
+         ChromatticSession session = persister.getSession();
 
-      ExportInfoMapping eim = session.findByPath(ExportInfoMapping.class, getChildPath(info));
-      long exportTime = info.getExportTime();
-      if (eim != null)
+         ExportInfoMapping eim = session.findByPath(ExportInfoMapping.class, getChildPath(info));
+         long exportTime = info.getExportTime();
+         if (eim != null)
+         {
+            throw new IllegalArgumentException("An ExportInfo with export time "
+               + exportTime + " already exists!");
+         }
+         else
+         {
+            ExportInfosMapping exportInfosMapping = getExportInfosMapping(session);
+            String exportTimeAsString = "" + exportTime;
+            ExportInfoMapping exportInfo = exportInfosMapping.createExportInfo(exportTimeAsString);
+            session.persist(exportInfosMapping, exportInfo, exportTimeAsString);
+            exportInfo.initFrom(info);
+
+            persister.save();
+            exportInfosCount++;
+         }
+      }
+      finally
       {
          persister.closeSession(false);
-         throw new IllegalArgumentException("An ExportInfo with export time "
-            + exportTime + " already exists!");
-      }
-      else
-      {
-         ExportInfosMapping exportInfosMapping = getExportInfosMapping(session);
-         String exportTimeAsString = "" + exportTime;
-         ExportInfoMapping exportInfo = exportInfosMapping.createExportInfo(exportTimeAsString);
-         session.persist(exportInfosMapping, exportInfo, exportTimeAsString);
-         exportInfo.initFrom(info);
-
-         persister.closeSession(true);
-         exportInfosCount++;
       }
    }
 
@@ -171,10 +181,16 @@ public class JCRMigrationService implements MigrationService, StoresByPathManage
    {
       if (exportInfosCount == -1)
       {
-         ChromatticSession session = persister.getSession();
-         ExportInfosMapping mappings = getExportInfosMapping(session);
-         exportInfosCount = mappings.getExportInfos().size();
-         persister.closeSession(false);
+         try
+         {
+            ChromatticSession session = persister.getSession();
+            ExportInfosMapping mappings = getExportInfosMapping(session);
+            exportInfosCount = mappings.getExportInfos().size();
+         }
+         finally
+         {
+            persister.closeSession(false);
+         }
       }
 
       return exportInfosCount == 0;
