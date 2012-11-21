@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -45,6 +46,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +58,23 @@ public class PayloadUtils
 {
    private final static Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
    private final static Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
-   private final static ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>();
+   private final static ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>()
+   {
+      @Override
+      protected DocumentBuilder initialValue()
+      {
+         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+         builderFactory.setNamespaceAware(true);
+         try
+         {
+            return builderFactory.newDocumentBuilder();
+         }
+         catch (ParserConfigurationException e)
+         {
+            throw new RuntimeException("Couldn't get a DocumentBuilder", e);
+         }
+      }
+   };
 
    static
    {
@@ -270,9 +288,7 @@ public class PayloadUtils
       Marshaller marshaller = context.createMarshaller();
 
       JAXBElement<Serializable> element = new JAXBElement<Serializable>(name, payloadClass, payload);
-      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-      builderFactory.setNamespaceAware(true);
-      Document document = builderFactory.newDocumentBuilder().newDocument();
+      Document document = getDocument();
       marshaller.marshal(element, document);
       return document.getDocumentElement();
    }
@@ -294,25 +310,9 @@ public class PayloadUtils
       }
    }
 
-   private static DocumentBuilder getBuilder()
+   private static Document getDocument()
    {
-      DocumentBuilder builder = documentBuilder.get();
-      if (builder == null)
-      {
-         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-         builderFactory.setNamespaceAware(true);
-         try
-         {
-            builder = builderFactory.newDocumentBuilder();
-            documentBuilder.set(builder);
-         }
-         catch (ParserConfigurationException e)
-         {
-            throw new RuntimeException("Couldn't get a DocumentBuilder", e);
-         }
-      }
-
-      return builder;
+      return documentBuilder.get().newDocument();
    }
 
    public static String outputToXML(Element node)
@@ -325,7 +325,18 @@ public class PayloadUtils
 
    public static Element createElement(String namespaceURI, String name)
    {
-      Document document = getBuilder().newDocument();
-      return document.createElementNS(namespaceURI, name);
+      return getDocument().createElementNS(namespaceURI, name);
+   }
+
+   public static Element parseFromXMLString(String xml)
+   {
+      try
+      {
+         return documentBuilder.get().parse(new InputSource(new StringReader(xml))).getDocumentElement();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Couldn't parse '" + xml + "' as a DOM Element.", e);
+      }
    }
 }

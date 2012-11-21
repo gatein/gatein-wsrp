@@ -23,10 +23,13 @@
 package org.gatein.wsrp.portlet;
 
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.payload.PayloadUtils;
+import org.w3c.dom.Element;
 
 import javax.portlet.EventRequest;
 import javax.portlet.EventResponse;
 import javax.portlet.GenericPortlet;
+import javax.portlet.MimeResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletSecurityException;
 import javax.portlet.RenderRequest;
@@ -42,6 +45,11 @@ public class BasicPortlet extends GenericPortlet
 
    protected void doView(RenderRequest request, RenderResponse response) throws PortletException, PortletSecurityException, IOException
    {
+      final Element style = PayloadUtils.createElement(null, "style");
+      style.setAttribute("foo", "bar");
+      response.addProperty(MimeResponse.MARKUP_HEAD_ELEMENT, style);
+      response.setProperty("prop", "propValue");
+
       if (!Boolean.TRUE.equals(request.getAttribute(WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME)))
       {
          throw new IllegalStateException("Invocation should be marked as coming from WSRP using the WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME attribute!");
