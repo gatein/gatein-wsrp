@@ -77,80 +77,110 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
       // more optimized version of updateState
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyMap, "property map");
 
-      ChromatticSession session = persister.getSession();
+      try
+      {
+         ChromatticSession session = persister.getSession();
 
-      PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
-      PortletStateMapping psm = pscm.getState();
-      psm.setProperties(propertyMap);
+         PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
+         PortletStateMapping psm = pscm.getState();
+         psm.setProperties(propertyMap);
 
-      persister.closeSession(true);
+         persister.save();
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
 
    @Override
    protected PortletStateContext getStateContext(String stateId)
    {
-      ChromatticSession session = persister.getSession();
-
-      PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
-      PortletStateContext context;
-      if (pscm == null)
+      try
       {
-         context = null;
+         ChromatticSession session = persister.getSession();
+
+         PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
+         PortletStateContext context;
+         if (pscm == null)
+         {
+            context = null;
+         }
+         else
+         {
+            context = pscm.toPortletStateContext();
+         }
+
+         return context;
       }
-      else
+      finally
       {
-         context = pscm.toPortletStateContext();
+         persister.closeSession(false);
       }
-
-      persister.closeSession(false);
-
-      return context;
    }
 
    @Override
    protected String createStateContext(String portletId, PropertyMap propertyMap)
    {
-      ChromatticSession session = persister.getSession();
-
-      String encodedForPath = ChromatticPersister.PortletNameFormatter.encode(portletId);
-
-      PortletStateContextMapping pscm = session.findByPath(PortletStateContextMapping.class, PATH + encodedForPath);
-      if (pscm == null)
+      try
       {
-         PortletStateContextsMapping portletStateContexts = getContexts(session);
-         pscm = portletStateContexts.createPortletStateContext(portletId);
-         portletStateContexts.getPortletStateContexts().add(pscm);
+         ChromatticSession session = persister.getSession();
+
+         String encodedForPath = ChromatticPersister.PortletNameFormatter.encode(portletId);
+
+         PortletStateContextMapping pscm = session.findByPath(PortletStateContextMapping.class, PATH + encodedForPath);
+         if (pscm == null)
+         {
+            PortletStateContextsMapping portletStateContexts = getContexts(session);
+            pscm = portletStateContexts.createPortletStateContext(portletId);
+            portletStateContexts.getPortletStateContexts().add(pscm);
+         }
+
+         PortletStateMapping psm = pscm.getState();
+         psm.setPortletID(pscm.getPortletId());
+         psm.setProperties(propertyMap);
+
+         // get the key
+         final String key = pscm.getPersistentKey();
+
+         // then save
+         persister.save();
+
+         return key;
       }
-
-      PortletStateMapping psm = pscm.getState();
-      psm.setPortletID(pscm.getPortletId());
-      psm.setProperties(propertyMap);
-
-      persister.closeSession(true);
-
-      return pscm.getPersistentKey();
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    @Override
    protected PortletStateContext destroyStateContext(String stateId)
    {
-      ChromatticSession session = persister.getSession();
-
-      PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
-      PortletStateContext result;
-      if (pscm == null)
+      try
       {
-         result = null;
-      }
-      else
-      {
-         getContexts(session).getPortletStateContexts().remove(pscm);
-         result = pscm.toPortletStateContext();
-      }
+         ChromatticSession session = persister.getSession();
 
-      persister.closeSession(true);
-      return result;
+         PortletStateContextMapping pscm = getPortletStateContextMapping(session, stateId);
+         PortletStateContext result;
+         if (pscm == null)
+         {
+            result = null;
+         }
+         else
+         {
+            getContexts(session).getPortletStateContexts().remove(pscm);
+            result = pscm.toPortletStateContext();
+         }
+
+         persister.save();
+         return result;
+      }
+      finally
+      {
+         persister.closeSession(false);
+      }
    }
 
    @Override

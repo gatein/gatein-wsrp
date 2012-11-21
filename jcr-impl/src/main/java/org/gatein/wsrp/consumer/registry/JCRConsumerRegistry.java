@@ -168,43 +168,50 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       String newId;
       boolean idUnchanged;
 
-      ChromatticSession session = persister.getSession();
-
-      final long now = System.currentTimeMillis();
-
-      ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
-      if (pim == null)
+      try
       {
-         throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
+         ChromatticSession session = persister.getSession();
+
+         final long now = System.currentTimeMillis();
+
+         ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
+         if (pim == null)
+         {
+            throw new IllegalArgumentException("Couldn't find ProducerInfoMapping associated with key " + key);
+         }
+         oldId = pim.getId();
+         newId = producerInfo.getId();
+         producerInfo.setLastModified(now);
+         pim.initFrom(producerInfo);
+
+         idUnchanged = oldId.equals(newId);
+
+         ProducerInfosMapping pims = getProducerInfosMapping(session);
+         pims.setLastModified(now);
+
+         if (!idUnchanged)
+         {
+            Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
+            nameToProducerInfoMap.put(pim.getId(), pim);
+         }
+
+         persister.save();
+
+         // if the consumer's id has changed, return the old one so that state can be updated
+         return idUnchanged ? null : oldId;
       }
-      oldId = pim.getId();
-      newId = producerInfo.getId();
-      producerInfo.setLastModified(now);
-      pim.initFrom(producerInfo);
-
-      idUnchanged = oldId.equals(newId);
-
-      ProducerInfosMapping pims = getProducerInfosMapping(session);
-      pims.setLastModified(now);
-
-      if (!idUnchanged)
+      finally
       {
-         Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
-         nameToProducerInfoMap.put(pim.getId(), pim);
+         persister.closeSession(false);
       }
-
-      persister.closeSession(true);
-
-      // if the consumer's id has changed, return the old one so that state can be updated
-      return idUnchanged ? null : oldId;
    }
 
    public Iterator<ProducerInfo> getProducerInfosFromStorage()
    {
-      ChromatticSession session = persister.getSession();
-
       try
       {
+         ChromatticSession session = persister.getSession();
+
          List<ProducerInfoMapping> pims = getProducerInfosMapping(session).getProducerInfos();
          List<ProducerInfo> infos = new ArrayList<ProducerInfo>(pims.size());
          for (ProducerInfoMapping pim : pims)
@@ -225,6 +232,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       try
       {
          ChromatticSession session = persister.getSession();
+
          ProducerInfoMapping pim = getProducerInfoMapping(id, session);
          if (pim != null)
          {
@@ -247,6 +255,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       try
       {
          ChromatticSession session = persister.getSession();
+
          ProducerInfoMapping pim = getProducerInfoMapping(id, session);
          if (pim != null)
          {
@@ -272,9 +281,10 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    @Override
    public boolean containsConsumer(String id)
    {
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          return session.getJCRSession().itemExists(rootNodePath + getPathFor(id));
       }
       catch (RepositoryException e)
@@ -289,9 +299,10 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
    public Collection<String> getConfiguredConsumersIds()
    {
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          final RowIterator rows = getProducerInfoIds(session);
 
          final long size = rows.getSize();
@@ -335,9 +346,10 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    @Override
    public int getConfiguredConsumerNumber()
    {
-      ChromatticSession session = persister.getSession();
       try
       {
+         ChromatticSession session = persister.getSession();
+
          final RowIterator ids = getProducerInfoIds(session);
 
          return (int)ids.getSize();
