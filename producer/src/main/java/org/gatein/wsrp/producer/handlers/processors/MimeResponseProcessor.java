@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -24,15 +24,21 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.URLTools;
+import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ContentResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
+import org.gatein.pc.api.invocation.response.ResponseProperties;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.gatein.wsrp.servlet.ServletAccess;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.w3c.dom.Element;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -118,9 +124,39 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
          mimeResponse.setCacheControl(WSRPTypeFactory.createCacheControl(expires, WSRPConstants.CACHE_PER_USER));
       }
 
+      // GTNWSRP-336
+      final ResponseProperties properties = content.getProperties();
+      if (properties != null)
+      {
+         populateClientAttributesWith(mimeResponse, properties.getTransportHeaders());
+         populateClientAttributesWith(mimeResponse, properties.getMarkupHeaders());
+      }
+
       additionallyProcessIfNeeded(mimeResponse, response);
 
       return createResponse(mimeResponse);
+   }
+
+   private <T> void populateClientAttributesWith(LocalMimeResponse mimeResponse, MultiValuedPropertyMap<T> transportHeaders)
+   {
+      for (String key : transportHeaders.keySet())
+      {
+         final List<T> values = transportHeaders.getValues(key);
+         for (T value : values)
+         {
+            String valueAsString;
+            if (value instanceof Element)
+            {
+               Element element = (Element)value;
+               valueAsString = PayloadUtils.outputToXML(element);
+            }
+            else
+            {
+               valueAsString = value.toString();
+            }
+            mimeResponse.getClientAttributes().add(WSRPTypeFactory.createNamedString(key, valueAsString));
+         }
+      }
    }
 
    protected abstract Response createResponse(LocalMimeResponse mimeResponse);

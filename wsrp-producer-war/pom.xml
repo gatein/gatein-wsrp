@@ -22,7 +22,8 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-parent</artifactId>
@@ -33,6 +34,14 @@
    <artifactId>wsrp-producer</artifactId>
    <packaging>war</packaging>
    <name>GateIn WSRP Producer WAR</name>
+
+   <repositories>
+      <repository>
+         <id>deprecated</id>
+         <name>JBoss Deprecated</name>
+         <url>https://repository.jboss.org/nexus/content/repositories/deprecated</url>
+      </repository>
+   </repositories>
 
    <properties>
       <!-- the default jvmargs which should be used for the tests -->

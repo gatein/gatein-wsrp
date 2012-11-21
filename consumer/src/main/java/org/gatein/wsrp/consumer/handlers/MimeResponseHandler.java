@@ -44,11 +44,17 @@ import org.gatein.wsrp.WSRPRewritingConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
+import org.gatein.wsrp.payload.PayloadUtils;
 import org.oasis.wsrp.v2.CacheControl;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.SessionContext;
+import org.w3c.dom.Element;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -150,7 +156,49 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          }
       }
 
-      return createContentResponse(mimeResponse, invocation, null, null, mimeType, binary, markup, createCacheControl(mimeResponse));
+      // GTNWSRP-336
+      final ResponseProperties properties = getResponsePropertiesFrom(mimeResponse, consumer.getProducerInfo().getEndpointConfigurationInfo().getWsdlDefinitionURL());
+
+      return createContentResponse(mimeResponse, invocation, properties, null, mimeType, binary, markup, createCacheControl(mimeResponse));
+   }
+
+   private ResponseProperties getResponsePropertiesFrom(MimeResponse mimeResponse, String producerURLAsString)
+   {
+      final List<NamedString> clientAttributes = mimeResponse.getClientAttributes();
+      final ResponseProperties properties;
+      if (ParameterValidation.existsAndIsNotEmpty(clientAttributes))
+      {
+         URL producerURL;
+         try
+         {
+            producerURL = new URL(producerURLAsString);
+         }
+         catch (MalformedURLException e)
+         {
+            // shouldn't happen
+            throw new RuntimeException(e);
+         }
+         properties = new ResponseProperties();
+         for (NamedString attribute : clientAttributes)
+         {
+            final String name = attribute.getName();
+            final String value = attribute.getValue();
+            if (javax.portlet.MimeResponse.MARKUP_HEAD_ELEMENT.equals(name))
+            {
+               final Element element = PayloadUtils.parseFromXMLString(value);
+               properties.getMarkupHeaders().addValue(name, element);
+            }
+            else
+            {
+               properties.getTransportHeaders().addValue(name, value);
+            }
+         }
+      }
+      else
+      {
+         properties = null;
+      }
+      return properties;
    }
 
    private String processMarkup(String markup, Invocation invocation)
@@ -269,13 +317,13 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          // we need to assume that is the correct encoding for the situation.
 
          // NOTE: there may be other encoding situations we are not currently dealing with :(
-         
-         boolean useJavaScriptEscaping = false;  
+
+         boolean useJavaScriptEscaping = false;
          // work around for GTNWSRP-93:
          if (match.contains("\\x2D") || match.contains("\\x26"))
          {
             useJavaScriptEscaping = true;
-         match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
+            match = match.replaceAll("\\\\x2D", "-").replaceAll("\\\\x26", "&amp;");
          }
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
@@ -290,16 +338,16 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          {
             urlFormat = new URLFormat(format.getWantSecure(), format.getWantAuthenticated(), format.getWantRelative(), false);
          }
-         
+
          String value = context.renderURL(portletURL, urlFormat);
-         
+
          // we now need to add back the javascript url encoding if it was originally used
          // NOTE: we should fix this by specifying the escaping to be used in URLFormat when it supported (see GTNPC-41)
          if (useJavaScriptEscaping)
          {
             value = value.replaceAll("-", "\\\\x2D").replaceAll("&amp;", "\\\\x26");
          }
-         
+
          return value;
       }
    }
