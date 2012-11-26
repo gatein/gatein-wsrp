@@ -21,24 +21,25 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-   <parent>
-      <groupId>org.gatein.wsrp</groupId>
-      <artifactId>wsrp-parent</artifactId>
-      <version>2.2.0.CR04-SNAPSHOT</version>
-   </parent>
+  <parent>
+    <groupId>org.gatein.wsrp</groupId>
+    <artifactId>wsrp-parent</artifactId>
+    <version>2.2.0.Final-SNAPSHOT</version>
+  </parent>
 
-   <artifactId>wsrp-wss-parent</artifactId>
-   <packaging>pom</packaging>
+  <artifactId>wsrp-wss-parent</artifactId>
+  <packaging>pom</packaging>
 
-   <name>GateIn WSRP WS Security Integration</name>
-   <description>GateIn WSRP Integration extension parent</description>
-   <modules>
-      <module>wss</module>
-      <module>jboss5</module>
-      <module>wsrp-producer-jb5wss-producer-war</module>
-      <module>jboss7</module>
-   </modules>
+  <name>GateIn WSRP WS Security Integration</name>
+  <description>GateIn WSRP Integration extension parent</description>
+  <modules>
+    <module>wss</module>
+    <module>jboss5</module>
+    <module>wsrp-producer-jb5wss-producer-war</module>
+    <module>jboss7</module>
+  </modules>
 </project>

@@ -21,101 +21,102 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.gatein.wsrp</groupId>
+    <artifactId>wsrp-parent</artifactId>
+    <version>2.2.0.Final-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>wsrp-admin-gui</artifactId>
+  <packaging>war</packaging>
+  <name>GateIn WSRP Admin GUI</name>
+
+  <dependencies>
+    <dependency>
       <groupId>org.gatein.wsrp</groupId>
-      <artifactId>wsrp-parent</artifactId>
-      <version>2.2.0.CR04-SNAPSHOT</version>
-   </parent>
-   <modelVersion>4.0.0</modelVersion>
-   <artifactId>wsrp-admin-gui</artifactId>
-   <packaging>war</packaging>
-   <name>GateIn WSRP Admin GUI</name>
-
-   <dependencies>
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-common</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-consumer</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-producer-lib</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.gatein.common</groupId>
-         <artifactId>common-common</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.gatein.pc</groupId>
-         <artifactId>pc-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
+      <artifactId>wsrp-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gatein.wsrp</groupId>
+      <artifactId>wsrp-consumer</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gatein.wsrp</groupId>
+      <artifactId>wsrp-producer-lib</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gatein.common</groupId>
+      <artifactId>common-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gatein.pc</groupId>
+      <artifactId>pc-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
 
-      <dependency>
-         <groupId>javax.faces</groupId>
-         <artifactId>jsf-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>javax.el</groupId>
-         <artifactId>el-api</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>javax.faces</groupId>
+      <artifactId>jsf-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.el</groupId>
+      <artifactId>el-api</artifactId>
+    </dependency>
 
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-      <!-- Tests -->
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-consumer</artifactId>
-         <version>${project.version}</version>
-         <type>test-jar</type>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-simple</artifactId>
-         <scope>test</scope>
-      </dependency>
+    <!-- Tests -->
+    <dependency>
+      <groupId>org.gatein.wsrp</groupId>
+      <artifactId>wsrp-consumer</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
 
-      <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
-      <dependency>
-         <groupId>org.jboss.spec</groupId>
-         <artifactId>jboss-javaee-web-6.0</artifactId>
-         <version>3.0.0.Final</version>
-         <type>pom</type>
-         <scope>test</scope>
-      </dependency>
-   </dependencies>
+    <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+    <dependency>
+      <groupId>org.jboss.spec</groupId>
+      <artifactId>jboss-javaee-web-6.0</artifactId>
+      <version>3.0.0.Final</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-   <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
-   <build>
-      <plugins>
-         <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-               <classpathDependencyExcludes>
-                  <!-- exclude code absent api -->
-                  <classpathDependencyExclude>javax.faces:jsf-api</classpathDependencyExclude>
-               </classpathDependencyExcludes>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
+  <!-- Needed for tests: see https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <classpathDependencyExcludes>
+            <!-- exclude code absent api -->
+            <classpathDependencyExclude>javax.faces:jsf-api</classpathDependencyExclude>
+          </classpathDependencyExcludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

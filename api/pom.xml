@@ -21,30 +21,31 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
-      <groupId>org.gatein.wsrp</groupId>
-      <artifactId>wsrp-parent</artifactId>
-      <version>2.2.0.CR04-SNAPSHOT</version>
-   </parent>
-   <modelVersion>4.0.0</modelVersion>
-   <artifactId>wsrp-integration-api</artifactId>
-   <packaging>jar</packaging>
-   <name>GateIn WSRP Integration API</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.gatein.wsrp</groupId>
+    <artifactId>wsrp-parent</artifactId>
+    <version>2.2.0.Final-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>wsrp-integration-api</artifactId>
+  <packaging>jar</packaging>
+  <name>GateIn WSRP Integration API</name>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.gatein.pc</groupId>
-         <artifactId>pc-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>javax.servlet-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.gatein.wsrp</groupId>
-         <artifactId>wsrp-wsrp2-ws</artifactId>
-      </dependency>
-   </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.gatein.pc</groupId>
+      <artifactId>pc-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gatein.wsrp</groupId>
+      <artifactId>wsrp-wsrp2-ws</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>
