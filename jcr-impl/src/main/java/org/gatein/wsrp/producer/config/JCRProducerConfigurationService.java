@@ -135,4 +135,9 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
          persister.closeSession(false);
       }
    }
+
+   public ChromatticPersister getPersister()
+   {
+      return persister;
+   }
 }

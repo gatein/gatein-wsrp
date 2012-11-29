@@ -44,7 +44,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
    public ProducerConfiguration getConfiguration()
    {
-      if (configuration.getLastModified() < getPersistedLastModifiedForConfiguration())
+      if (configuration == null || configuration.getLastModified() < getPersistedLastModifiedForConfiguration())
       {
          try
          {
