@@ -101,13 +101,10 @@ public class SimpleXMLProducerConfigurationService extends AbstractProducerConfi
       {
          Unmarshaller unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
          ObjectModelFactory factory = new ProducerConfigurationFactory();
-         configuration = (ProducerConfiguration)unmarshaller.unmarshal(inputStream, factory, null);
+         configuration.set((ProducerConfiguration)unmarshaller.unmarshal(inputStream, factory, null));
       }
 
-      if (configuration == null)
-      {
-         configuration = new ProducerConfigurationImpl();
-      }
+      configuration.compareAndSet(null, new ProducerConfigurationImpl());
    }
 
    public void saveConfiguration() throws Exception
