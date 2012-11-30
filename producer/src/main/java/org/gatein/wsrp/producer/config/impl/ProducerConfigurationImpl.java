@@ -129,4 +129,19 @@ public class ProducerConfigurationImpl extends SupportsLastModified implements P
          this.sessionExpirationTime = sessionExpirationTime;
       }
    }
+
+   @Override
+   public long getLastModified()
+   {
+      final long original = super.getLastModified();
+
+      // if requirements are newer than us, update ourselves
+      final long requirementsLastModified = requirements.getLastModified();
+      if (requirementsLastModified > original)
+      {
+         setLastModified(requirementsLastModified);
+      }
+
+      return super.getLastModified();
+   }
 }

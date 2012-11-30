@@ -398,6 +398,8 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
             delegate.setValidator(validator);
             setPolicy(delegate);
          }
+
+         modifyNow();
       }
    }
 
