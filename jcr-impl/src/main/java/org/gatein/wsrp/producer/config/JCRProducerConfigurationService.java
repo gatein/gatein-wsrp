@@ -121,7 +121,7 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
    }
 
    @Override
-   protected long getPersistedLastModifiedForConfiguration()
+   public long getPersistedLastModifiedForConfiguration()
    {
       try
       {

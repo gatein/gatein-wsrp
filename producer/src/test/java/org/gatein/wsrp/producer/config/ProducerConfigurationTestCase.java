@@ -31,6 +31,7 @@ import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.api.plugins.PluginsAccess;
+import org.gatein.wsrp.producer.config.impl.AbstractProducerConfigurationService;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
@@ -47,7 +48,7 @@ import java.util.Map;
 public abstract class ProducerConfigurationTestCase extends TestCase
 {
 
-   protected ProducerConfigurationService service;
+   protected AbstractProducerConfigurationService service;
 
    static
    {
@@ -241,6 +242,56 @@ public abstract class ProducerConfigurationTestCase extends TestCase
       assertEquals("label4", propDesc4.getLabel().getValue());
       assertEquals("hint4", propDesc4.getHint().getValue());
       assertEquals("description4", propDesc4.getDescription().getValue());
+   }
+
+   public void testCheckThatSavingWithModificationsProperlyChangesLastModified() throws Exception
+   {
+      ProducerConfiguration configuration = getProducerConfiguration((URL)null);
+      configuration.setUsingStrictMode(false);
+      ProducerRegistrationRequirements registrationRequirements = configuration.getRegistrationRequirements();
+      registrationRequirements.setRegistrationRequiredForFullDescription(true);
+      registrationRequirements.setRegistrationRequired(true);
+      String prop1 = "prop1";
+      registrationRequirements.addEmptyRegistrationProperty(prop1);
+      registrationRequirements.getRegistrationPropertyWith(prop1).setDefaultLabel("label1");
+
+      long initial = configuration.getLastModified();
+
+      service.saveConfiguration();
+
+      assertEquals(initial, configuration.getLastModified());
+      assertEquals(initial, service.getPersistedLastModifiedForConfiguration());
+
+      // modify strict mode, save and check last modified
+      configuration.setUsingStrictMode(true);
+
+      service.saveConfiguration();
+
+      long lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
+
+      initial = lastModified;
+
+      // modify registration properties, save and check last modified
+      registrationRequirements.getRegistrationPropertyWith(prop1).setDefaultLabel("new label");
+
+      service.saveConfiguration();
+
+      lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
+
+      initial = lastModified;
+
+      // reload policy and check last modified
+      registrationRequirements.reloadPolicyFrom(TestRegistrationPolicy.class.getName(), null);
+
+      service.saveConfiguration();
+
+      lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
    }
 
    protected abstract URL getConfigurationURL();
