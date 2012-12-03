@@ -488,9 +488,10 @@ public class ProducerSessionInformation implements Serializable
 
    private class SessionInfo implements Serializable
    {
-      private SessionContext sessionContext;
       private long lastInvocationTime;
-      private String portletHandle;
+      private final String portletHandle;
+      private final String sessionID;
+      private final int expires;
 
       public SessionInfo(SessionContext sessionContext, String portletHandle)
       {
@@ -498,7 +499,8 @@ public class ProducerSessionInformation implements Serializable
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(sessionContext.getSessionID(), "session id", "SessionContext");
          ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(portletHandle, "portlet handle", "SessionInfo");
 
-         this.sessionContext = sessionContext;
+         this.sessionID = sessionContext.getSessionID();
+         this.expires = sessionContext.getExpires();
          this.portletHandle = portletHandle;
          lastInvocationTime = System.currentTimeMillis();
       }
@@ -510,7 +512,6 @@ public class ProducerSessionInformation implements Serializable
        */
       private boolean isStillValid()
       {
-         int expires = sessionContext.getExpires();
          if (expires == WSRPConstants.SESSION_NEVER_EXPIRES)
          {
             return true;
@@ -521,14 +522,14 @@ public class ProducerSessionInformation implements Serializable
          lastInvocationTime = now;
 
          long diff = expires - secondsSinceLastInvocation;
-         log.debug("Session ID '" + sessionContext.getSessionID() + "' is " + ((diff > 0) ? "" : "not")
+         log.debug("Session ID '" + sessionID + "' is " + ((diff > 0) ? "" : "not")
             + " valid (time since last invocation: " + diff + ")");
          return diff > 0;
       }
 
       private String getSessionId()
       {
-         return sessionContext.getSessionID();
+         return sessionID;
       }
 
       private String getPortletHandle()
