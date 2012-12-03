@@ -62,6 +62,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -91,15 +92,13 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private static final String WSRP_V1_BINDING = "urn:oasis:names:tc:wsrp:v1:bind";
    private static final String WSRP_V2_BINDING = "urn:oasis:names:tc:wsrp:v2:bind";
 
-   private String markupURL;
-   private String serviceDescriptionURL;
-   private String portletManagementURL;
-   private String registrationURL;
    private boolean failed;
    private boolean available;
    private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
 
    private boolean wssEnabled;
+
+   private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -109,7 +108,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       requestContext.put(IBM_WS_TIMEOUT, timeout);
    }
 
-   private <T> T customizePort(Class<T> expectedServiceInterface, Object service, String portAddress)
+   private <T> T customizePort(Class<T> expectedServiceInterface, Object service)
    {
       PortCustomizerRegistry registry = PortCustomizerRegistry.getInstance();
       final Iterable<PortCustomizer> customizers = registry.getPortCustomizers();
@@ -197,79 +196,50 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
       refresh(false);
 
-      Object service = null;
+      Object service = ports.get(clazz);
+      if (service == null)
+      {
+         return initPortFor(clazz);
+      }
+      else
+      {
+         return clazz.cast(service);
+      }
+
+   }
+
+   private <T> T initPortFor(Class<T> clazz)
+   {
       try
       {
-         service = wsService.getPort(clazz);
+         // need to be careful about: http://cxf.apache.org/faq.html#FAQ-AreJAXWSclientproxiesthreadsafe
+
+         T result = customizePort(clazz, wsService.getPort(clazz));
+
+         // if we managed to retrieve a service, we're probably available
+         setFailed(false);
+         setAvailable(true);
+
+         ports.put(clazz, result);
+
+         return result;
       }
       catch (Exception e)
       {
          log.debug("No port available for " + clazz, e);
-      }
-
-      //
-      String portAddress = null;
-      boolean isMandatoryInterface = false;
-      if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz)
-         || WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = serviceDescriptionURL;
-         isMandatoryInterface = true;
-      }
-      else if (WSRPV2MarkupPortType.class.isAssignableFrom(clazz)
-         || WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = markupURL;
-         isMandatoryInterface = true;
-      }
-      else if (WSRPV2RegistrationPortType.class.isAssignableFrom(clazz)
-         || WSRPV1RegistrationPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = registrationURL;
-      }
-      else if (WSRPV2PortletManagementPortType.class.isAssignableFrom(clazz)
-         || WSRPV1PortletManagementPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = portletManagementURL;
-      }
-
-      // Get the stub from the service, remember that the stub itself is not threadsafe
-      // and must be customized for every request to this method.
-      if (service != null)
-      {
-         if (portAddress != null)
+         if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz) || WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz)
+            || WSRPV2MarkupPortType.class.isAssignableFrom(clazz) || WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
          {
-            if (log.isDebugEnabled())
-            {
-               log.debug("Setting the end point to: " + portAddress);
-            }
-
-            T result = customizePort(clazz, service, portAddress);
-
-            // if we managed to retrieve a service, we're probably available
-            setFailed(false);
-            setAvailable(true);
-
-            return result;
+            setFailed(true);
+            throw new IllegalArgumentException("Mandatory interface URLs were not properly initialized: no proper service URL for " + clazz.getName(), e);
          }
          else
          {
-            if (isMandatoryInterface)
-            {
-               setFailed(true);
-               throw new IllegalStateException("Mandatory interface URLs were not properly initialized: no proper service URL for "
-                  + clazz.getName());
-            }
-            else
-            {
-               throw new IllegalStateException("No URL was provided for optional interface " + clazz.getName());
-            }
+            log.debug("No URL was provided for optional interface " + clazz.getName(), e);
          }
       }
-      else
-      {
-         return null;
-      }
+
+      return null;
    }
 
    public boolean isAvailable()
@@ -351,45 +321,11 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          {
             wsService = Service.create(wsdlURL, wsrp2);
 
-            Class portTypeClass = null;
-            try
-            {
-               portTypeClass = WSRPV2MarkupPortType.class;
-               WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
-               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-
-               portTypeClass = WSRPV2ServiceDescriptionPortType.class;
-               WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
-               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               setFailed(true);
-               throw new IllegalArgumentException("Mandatory WSRP 2 port "
-                  + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
-            }
-
-            try
-            {
-               WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
-               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
-               portletManagementURL = null;
-            }
-
-            try
-            {
-               WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
-               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
-               registrationURL = null;
-            }
+            // init the service ports
+            initPortFor(WSRPV2MarkupPortType.class);
+            initPortFor(WSRPV2ServiceDescriptionPortType.class);
+            initPortFor(WSRPV2PortletManagementPortType.class);
+            initPortFor(WSRPV2RegistrationPortType.class);
 
             setFailed(false);
             setAvailable(true);
@@ -399,44 +335,11 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          {
             wsService = Service.create(wsdlURL, wsrp1);
 
-            Class portTypeClass = null;
-            try
-            {
-               portTypeClass = WSRPV1MarkupPortType.class;
-               WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
-               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-
-               portTypeClass = WSRPV1ServiceDescriptionPortType.class;
-               WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
-               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               setFailed(true);
-               throw new IllegalArgumentException("Mandatory WSRP 1 port " + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
-            }
-
-            try
-            {
-               WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
-               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
-               portletManagementURL = null;
-            }
-
-            try
-            {
-               WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
-               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
-               registrationURL = null;
-            }
+            // init the service ports
+            initPortFor(WSRPV1MarkupPortType.class);
+            initPortFor(WSRPV1ServiceDescriptionPortType.class);
+            initPortFor(WSRPV1PortletManagementPortType.class);
+            initPortFor(WSRPV1RegistrationPortType.class);
 
             setFailed(false);
             setAvailable(true);
