@@ -33,6 +33,7 @@ import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -40,11 +41,11 @@ import java.util.Set;
  */
 public abstract class AbstractProducerConfigurationService implements ProducerConfigurationService
 {
-   protected ProducerConfiguration configuration;
+   protected AtomicReference<ProducerConfiguration> configuration = new AtomicReference<ProducerConfiguration>();
 
    public ProducerConfiguration getConfiguration()
    {
-      if (configuration.getLastModified() < getPersistedLastModifiedForConfiguration())
+      if (configuration.get() == null || configuration.get().getLastModified() < getPersistedLastModifiedForConfiguration())
       {
          try
          {
@@ -56,7 +57,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
          }
       }
 
-      return configuration;
+      return configuration.get();
    }
 
    public void reloadConfiguration() throws Exception
@@ -71,10 +72,10 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
       Set<RegistrationPolicyChangeListener> policyListeners = null;
       Set<RegistrationPropertyChangeListener> propertyListeners = null;
       ProducerRegistrationRequirements registrationRequirements;
-      if (configuration != null)
+      if (configuration.get() != null)
       {
-         listeners = configuration.getChangeListeners();
-         registrationRequirements = configuration.getRegistrationRequirements();
+         listeners = configuration.get().getChangeListeners();
+         registrationRequirements = configuration.get().getRegistrationRequirements();
          if (registrationRequirements != null)
          {
             policyListeners = registrationRequirements.getPolicyChangeListeners();
@@ -87,21 +88,21 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
       // make sure that we set strict mode on things which need to know about it regardless of listeners (which might
       // not exist when this method is called, as is the case at startup)
-      WSRPValidator.setStrict(configuration.isUsingStrictMode());
+      WSRPValidator.setStrict(configuration.get().isUsingStrictMode());
 
       // restore listeners and trigger them if requested
       if (listeners != null)
       {
          for (ProducerConfigurationChangeListener listener : listeners)
          {
-            configuration.addChangeListener(listener);
+            configuration.get().addChangeListener(listener);
             if (triggerListeners)
             {
-               listener.usingStrictModeChangedTo(configuration.isUsingStrictMode());
+               listener.usingStrictModeChangedTo(configuration.get().isUsingStrictMode());
             }
          }
       }
-      registrationRequirements = configuration.getRegistrationRequirements();
+      registrationRequirements = configuration.get().getRegistrationRequirements();
       if (registrationRequirements != null)
       {
          if (propertyListeners != null)
@@ -131,8 +132,8 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
    protected abstract void loadConfiguration() throws Exception;
 
-   protected long getPersistedLastModifiedForConfiguration()
+   public long getPersistedLastModifiedForConfiguration()
    {
-      return configuration.getLastModified();
+      return configuration.get().getLastModified();
    }
 }

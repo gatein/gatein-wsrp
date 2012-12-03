@@ -84,14 +84,14 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
             ProducerConfigurationService service = new SimpleXMLProducerConfigurationService(defaultConfigurationIS);
 
             service.reloadConfiguration();
-            configuration = service.getConfiguration();
-            pcm.initFrom(configuration);
+            configuration.set(service.getConfiguration());
+            pcm.initFrom(configuration.get());
 
             persister.save();
          }
          else
          {
-            configuration = pcm.toModel(null, this);
+            configuration.set(pcm.toModel(null, this));
          }
       }
       finally
@@ -111,7 +111,7 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
          {
             pcm = session.insert(ProducerConfigurationMapping.class, PRODUCER_CONFIGURATION_PATH);
          }
-         pcm.initFrom(configuration);
+         pcm.initFrom(configuration.get());
          persister.save();
       }
       finally
@@ -121,7 +121,7 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
    }
 
    @Override
-   protected long getPersistedLastModifiedForConfiguration()
+   public long getPersistedLastModifiedForConfiguration()
    {
       try
       {
@@ -134,5 +134,10 @@ public class JCRProducerConfigurationService extends AbstractProducerConfigurati
       {
          persister.closeSession(false);
       }
+   }
+
+   public ChromatticPersister getPersister()
+   {
+      return persister;
    }
 }

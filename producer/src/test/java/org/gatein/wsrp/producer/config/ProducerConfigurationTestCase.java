@@ -31,26 +31,11 @@ import org.gatein.registration.policies.RegistrationPolicyWrapper;
 import org.gatein.registration.policies.RegistrationPropertyValidator;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.api.plugins.PluginsAccess;
-import org.gatein.wsrp.producer.config.impl.ProducerConfigurationImpl;
-import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationProvider;
+import org.gatein.wsrp.producer.config.impl.AbstractProducerConfigurationService;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.jboss.xb.binding.ObjectModelProvider;
-import org.jboss.xb.binding.XercesXsMarshaller;
-import org.jboss.xb.binding.sunday.unmarshalling.DefaultSchemaResolver;
-import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
@@ -63,14 +48,10 @@ import java.util.Map;
 public abstract class ProducerConfigurationTestCase extends TestCase
 {
 
-   private static DefaultSchemaResolver RESOLVER;
+   protected AbstractProducerConfigurationService service;
 
    static
    {
-      RESOLVER = new DefaultSchemaResolver();
-      RESOLVER.setCacheResolvedSchemas(true);
-      RESOLVER.addSchemaLocation("http://www.w3.org/XML/1998/namespace", "xsd/xml.xsd");
-      RESOLVER.addSchemaLocation("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "xsd/gatein_wsrp_producer_1_0.xsd");
       if (PluginsAccess.getPlugins() == null)
       {
          PluginsAccess.register(new TestPlugins());
@@ -222,7 +203,7 @@ public abstract class ProducerConfigurationTestCase extends TestCase
 
    public void testSaveAndReload() throws Exception
    {
-      ProducerConfiguration configuration = new ProducerConfigurationImpl();
+      ProducerConfiguration configuration = getProducerConfiguration((URL)null);
       configuration.setUsingStrictMode(false);
       ProducerRegistrationRequirements registrationRequirements = configuration.getRegistrationRequirements();
       registrationRequirements.setRegistrationRequiredForFullDescription(true);
@@ -243,12 +224,9 @@ public abstract class ProducerConfigurationTestCase extends TestCase
       propDesc4.setDefaultHint("hint4");
       propDesc4.setDefaultDescription("description4");
 
-      File tmp = File.createTempFile("producer-configuration-test-case", "xml");
-      tmp.deleteOnExit();
+      service.saveConfiguration();
 
-      writeConfigToFile(configuration, tmp);
-
-      configuration = getProducerConfiguration(tmp.toURI().toURL());
+      configuration = getProducerConfiguration(getConfigurationURL());
 
       assertFalse(configuration.isUsingStrictMode());
 
@@ -266,47 +244,57 @@ public abstract class ProducerConfigurationTestCase extends TestCase
       assertEquals("description4", propDesc4.getDescription().getValue());
    }
 
-   private void writeConfigToFile(ProducerConfiguration configuration, File file)
-      throws IOException, ParserConfigurationException, SAXException
+   public void testCheckThatSavingWithModificationsProperlyChangesLastModified() throws Exception
    {
-      StringWriter xmlOutput = new StringWriter();
+      ProducerConfiguration configuration = getProducerConfiguration((URL)null);
+      configuration.setUsingStrictMode(false);
+      ProducerRegistrationRequirements registrationRequirements = configuration.getRegistrationRequirements();
+      registrationRequirements.setRegistrationRequiredForFullDescription(true);
+      registrationRequirements.setRegistrationRequired(true);
+      String prop1 = "prop1";
+      registrationRequirements.addEmptyRegistrationProperty(prop1);
+      registrationRequirements.getRegistrationPropertyWith(prop1).setDefaultLabel("label1");
 
-      // get the XML Schema source
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("xsd/gatein_wsrp_producer_1_0.xsd");
+      long initial = configuration.getLastModified();
 
-      Reader xsReader = new InputStreamReader(is);
+      service.saveConfiguration();
 
-      // create an instance of XML Schema marshaller
-      XercesXsMarshaller marshaller = new XercesXsMarshaller();
+      assertEquals(initial, configuration.getLastModified());
+      assertEquals(initial, service.getPersistedLastModifiedForConfiguration());
 
-      marshaller.setSchemaResolver(RESOLVER);
+      // modify strict mode, save and check last modified
+      configuration.setUsingStrictMode(true);
 
-      // we need to specify what elements are top most (roots) providing namespace URI, prefix and local name
-      marshaller.addRootElement("http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0", "", "producer-configuration");
+      service.saveConfiguration();
 
-      // declare default namespace
-      marshaller.declareNamespace("wpc", "http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0");
+      long lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
 
-      // add schema location by declaring xsi namespace and adding xsi:schemaLocation attribute
-      marshaller.declareNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-      marshaller.addAttribute("xsi", "schemaLocation", "string",
-         "http://www.gatein.org/xml/ns/gatein_wsrp_producer_1_0 http://www.jboss.org/portal/xsd/gatein_wsrp_producer_1_0.xsd");
+      initial = lastModified;
 
-      // create an instance of Object Model Provider
-      ObjectModelProvider provider = new ProducerConfigurationProvider();
+      // modify registration properties, save and check last modified
+      registrationRequirements.getRegistrationPropertyWith(prop1).setDefaultLabel("new label");
 
-      marshaller.setProperty("org.jboss.xml.binding.marshalling.indent", "true");
-      marshaller.marshal(xsReader, provider, configuration, xmlOutput);
+      service.saveConfiguration();
 
-      // close XML Schema reader
-      xsReader.close();
+      lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
 
-      file.createNewFile();
-      Writer configFile = new BufferedWriter(new FileWriter(file));
-      configFile.write(xmlOutput.toString());
-      configFile.flush();
-      configFile.close();
+      initial = lastModified;
+
+      // reload policy and check last modified
+      registrationRequirements.reloadPolicyFrom(TestRegistrationPolicy.class.getName(), null);
+
+      service.saveConfiguration();
+
+      lastModified = configuration.getLastModified();
+      assertTrue(initial < lastModified);
+      assertEquals(lastModified, service.getPersistedLastModifiedForConfiguration());
    }
+
+   protected abstract URL getConfigurationURL();
 
    protected ProducerConfiguration getProducerConfiguration(String fileName) throws Exception
    {

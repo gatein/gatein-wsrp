@@ -22,13 +22,11 @@
 
 package org.gatein.wsrp.producer.config;
 
-import org.gatein.wsrp.producer.config.impl.xml.ProducerConfigurationFactory;
+import org.gatein.wsrp.producer.config.impl.xml.SimpleXMLProducerConfigurationService;
 import org.jboss.xb.binding.JBossXBException;
-import org.jboss.xb.binding.ObjectModelFactory;
-import org.jboss.xb.binding.Unmarshaller;
-import org.jboss.xb.binding.UnmarshallerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -37,21 +35,25 @@ import java.net.URL;
  */
 public class JAXBProducerConfigurationTestCase extends ProducerConfigurationTestCase
 {
-   private Unmarshaller unmarshaller;
-   private ObjectModelFactory factory;
 
    protected void setUp() throws Exception
    {
-      unmarshaller = UnmarshallerFactory.newInstance().newUnmarshaller();
-      factory = new ProducerConfigurationFactory();
-      unmarshaller.setEntityResolver(new TestEntityResolver());
+      service = new SimpleXMLProducerConfigurationService();
    }
 
    protected ProducerConfiguration getProducerConfiguration(URL location) throws JBossXBException, IOException
    {
-      Object o = unmarshaller.unmarshal(location.openStream(), factory, null);
-      assertNotNull(o);
-      assertTrue(o instanceof ProducerConfiguration);
-      return (ProducerConfiguration)o;
+      if (location != null)
+      {
+         final InputStream inputStream = location.openStream();
+         ((SimpleXMLProducerConfigurationService)service).setInputStream(inputStream);
+      }
+      return service.getConfiguration();
+   }
+
+   @Override
+   protected URL getConfigurationURL()
+   {
+      return ((SimpleXMLProducerConfigurationService)service).getConfigurationURL();
    }
 }

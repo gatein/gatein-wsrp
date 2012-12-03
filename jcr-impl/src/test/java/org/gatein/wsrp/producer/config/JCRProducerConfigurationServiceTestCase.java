@@ -24,7 +24,11 @@ package org.gatein.wsrp.producer.config;
 
 import org.chromattic.api.ChromatticBuilder;
 import org.gatein.wsrp.jcr.BaseChromatticPersister;
+import org.gatein.wsrp.jcr.ChromatticPersister;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Session;
 import java.net.URL;
 
 /**
@@ -33,8 +37,6 @@ import java.net.URL;
  */
 public class JCRProducerConfigurationServiceTestCase extends ProducerConfigurationTestCase
 {
-   private JCRProducerConfigurationService service;
-
    @Override
    public void setUp() throws Exception
    {
@@ -54,10 +56,41 @@ public class JCRProducerConfigurationServiceTestCase extends ProducerConfigurati
    }
 
    @Override
+   protected void tearDown() throws Exception
+   {
+      // remove node containing consumer informations so that we can start with a clean state
+      final ChromatticPersister persister = getService().getPersister();
+      final Session session = persister.getSession().getJCRSession();
+      final Node rootNode = session.getRootNode();
+      final NodeIterator nodes = rootNode.getNodes();
+      while (nodes.hasNext())
+      {
+         nodes.nextNode().remove();
+      }
+
+      // then save
+      persister.closeSession(true);
+   }
+
+   private JCRProducerConfigurationService getService()
+   {
+      return (JCRProducerConfigurationService)service;
+   }
+
+   @Override
+   protected URL getConfigurationURL()
+   {
+      return null;
+   }
+
+   @Override
    protected ProducerConfiguration getProducerConfiguration(URL location) throws Exception
    {
-      service.setConfigurationIS(location.openStream());
-      service.loadConfiguration();
+      if (location != null)
+      {
+         getService().setConfigurationIS(location.openStream());
+      }
+      getService().loadConfiguration();
       return service.getConfiguration();
    }
 }
