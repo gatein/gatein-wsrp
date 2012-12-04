@@ -277,9 +277,10 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
     */
    public boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
    {
+      final boolean registrationRequired = producer.getProducerRegistrationRequirements().isRegistrationRequired();
       if (reg == null)
       {
-         if (producer.getProducerRegistrationRequirements().isRegistrationRequired())
+         if (registrationRequired)
          {
             log.debug("Registration is required yet no RegistrationContext was provided: registration invalid!");
             if (throwExceptionIfInvalid)
@@ -295,26 +296,38 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
       else
       {
          boolean isValid = RegistrationStatus.VALID.equals(reg.getStatus());
-         boolean isPending = RegistrationStatus.PENDING.equals(reg.getStatus());
-         log.debug("Registration required: registration is " + (isValid ? "valid!" : (isPending ? "pending!" : "invalid!")));
-
-         if (throwExceptionIfInvalid)
+         if (registrationRequired)
          {
-            if (isPending)
+            boolean isPending = RegistrationStatus.PENDING.equals(reg.getStatus());
+            log.debug("Registration required: registration is " + (isValid ? "valid!" : (isPending ? "pending!" : "invalid!")));
+
+            if (throwExceptionIfInvalid)
             {
-               WSRP2ExceptionFactory.throwWSException(ModifyRegistrationRequired.class, "Registration with handle '" + reg.getRegistrationHandle()
-                  + "' is pending. Consumer needs to call modifyRegistration().", null);
-            }
-            else
-            {
-               if (!isValid)
+               if (isPending)
                {
-                  throwInvalidRegistrationFault("registration with handle '" + reg.getRegistrationHandle() + "' is not valid!");
+                  WSRP2ExceptionFactory.throwWSException(ModifyRegistrationRequired.class, "Registration with handle '" + reg.getRegistrationHandle()
+                     + "' is pending. Consumer needs to call modifyRegistration().", null);
+               }
+               else
+               {
+                  if (!isValid)
+                  {
+                     throwInvalidRegistrationFault("registration with handle '" + reg.getRegistrationHandle() + "' is not valid!");
+                  }
                }
             }
-         }
 
-         return isValid;
+            return isValid;
+         }
+         else
+         {
+            if (!isValid && throwExceptionIfInvalid)
+            {
+               throwInvalidRegistrationFault("registration information was provided but registration is not required!");
+            }
+
+            return isValid;
+         }
       }
    }
 

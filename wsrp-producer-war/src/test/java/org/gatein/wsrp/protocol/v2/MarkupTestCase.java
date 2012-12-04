@@ -1185,6 +1185,117 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
    }
 
    @Test
+   public void testGetResourceNoRegistrationWhenRegistrationRequired() throws Exception
+   {
+      configureRegistrationSettings(true, false);
+
+      // actual parameters of getResource invocation shouldn't matter here
+      final GetResource getResource = createGetResource(DEFAULT_MARKUP_PORTLET_WAR, "foo");
+      try
+      {
+         producer.getResource(getResource);
+         ExtendedAssert.fail("Should have thrown InvalidRegistration!");
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         // expected
+      }
+      catch (Exception e)
+      {
+         ExtendedAssert.fail(e.getMessage());
+      }
+   }
+
+   @Test
+   public void testGetMarkupRegistrationWhenNoneRequired() throws Exception
+   {
+      configureRegistrationSettings(false, true);
+
+      GetMarkup gm = createMarkupRequest();
+      gm.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("foo"));
+      try
+      {
+         producer.getMarkup(gm);
+         ExtendedAssert.fail("Should have thrown InvalidRegistration!");
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         // expected
+      }
+      catch (Exception e)
+      {
+         ExtendedAssert.fail(e.getMessage());
+      }
+   }
+
+   @Test
+   public void testPerformBlockingInteractionRegistrationWhenNoneRequired() throws Exception
+   {
+      configureRegistrationSettings(false, true);
+
+      PerformBlockingInteraction pbi = createDefaultPerformBlockingInteraction(getHandleForCurrentlyDeployedArchive());
+      pbi.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("foo"));
+      try
+      {
+         producer.performBlockingInteraction(pbi);
+         ExtendedAssert.fail("Should have thrown InvalidRegistration!");
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         // expected
+      }
+      catch (Exception e)
+      {
+         ExtendedAssert.fail(e.getMessage());
+      }
+   }
+
+   @Test
+   public void testInitCookieRegistrationWhenNoneRequired() throws Exception
+   {
+      configureRegistrationSettings(false, true);
+
+      InitCookie initCookie = WSRPTypeFactory.createInitCookie(null);
+      initCookie.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("foo"));
+      try
+      {
+         producer.initCookie(initCookie);
+         ExtendedAssert.fail("Should have thrown InvalidRegistration!");
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         // expected
+      }
+      catch (Exception e)
+      {
+         ExtendedAssert.fail(e.getMessage());
+      }
+   }
+
+   @Test
+   public void testGetResourceRegistrationWhenNoneRequired() throws Exception
+   {
+      configureRegistrationSettings(false, true);
+
+      // actual parameters of getResource invocation shouldn't matter here
+      final GetResource getResource = createGetResource(DEFAULT_MARKUP_PORTLET_WAR, "foo");
+      getResource.setRegistrationContext(WSRPTypeFactory.createRegistrationContext("foo"));
+      try
+      {
+         producer.getResource(getResource);
+         ExtendedAssert.fail("Should have thrown InvalidRegistration!");
+      }
+      catch (InvalidRegistration invalidRegistration)
+      {
+         // expected
+      }
+      catch (Exception e)
+      {
+         ExtendedAssert.fail(e.getMessage());
+      }
+   }
+
+   @Test
    public void testGetResource() throws Exception
    {
       undeploy(DEFAULT_MARKUP_PORTLET_WAR);
