@@ -32,18 +32,13 @@ import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPRenderURL;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.portlet.utils.MockRequest;
-import org.gatein.wsrp.producer.WSRPProducerBaseTest;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +64,6 @@ import org.oasis.wsrp.v1.V1UpdateResponse;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Locale;
-
-import javax.servlet.ServletRequest;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -109,10 +102,10 @@ public class MarkupTestCase extends NeedPortletHandleTest
       //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
       //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
       //            .createMockResponse());
-      
+
       Request request = new MockRequest();
       request.setCoyoteRequest(new org.apache.coyote.Request());
-      
+
       RequestFacade requestFacade = new RequestFacade(request);
       ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
@@ -564,8 +557,9 @@ public class MarkupTestCase extends NeedPortletHandleTest
       }
    }
 
-   /** Test to make sure setting the UserContext doesn't appear in the getRemoteUser method call.
-    * 
+   /**
+    * Test to make sure setting the UserContext doesn't appear in the getRemoteUser method call.
+    *
     * @throws Exception
     */
    @Test
