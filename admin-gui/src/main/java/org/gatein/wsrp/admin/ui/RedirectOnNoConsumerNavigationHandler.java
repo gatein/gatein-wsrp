@@ -56,16 +56,10 @@ public class RedirectOnNoConsumerNavigationHandler extends ConfigurableNavigatio
          // check if we have a currently selected consumer in the request...
          String currentConsumer = JSFBeanContext.getParameter(ConsumerManagerBean.REQUESTED_CONSUMER_ID, facesContext);
 
-         // if not, check the session...
+         // if we still don't have consumer id, redirect to consumer list view
          if (currentConsumer == null)
          {
-            currentConsumer = (String)JSFBeanContext.getSessionMap(facesContext).get(ConsumerManagerBean.SESSION_CONSUMER_ID);
-
-            // if we still don't have consumer id, redirect to consumer list view
-            if (currentConsumer == null)
-            {
-               outcome = CONSUMERS;
-            }
+            outcome = CONSUMERS;
          }
       }
       else if (CONSUMERS.equals(outcome))

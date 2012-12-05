@@ -30,6 +30,7 @@
    version="2.1">
 
    <application>
+      <navigation-handler>org.gatein.wsrp.admin.ui.RedirectOnNoConsumerNavigationHandler</navigation-handler>
       <locale-config>
          <default-locale>en</default-locale>
          <supported-locale>fr</supported-locale>

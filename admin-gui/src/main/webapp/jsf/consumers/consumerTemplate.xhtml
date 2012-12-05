@@ -46,7 +46,9 @@
                             label="Consumer Name" required="true"/>&#160;&#160;
                <h:commandButton id="createConsumerButton" styleClass="ActionButton"
                                 action="#{consumersMgr.createConsumer}"
-                                value="#{i18n.consumers_create_submit}"/>
+                                value="#{i18n.consumers_create_submit}">
+                  <f:param name="id" value="#{consumersMgr.selectedId}"/>
+               </h:commandButton>
             </h:form>
          </f:subview>
          <h:panelGroup rendered="#{! showAddConsumer}">
