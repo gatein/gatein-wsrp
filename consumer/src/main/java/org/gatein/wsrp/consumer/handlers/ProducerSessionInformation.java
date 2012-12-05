@@ -502,7 +502,7 @@ public class ProducerSessionInformation implements Serializable
          this.sessionID = sessionContext.getSessionID();
          this.expires = sessionContext.getExpires();
          this.portletHandle = portletHandle;
-         lastInvocationTime = System.currentTimeMillis();
+         lastInvocationTime = now();
       }
 
       /**
@@ -517,7 +517,7 @@ public class ProducerSessionInformation implements Serializable
             return true;
          }
 
-         long now = System.currentTimeMillis();
+         long now = now();
          long secondsSinceLastInvocation = (now - lastInvocationTime) / 1000;
          lastInvocationTime = now;
 
@@ -536,6 +536,11 @@ public class ProducerSessionInformation implements Serializable
       {
          return portletHandle;
       }
+   }
+
+   private static long now()
+   {
+      return System.currentTimeMillis();
    }
 
    private class SessionIdResult

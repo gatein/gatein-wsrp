@@ -814,7 +814,7 @@ public class ProducerInfo extends SupportsLastModified
 
    private void resetCacheTimerIfNeeded()
    {
-      expirationTimeMillis = System.currentTimeMillis() + (getSafeExpirationCacheSeconds() * 1000);
+      expirationTimeMillis = nowForCache() + (getSafeExpirationCacheSeconds() * 1000);
    }
 
    /**
@@ -823,7 +823,7 @@ public class ProducerInfo extends SupportsLastModified
     */
    private boolean isCacheExpired()
    {
-      boolean result = !useCache() || System.currentTimeMillis() > expirationTimeMillis || popsMap == null
+      boolean result = !useCache() || nowForCache() > expirationTimeMillis || popsMap == null
          || portletGroups == null;
       if (result)
       {
@@ -856,7 +856,7 @@ public class ProducerInfo extends SupportsLastModified
          }
          else
          {
-            expirationTimeMillis = System.currentTimeMillis();
+            expirationTimeMillis = nowForCache();
          }
       }
    }
@@ -1277,8 +1277,13 @@ public class ProducerInfo extends SupportsLastModified
    {
       if (useCache())
       {
-         expirationTimeMillis = System.currentTimeMillis();
+         expirationTimeMillis = nowForCache();
       }
+   }
+
+   private static long nowForCache()
+   {
+      return System.currentTimeMillis();
    }
 
    private RefreshResult internalRefreshRegistration(ServiceDescription serviceDescription, boolean mergeWithLocalInfo, boolean forceRefresh, boolean forceCheckOfExtraProps) throws PortletInvokerException

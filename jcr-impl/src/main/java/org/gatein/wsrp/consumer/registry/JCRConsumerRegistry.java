@@ -24,6 +24,7 @@
 package org.gatein.wsrp.consumer.registry;
 
 import org.chromattic.api.ChromatticSession;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.consumer.ConsumerException;
 import org.gatein.wsrp.consumer.ProducerInfo;
@@ -137,7 +138,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
-         final long now = System.currentTimeMillis();
+         final long now = SupportsLastModified.now();
 
          ProducerInfosMapping pims = getProducerInfosMapping(session);
          pims.setLastModified(now);
@@ -182,8 +183,6 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
-         final long now = System.currentTimeMillis();
-
          ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
          if (pim == null)
          {
@@ -191,13 +190,18 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
          }
          oldId = pim.getId();
          newId = producerInfo.getId();
-         producerInfo.setLastModified(now);
          pim.initFrom(producerInfo);
 
          idUnchanged = oldId.equals(newId);
 
+         // if the ProducerInfo's last modified date is posterior to the set it's contained in, modify that one too
          ProducerInfosMapping pims = getProducerInfosMapping(session);
-         pims.setLastModified(now);
+         final long pimsLastModified = pims.getLastModified();
+         final long lastModified = producerInfo.getLastModified();
+         if (lastModified > pimsLastModified)
+         {
+            pims.setLastModified(lastModified);
+         }
 
          if (!idUnchanged)
          {
@@ -410,7 +414,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
                consumerCache.putConsumer(info.getId(), consumer);
             }
 
-            producerInfosMapping.setLastModified(System.currentTimeMillis());
+            producerInfosMapping.setLastModified(SupportsLastModified.now());
             session.save();
          }
       }

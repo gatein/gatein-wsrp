@@ -27,6 +27,7 @@ import org.chromattic.api.Chromattic;
 import org.chromattic.api.ChromatticBuilder;
 import org.chromattic.api.ChromatticSession;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 
@@ -155,7 +156,7 @@ public abstract class BaseChromatticPersister implements ChromatticPersister
          final LastModified lastModified = manager.lastModifiedToUpdateOnDelete(session);
          if (lastModified != null)
          {
-            lastModified.setLastModified(System.currentTimeMillis());
+            lastModified.setLastModified(SupportsLastModified.now());
          }
          closeSession(true);
          return true;

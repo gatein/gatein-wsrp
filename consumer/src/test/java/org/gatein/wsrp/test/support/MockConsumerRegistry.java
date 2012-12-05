@@ -25,6 +25,7 @@ package org.gatein.wsrp.test.support;
 
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.federation.FederatingPortletInvoker;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPConsumer;
 import org.gatein.wsrp.api.session.SessionEventBroadcaster;
 import org.gatein.wsrp.consumer.ConsumerException;
@@ -237,6 +238,6 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
 
    public long getPersistedLastModifiedForProducerInfoWith(String id)
    {
-      return System.currentTimeMillis();
+      return SupportsLastModified.now();
    }
 }

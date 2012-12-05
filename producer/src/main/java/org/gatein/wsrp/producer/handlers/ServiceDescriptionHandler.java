@@ -48,6 +48,7 @@ import org.gatein.pc.portlet.container.managed.ManagedObjectRegistryEventListene
 import org.gatein.pc.portlet.container.managed.ManagedPortletContainer;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.producer.ServiceDescriptionInterface;
@@ -303,7 +304,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             // update need to register
             requireRegistrations = requirements.isRegistrationRequired();
 
-            lastGenerated = System.nanoTime();
+            lastGenerated = SupportsLastModified.now();
          }
       }
 

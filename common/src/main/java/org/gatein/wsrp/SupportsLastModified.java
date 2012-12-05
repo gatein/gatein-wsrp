@@ -45,7 +45,7 @@ public class SupportsLastModified
 
    public void modifyNow()
    {
-      setLastModified(System.nanoTime());
+      setLastModified(now());
    }
 
    public long getLastModified()
@@ -56,5 +56,10 @@ public class SupportsLastModified
    public void setLastModified(long lastModified)
    {
       this.lastModified = lastModified;
+   }
+
+   public static long now()
+   {
+      return System.nanoTime();
    }
 }

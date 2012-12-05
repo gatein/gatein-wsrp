@@ -39,6 +39,7 @@ import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationException;
 import org.gatein.registration.spi.ConsumerSPI;
 import org.gatein.registration.spi.RegistrationSPI;
+import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.JCRRegistrationPersistenceManager;
 
@@ -108,7 +109,7 @@ public abstract class ConsumerMapping implements BaseMapping<ConsumerSPI, JCRReg
          else
          {
             // else create the registration, add to parent
-            rm = createRegistration("" + System.nanoTime());
+            rm = createRegistration("" + SupportsLastModified.now());
             getRegistrations().add(rm);
          }
 
@@ -118,7 +119,7 @@ public abstract class ConsumerMapping implements BaseMapping<ConsumerSPI, JCRReg
       else
       {
          // only create the registration and add to parent
-         rm = createRegistration("" + System.nanoTime());
+         rm = createRegistration("" + SupportsLastModified.now());
          getRegistrations().add(rm);
       }
 
