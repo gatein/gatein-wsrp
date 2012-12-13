@@ -66,7 +66,7 @@ public class RedirectOnNoConsumerNavigationHandler extends ConfigurableNavigatio
       {
          // ensure that state is properly reset by calling ConsumerManagerBean.listConsumers()
          ConsumerManagerBean consumersMgr = (ConsumerManagerBean)JSFBeanContext.getSessionMap(facesContext).get(CONSUMERS_MGR);
-         outcome = consumersMgr.listConsumers();
+         consumersMgr.listConsumers();
       }
 
       base.handleNavigation(facesContext, fromAction, outcome);
