@@ -111,7 +111,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    public String reload()
    {
       getRegistry().reloadConsumers();
-      return CONSUMERS;
+      return null;
    }
 
    public String activateConsumer()
@@ -369,7 +369,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    public String listConsumers()
    {
       selectedId = null;
-      return CONSUMERS;
+      return null;
    }
 
    public void selectConsumer(ActionEvent actionEvent)

@@ -373,7 +373,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          {
             beanContext.createInfoMessage(UPDATE_SUCCESS);
          }
-         return ConsumerManagerBean.CONFIGURE_CONSUMER;
+         return null;
       }
 
       beanContext.createErrorMessage(CANNOT_UPDATE_CONSUMER);
@@ -410,7 +410,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
             beanContext.createInfoMessage(ConsumerManagerBean.REFRESH_MODIFY);
          }
 
-         return ConsumerManagerBean.CONFIGURE_CONSUMER;
+         return null;
       }
 
       beanContext.createErrorMessage(CANNOT_REFRESH_CONSUMER);
@@ -487,7 +487,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       if (getConsumer() != null)
       {
          getProducerInfo().eraseRegistrationInfo();
-         return ConsumerManagerBean.CONFIGURE_CONSUMER;
+         return null;
       }
 
       beanContext.createErrorMessage(CANNOT_ERASE_REG);
