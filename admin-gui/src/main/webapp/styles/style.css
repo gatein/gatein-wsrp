@@ -353,3 +353,7 @@
    border-radius: 6px;
    padding: 5px;
 }
+
+.bold {
+   font-weight: bold;
+}
