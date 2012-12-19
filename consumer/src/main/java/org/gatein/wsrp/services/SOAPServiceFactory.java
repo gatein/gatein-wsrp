@@ -187,24 +187,25 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
+      return initPortFor(clazz);
       // todo: clean up!
-
-      if (log.isDebugEnabled())
-      {
-         log.debug("Getting service for class " + clazz);
-      }
-
-      refresh(false);
-
-      Object service = ports.get(clazz);
-      if (service == null)
-      {
-         return initPortFor(clazz);
-      }
-      else
-      {
-         return clazz.cast(service);
-      }
+//
+//      if (log.isDebugEnabled())
+//      {
+//         log.debug("Getting service for class " + clazz);
+//      }
+//
+//      refresh(false);
+//
+//      Object service = ports.get(clazz);
+//      if (service == null)
+//      {
+//         return initPortFor(clazz);
+//      }
+//      else
+//      {
+//         return clazz.cast(service);
+//      }
 
    }
 
