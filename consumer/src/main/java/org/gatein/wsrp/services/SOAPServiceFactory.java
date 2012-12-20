@@ -98,7 +98,8 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    private boolean wssEnabled;
 
-   private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
+   // todo: reactivate once BZ-888604 is properly fixed
+   // private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -187,9 +188,11 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
+      refresh(false);
+
       return initPortFor(clazz);
-      // todo: clean up!
-//
+
+      // todo: reactivate once BZ-888604 is properly fixed//
 //      if (log.isDebugEnabled())
 //      {
 //         log.debug("Getting service for class " + clazz);
@@ -221,7 +224,8 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          setFailed(false);
          setAvailable(true);
 
-         ports.put(clazz, result);
+         // todo: reactivate once BZ-888604 is properly fixed
+         // ports.put(clazz, result);
 
          return result;
       }
