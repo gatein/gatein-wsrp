@@ -57,12 +57,10 @@ import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -84,7 +82,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private static final Logger log = LoggerFactory.getLogger(SOAPServiceFactory.class);
 
    private String wsdlDefinitionURL;
-   private URI wsdlURI;
 
    private boolean isV2 = false;
    private Service wsService;
@@ -131,29 +128,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
       BindingProvider bindingProvider = (BindingProvider)service;
       Map<String, Object> requestContext = bindingProvider.getRequestContext();
-
-      // work around for GTNWSRP-340
-      String endpointAddress = (String)requestContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-      if (!endpointAddress.equals(wsdlDefinitionURL))
-      {
-         try
-         {
-            URI portURI = new URI(endpointAddress);
-            final int portURIPort = portURI.getPort();
-            final int wsdlURIPort = wsdlURI.getPort();
-            if (portURIPort != wsdlURIPort)
-            {
-               endpointAddress = endpointAddress.replaceFirst(":" + portURIPort + "/", wsdlURIPort >= 0 ? ":" + wsdlURIPort + "/" : "/");
-
-               // set port address to the new, corrected one
-               requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-            }
-         }
-         catch (URISyntaxException e)
-         {
-            // shouldn't happen
-         }
-      }
 
       // set timeout
       setTimeout(requestContext);
@@ -296,14 +270,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    public void setWsdlDefinitionURL(String wsdlDefinitionURL)
    {
       this.wsdlDefinitionURL = wsdlDefinitionURL;
-      try
-      {
-         this.wsdlURI = wsdlDefinitionURL != null ? new URI(wsdlDefinitionURL) : null;
-      }
-      catch (URISyntaxException e)
-      {
-         throw new IllegalArgumentException("Invalid WSDL URL: " + wsdlDefinitionURL, e);
-      }
 
       // we need a refresh so mark as not available but not failed
       setAvailable(false);
