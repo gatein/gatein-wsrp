@@ -339,7 +339,25 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
    public String update()
    {
-      return internalUpdate(true);
+      try
+      {
+         WSRPConsumer consumer = getUpdatedConsumer();
+
+         if (consumer != null)
+         {
+            beanContext.createInfoMessage(UPDATE_SUCCESS);
+         }
+         else
+         {
+            beanContext.createErrorMessage(CANNOT_UPDATE_CONSUMER);
+         }
+      }
+      catch (Exception e)
+      {
+         beanContext.createErrorMessageFrom(e);
+      }
+
+      return null;
    }
 
    public String confirmEraseRegistration()
@@ -347,36 +365,24 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       return "confirmEraseRegistration";
    }
 
-   private String internalUpdate(boolean showMessage)
+   private WSRPConsumer getUpdatedConsumer()
    {
-      if (getConsumer() != null)
+      WSRPConsumer consumer = getConsumer();
+      if (consumer != null)
       {
          if (isModified())
          {
-            try
-            {
-               // update values
-               ProducerInfo prodInfo = getProducerInfo();
-               EndpointConfigurationInfo endpointInfo = prodInfo.getEndpointConfigurationInfo();
-               internalSetWsdl(wsdl);
+            // update values
+            ProducerInfo prodInfo = getProducerInfo();
+            EndpointConfigurationInfo endpointInfo = prodInfo.getEndpointConfigurationInfo();
+            internalSetWsdl(wsdl);
 
-               saveToRegistry(prodInfo);
-            }
-            catch (Exception e)
-            {
-               beanContext.createErrorMessageFrom(e);
-               return null;
-            }
+            saveToRegistry(prodInfo);
          }
 
-         if (showMessage)
-         {
-            beanContext.createInfoMessage(UPDATE_SUCCESS);
-         }
-         return null;
+         return consumer;
       }
 
-      beanContext.createErrorMessage(CANNOT_UPDATE_CONSUMER);
       return null;
    }
 
@@ -388,18 +394,9 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
    public String refreshConsumer()
    {
-      final WSRPConsumer consumer = getConsumer();
+      final WSRPConsumer consumer = getUpdatedConsumer();
       if (consumer != null)
       {
-         if (isModified())
-         {
-            String updateResult = internalUpdate(false);
-            if (updateResult == null)
-            {
-               return null;
-            }
-         }
-
          // if the registration is locally modified, bypass the refresh as it will not yield a proper result
          if (!isRegistrationLocallyModified())
          {

@@ -369,7 +369,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    public String listConsumers()
    {
       selectedId = null;
-      return null;
+      return CONSUMERS;
    }
 
    public void selectConsumer(ActionEvent actionEvent)
