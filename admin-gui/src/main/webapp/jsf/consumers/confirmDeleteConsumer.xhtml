@@ -51,7 +51,7 @@
             <h:form id="confirm-delete-form">
                <h:commandLink id="destroy-link" action="#{consumersMgr.destroyConsumer}" styleClass="ActionButton"
                               value="#{i18n.confirm_delete_consumer_submit}">
-                  <f:param name="id" value="#{consumersMgr.selectedConsumer.producerId}"/>
+                  <f:param name="id" value="#{consumersMgr.selectedId}"/>
                </h:commandLink>
                <h:commandLink id="cancel-link" action="#{consumersMgr.listConsumers}" styleClass="ActionButton"
                               value="#{i18n.confirm_delete_consumer_cancel}"/>
