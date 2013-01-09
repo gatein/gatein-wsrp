@@ -130,6 +130,16 @@
                </f:subview>
             </f:subview>
 
+            <h:outputText value="#{i18n.edit_consumer_registration_context}" rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}"/>
+            <h:panelGroup rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}" id="handle">
+               #{i18n.edit_consumer_registration_context_handle}
+               <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
+
+               <h:commandLink id="erase-cons-link" action="confirmEraseRegistration" styleClass="ActionButton"
+                              value="#{i18n.edit_consumer_registration_context_erase}"
+                              title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+            </h:panelGroup>
+
             <h:outputText value=""/>
             <h:panelGroup styleClass="portlet-section-buttonrow">
                <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}" styleClass="ActionButton"
