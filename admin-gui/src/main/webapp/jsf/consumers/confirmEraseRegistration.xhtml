@@ -50,9 +50,13 @@
 
             <h:form id="confirm-erase-form">
                <h:commandLink id="submit" action="#{consumer.eraseLocalRegistration}" styleClass="ActionButton"
-                              value="#{i18n.confirm_delete_registration_submit}"/>
+                              value="#{i18n.confirm_delete_registration_submit}">
+                  <f:param name="id" value="#{consumer.id}"/>
+               </h:commandLink>
                <h:commandLink id="cancel" action="#{consumer.cancel}" styleClass="ActionButton"
-                              value="#{i18n.confirm_delete_registration_cancel}"/>
+                              value="#{i18n.confirm_delete_registration_cancel}">
+                  <f:param name="id" value="#{consumer.id}"/>
+               </h:commandLink>
             </h:form>
          </div>
       </div>

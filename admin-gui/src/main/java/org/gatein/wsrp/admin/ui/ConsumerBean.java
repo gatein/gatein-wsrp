@@ -484,7 +484,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       if (getConsumer() != null)
       {
          getProducerInfo().eraseRegistrationInfo();
-         return null;
+         return ConsumerManagerBean.CONFIGURE_CONSUMER;
       }
 
       beanContext.createErrorMessage(CANNOT_ERASE_REG);
