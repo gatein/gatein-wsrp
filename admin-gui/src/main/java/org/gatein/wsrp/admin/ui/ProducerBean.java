@@ -58,7 +58,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
    private static final String PROPERTY = "property";
    private static final String CURRENT_CONFIG = "currentConfig";
    private transient ProducerConfigurationService configurationService;
-   private LocalProducerConfiguration localProducerConfiguration;
+   private transient LocalProducerConfiguration localProducerConfiguration;
 
    @PostConstruct
    public void init()
@@ -71,15 +71,18 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          // if it's still null, load it from persistence
          if (localProducerConfiguration == null)
          {
-            localProducerConfiguration = new LocalProducerConfiguration();
-            ProducerConfiguration configuration = getConfiguration();
-            localProducerConfiguration.initFrom(configuration.getRegistrationRequirements(), configuration.isUsingStrictMode());
+            localProducerConfiguration = new LocalProducerConfiguration(this);
+            localProducerConfiguration.initFrom(getConfiguration());
+            return;
          }
          else
          {
             beanContext.removeFromSession(CURRENT_CONFIG);
          }
       }
+
+      // update configuration if needed
+      localProducerConfiguration.updateIfNeededFrom();
    }
 
 
@@ -353,9 +356,18 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       private String validatorClassName;
       private boolean registrationRequiredForFullDescription;
       private boolean registrationRequired;
+      private long originalLastModified;
+      private final ProducerBean producerBean;
+      private long lastUpdateCheckTime;
 
-      public void initFrom(ProducerRegistrationRequirements registrationRequirements, boolean usingStrictMode)
+      public LocalProducerConfiguration(ProducerBean producerBean)
       {
+         this.producerBean = producerBean;
+      }
+
+      public void initFrom(ProducerConfiguration configuration)
+      {
+         ProducerRegistrationRequirements registrationRequirements = configuration.getRegistrationRequirements();
          Map<QName, RegistrationPropertyDescription> descriptions = registrationRequirements.getRegistrationProperties();
          registrationProperties = new LinkedList<RegistrationPropertyDescription>(descriptions.values());
          Collections.sort(registrationProperties);
@@ -374,7 +386,9 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          registrationRequiredForFullDescription = registrationRequirements.isRegistrationRequiredForFullDescription();
          registrationRequired = registrationRequirements.isRegistrationRequired();
 
-         this.strictMode = usingStrictMode;
+         this.strictMode = configuration.isUsingStrictMode();
+
+         originalLastModified = configuration.getLastModified();
       }
 
       public boolean isRegistrationRequiredForFullDescription()
@@ -469,6 +483,23 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       public void setRegistrationRequired(boolean registrationRequired)
       {
          this.registrationRequired = registrationRequired;
+      }
+
+      public void updateIfNeededFrom()
+      {
+         // cool down period to avoid hammering the DB with constant checks
+         if(System.currentTimeMillis() - lastUpdateCheckTime < 100)
+         {
+            return;
+         }
+
+         // if the configuration we got from the configuration service has been modified after the one we initialized from, we need to update ourselves
+         if (producerBean.getConfigurationService().getPersistedLastModifiedForConfiguration() > originalLastModified)
+         {
+            initFrom(producerBean.getConfiguration());
+         }
+
+         lastUpdateCheckTime = System.currentTimeMillis();
       }
    }
 

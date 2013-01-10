@@ -49,4 +49,6 @@ public interface ProducerConfigurationService
     * @since 2.6.3
     */
    void saveConfiguration() throws Exception;
+
+   long getPersistedLastModifiedForConfiguration();
 }
