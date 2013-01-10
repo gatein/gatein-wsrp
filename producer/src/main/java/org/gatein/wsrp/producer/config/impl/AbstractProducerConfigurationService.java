@@ -132,6 +132,7 @@ public abstract class AbstractProducerConfigurationService implements ProducerCo
 
    protected abstract void loadConfiguration() throws Exception;
 
+   @Override
    public long getPersistedLastModifiedForConfiguration()
    {
       return configuration.get().getLastModified();
