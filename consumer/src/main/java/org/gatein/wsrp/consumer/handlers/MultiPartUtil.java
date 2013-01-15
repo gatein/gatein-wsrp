@@ -45,100 +45,117 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-public class MultiPartUtil {
-    protected static Logger log = LoggerFactory.getLogger(MultiPartUtil.class);
+public class MultiPartUtil
+{
+   protected static Logger log = LoggerFactory.getLogger(MultiPartUtil.class);
 
-    protected static MultiPartResult createMultiPartResult() {
-        MultiPartUtil multiPartUtil = new MultiPartUtil();
-        return multiPartUtil.new MultiPartResult();
-    }
+   public static MultiPartResult getMultiPartContent(RequestContext requestContext)
+   {
+      RequestContextWrapper requestContextWrapper = new RequestContextWrapper(requestContext);
+      MultiPartResult result = null;
 
-    public static MultiPartResult getMultiPartContent(RequestContext requestContext) {
-        RequestContextWrapper requestContextWrapper = new RequestContextWrapper(requestContext);
-        MultiPartResult result = null;
+      try
+      {
+         if (FileUpload.isMultipartContent(requestContextWrapper))
+         {
+            result = new MultiPartResult();
+            // content is multipart, we need to parse it (that includes form parameters)
+            FileUpload upload = new FileUpload();
+            FileItemIterator iter = upload.getItemIterator(requestContextWrapper);
+            List<UploadContext> uploadContexts = new ArrayList<UploadContext>(7);
+            List<NamedString> formParameters = new ArrayList<NamedString>(7);
+            while (iter.hasNext())
+            {
+               FileItemStream item = iter.next();
+               InputStream stream = item.openStream();
+               if (!item.isFormField())
+               {
+                  String contentType = item.getContentType();
+                  if (log.isDebugEnabled())
+                  {
+                     log.debug("File field " + item.getFieldName() + " with file name " + item.getName()
+                        + " and content type " + contentType + " detected.");
+                  }
 
-        try {
-            if (FileUpload.isMultipartContent(requestContextWrapper)) {
-                result = createMultiPartResult();
-                // content is multipart, we need to parse it (that includes form parameters)
-                FileUpload upload = new FileUpload();
-                FileItemIterator iter = upload.getItemIterator(requestContextWrapper);
-                List<UploadContext> uploadContexts = new ArrayList<UploadContext>(7);
-                List<NamedString> formParameters = new ArrayList<NamedString>(7);
-                while (iter.hasNext()) {
-                    FileItemStream item = iter.next();
-                    InputStream stream = item.openStream();
-                    if (!item.isFormField()) {
-                        String contentType = item.getContentType();
-                        if (log.isDebugEnabled()) {
-                            log.debug("File field " + item.getFieldName() + " with file name " + item.getName()
-                                    + " and content type " + contentType + " detected.");
-                        }
+                  BufferedInputStream bufIn = new BufferedInputStream(stream);
+                  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  BufferedOutputStream bos = new BufferedOutputStream(baos);
 
-                        BufferedInputStream bufIn = new BufferedInputStream(stream);
+                  int c = bufIn.read();
+                  while (c != -1)
+                  {
+                     bos.write(c);
+                     c = bufIn.read();
+                  }
 
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        BufferedOutputStream bos = new BufferedOutputStream(baos);
+                  bos.flush();
+                  baos.flush();
+                  bufIn.close();
+                  bos.close();
 
-                        int c = bufIn.read();
-                        while (c != -1) {
-                            bos.write(c);
-                            c = bufIn.read();
-                        }
+                  final byte[] uploadData = baos.toByteArray();
+                  if (uploadData.length != 0)
+                  {
+                     UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, uploadData);
 
-                        bos.flush();
-                        baos.flush();
-                        bufIn.close();
-                        bos.close();
+                     List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
 
-                        UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, baos.toByteArray());
+                     String value = FileUpload.FORM_DATA + ";" + " name=\"" + item.getFieldName() + "\";" + " filename=\"" + item.getName() + "\"";
+                     NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
+                     mimeAttributes.add(mimeAttribute);
 
-                        List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
+                     mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
+                     mimeAttributes.add(mimeAttribute);
 
-                        String value = FileUpload.FORM_DATA + ";" + " name=\"" + item.getFieldName() + "\";" + " filename=\""
-                                + item.getName() + "\"";
-                        NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
-                        mimeAttributes.add(mimeAttribute);
+                     uploadContext.getMimeAttributes().addAll(mimeAttributes);
 
-                        mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
-                        mimeAttributes.add(mimeAttribute);
-
-                        uploadContext.getMimeAttributes().addAll(mimeAttributes);
-
-                        uploadContexts.add(uploadContext);
-                    } else {
-                        NamedString formParameter = WSRPTypeFactory.createNamedString(item.getFieldName(),
-                                Streams.asString(stream));
-                        formParameters.add(formParameter);
-                    }
-                }
-
-                result.getUploadContexts().addAll(uploadContexts);
-                result.getFormParameters().addAll(formParameters);
+                     uploadContexts.add(uploadContext);
+                  }
+                  else
+                  {
+                     log.debug("Ignoring empty file " + item.getName());
+                  }
+               }
+               else
+               {
+                  NamedString formParameter = WSRPTypeFactory.createNamedString(item.getFieldName(), Streams.asString(stream));
+                  formParameters.add(formParameter);
+               }
             }
-        } catch (Exception e) {
-            log.debug("Couldn't create UploadContext", e);
-        }
-        return result;
-    }
 
-    public class MultiPartResult {
-        protected List<NamedString> formParameters;
-        protected List<UploadContext> uploadContexts;
+            result.getUploadContexts().addAll(uploadContexts);
+            result.getFormParameters().addAll(formParameters);
+         }
+      }
+      catch (Exception e)
+      {
+         log.debug("Couldn't create UploadContext", e);
+      }
+      return result;
+   }
 
-        public List<NamedString> getFormParameters() {
-            if (formParameters == null) {
-                formParameters = new ArrayList<NamedString>();
-            }
-            return formParameters;
-        }
+   static class MultiPartResult
+   {
+      protected List<NamedString> formParameters;
+      protected List<UploadContext> uploadContexts;
 
-        public List<UploadContext> getUploadContexts() {
-            if (uploadContexts == null) {
-                uploadContexts = new ArrayList<UploadContext>();
-            }
-            return uploadContexts;
-        }
-    }
+      public List<NamedString> getFormParameters()
+      {
+         if (formParameters == null)
+         {
+            formParameters = new ArrayList<NamedString>();
+         }
+         return formParameters;
+      }
+
+      public List<UploadContext> getUploadContexts()
+      {
+         if (uploadContexts == null)
+         {
+            uploadContexts = new ArrayList<UploadContext>();
+         }
+         return uploadContexts;
+      }
+   }
 
 }
