@@ -195,22 +195,30 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
                   bufIn.close();
                   bos.close();
 
-                  UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, baos.toByteArray());
+                  final byte[] uploadData = baos.toByteArray();
+                  if (uploadData.length != 0)
+                  {
+                     UploadContext uploadContext = WSRPTypeFactory.createUploadContext(contentType, uploadData);
 
-                  List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
+                     List<NamedString> mimeAttributes = new ArrayList<NamedString>(2);
 
-                  String value = FileUpload.FORM_DATA + ";"
-                     + " name=\"" + item.getFieldName() + "\";"
-                     + " filename=\"" + item.getName() + "\"";
-                  NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
-                  mimeAttributes.add(mimeAttribute);
+                     String value = FileUpload.FORM_DATA + ";"
+                        + " name=\"" + item.getFieldName() + "\";"
+                        + " filename=\"" + item.getName() + "\"";
+                     NamedString mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_DISPOSITION, value);
+                     mimeAttributes.add(mimeAttribute);
 
-                  mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
-                  mimeAttributes.add(mimeAttribute);
+                     mimeAttribute = WSRPTypeFactory.createNamedString(FileUpload.CONTENT_TYPE, item.getContentType());
+                     mimeAttributes.add(mimeAttribute);
 
-                  uploadContext.getMimeAttributes().addAll(mimeAttributes);
+                     uploadContext.getMimeAttributes().addAll(mimeAttributes);
 
-                  uploadContexts.add(uploadContext);
+                     uploadContexts.add(uploadContext);
+                  }
+                  else
+                  {
+                     log.debug("Ignoring empty file " + item.getName());
+                  }
                }
                else
                {
