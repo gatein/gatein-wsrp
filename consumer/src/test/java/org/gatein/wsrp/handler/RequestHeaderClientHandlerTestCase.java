@@ -24,7 +24,6 @@
 package org.gatein.wsrp.handler;
 
 import junit.framework.TestCase;
-import org.apache.commons.httpclient.Cookie;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.test.handler.MockSOAPMessage;
 import org.gatein.wsrp.test.handler.MockSOAPMessageContext;
@@ -36,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.gatein.wsrp.test.support.CookieSupport.*;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.handler.RequestHeaderClientHandlerTestCase">Chris
@@ -54,6 +55,27 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       RequestHeaderClientHandler.resetCurrentInfo();
    }
 
+   public void testCreateCookieEmptySessionInformation()
+   {
+      ProducerSessionInformation info = new ProducerSessionInformation();
+
+      String cookie = RequestHeaderClientHandler.createCoalescedCookieFromCurrentInfo();
+      assertTrue(cookie.isEmpty());
+   }
+
+   public void testCreateCookieMultipleUserAndGroup()
+   {
+      ProducerSessionInformation info = new ProducerSessionInformation();
+      info.setPerGroupCookies(true);
+      final String groupId = "group";
+      info.setGroupCookiesFor(groupId, createCookies(createCookie("groupname", "groupvalue", 1), createCookie("groupname2", "groupvalue2", 1)));
+      info.setUserCookies(createCookies(createCookie("username", "uservalue", 1), createCookie("username2", "uservalue2", 1)));
+      RequestHeaderClientHandler.setCurrentInfo(groupId, info);
+
+      String cookie = RequestHeaderClientHandler.createCoalescedCookieFromCurrentInfo();
+      assertEquals("groupname=groupvalue,groupname2=groupvalue2,username=uservalue,username2=uservalue2", cookie);
+   }
+
    public void testSimpleCookieHandleRequest()
    {
       MockSOAPMessage message = new MockSOAPMessage();
@@ -63,7 +85,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       checkCookies(msgContext, 0, (String[])null);
 
       ProducerSessionInformation sessionInformation = new ProducerSessionInformation();
-      sessionInformation.setUserCookie(new Cookie[]{createCookie("name", "value", 1)});
+      sessionInformation.setUserCookies(createCookies(createCookie("name", "value", 1)));
       RequestHeaderClientHandler.setCurrentInfo(null, sessionInformation);
       handler.handleRequest(msgContext);
 
@@ -78,7 +100,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       ProducerSessionInformation info = new ProducerSessionInformation();
       info.setPerGroupCookies(true);
       String groupId = "group";
-      info.setGroupCookieFor(groupId, new Cookie[]{createCookie("name", "value", 1)});
+      info.setGroupCookiesFor(groupId, createCookies(createCookie("name", "value", 1)));
       RequestHeaderClientHandler.setCurrentInfo(null, info);
 
       try
@@ -106,14 +128,14 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       ProducerSessionInformation info = new ProducerSessionInformation();
       info.setPerGroupCookies(true);
       String groupId = "group";
-      info.setGroupCookieFor(groupId, new Cookie[]{createCookie("name", "value", 1)});
-      info.setUserCookie(new Cookie[]{createCookie("usercookie", "uservalue", 1)});
+      info.setGroupCookiesFor(groupId, createCookies(createCookie("name", "value", 1)));
+      info.setUserCookies(createCookies(createCookie("usercookie", "uservalue", 1)));
       RequestHeaderClientHandler.setCurrentInfo(groupId, info);
 
 
       handler.handleRequest(msgContext);
 
-      checkCookies(msgContext, 1, "name=value,usercookie=uservalue");
+      checkCookies(msgContext, 2, "name=value", "usercookie=uservalue");
    }
 
    public void testCookieWithoutInitHandleResponse()
@@ -124,7 +146,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      assertEquals("name=value", info.getUserCookie());
+      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
       assertFalse(info.isInitCookieDone());
       assertFalse(info.isPerGroupCookies());
    }
@@ -137,7 +159,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      assertEquals("name1=value1,name2=value2,name3=value3", info.getUserCookie());
+      assertEquals("name1=value1,name2=value2,name3=value3", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
    }
 
    public void testCurrentInfo()
@@ -204,10 +226,5 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
             i++;
          }
       }
-   }
-
-   private Cookie createCookie(String name, String value, int secondsBeforeExpiration)
-   {
-      return new Cookie("domain", name, value, "path", secondsBeforeExpiration, false);
    }
 }

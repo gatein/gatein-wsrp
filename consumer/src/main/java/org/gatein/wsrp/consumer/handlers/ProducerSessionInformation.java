@@ -25,8 +25,8 @@ package org.gatein.wsrp.consumer.handlers;
 
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.util.ParameterValidation;
-import org.gatein.common.util.Tools;
 import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.handler.CookieUtil;
 import org.oasis.wsrp.v2.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class ProducerSessionInformation implements Serializable
    private boolean perGroupCookies = false;
 
    /** group id -> Cookie[] */
-   private Map<String, Cookie[]> groupCookies;
+   private Map<String, List<Cookie>> groupCookies;
 
    /** portlet handle -> SessionInfo */
    private Map<String, SessionInfo> portletSessions;
@@ -62,7 +63,7 @@ public class ProducerSessionInformation implements Serializable
    private Map<String, String> sessionId2PortletHandle;
 
    /** Cookies sent by the remote producer */
-   private Cookie[] userCookie;
+   private List<Cookie> userCookie;
 
    /** Parent SessionHandler so that session mappings can be updated */
    private transient SessionHandler parent;
@@ -70,26 +71,17 @@ public class ProducerSessionInformation implements Serializable
    /** The identifier of the Session containing this ProducerSessionInformation */
    private String parentSessionId;
 
-   /**
-    * public only for tests
-    *
-    * @return
-    * @since 2.6
-    */
-   public String getParentSessionId()
+   String getParentSessionId()
    {
       return parentSessionId;
    }
 
    /**
-    * public only for tests
-    *
-    * @param parentSessionId
     * @throws IllegalStateException if an attempt is made to set the parent session id to a different one when it has
     *                               already been set.
     * @since 2.6
     */
-   public void setParentSessionId(String parentSessionId)
+   void setParentSessionId(String parentSessionId)
    {
       boolean error = false;
 
@@ -118,24 +110,22 @@ public class ProducerSessionInformation implements Serializable
       this.parentSessionId = parentSessionId;
    }
 
-   public String getUserCookie()
+   public List<Cookie> getUserCookies()
    {
-      if (userCookie == null)
-      {
-         return null;
-      }
-
-      userCookie = purgeExpiredCookies(userCookie);
-      if (userCookie.length == 0)
+      userCookie = CookieUtil.purgeExpiredCookies(userCookie);
+      if (userCookie.isEmpty())
       {
          setInitCookieDone(false);
       }
-      return outputToExternalForm(userCookie);
+      return userCookie;
    }
 
-   public void setUserCookie(Cookie[] userCookie)
+   public void setUserCookies(List<Cookie> userCookie)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(userCookie, "cookies");
+      if(!ParameterValidation.existsAndIsNotEmpty(userCookie))
+      {
+         throw new IllegalArgumentException("Must provide a non-null, non-empty cookie list.");
+      }
 
       this.userCookie = userCookie;
    }
@@ -160,7 +150,7 @@ public class ProducerSessionInformation implements Serializable
       this.perGroupCookies = perGroupCookies;
    }
 
-   public void setGroupCookieFor(String groupId, Cookie[] cookies)
+   public void setGroupCookiesFor(String groupId, List<Cookie> cookies)
    {
       if (!isPerGroupCookies())
       {
@@ -172,11 +162,14 @@ public class ProducerSessionInformation implements Serializable
          throw new IllegalArgumentException("Cannot set cookie for a null portlet group id!");
       }
 
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(cookies, "cookies");
+      if(!ParameterValidation.existsAndIsNotEmpty(cookies))
+      {
+         throw new IllegalArgumentException("Must provide a non-null, non-empty group cookie list.");
+      }
 
       if (groupCookies == null)
       {
-         groupCookies = new HashMap<String, Cookie[]>();
+         groupCookies = new HashMap<String, List<Cookie>>();
       }
 
       if (groupCookies.containsKey(groupId))
@@ -187,21 +180,21 @@ public class ProducerSessionInformation implements Serializable
       groupCookies.put(groupId, cookies);
    }
 
-   public String getGroupCookieFor(String groupId)
+   public List<Cookie> getGroupCookiesFor(String groupId)
    {
       if (groupCookies == null)
       {
-         return null;
+         return Collections.emptyList();
       }
 
       // purge expired cookies
-      Cookie[] cookies = groupCookies.get(groupId);
+      List<Cookie> cookies = groupCookies.get(groupId);
       if (cookies != null)
       {
-         cookies = purgeExpiredCookies(cookies);
+         cookies = CookieUtil.purgeExpiredCookies(cookies);
 
          // if there are no non-expired cookies left, we will need to re-init them
-         if (cookies.length == 0)
+         if (cookies.isEmpty())
          {
             setInitCookieDone(false);
          }
@@ -209,11 +202,11 @@ public class ProducerSessionInformation implements Serializable
          // update cookies for the considered group id
          groupCookies.put(groupId, cookies);
 
-         return outputToExternalForm(cookies);
+         return cookies;
       }
       else
       {
-         return null;
+         return Collections.emptyList();
       }
    }
 
@@ -244,8 +237,7 @@ public class ProducerSessionInformation implements Serializable
 
    /**
     * Retrieves the session id for the portlet with the specified handle. Note that this will "touch" the session,
-    * hence
-    * resetting the time since the last use of the session.
+    * hence resetting the time since the last use of the session.
     *
     * @param portletHandle the handle of the portlet for which the session id is to be retrieved
     * @return the session id for the specified portlet, <code>null</code> if there is no session associated with the
@@ -353,57 +345,10 @@ public class ProducerSessionInformation implements Serializable
 
    public void replaceUserCookiesWith(ProducerSessionInformation currentSessionInfo)
    {
-      if (currentSessionInfo != null && currentSessionInfo.userCookie != null && currentSessionInfo.userCookie.length > 0)
+      if (currentSessionInfo != null && currentSessionInfo.userCookie != null && !currentSessionInfo.userCookie.isEmpty())
       {
          this.userCookie = currentSessionInfo.userCookie;
       }
-   }
-
-   /**
-    * Create a String representation of the specified array of Cookies.
-    *
-    * @param cookies the cookies to be output to external form
-    * @return a String representation of the cookies, ready to be sent over the wire.
-    */
-   private String outputToExternalForm(Cookie[] cookies)
-   {
-      if (cookies != null && cookies.length != 0)
-      {
-         int cookieNumber = cookies.length;
-         StringBuffer sb = new StringBuffer(128 * cookieNumber);
-         for (int i = 0; i < cookieNumber; i++)
-         {
-            sb.append(cookies[i].toExternalForm());
-            if (i != cookieNumber - 1)
-            {
-               sb.append(","); // multiple cookies are separated by commas: http://www.ietf.org/rfc/rfc2109.txt, 4.2.2
-            }
-         }
-         return sb.toString();
-      }
-      return null;
-   }
-
-   /**
-    * Purges the expired cookies in the specified array.
-    *
-    * @param cookies the cookies to be purged
-    * @return an array of Cookies containing only still valid cookies
-    */
-   private Cookie[] purgeExpiredCookies(Cookie[] cookies)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(cookies, "cookies");
-
-      List<Cookie> cleanCookies = Tools.toList(cookies);
-
-      for (Cookie cookie : cookies)
-      {
-         if (cookie.isExpired())
-         {
-            cleanCookies.remove(cookie);
-         }
-      }
-      return cleanCookies.toArray(new Cookie[cleanCookies.size()]);
    }
 
    private SessionIdResult internalGetSessionIdForPortlet(String portletHandle)

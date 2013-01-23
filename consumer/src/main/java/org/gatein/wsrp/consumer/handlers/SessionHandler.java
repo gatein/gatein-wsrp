@@ -142,18 +142,11 @@ public class SessionHandler implements SessionEventListener
          sessionInformation.setPerGroupCookies(true);
          Map<String, Set<Portlet>> groups = consumer.getPortletGroupMap();
 
-         try
+         for (String groupId : groups.keySet())
          {
-            for (String groupId : groups.keySet())
-            {
-               RequestHeaderClientHandler.setCurrentGroupId(groupId);
-               log.debug("Initializing cookie for group '" + groupId + "'.");
-               initCookie(invocation, retryIfFails);
-            }
-         }
-         finally
-         {
-            resetCurrentlyHeldInformation();
+            RequestHeaderClientHandler.setCurrentGroupId(groupId);
+            log.debug("Initializing cookie for group '" + groupId + "'.");
+            initCookie(invocation, retryIfFails);
          }
       }
 
@@ -433,6 +426,10 @@ public class SessionHandler implements SessionEventListener
       int index = sessionId.lastIndexOf(".");
       if (index > 0)
       {
+         if (log.isDebugEnabled())
+         {
+            log.debug("Removed '" + sessionId.substring(index) + "' from session id '" + sessionId + "' to get the raw version.");
+         }
          return sessionId.substring(0, index);
       }
       else

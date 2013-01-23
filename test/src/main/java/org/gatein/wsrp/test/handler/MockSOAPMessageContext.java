@@ -75,7 +75,7 @@ public class MockSOAPMessageContext implements InvocationHandler
          {
             return "http://jboss.com";
          }
-         if (MessageContext.HTTP_REQUEST_HEADERS.equals(args[0]))
+         if (MessageContext.HTTP_REQUEST_HEADERS.equals(args[0]) || MessageContext.HTTP_RESPONSE_HEADERS.equals(args[0]))
          {
             return httpHeaders;
          }

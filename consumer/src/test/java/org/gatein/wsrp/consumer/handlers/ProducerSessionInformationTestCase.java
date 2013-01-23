@@ -21,16 +21,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.wsrp.consumer;
+package org.gatein.wsrp.consumer.handlers;
 
 import junit.framework.TestCase;
 import org.apache.commons.httpclient.Cookie;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
+import org.gatein.wsrp.handler.CookieUtil;
+
+import java.util.List;
+
+import static org.gatein.wsrp.test.support.CookieSupport.createCookie;
+import static org.gatein.wsrp.test.support.CookieSupport.createCookies;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.consumer.ProducerSessionInformationTestCase">Chris
+ * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.consumer.handlers.ProducerSessionInformationTestCase">Chris
  *         Laprun</a>
  * @version $Revision: 10388 $
  * @since 2.4
@@ -47,27 +52,27 @@ public class ProducerSessionInformationTestCase extends TestCase
 
    public void testUserCookie() throws Exception
    {
-      assertNull(info.getUserCookie());
+      assertTrue(info.getUserCookies().isEmpty());
 
-      Cookie[] cookies = new Cookie[]{createCookie("name", "value", 1)};
-      info.setUserCookie(cookies);
+      List<Cookie> cookies = createCookies(createCookie("name", "value", 1));
+      info.setUserCookies(cookies);
 
-      assertEquals("name=value", info.getUserCookie());
+      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       // wait for cookie expiration
       Thread.sleep(SLEEP_TIME);
-      assertNull(info.getUserCookie()); // we shouldn't have a cookie now
+      assertTrue(info.getUserCookies().isEmpty()); // we shouldn't have a cookie now
 
-      cookies = new Cookie[]{createCookie("name1", "value1", 1), createCookie("name2", "value2", 3)};
-      info.setUserCookie(cookies);
-      assertEquals("name1=value1,name2=value2", info.getUserCookie());
+      cookies = createCookies(createCookie("name1", "value1", 1), createCookie("name2", "value2", 3));
+      info.setUserCookies(cookies);
+      assertEquals("name1=value1,name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       Thread.sleep(SLEEP_TIME);
-      assertEquals("name2=value2", info.getUserCookie());
+      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       try
       {
-         info.setUserCookie(null);
+         info.setUserCookies(null);
          fail("Should have thrown an IllegalArgumentException");
       }
       catch (IllegalArgumentException e)
@@ -82,7 +87,7 @@ public class ProducerSessionInformationTestCase extends TestCase
 
       try
       {
-         info.setGroupCookieFor(groupId, new Cookie[]{createCookie("name1", "value1", 1), createCookie("name2", "value2", -1)});
+         info.setGroupCookiesFor(groupId, createCookies(createCookie("name1", "value1", 1), createCookie("name2", "value2", -1)));
          fail("Cannot add group cookie if not perGroup");
       }
       catch (IllegalStateException e)
@@ -91,16 +96,15 @@ public class ProducerSessionInformationTestCase extends TestCase
       }
 
       info.setPerGroupCookies(true);
-      info.setGroupCookieFor(groupId, new Cookie[]{createCookie("name1", "value1", 1),
-         createCookie("name2", "value2", WSRPConstants.SESSION_NEVER_EXPIRES)});
+      info.setGroupCookiesFor(groupId, createCookies(createCookie("name1", "value1", 1), createCookie("name2", "value2", WSRPConstants.SESSION_NEVER_EXPIRES)));
 
-      assertEquals("name1=value1,name2=value2", info.getGroupCookieFor(groupId));
+      assertEquals("name1=value1,name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
 
       Thread.sleep(SLEEP_TIME);
-      assertEquals("name2=value2", info.getGroupCookieFor(groupId));
+      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
 
       info.clearGroupCookies();
-      assertNull(info.getGroupCookieFor(groupId));
+      assertTrue(info.getGroupCookiesFor(groupId).isEmpty());
    }
 
    public void testSessionForPortlet() throws Exception
@@ -132,23 +136,23 @@ public class ProducerSessionInformationTestCase extends TestCase
 
    public void testReplaceUserCookies() throws Exception
    {
-      info.setUserCookie(new Cookie[]{createCookie("name", "value", 1)});
+      info.setUserCookies(createCookies(createCookie("name", "value", 1)));
 
       info.replaceUserCookiesWith(null);
-      assertEquals("name=value", info.getUserCookie());
+      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       ProducerSessionInformation other = new ProducerSessionInformation();
 
       info.replaceUserCookiesWith(other);
-      assertEquals("name=value", info.getUserCookie());
+      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
-      other.setUserCookie(new Cookie[]{createCookie("name2", "value2", 1)});
+      other.setUserCookies(createCookies(createCookie("name2", "value2", 1)));
       info.replaceUserCookiesWith(other);
-      assertEquals("name2=value2", info.getUserCookie());
+      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       Thread.sleep(SLEEP_TIME);
       info.replaceUserCookiesWith(other);
-      assertNull(info.getUserCookie());
+      assertTrue(info.getUserCookies().isEmpty());
    }
 
    public void testReleaseSessions()
@@ -208,11 +212,6 @@ public class ProducerSessionInformationTestCase extends TestCase
       {
          // expected
       }
-   }
-
-   private Cookie createCookie(String name, String value, int secondsBeforeExpiration)
-   {
-      return new Cookie("domain", name, value, "path", secondsBeforeExpiration, false);
    }
 
    private void addSession(String handle, String sid, int expires)

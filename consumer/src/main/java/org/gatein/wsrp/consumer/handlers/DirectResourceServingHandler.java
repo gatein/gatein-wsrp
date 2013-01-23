@@ -63,15 +63,10 @@ public class DirectResourceServingHandler extends ResourceHandler
       URL url = new URL(resourceURL);
       URLConnection urlConnection = url.openConnection();
 
-      ProducerSessionInformation sessionInfo = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      if (sessionInfo != null)
+      final String cookieValue = RequestHeaderClientHandler.createCoalescedCookieFromCurrentInfo();
+      if (cookieValue.length() != 0)
       {
-         String cookie = RequestHeaderClientHandler.createCookie(sessionInfo);
-
-         if (cookie.length() != 0)
-         {
-            urlConnection.addRequestProperty(CookieUtil.COOKIE, cookie);
-         }
+         urlConnection.addRequestProperty(CookieUtil.COOKIE, cookieValue);
       }
 
       String contentType = urlConnection.getContentType();
@@ -90,7 +85,7 @@ public class DirectResourceServingHandler extends ResourceHandler
             {
                if (CookieUtil.SET_COOKIE.equals(key))
                {
-                  Cookie[] cookies = CookieUtil.extractCookiesFrom(url, values.toArray(new String[values.size()]));
+                  List<Cookie> cookies = CookieUtil.extractCookiesFrom(url, values);
                   List<javax.servlet.http.Cookie> propCookies = props.getCookies();
                   for (Cookie cookie : cookies)
                   {
