@@ -187,7 +187,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ExtendedAssert.assertFalse(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
 
-      ExtendedAssert.assertNotNull(sessionInfo.getUserCookie());
+      ExtendedAssert.assertNotNull(sessionInfo.getUserCookies());
 
       ExtendedAssert.assertEquals(1, behavior.getInitCookieCallCount());
    }
@@ -211,7 +211,7 @@ public class MarkupTestCase extends V1ConsumerBaseTest
       ProducerSessionInformation sessionInfo = commonInitCookieTest(handle, behavior, V1CookieProtocol.PER_GROUP.value());
       ExtendedAssert.assertTrue(sessionInfo.isPerGroupCookies());
       ExtendedAssert.assertTrue(sessionInfo.isInitCookieDone());
-      ExtendedAssert.assertNull(sessionInfo.getUserCookie());
+      ExtendedAssert.assertTrue(sessionInfo.getUserCookies().isEmpty());
 
       ExtendedAssert.assertEquals(3, behavior.getInitCookieCallCount());
    }

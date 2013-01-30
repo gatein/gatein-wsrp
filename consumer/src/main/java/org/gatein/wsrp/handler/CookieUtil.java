@@ -23,14 +23,22 @@
 
 package org.gatein.wsrp.handler;
 
+import com.google.common.base.Function;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.cookie.MalformedCookieException;
 import org.apache.commons.httpclient.cookie.RFC2109Spec;
+import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.WSRPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -42,55 +50,93 @@ public class CookieUtil
    private static final Logger log = LoggerFactory.getLogger(CookieUtil.class);
    public static final String SET_COOKIE = "Set-Cookie";
    public static final String COOKIE = "Cookie";
-
-   public static Cookie[] extractCookiesFrom(URL remoteAddress, String[] cookieValues)
+   private static final String EMPTY = "";
+   public static final Function<Cookie, String> COOKIE_STRING_FUNCTION = new Function<Cookie, String>()
    {
-      return extractCookies(remoteAddress, coalesceCookies(cookieValues));
+      @Override
+      public String apply(@Nullable Cookie input)
+      {
+         return input != null ? input.toExternalForm() : EMPTY;
+      }
+   };
+
+   public static List<Cookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
+   {
+      List<Cookie> cookies = new ArrayList<Cookie>(cookieValues.size());
+      for (String cookieValue : cookieValues)
+      {
+         cookies.addAll(Arrays.asList(extractCookies(remoteAddress, cookieValue)));
+      }
+      return cookies;
    }
 
    /**
-    * Coalesce several Set-Cookie headers into one and returning the resulting concatenated String.
+    * Create a String representation of the specified array of Cookies.
     *
-    * @param cookieValues the array containing the values of the different Set-Cookie headers to be coalesced
-    * @return the concatenated value that could be used as one Set-Cookie header
+    * @param cookies the cookies to be output to external form
+    * @return a String representation of the cookies, ready to be sent over the wire.
     */
-   private static String coalesceCookies(String[] cookieValues)
+   public static String coalesceAndExternalizeCookies(List<Cookie> cookies)
    {
-      assert cookieValues != null;
-
-      StringBuffer logBuffer = null;
-      if (log.isDebugEnabled())
+      if (ParameterValidation.existsAndIsNotEmpty(cookies))
       {
-         logBuffer = new StringBuffer(128);
-         logBuffer.append("Cookie headers:\n");
+         return coalesceCookies(asExternalFormList(cookies));
+      }
+      return EMPTY;
+   }
+
+   public static List<String> asExternalFormList(List<Cookie> cookies)
+   {
+      if(ParameterValidation.existsAndIsNotEmpty(cookies))
+      {
+         return WSRPUtils.transform(cookies, COOKIE_STRING_FUNCTION);
       }
 
-      int cookieNumber = cookieValues.length;
-      StringBuffer cookieBuffer = new StringBuffer(cookieNumber * 128);
-      String cookieValue;
-      for (int i = 0; i < cookieNumber; i++)
-      {
-         cookieValue = cookieValues[i];
-         cookieBuffer.append(cookieValue);
+      return Collections.emptyList();
+   }
 
-         // multiple cookies are separated by commas: http://www.ietf.org/rfc/rfc2109.txt, 4.2.2
-         if (i < cookieNumber - 1)
+   /**
+    * Coalesce several externalized Cookies into one and returning the resulting concatenated String.
+    *
+    * @param cookies the array containing the values of the different externalized Cookies to be coalesced
+    * @return the concatenated value that could be used as one externalized Cookie or an empty String
+    */
+   public static String coalesceCookies(List<String> cookies)
+   {
+      if (ParameterValidation.existsAndIsNotEmpty(cookies))
+      {
+         int cookieNumber = cookies.size(), i = 0;
+
+         StringBuffer logBuffer = null;
+         if (log.isDebugEnabled())
          {
-            cookieBuffer.append(',');
+            logBuffer = new StringBuffer(128);
+            logBuffer.append("Cookie headers:\n");
+         }
+
+         StringBuffer cookieBuffer = new StringBuffer(128 * cookieNumber);
+         for (String cookie : cookies)
+         {
+            cookieBuffer.append(cookie);
+            if (i++ != cookieNumber - 1)
+            {
+               cookieBuffer.append(","); // multiple cookies are separated by commas: http://www.ietf.org/rfc/rfc2109.txt, 4.2.2
+            }
+
+            if (log.isDebugEnabled())
+            {
+               logBuffer.append("\t").append(i).append(":\t").append(cookie).append("\n");
+            }
          }
 
          if (log.isDebugEnabled())
          {
-            logBuffer.append("\t").append(i).append(":\t").append(cookieValue).append("\n");
+            log.debug(logBuffer.toString());
          }
+         return cookieBuffer.toString();
       }
 
-      if (log.isDebugEnabled())
-      {
-         log.debug(logBuffer.toString());
-      }
-
-      return cookieBuffer.toString();
+      return EMPTY;
    }
 
    private static Cookie[] extractCookies(URL hostURL, String cookieValue)
@@ -158,5 +204,30 @@ public class CookieUtil
       result.setVersion(cookie.getVersion());
 
       return result;
+   }
+
+   /**
+    * Purges the expired cookies in the specified array.
+    *
+    * @param cookies the cookies to be purged
+    * @return an array of Cookies containing only still valid cookies
+    */
+   public static List<Cookie> purgeExpiredCookies(List<Cookie> cookies)
+   {
+      if (!ParameterValidation.existsAndIsNotEmpty(cookies))
+      {
+         return Collections.emptyList();
+      }
+
+      List<Cookie> cleanCookies = new ArrayList<Cookie>(cookies);
+
+      for (Cookie cookie : cookies)
+      {
+         if (cookie.isExpired())
+         {
+            cleanCookies.remove(cookie);
+         }
+      }
+      return cleanCookies;
    }
 }

@@ -35,8 +35,11 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,77 +86,82 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
    public boolean handleRequest(SOAPMessageContext msgContext)
    {
-      CurrentInfo info = getCurrentInfo(false);
-      if (info == null)
+      final List<String> cookies = CookieUtil.asExternalFormList(getCookiesFromCurrentInfo());
+      if(cookies.isEmpty())
       {
          return true;
-      }
-
-      ProducerSessionInformation sessionInfo = info.sessionInfo;
-      if (sessionInfo == null)
-      {
-         return true;
-      }
-
-      SOAPMessage message = msgContext.getMessage();
-
-      String cookie = createCookie(info, sessionInfo);
-
-      if (cookie.length() != 0)
-      {
-         // Legacy JBossWS native approach
-         MimeHeaders mimeHeaders = message.getMimeHeaders();
-         mimeHeaders.setHeader(CookieUtil.COOKIE, cookie);
-
-         // proper approach through MessageContext.HTTP_REQUEST_HEADERS
-         Map<String, List<String>> httpHeaders = new HashMap<String, List<String>>();
-         httpHeaders.put(CookieUtil.COOKIE, Collections.singletonList(cookie));
-         msgContext.put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
-      }
-
-      return true;
-   }
-
-   public static String createCookie(ProducerSessionInformation sessionInformation)
-   {
-      CurrentInfo currentInfo = getCurrentInfo(false);
-      if (currentInfo != null)
-      {
-         return createCookie(currentInfo, sessionInformation);
       }
       else
       {
-         return EMPTY;
+         SOAPMessage message = msgContext.getMessage();
+
+         // Legacy JBossWS native approach
+         final MimeHeaders mimeHeaders = message.getMimeHeaders();
+         // proper approach through MessageContext.HTTP_REQUEST_HEADERS
+         List<String> cookieHeaders = getCookieHeaders(msgContext);
+
+         for (String cookie : cookies)
+         {
+            mimeHeaders.addHeader(CookieUtil.COOKIE, cookie);
+            cookieHeaders.add(cookie);
+         }
+
+         return true;
       }
    }
 
-   private static String createCookie(CurrentInfo info, ProducerSessionInformation sessionInfo)
+   private List<String> getCookieHeaders(SOAPMessageContext msgContext)
    {
-      StringBuilder cookie = new StringBuilder(128);
-      if (sessionInfo.isPerGroupCookies())
+      Map<String, List<String>> httpHeaders = (Map<String, List<String>>)msgContext.get(MessageContext.HTTP_REQUEST_HEADERS);
+      if (httpHeaders == null)
       {
-         if (info.groupId == null)
+         httpHeaders = new HashMap<String, List<String>>();
+         msgContext.put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
+      }
+      List<String> cookieHeaders = httpHeaders.get(CookieUtil.COOKIE);
+      if (cookieHeaders == null)
+      {
+         cookieHeaders = new LinkedList<String>();
+         httpHeaders.put(CookieUtil.COOKIE, cookieHeaders);
+      }
+      return cookieHeaders;
+   }
+
+
+   public static String createCoalescedCookieFromCurrentInfo()
+   {
+      return CookieUtil.coalesceAndExternalizeCookies(getCookiesFromCurrentInfo());
+   }
+
+   private static List<Cookie> getCookiesFromCurrentInfo()
+   {
+      CurrentInfo info = getCurrentInfo(false);
+      if (info != null)
+      {
+
+         final ProducerSessionInformation sessionInfo = info.sessionInfo;
+         if (sessionInfo == null)
          {
-            throw new IllegalStateException("Was expecting a current group Id...");
+            return Collections.emptyList();
          }
 
-         String groupCookie = sessionInfo.getGroupCookieFor(info.groupId);
-         if (groupCookie != null)
+         final List<Cookie> cookies = new ArrayList<Cookie>(7);
+         if (sessionInfo.isPerGroupCookies())
          {
-            cookie.append(groupCookie);
+            if (info.groupId == null)
+            {
+               throw new IllegalStateException("Was expecting a current group Id...");
+            }
+
+            cookies.addAll(sessionInfo.getGroupCookiesFor(info.groupId));
          }
+
+         cookies.addAll(sessionInfo.getUserCookies());
+
+         return cookies;
       }
 
-      String userCookie = sessionInfo.getUserCookie();
-      if (userCookie != null)
-      {
-         if (cookie.length() != 0)
-         {
-            cookie.append(','); // multiple cookies are separated by commas: http://www.ietf.org/rfc/rfc2109.txt, 4.2.2
-         }
-         cookie.append(userCookie);
-      }
-      return cookie.toString();
+      return Collections.emptyList();
    }
 
    public boolean handleResponse(MessageContext msgContext)
@@ -161,25 +169,24 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       SOAPMessageContext smc = (SOAPMessageContext)msgContext;
       SOAPMessage message = smc.getMessage();
 
-      // Legacy JBossWS native approach
-      MimeHeaders mimeHeaders = message.getMimeHeaders();
-      String[] cookieValues = mimeHeaders.getHeader(CookieUtil.SET_COOKIE);
-
       // proper approach through MessageContext.HTTP_RESPONSE_HEADERS
+      @SuppressWarnings("unchecked")
+      Map<String, List<String>> httpHeaders = (Map<String, List<String>>)smc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+      List<String> cookieValues = httpHeaders.get(CookieUtil.SET_COOKIE);
       if (cookieValues == null)
       {
-         @SuppressWarnings("unchecked")
-         Map<String, List<String>> httpHeaders = (Map<String, List<String>>)smc.get(MessageContext.HTTP_RESPONSE_HEADERS);
-         List<String> l = httpHeaders.get(CookieUtil.SET_COOKIE);
-         if (l != null && !l.isEmpty())
+         // try the legacy JBossWS native approach
+         MimeHeaders mimeHeaders = message.getMimeHeaders();
+         final String[] cookieHeaders = mimeHeaders.getHeader(CookieUtil.SET_COOKIE);
+         if (cookieHeaders != null)
          {
-            cookieValues = l.toArray(new String[l.size()]);
+            cookieValues = Arrays.asList(cookieHeaders);
          }
       }
 
-      String endpointAddress = (String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
       if (cookieValues != null)
       {
+         String endpointAddress = (String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
          if (endpointAddress == null)
          {
             throw new NullPointerException("Was expecting an endpoint address but none was provided in the MessageContext");
@@ -195,7 +202,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             // should not happen
             throw new IllegalArgumentException(endpointAddress + " is not a valid URL for the endpoint address.");
          }
-         final Cookie[] cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
+         final List<Cookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;
@@ -207,11 +214,11 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
                throw new IllegalStateException("Was expecting a current group Id...");
             }
 
-            sessionInfo.setGroupCookieFor(info.groupId, cookies);
+            sessionInfo.setGroupCookiesFor(info.groupId, cookies);
          }
          else
          {
-            sessionInfo.setUserCookie(cookies);
+            sessionInfo.setUserCookies(cookies);
          }
       }
 
