@@ -61,6 +61,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -95,8 +96,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    private boolean wssEnabled;
 
-   // todo: reactivate once BZ-888604 is properly fixed
-   // private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
+   private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -162,28 +162,31 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
+      if (log.isDebugEnabled())
+      {
+         log.debug("Getting service for class " + clazz);
+      }
+
       refresh(false);
 
-      return initPortFor(clazz);
+      // todo: only use caching if WSS is not enabled, WSS support should be fixed to properly support port caching if possible see BZ-888604
+      if (wssEnabled)
+      {
+         return initPortFor(clazz);
+      }
+      else
+      {
+         Object service = ports.get(clazz);
+         if (service == null)
+         {
+            return initPortFor(clazz);
+         }
+         else
+         {
+            return clazz.cast(service);
+         }
 
-      // todo: reactivate once BZ-888604 is properly fixed//
-//      if (log.isDebugEnabled())
-//      {
-//         log.debug("Getting service for class " + clazz);
-//      }
-//
-//      refresh(false);
-//
-//      Object service = ports.get(clazz);
-//      if (service == null)
-//      {
-//         return initPortFor(clazz);
-//      }
-//      else
-//      {
-//         return clazz.cast(service);
-//      }
-
+      }
    }
 
    private <T> T initPortFor(Class<T> clazz)
@@ -198,8 +201,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
          setFailed(false);
          setAvailable(true);
 
-         // todo: reactivate once BZ-888604 is properly fixed
-         // ports.put(clazz, result);
+         ports.put(clazz, result);
 
          return result;
       }
