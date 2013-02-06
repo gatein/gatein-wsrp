@@ -39,7 +39,7 @@ public abstract class ExportData
    public abstract double getVersion();
    public abstract String getType();
    
-   protected abstract byte[] internalEncodeAsBytes() throws UnsupportedEncodingException, IOException;
+   protected abstract byte[] internalEncodeAsBytes() throws IOException;
    
    
    //The encoding used to create the byte array
