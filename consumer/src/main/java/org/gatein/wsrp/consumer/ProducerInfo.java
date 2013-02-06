@@ -799,7 +799,7 @@ public class ProducerInfo extends SupportsLastModified
       return portletGroups;
    }
 
-   public Map<String, Portlet> getPortletMap() throws PortletInvokerException
+   public Map<String, Portlet> getPOPPortletMap() throws PortletInvokerException
    {
       refresh(false);
       return popsMap;
