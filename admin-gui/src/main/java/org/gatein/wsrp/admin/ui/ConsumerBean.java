@@ -537,7 +537,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          if (portletHandles == null)
          {
             final WSRPConsumer consumer = getConsumer();
-            Collection<Portlet> portlets = consumer.getProducerInfo().getPortletMap().values();
+            Collection<Portlet> portlets = consumer.getProducerInfo().getAllPortletsMap().values();
             List<SelectablePortletHandle> selectableHandles = Collections.emptyList();
             if (ParameterValidation.existsAndIsNotEmpty(portlets))
             {
@@ -564,7 +564,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    {
       try
       {
-         return !consumer.getProducerInfo().getPortletMap().isEmpty();
+         return getConsumer().getProducerInfo().getNumberOfPortlets() != 0;
       }
       catch (PortletInvokerException e)
       {

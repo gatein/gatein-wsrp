@@ -805,6 +805,34 @@ public class ProducerInfo extends SupportsLastModified
       return popsMap;
    }
 
+   public Map<String, Portlet> getAllPortletsMap() throws PortletInvokerException
+   {
+      // calling getNumberOfPortlets refreshes the information if needed so no need to redo it here
+      Map<String, Portlet> all = new LinkedHashMap<String, Portlet>(getNumberOfPortlets());
+
+      if(popsMap != null)
+      {
+         all.putAll(popsMap);
+      }
+
+      if (ccpsMap != null)
+      {
+         all.putAll(ccpsMap);
+      }
+
+      return all;
+   }
+
+   public int getNumberOfPortlets() throws PortletInvokerException
+   {
+      refresh(false);
+
+      int portletNb = popsMap != null ? popsMap.size() : 0;
+      portletNb = portletNb + (ccpsMap != null ? ccpsMap.size() : 0);
+
+      return portletNb;
+   }
+
    // Cache support ****************************************************************************************************
 
    private boolean useCache()
