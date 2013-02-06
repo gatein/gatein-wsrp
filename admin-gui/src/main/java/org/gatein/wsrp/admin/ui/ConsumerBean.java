@@ -1054,12 +1054,12 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    public static class FailedPortletsDisplay
    {
       private QName errorCode;
-      private List<String> faliedPortlets;
+      private List<String> failedPortlets;
 
       public FailedPortletsDisplay(QName errorCode, List<String> failedPortlets)
       {
          this.errorCode = errorCode;
-         this.faliedPortlets = failedPortlets;
+         this.failedPortlets = failedPortlets;
       }
 
       public QName getErrorCode()
@@ -1069,7 +1069,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
       public List<String> getFailedPortlets()
       {
-         return faliedPortlets;
+         return failedPortlets;
       }
    }
 
