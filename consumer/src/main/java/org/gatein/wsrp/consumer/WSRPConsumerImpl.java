@@ -170,7 +170,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    {
       try
       {
-         Map portletMap = producerInfo.getPOPPortletMap();
+         Map portletMap = producerInfo.getProducerOffereedPortletMap();
          return new LinkedHashSet<Portlet>(portletMap.values());
       }
       catch (Exception e)
