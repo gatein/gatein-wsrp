@@ -652,7 +652,8 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
 
       //check that the export manager can handle export by value
-      if (exportByValueRequired && !producer.getExportManager().supportsExportByValue())
+      final ExportManager exportManager = producer.getExportManager();
+      if (exportByValueRequired && !exportManager.supportsExportByValue())
       {
          //TODO: instead of passing a string here, we should pass a resource so that its localized
          WSRP2ExceptionFactory.throwWSException(ExportByValueNotSupported.class, "The consumer is requesting portlets to be exported by value, but this consumer only supports export by reference.", null);
@@ -672,11 +673,11 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
             long currentTime = toLongDate(exportPortlets.getLifetime().getCurrentTime());
             long terminationTime = toLongDate(exportPortlets.getLifetime().getTerminationTime());
             long refreshDuration = exportPortlets.getLifetime().getRefreshDuration().getTimeInMillis(exportPortlets.getLifetime().getCurrentTime().toGregorianCalendar());
-            exportContext = producer.getExportManager().createExportContext(exportByValueRequired, currentTime, terminationTime, refreshDuration);
+            exportContext = exportManager.createExportContext(exportByValueRequired, currentTime, terminationTime, refreshDuration);
          }
          else
          {
-            exportContext = producer.getExportManager().createExportContext(exportByValueRequired, -1, -1, -1);
+            exportContext = exportManager.createExportContext(exportByValueRequired, -1, -1, -1);
          }
 
          for (PortletContext portletContext : portletContexts)
@@ -705,11 +706,11 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                }
 
                //get the exportPortletData
-               ExportPortletData exportPortletData = producer.getExportManager().createExportPortletData(exportContext, portletHandle, portletState);
+               ExportPortletData exportPortletData = exportManager.createExportPortletData(exportContext, portletHandle, portletState);
 
                //Create the exportedPortlet
-               byte[] exportPortletBytes = producer.getExportManager().encodeExportPortletData(exportContext, exportPortletData);
                ExportedPortlet exportedPortlet = WSRPTypeFactory.createExportedPortlet(portletHandle, exportPortletData.encodeAsBytes());
+               byte[] exportPortletBytes = exportManager.encodeExportPortletData(exportContext, exportPortletData);
                exportedPortlets.add(exportedPortlet);
             }
 
@@ -752,7 +753,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          //TODO: handle resourceLists better (should be using for things like errors)
          ResourceList resourceList = null;
 
-         byte[] exportContextBytes = producer.getExportManager().encodeExportContextData(exportContext);
+         byte[] exportContextBytes = exportManager.encodeExportContextData(exportContext);
 
          Lifetime lifetime = null;
 
