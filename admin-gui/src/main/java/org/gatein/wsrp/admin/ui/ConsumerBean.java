@@ -537,14 +537,18 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          if (portletHandles == null)
          {
             final WSRPConsumer consumer = getConsumer();
-            Collection<Portlet> portlets = consumer.getProducerInfo().getAllPortletsMap().values();
+            Map<String, Portlet> portlets = consumer.getProducerInfo().getAllPortletsMap();
             List<SelectablePortletHandle> selectableHandles = Collections.emptyList();
             if (ParameterValidation.existsAndIsNotEmpty(portlets))
             {
                selectableHandles = new ArrayList<SelectablePortletHandle>(portlets.size());
-               for (Portlet portlet : portlets)
+               for (Map.Entry<String, Portlet> portlet : portlets.entrySet())
                {
-                  selectableHandles.add(new SelectablePortletHandle(portlet.getContext().getId(), consumer.getMigrationService().getStructureProvider()));
+                  final String key = portlet.getKey();
+                  final String id = portlet.getValue().getContext().getId();
+                  final String display = id.equals(key) ? key : id + " cloned as " + key;
+
+                  selectableHandles.add(new SelectablePortletHandle(key, consumer.getMigrationService().getStructureProvider(), display));
                }
             }
             Collections.sort(selectableHandles);
@@ -861,11 +865,13 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       private String page;
       private String window;
       private ConsumerStructureProvider provider;
+      private final String display;
 
-      public SelectablePortletHandle(String handle, ConsumerStructureProvider provider)
+      public SelectablePortletHandle(String handle, ConsumerStructureProvider provider, String display)
       {
          this.handle = handle;
          this.provider = provider;
+         this.display = display;
       }
 
       public boolean isReadyForImport()
@@ -952,7 +958,12 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
       public int compareTo(SelectablePortletHandle o)
       {
-         return handle.compareTo(o.handle);
+         return display.compareTo(o.display);
+      }
+
+      public String getDisplay()
+      {
+         return display;
       }
    }
 
@@ -979,7 +990,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
             exportedPortlets = new ArrayList<SelectablePortletHandle>(exportedPortletHandles.size());
             for (String handle : exportedPortletHandles)
             {
-               exportedPortlets.add(new SelectablePortletHandle(handle, provider));
+               exportedPortlets.add(new SelectablePortletHandle(handle, provider, handle));
             }
          }
          else
