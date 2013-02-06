@@ -282,15 +282,23 @@ public class WSRPUtils
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(id, "portlet id", "PortletContext");
 
       org.oasis.wsrp.v2.PortletContext result = WSRPTypeFactory.createPortletContext(id);
+      result.setPortletState(getStateOrNullFor(portletContext));
+
+      return result;
+   }
+
+   public static byte[] getStateOrNullFor(PortletContext portletContext)
+   {
       if (portletContext instanceof StatefulPortletContext)
       {
          StatefulPortletContext context = (StatefulPortletContext)portletContext;
          if (PortletStateType.OPAQUE.equals(context.getType()))
          {
-            result.setPortletState(((StatefulPortletContext<byte[]>)context).getState());
+            return ((StatefulPortletContext<byte[]>)context).getState();
          }
       }
-      return result;
+
+      return null;
    }
 
    public static String getResourceCacheabilityFromCacheLevel(CacheLevel cacheLevel)
@@ -691,7 +699,7 @@ public class WSRPUtils
    public static <T> List<T> replaceByEmptyListIfNeeded(List<T> list)
    {
       // workaround for GTNWSRP-290
-      if(isSingletonListWithNullOrEmptyElement(list))
+      if (isSingletonListWithNullOrEmptyElement(list))
       {
          return Collections.emptyList();
       }
