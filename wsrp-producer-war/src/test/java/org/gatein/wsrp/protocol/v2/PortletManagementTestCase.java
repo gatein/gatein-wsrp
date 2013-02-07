@@ -695,8 +695,8 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
             assertEquals(1, portletContexts.size());
 
             PortletContext portletContextFromExport = portletContextsFromExport.get(0);
-            //we should be getting the handle of the stateless portlet
-            assertEquals(originalHandle, portletContextFromExport.getPortletHandle());
+            //we should be getting the handle that we used to trigger the export see GTNWSRP-349
+            assertEquals(portletContext.getPortletHandle(), portletContextFromExport.getPortletHandle());
             //assert that we have a portlet state returned
             assertNotNull(portletContextFromExport.getPortletState());
 

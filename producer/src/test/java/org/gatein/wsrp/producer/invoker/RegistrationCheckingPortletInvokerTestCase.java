@@ -28,6 +28,7 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletContext;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.pc.api.PortletStatus;
 import org.gatein.registration.impl.RegistrationManagerImpl;
 import org.gatein.registration.policies.DefaultRegistrationPolicy;
 
@@ -51,6 +52,7 @@ public class RegistrationCheckingPortletInvokerTestCase extends TestCase
       PortletContext portletContext = PortletContext.createPortletContext("app", "portlet");
       Portlet portlet = mock(Portlet.class);
       when(next.getPortlet(portletContext)).thenReturn(portlet);
+      when(next.getStatus(portletContext)).thenReturn(PortletStatus.OFFERED);
 
       invoker.setNext(next);
       assertEquals(portlet, invoker.getPortlet(portletContext));

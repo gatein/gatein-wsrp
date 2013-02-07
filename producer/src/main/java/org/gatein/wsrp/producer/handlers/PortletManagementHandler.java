@@ -30,6 +30,7 @@ import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.exports.ExportManager;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
 import org.gatein.pc.api.InvalidPortletIdException;
@@ -37,6 +38,7 @@ import org.gatein.pc.api.NoSuchPortletException;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.PortletStateType;
+import org.gatein.pc.api.StatefulPortletContext;
 import org.gatein.pc.api.info.PortletInfo;
 import org.gatein.pc.api.info.PreferenceInfo;
 import org.gatein.pc.api.info.PreferencesInfo;
@@ -684,33 +686,26 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          {
             try
             {
-               byte[] exportData;
-
+               WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(portletContext, "Portlet context");
                String portletHandle = portletContext.getPortletHandle();
-               byte[] portletState = portletContext.getPortletState();
-               WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(portletHandle, "Portlet handle");
+               WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(portletHandle, "Portlet handle", "PortletContext");
 
                org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
 
-               producer.getPortletInvoker().getPortlet(portalPC);
-
                org.gatein.pc.api.PortletContext exportedPortalPC = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
-
-               PortletContext exportedPortalContext = WSRPUtils.convertToWSRPPortletContext(exportedPortalPC);
-               portletHandle = exportedPortalContext.getPortletHandle();
-               portletState = exportedPortalContext.getPortletState();
-
                if (exportedPortalPC == null)
                {
                   WSRP2ExceptionFactory.throwWSException(InvalidHandle.class, "Could not find a portlet with handle " + portletHandle + " in the producer", null);
                }
 
+               byte[] portletState = WSRPUtils.getStateOrNullFor(exportedPortalPC);
+
                //get the exportPortletData
                ExportPortletData exportPortletData = exportManager.createExportPortletData(exportContext, portletHandle, portletState);
 
                //Create the exportedPortlet
-               ExportedPortlet exportedPortlet = WSRPTypeFactory.createExportedPortlet(portletHandle, exportPortletData.encodeAsBytes());
                byte[] exportPortletBytes = exportManager.encodeExportPortletData(exportContext, exportPortletData);
+               ExportedPortlet exportedPortlet = WSRPTypeFactory.createExportedPortlet(portletHandle, exportPortletBytes);
                exportedPortlets.add(exportedPortlet);
             }
 

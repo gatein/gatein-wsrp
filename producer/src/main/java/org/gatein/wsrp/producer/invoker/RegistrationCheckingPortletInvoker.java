@@ -76,24 +76,43 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
    public Portlet getPortlet(PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException
    {
-      Registration registration = RegistrationLocal.getRegistration();
-      if (registration != null)
+      if (isPortletContextKnown(portletContext))
       {
-         if (registration.knows(portletContext) || PortletStatus.OFFERED == super.getStatus(portletContext))
-         {
-            return super.getPortlet(portletContext);
-         }
-         else
-         {
-            String id = portletContext.getId();
-            throw new NoSuchPortletException("Registration '" + registration.getRegistrationHandle()
-               + "' does not know the '"
-               + id + "' portlet", id);
-         }
+         return super.getPortlet(portletContext);
       }
       else
       {
-         return super.getPortlet(portletContext);
+         throw new NoSuchPortletException(portletContext.getId());
+      }
+
+   }
+
+   private boolean isPortletContextKnown(PortletContext portletContext) throws PortletInvokerException
+   {
+      final PortletStatus status = super.getStatus(portletContext);
+      if (PortletStatus.OFFERED == status)
+      {
+         return true;
+      }
+      else
+      {
+         Registration registration = RegistrationLocal.getRegistration();
+         if (registration != null)
+         {
+            if (registration.knows(portletContext))
+            {
+               return true;
+            }
+            else
+            {
+               String id = portletContext.getId();
+               throw new NoSuchPortletException("Registration '" + registration.getRegistrationHandle() + "' does not know the '" + id + "' portlet", id);
+            }
+         }
+         else
+         {
+            return status != null;
+         }
       }
    }
 
@@ -344,8 +363,15 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
    public PortletContext exportPortlet(PortletStateType stateType, PortletContext portletContext)
       throws PortletInvokerException, IllegalArgumentException
    {
-      checkOperationIsAllowed(portletContext, RegistrationLocal.getRegistration(), "exportPortlet");
-      return super.exportPortlet(stateType, portletContext);
+      if (isPortletContextKnown(portletContext))
+      {
+         checkOperationIsAllowed(portletContext, RegistrationLocal.getRegistration(), "exportPortlet");
+         return super.exportPortlet(stateType, portletContext);
+      }
+      else
+      {
+         throw new NoSuchPortletException(portletContext.getId());
+      }
    }
 
    /**
