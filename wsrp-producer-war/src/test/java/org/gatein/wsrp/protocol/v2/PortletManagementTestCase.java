@@ -28,7 +28,6 @@ import org.apache.catalina.connector.RequestFacade;
 import org.gatein.exports.ExportManager;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportPortletData;
-import org.gatein.exports.data.PersistedExportData;
 import org.gatein.exports.impl.ExportManagerImpl;
 import org.gatein.pc.api.PortletStateType;
 import org.gatein.pc.api.state.PropertyMap;
@@ -965,9 +964,7 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
 
       try
       {
-         PersistedExportData exportData = new PersistedExportData("foo", "bar");
-
-         SetExportLifetime setExportLifetime = WSRPTypeFactory.createSetExportLifetime(null, exportData.encodeAsBytes(), null, null);
+         SetExportLifetime setExportLifetime = WSRPTypeFactory.createSetExportLifetime(null, new byte[] {0, 1, 2, 3, 4, 5, 6, 7}, null, null);
          producer.setExportLifetime(setExportLifetime);
          fail();
       }

@@ -42,17 +42,17 @@ public interface ExportManager
 
    ExportContext createExportContext(boolean exportByValueRequired, long currentTime, long terminationTime, long refreshDuration) throws UnsupportedEncodingException;
 
-   ExportContext createExportContext(byte[] bytes) throws OperationFailedException;
+   ExportContext createExportContext(byte[] bytes);
 
    ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle, byte[] portletState) throws UnsupportedEncodingException;
 
-   ExportPortletData createExportPortletData(ExportContext exportContext, long currentime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailedException;
+   ExportPortletData createExportPortletData(ExportContext exportContext, long currentime, long terminationTime, long refreshDuration, byte[] bytes);
 
-   byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws UnsupportedEncodingException, IOException;
+   byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws IOException;
 
-   byte[] encodeExportContextData(ExportContext exportContextData) throws UnsupportedEncodingException, IOException;
+   byte[] encodeExportContextData(ExportContext exportContextData) throws IOException;
 
-   ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationFailedException, OperationNotSupportedException;
+   ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration);
 
    void releaseExport(byte[] bytes) throws IOException;
 }

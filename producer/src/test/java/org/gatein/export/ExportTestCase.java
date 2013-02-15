@@ -48,11 +48,9 @@ public class ExportTestCase extends TestCase
       assertNull(exportPortletData.getPortletState());
 
       byte[] bytes = exportPortletData.encodeAsBytes();
-      
-      byte[] internalBytes = ExportData.getInternalBytes(bytes);
-      ExportPortletData portletDataFromBytes = ExportPortletData.create(internalBytes);
-      assertEquals(version, portletDataFromBytes.getVersion());
-      
+
+      ExportPortletData portletDataFromBytes = ExportPortletData.decodeFrom(bytes);
+
       assertEquals(portletId, portletDataFromBytes.getPortletHandle());
       assertEquals(version, portletDataFromBytes.getVersion());
       assertNull(portletDataFromBytes.getPortletState());
@@ -61,25 +59,20 @@ public class ExportTestCase extends TestCase
    public void testTransformationByValueStatefull() throws IOException
    {
       String portletId = "TestPortletID_123";
-      double version = 1.0;
       byte[] state = new byte[]{-66, 0, 1, 2, 3, 'a', 'b', 'c'};
       
       ExportPortletData exportPortletData = new ExportPortletData(portletId, state);
-      assertEquals(version, exportPortletData.getVersion());
+      assertNotNull(exportPortletData.getVersion());
       assertEquals(portletId, exportPortletData.getPortletHandle());
       assertNotNull(exportPortletData.getPortletState());
       ExtendedAssert.assertEquals(state, exportPortletData.getPortletState());
 
       byte[] bytes = exportPortletData.encodeAsBytes();
-      
-      byte[] internalBytes = ExportData.getInternalBytes(bytes);
-      ExportPortletData portletDataFromBytes = ExportPortletData.create(internalBytes);
-      assertEquals(version, portletDataFromBytes.getVersion());
-      
+
+      ExportPortletData portletDataFromBytes = ExportPortletData.decodeFrom(bytes);
+
       assertEquals(portletId, portletDataFromBytes.getPortletHandle());
-      assertEquals(version, portletDataFromBytes.getVersion());
-      assertNotNull(portletDataFromBytes.getPortletState());
-      assertEquals(state.length, portletDataFromBytes.getPortletState().length);
+      assertNotNull(portletDataFromBytes.getVersion());
       ExtendedAssert.assertEquals(state, portletDataFromBytes.getPortletState());
    }
    

@@ -24,10 +24,10 @@ package org.gatein.wsrp.support;
 
 import org.gatein.exports.ExportPersistenceManager;
 import org.gatein.exports.data.ExportContext;
+import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
-import org.gatein.exports.data.PersistedExportData;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,18 +41,12 @@ import java.util.UUID;
 public class TestMockExportPersistenceManager implements ExportPersistenceManager
 {
 
-   public static final String PEC_TYPE = "P_EC";
-   public static final double PEC_VERSION = 1.0;
-   
-   public static final String PED_TYPE = "P_ED";
-   public static final double PED_VERSION = 1.0;
-   
    Map<String, ExportContext> exportContexts = new HashMap<String, ExportContext>();
    Map<String, ExportPortletData> exportPortletDatas = new HashMap<String, ExportPortletData>();
 
-   public ExportContext getExportContext(String refId)
+   public ExportContext getExportContext(String exportContextId)
    {
-      return exportContexts.get(refId);
+      return exportContexts.get(exportContextId);
    }
 
    public ExportPortletData getExportPortletData(String exportContextId, String portletDataID)
@@ -79,28 +73,16 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
    {
       return exportPortletDatas.keySet();
    }
-   
-   public String getExportReferenceId(String type, double version, byte[] bytes) throws UnsupportedEncodingException
-   {
-    if (supports(type, version))
-    {
-       PersistedExportData persistedExportData = PersistedExportData.create(bytes);
-       return persistedExportData.getRefId();
-    }
-    else
-    {
-       return null;
-    }
-   }
 
    public boolean removeExportContext(String refId)
    {
-      if (exportContexts.containsKey(refId))
+      final ExportContext exportContext = exportContexts.get(refId);
+      if(exportContext != null)
       {
-         List<String> portlets = exportContexts.get(refId).getPortlets();
-         for (String portlet: portlets)
+         final Collection<ExportPortletData> portlets = exportContext.getPortlets();
+         for (ExportPortletData portlet : portlets)
          {
-            exportPortletDatas.remove(portlet);
+            exportPortletDatas.remove(portlet.getId());
          }
          exportContexts.remove(refId);
          return true;
@@ -111,38 +93,62 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public boolean removeExportPortletData(String exportContextId, String exportDataId)
+   @Override
+   public ExportPortletData getExportPortletData(String portletDataId)
    {
-      if (exportContexts.containsKey(exportDataId))
-      {
-         List<String> portlets = exportContexts.get(exportDataId).getPortlets();
-         if (portlets.contains(exportDataId))
-         {
-            portlets.remove(exportContextId);
-            exportPortletDatas.remove(exportDataId);
-            return true;
-         }
-      }
-      return false;
+      return exportPortletDatas.get(portletDataId);
    }
 
-   public boolean supports(String type, double version)
+   @Override
+   public ExportPortletData updateExportPortletData(ExportPortletData updatedPortletData)
    {
-      return (type.equals(PEC_TYPE) && (version == PEC_VERSION)) || ((type.equals(PED_TYPE) && (version == PED_VERSION)));
+      return null;
    }
 
-   public ExportContext updateExportContext(String refId, ExportContext updatedExportContext)
+   @Override
+   public boolean removeExportPortletData(String portletDataId)
    {
-      if (updatedExportContext != null && refId != null && exportContexts.containsKey(refId))
+      final ExportPortletData portletData = getExportPortletData(portletDataId);
+      if (portletData != null)
       {
-         exportContexts.put(refId, updatedExportContext);
-         return updatedExportContext;
+         final ExportContext exportContext = portletData.getExportContext();
+         exportContext.removePortlet(portletData);
+         exportContexts.remove(portletDataId);
+         return true;
       }
       else
       {
-         //throw some error here
-         return null;
+         return false;
       }
+   }
+
+   @Override
+   public <T extends ExportData> T loadExportData(String id, Class<T> expected)
+   {
+      Object result = null;
+      if(ExportContext.class.equals(expected))
+      {
+         result = exportContexts.get(id);
+      }
+      else if (ExportPortletData.class.equals(expected))
+      {
+         result = exportPortletDatas.get(id);
+      }
+      return expected.cast(result);
+   }
+
+   public ExportContext updateExportContext(ExportContext updatedExportContext)
+   {
+      if (updatedExportContext != null)
+      {
+         final String id = updatedExportContext.getId();
+         if(exportContexts.containsKey(id))
+         {
+            exportContexts.put(id, updatedExportContext);
+            return updatedExportContext;
+         }
+      }
+      return null;
    }
 
    public ExportPortletData updateExportPortletData(String exportContextId, String exportPortletId, ExportPortletData updatedPortletData)
@@ -158,25 +164,14 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public byte[] encodeExportContext(String refId) throws IOException
-   {
-      PersistedExportData persistedExportData = new PersistedExportData(PEC_TYPE, refId);
-      return persistedExportData.encodeAsBytes();
-   }
-
-   public byte[] encodeExportPortletData(String exportDataRefId) throws IOException
-   {
-      PersistedExportData persistedExportData = new PersistedExportData(PED_TYPE, exportDataRefId);
-      return persistedExportData.encodeAsBytes();
-   }
-
-   public String storeExportContext(ExportContext exportContext)
+   public ExportContext storeExportContext(ExportContext exportContext)
    {
       if (exportContext != null)
       {
          String refId = UUID.randomUUID().toString();
+         exportContext.setId(refId);
          exportContexts.put(refId, exportContext);
-         return refId;
+         return exportContext;
       }
       else
       {
@@ -184,16 +179,15 @@ public class TestMockExportPersistenceManager implements ExportPersistenceManage
       }
    }
 
-   public String storeExportPortletData(ExportContext exportContext, ExportPortletData exportPortletData)
+   public ExportPortletData storeExportPortletData(ExportContext exportContext, ExportPortletData exportPortletData)
    {
       if (exportPortletData != null && exportContext != null)
       {
          String refId = UUID.randomUUID().toString();
-         exportContext.addPortlet(refId);
-         
+         exportPortletData.setId(refId);
+         exportContext.addPortlet(exportPortletData);
          exportPortletDatas.put(refId, exportPortletData);
-         
-         return refId;
+         return exportPortletData;
       }
       else
       {

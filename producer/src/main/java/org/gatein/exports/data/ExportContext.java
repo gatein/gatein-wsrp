@@ -22,9 +22,14 @@
  */
 package org.gatein.exports.data;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -33,48 +38,34 @@ import java.util.List;
 public class ExportContext extends ExportData
 {
 
-   protected static final String ENCODING = "UTF-8";
-   public static final String TYPE = "WSRP_EC";
-   public static final double VERSION = 1.0;
+   protected static final String TYPE = "WSRP_EC";
+   private static final double VERSION = 1.0;
    
-   protected long currentTime;
-   protected long terminationTime;
-   protected long refreshDuration;
-   
-   protected final boolean exportByValue;
-
-   protected List<String> portlets;
+   private long currentTime;
+   private long terminationTime;
+   private long refreshDuration;
+   private final boolean exportByValue;
+   private Map<String, ExportPortletData> portlets;
 
    //for now, we don't store anything in the exported by value ExportContext
    public ExportContext()
    {
-      this.exportByValue = true;
+      this(true, -1, -1, -1);
    }
 
    public ExportContext(boolean exportByValue, long currentTime, long terminationTime, long refreshDuration)
    {
-      //ignore the lifetime if we are exporting by value 
+      //only consider lifetime if we are exporting by value
       if (exportByValue)
       {
          this.currentTime = currentTime;
          this.terminationTime = terminationTime;
          this.refreshDuration = refreshDuration;
       }
-      else
-      {
-         //this.lifeTime = lifetime;
-      }
+
       this.exportByValue = exportByValue;
    }
-   
-   public ExportContext(String refId, long currentTime, long terminationTime, long refreshDuration)
-   {
-      this.currentTime = currentTime;
-      this.terminationTime = terminationTime;
-      this.refreshDuration = refreshDuration;
 
-      this.exportByValue = false;
-   }
 
    public boolean isExportByValue()
    {
@@ -111,41 +102,55 @@ public class ExportContext extends ExportData
       this.refreshDuration = refreshDuration;
    }
 
-   public void addPortlet(String portletName)
+   public void addPortlet(ExportPortletData portlet)
    {
       if (portlets == null)
       {
-         this.portlets = new ArrayList<String>();
+         this.portlets = new HashMap<String, ExportPortletData>(7);
       }
-      this.portlets.add(portletName);
+      portlet.setExportContext(this);
+      portlets.put(portlet.getPortletHandle(), portlet);
+   }
+
+   public ExportPortletData removePortlet(ExportPortletData portlet)
+   {
+      if(portlets != null)
+      {
+         final ExportPortletData remove = portlets.remove(portlet.getId());
+         portlet.setExportContext(null);
+         return remove;
+      }
+
+      return null;
    }
    
-   public List<String> getPortlets()
+   public Collection<ExportPortletData> getPortlets()
    {
-      return portlets;
+      return portlets != null ? portlets.values() : Collections.<ExportPortletData>emptyList();
    }
 
-   public static ExportContext create(byte[] bytes)
+   @Override
+   protected void decodeExtraData(ObjectInputStream ois) throws IOException
    {
-      //for now, we don't store anything in the stored by value ExportContext
-      ExportContext exportContext = new ExportContext();
-      return exportContext;
+      // we currently don't pass any information by value
    }
 
-   public String getType()
+   @Override
+   protected void encodeExtraData(ObjectOutputStream oos) throws IOException
    {
-      return TYPE;
+      // we currently don't pass any information by value
    }
 
-   public double getVersion()
+   @Override
+   protected double getVersion()
    {
       return VERSION;
    }
 
-   protected byte[] internalEncodeAsBytes() throws UnsupportedEncodingException
+   @Override
+   public String getType()
    {
-      return "EMPTY".getBytes(ENCODING); // todo: Matt, is this needed?
+      return TYPE;
    }
-
 }
 

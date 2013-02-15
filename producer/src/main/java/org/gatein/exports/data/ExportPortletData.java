@@ -34,33 +34,33 @@ import java.io.ObjectOutputStream;
  */
 public class ExportPortletData extends ExportData
 {
+   protected static final String TYPE = "WSRP_EPD";
+   private static final double VERSION = 1.0;
+   private String portletHandle;
+   private byte[] portletState;
+   private String exportContextId = NO_ID;
+   private ExportContext exportContext;
 
-   protected static final String ENCODING = "UTF-8";
-   public static final String TYPE = "WSRP_EC";
-   public static final double VERSION = 1.0;
-   
-   protected static final String PORTLETHANDLEKEY = "pID";
-   protected static final String PORTLETSTATEKEY = "pState";
-   
-   protected String portletHandle;
-   protected byte[] portletState;
-   
    public ExportPortletData(String portletHandle, byte[] portletState)
    {
       this.portletHandle = portletHandle;
       this.portletState = portletState;
    }
-   
+
+   public ExportPortletData()
+   {
+   }
+
    public String getPortletHandle()
    {
-      return this.portletHandle;
+      return portletHandle;
    }
-   
+
    public byte[] getPortletState()
    {
-      return this.portletState;
+      return portletState;
    }
-   
+
    public String getType()
    {
       return TYPE;
@@ -71,47 +71,46 @@ public class ExportPortletData extends ExportData
       return VERSION;
    }
 
-   public static ExportPortletData create(byte[] bytes) throws IOException
-   {      
-      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      ObjectInputStream ois = new ObjectInputStream(bais);
-      
-      String portletHandle;
-      byte[] portletState;
-      
+   protected void decodeExtraData(ObjectInputStream ois) throws IOException
+   {
       portletHandle = ois.readUTF();
-      
+
+      exportContextId = ois.readUTF();
+
       if (ois.available() > 0)
       {
          portletState = new byte[ois.available()];
          ois.readFully(portletState);
       }
-      else
-      {
-         portletState = null;
-      }
-      
-      ois.close();
-
-      return new ExportPortletData(portletHandle, portletState);
    }
-   
-   protected byte[] internalEncodeAsBytes() throws IOException
+
+   @Override
+   protected void encodeExtraData(ObjectOutputStream oos) throws IOException
    {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-      
       oos.writeUTF(portletHandle);
-      
+
+      oos.writeUTF(exportContextId);
+
       if (portletState != null)
       {
          oos.write(portletState);
       }
-      
-      oos.close();
-      
-      return baos.toByteArray();
    }
 
+   public static ExportPortletData decodeFrom(byte[] bytes) throws IOException
+   {
+      return initExportData(ExportPortletData.class, bytes, null);
+   }
+
+   void setExportContext(ExportContext exportContext)
+   {
+      this.exportContext = exportContext;
+      exportContextId = exportContext.getId();
+   }
+
+   public ExportContext getExportContext()
+   {
+      return exportContext;
+   }
 }
 

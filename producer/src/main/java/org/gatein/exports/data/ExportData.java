@@ -22,12 +22,13 @@
  ******************************************************************************/
 package org.gatein.exports.data;
 
+import org.gatein.exports.ExportPersistenceManager;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 
 /**
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
@@ -35,93 +36,105 @@ import java.io.UnsupportedEncodingException;
  */
 public abstract class ExportData
 {
+   protected static final String NO_ID = "__NO_ID__";
+   private String id = NO_ID;
 
-   public abstract double getVersion();
-   public abstract String getType();
-   
-   protected abstract byte[] internalEncodeAsBytes() throws IOException;
-   
-   
-   //The encoding used to create the byte array
-   protected static final String ENCODING = "UTF-8";
-   
-   protected static final String SEPARATOR = "_@_";
-   
-   public byte[] encodeAsBytes() throws IOException 
+   public static <T extends ExportData> T initExportData(Class<T> expected, byte[] encodedData, ExportPersistenceManager persistenceManager)
    {
-      byte[] internalBytes = internalEncodeAsBytes();
-      
+      if (encodedData != null && encodedData.length > 0)
+      {
+         try
+         {
+            ByteArrayInputStream bais = new ByteArrayInputStream(encodedData);
+            ObjectInputStream ois = new ObjectInputStream(bais);
+
+            String type = ois.readUTF();
+
+            ExportData exportData;
+            if (ExportContext.TYPE.equals(type))
+            {
+               exportData = new ExportContext();
+            }
+            else if (ExportPortletData.TYPE.equals(type))
+            {
+               exportData = new ExportPortletData();
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unknown ExportData type '" + type + "'");
+            }
+
+            T result = expected.cast(exportData);
+
+            double version = ois.readDouble();
+            if (!result.supports(version))
+            {
+               throw new IllegalArgumentException(expected.getSimpleName() + " doesn't know how to deal with version '" + version + "'");
+            }
+
+            String id = ois.readUTF();
+            exportData.id = id;
+            if (NO_ID.equals(id))
+            {
+               result.decodeExtraData(ois);
+            }
+            else
+            {
+               if(persistenceManager == null)
+               {
+                  throw new IllegalStateException("Encoded data points to persisted state, yet no ExportPersistenceManager has been provided to load state from persistence");
+               }
+               result = persistenceManager.loadExportData(id, expected);
+            }
+
+            return result;
+         }
+         catch (IOException e)
+         {
+            throw new IllegalArgumentException("Couldn't read from byte array", e);
+         }
+      }
+      throw new IllegalArgumentException("Cannot create ExportData from null or empty byte array");
+   }
+
+
+   protected boolean supports(double version)
+   {
+      return Double.compare(getVersion(), version) == 0;
+   }
+
+   protected abstract void decodeExtraData(ObjectInputStream ois) throws IOException;
+   protected abstract void encodeExtraData(ObjectOutputStream oos) throws IOException;
+
+
+   public byte[] encodeAsBytes() throws IOException
+   {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
-      
-      oos.writeUTF(this.getType());
-      oos.writeDouble(this.getVersion());
-      
-      if (internalBytes != null)
-      {
-         oos.write(internalBytes);
-      }
-      
+
+      oos.writeUTF(getType());
+      oos.writeDouble(getVersion());
+      oos.writeUTF(id);
+
+      encodeExtraData(oos);
+
       oos.close();
-      
+
       return baos.toByteArray();
    }
-   
-   public static double getVersion(byte[] bytes) throws IOException
+
+   protected abstract double getVersion();
+
+   protected abstract String getType();
+
+   public String getId()
    {
-      if (bytes != null && bytes.length > 0)
-      {
-         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         ObjectInputStream ois = new ObjectInputStream(bais);
-
-         String type = ois.readUTF();
-         Double version = ois.readDouble();
-
-         return version.doubleValue();
-      }
-      else
-      {
-         return -1;
-      }
-   }
-   
-   public static String getType(byte[] bytes) throws IOException
-   {
-      if (bytes != null && bytes.length > 0)
-      {
-         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         ObjectInputStream ois = new ObjectInputStream(bais);
-
-         return ois.readUTF();
-      }
-      else
-      {
-         return null;
-      }
+      return id;
    }
 
-   public static byte[] getInternalBytes(byte[] bytes) throws IOException
+   public void setId(String id)
    {
-      if (bytes != null && bytes.length > 0)
-      {
-         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         ObjectInputStream ois = new ObjectInputStream(bais);
-
-         String type = ois.readUTF();
-         Double version = ois.readDouble();
-
-         byte[] internalBytes = null;
-         if (ois.available() > 0)
-         {
-            internalBytes = new byte[ois.available()];
-            ois.readFully(internalBytes);
-         }
-         return internalBytes;
-      }
-      else
-      {
-         return null;
-      }
+      this.id = id;
    }
 }
 

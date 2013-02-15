@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.gatein.exports.data.ExportContext;
+import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
 
 /**
@@ -35,52 +36,29 @@ import org.gatein.exports.data.ExportPortletData;
 public interface ExportPersistenceManager
 {     
    /**
-    * Returns true if the PersistenceManager knows how to decode a byte array with
-    * the specified type and version.
+    * Stores the ExportContext and returns the updated ExportContext, which should now have a proper id.
     * 
-    * @param type The type of export
-    * @param version The version of the export
-    * @return True if the persistence manager can support the specified type and version.
-    */
-   boolean supports(String type, double version);
-   
-   /**
-    * Returns the reference ID of a particular export (if exported by reference).
-    * The type and version are used to determine how to deal with the byte array
-    * to retrieve this ID.
-    * 
-    * @param type The type of export
-    * @param version The version of the export
-    * @param bytes The contents of the export
-    * @return The reference ID
-    * @throws UnsupportedEncodingException
-    */
-   String getExportReferenceId (String type, double version, byte[] bytes) throws UnsupportedEncodingException;
-   
-   /**
-    * Stores the ExportContent and returns the reference ID used to store the content.
-    * 
+    *
     * @param exportContext The ExportContext to store
-    * @return The reference ID used to store the content
+    * @return the updated ExportContext with a proper id to reference it
     */
-   String storeExportContext(ExportContext exportContext);
+   ExportContext storeExportContext(ExportContext exportContext);
    
    /**
     * Retrieves an ExportContext which corresponds to a particular reference ID
     * 
-    * @param refId The reference ID
+    * @param exportContextId The reference ID
     * @return The ExportContext which corresponds to the reference ID
     */
-   ExportContext getExportContext(String refId);
+   ExportContext getExportContext(String exportContextId);
    
    /**
     * Updates an already stored ExportContext with an updated one. 
     * 
-    * @param refId The reference ID of the stored ExportContext
     * @param updatedExportContext The updated ExportContext
     * @return The new ExportContext
     */
-   ExportContext updateExportContext(String refId, ExportContext updatedExportContext);
+   ExportContext updateExportContext(ExportContext updatedExportContext);
    
    /**
     * Remove a stored ExportContext which corresponds to a reference ID.
@@ -89,62 +67,41 @@ public interface ExportPersistenceManager
     * @return True if the exportContext was removed, false otherwise
     */
    boolean removeExportContext(String refId);
-   
-   /**
-    * Retrieves an ExportContext with the specified reference ID and returns
-    * the bytes which correspond to this reference
-    * 
-    * @param refId The reference Id of the ExportContext
-    * @return The byte representation of the ExportContext
-    * @throws IOException If an error occurs when trying to encode the bytes
-    */
-   byte[] encodeExportContext(String refId) throws IOException;
-   
+
    /**
     * Stores a ExportPortletData to a corresponding ExportContext
     * 
+    *
     * @param exportContext The ExportContext
     * @param exportPortletData The ExportPortletData
     * @return the reference ID of the stored ExportPortletData
     */
-   String storeExportPortletData (ExportContext exportContext, ExportPortletData exportPortletData);
+   ExportPortletData storeExportPortletData(ExportContext exportContext, ExportPortletData exportPortletData);
    
    /**
-    * Retrieves an ExportPortletData from an ExportContext
+    * Retrieves an ExportPortletData
     * 
-    * @param exportContextId The id of the ExportContext
     * @param portletDataId The id of the ExportPortletData
     * @return The ExportPortletData object
     */
-   ExportPortletData getExportPortletData (String exportContextId, String portletDataId);
+   ExportPortletData getExportPortletData (String portletDataId);
 
    /**
-    * Updates a particular ExportPortletData corresponding to a ExportContext
+    * Updates a particular ExportPortletData
     * 
-    * @param exportContextId The refId of the ExportContext
-    * @param exportPortletId The refId of the ExportPortletData
     * @param updatedPortletData The new ExportPortletData to use
     * @return The updated ExportPortletData
     */
-   ExportPortletData updateExportPortletData(String exportContextId, String exportPortletId, ExportPortletData updatedPortletData);
+   ExportPortletData updateExportPortletData(ExportPortletData updatedPortletData);
    
    /**
     * Removes a ExportPortletData from a ExportContext
     * 
-    * @param exportContextId The reference Id of the ExportContext
     * @param portletDataId The reference Id of the ExportPortletData to remove
     * @return True if the ExportPortletData was removed
     */
-   boolean removeExportPortletData(String exportContextId, String portletDataId);
-   
-   /**
-    * Retrieves the ExportPortletData with the specified reference ID and returns
-    * the byte representation of this export.
-    * 
-    * @param exportDataRefId The reference ID of the ExportPortletData
-    * @return The byte representation of the ExportPortletData
-    * @throws IOException
-    */
-   byte[] encodeExportPortletData(String exportDataRefId) throws IOException;
+   boolean removeExportPortletData(String portletDataId);
+
+   <T extends ExportData> T loadExportData(String id, Class<T> expected);
 }
 

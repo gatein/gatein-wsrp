@@ -24,11 +24,10 @@ package org.gatein.exports.impl;
 
 import org.gatein.exports.ExportManager;
 import org.gatein.exports.ExportPersistenceManager;
-import org.gatein.exports.OperationFailedException;
-import org.gatein.exports.OperationNotSupportedException;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
+import org.gatein.wsrp.WSRPExceptionFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -81,35 +80,14 @@ public class ExportManagerImpl implements ExportManager
       this.preferExportByValue = preferExportByValue;
    }
 
-   public ExportContext createExportContext(byte[] bytes) throws OperationFailedException
+   public ExportContext createExportContext(byte[] bytes)
    {
-      try
-      {
-         String type = ExportData.getType(bytes);
-         double version = ExportData.getVersion(bytes);
-         if (ExportContext.TYPE.equals(type) && ExportContext.VERSION == version)
-         {
-            byte[] internalBytes = ExportData.getInternalBytes(bytes);
-            return ExportContext.create(internalBytes);
-         }
-         else if (exportPersistenceManager != null && exportPersistenceManager.supports(type, version))
-         {
-            String refId = exportPersistenceManager.getExportReferenceId(type, version, ExportData.getInternalBytes(bytes));
-            return exportPersistenceManager.getExportContext(refId);
-         }
-         else
-         {
-            throw new OperationFailedException("Byte array format not compatible");
-         }
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         throw new OperationFailedException("Could not decode the byte array.");
-      }
-      catch (IOException e)
-      {
-         throw new OperationFailedException("Could not decode the byte array.");
-      }
+      return createExportData(ExportContext.class, bytes);
+   }
+
+   private <T extends ExportData> T createExportData(Class<T> expected, byte[] bytes)
+   {
+      return ExportData.initExportData(expected, bytes, exportPersistenceManager);
    }
 
    public ExportPortletData createExportPortletData(ExportContext exportContextData, String portletHandle,
@@ -118,30 +96,9 @@ public class ExportManagerImpl implements ExportManager
       return new ExportPortletData(portletHandle, portletState);
    }
 
-   public ExportPortletData createExportPortletData(ExportContext exportContextData, long currentTime, long terminationTime, long refreshDuration, byte[] bytes) throws OperationFailedException
+   public ExportPortletData createExportPortletData(ExportContext exportContextData, long currentTime, long terminationTime, long refreshDuration, byte[] bytes)
    {
-      try
-      {
-         String type = ExportData.getType(bytes);
-         double version = ExportData.getVersion(bytes);
-         if (ExportPortletData.TYPE.equals(type) && ExportPortletData.VERSION == version)
-         {
-            byte[] internalBytes = ExportData.getInternalBytes(bytes);
-            return ExportPortletData.create(internalBytes);
-         }
-         else
-         {
-            throw new OperationFailedException("Bytes array format not compatible");
-         }
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         throw new OperationFailedException("Could not decode the byte array.");
-      }
-      catch (IOException e)
-      {
-         throw new OperationFailedException("Could not decode the byte array.");
-      }
+      return createExportData(ExportPortletData.class, bytes);
    }
 
    public byte[] encodeExportPortletData(ExportContext exportContextData, ExportPortletData exportPortletData) throws IOException
@@ -152,8 +109,8 @@ public class ExportManagerImpl implements ExportManager
       }
       else
       {
-         String refId = exportPersistenceManager.storeExportPortletData(exportContextData, exportPortletData);
-         return exportPersistenceManager.encodeExportPortletData(refId);
+         final ExportPortletData portletData = exportPersistenceManager.storeExportPortletData(exportContextData, exportPortletData);
+         return portletData.encodeAsBytes();
       }
    }
 
@@ -165,49 +122,31 @@ public class ExportManagerImpl implements ExportManager
       }
       else
       {
-         String refId = exportPersistenceManager.storeExportContext(exportContext);
-         return exportPersistenceManager.encodeExportContext(refId);
+         final ExportContext stored = exportPersistenceManager.storeExportContext(exportContext);
+         return stored.encodeAsBytes();
       }
    }
 
-   public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationNotSupportedException, OperationFailedException
+   public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration)
    {
       if (getPersistenceManager() == null)
       {
-         throw new OperationNotSupportedException("The producer only supports export by value. Cannot call setExportLifetime on this producer");
+         throw new UnsupportedOperationException("The producer only supports export by value. Cannot call setExportLifetime on this producer");
       }
 
-      try
+      ExportContext exportContext = createExportContext(exportContextBytes);
+      if (exportContext.isExportByValue())
       {
-         String type = ExportData.getType(exportContextBytes);
-         double version = ExportData.getVersion(exportContextBytes);
-
-         if (getPersistenceManager().supports(type, version))
-         {
-            String refId = getPersistenceManager().getExportReferenceId(type, version, ExportData.getInternalBytes(exportContextBytes));
-            ExportContext exportContext = getPersistenceManager().getExportContext(refId);
-
-            if (exportContext.isExportByValue())
-            {
-               throw new OperationFailedException("Cannot set the lifetime for an export that was exported by value.");
-            }
-
-            exportContext.setCurrentTime(currentTime);
-            exportContext.setTerminationTime(terminationTime);
-            exportContext.setRefreshDuration(refreshDuration);
-
-            ExportContext updatedExportContext = getPersistenceManager().updateExportContext(refId, exportContext);
-            return updatedExportContext;
-         }
-         else
-         {
-            throw new OperationFailedException("Byte array format not recognized.");
-         }
+         throw new IllegalStateException("Cannot set the lifetime for an export that was exported by value");
       }
-      catch (IOException e)
-      {
-         throw new OperationFailedException("Could not decode the byte array.");
-      }
+
+      exportContext.setCurrentTime(currentTime);
+      exportContext.setTerminationTime(terminationTime);
+      exportContext.setRefreshDuration(refreshDuration);
+
+      ExportContext updatedExportContext = getPersistenceManager().updateExportContext(exportContext);
+      return updatedExportContext;
+
    }
 
    public void releaseExport(byte[] bytes) throws IOException
@@ -215,13 +154,8 @@ public class ExportManagerImpl implements ExportManager
       //TODO: since we can't return any errors, we should at least log messages if this method is called and it can't be completed for some reason.
       if (bytes != null && bytes.length > 0 && exportPersistenceManager != null)
       {
-         String type = ExportData.getType(bytes);
-         double version = ExportData.getVersion(bytes);
-         if (exportPersistenceManager.supports(type, version))
-         {
-            String refId = exportPersistenceManager.getExportReferenceId(type, version, ExportData.getInternalBytes(bytes));
-            exportPersistenceManager.removeExportContext(refId);
-         }
+         ExportContext exportContext = createExportContext(bytes);
+         exportPersistenceManager.removeExportContext(exportContext.getId());
       }
    }
 
