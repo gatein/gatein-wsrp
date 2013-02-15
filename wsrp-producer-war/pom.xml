@@ -313,6 +313,9 @@
           <systemPropertyVariables>
             <JBOSS_HOME>${project.build.directory}/servers/jboss-as-${jbossas.version}</JBOSS_HOME>
           </systemPropertyVariables>
+           <!--<includes>
+              <include>**/protocol/v2/PortletManagementTestCase.java</include>
+           </includes>-->
         </configuration>
       </plugin>
     </plugins>
