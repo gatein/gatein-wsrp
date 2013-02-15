@@ -670,11 +670,13 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          RegistrationLocal.setRegistration(registration);
 
          ExportContext exportContext;
-         if (exportPortlets.getLifetime() != null)
+         final Lifetime askedLifetime = exportPortlets.getLifetime();
+         if (askedLifetime != null)
          {
-            long currentTime = toLongDate(exportPortlets.getLifetime().getCurrentTime());
-            long terminationTime = toLongDate(exportPortlets.getLifetime().getTerminationTime());
-            long refreshDuration = exportPortlets.getLifetime().getRefreshDuration().getTimeInMillis(exportPortlets.getLifetime().getCurrentTime().toGregorianCalendar());
+            final XMLGregorianCalendar askedLifetimeCurrentTime = askedLifetime.getCurrentTime();
+            long currentTime = toLongDate(askedLifetimeCurrentTime);
+            long terminationTime = toLongDate(askedLifetime.getTerminationTime());
+            long refreshDuration = askedLifetime.getRefreshDuration().getTimeInMillis(askedLifetimeCurrentTime.toGregorianCalendar());
             exportContext = exportManager.createExportContext(exportByValueRequired, currentTime, terminationTime, refreshDuration);
          }
          else
@@ -729,17 +731,18 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                   reason = "Error preparing portlet for export";
                }
 
-               if (!failedPortletsMap.containsKey(errorCode.name()))
+               final String errorCodeName = errorCode.name();
+               if (!failedPortletsMap.containsKey(errorCodeName))
                {
                   List<String> portletHandles = new ArrayList<String>();
                   portletHandles.add(portletContext.getPortletHandle());
 
                   FailedPortlets failedPortlets = WSRPTypeFactory.createFailedPortlets(portletHandles, errorCode, reason);
-                  failedPortletsMap.put(errorCode.name(), failedPortlets);
+                  failedPortletsMap.put(errorCodeName, failedPortlets);
                }
                else
                {
-                  FailedPortlets failedPortlets = failedPortletsMap.get(errorCode.name());
+                  FailedPortlets failedPortlets = failedPortletsMap.get(errorCodeName);
                   failedPortlets.getPortletHandles().add(portletContext.getPortletHandle());
                }
             }
@@ -800,9 +803,10 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
          Map<String, ImportPortletsFailed> failedPortletsMap = new HashMap<String, ImportPortletsFailed>();
 
          ExportContext exportContext;
+         final ExportManager exportManager = producer.getExportManager();
          try
          {
-            exportContext = producer.getExportManager().createExportContext(importContext);
+            exportContext = exportManager.createExportContext(importContext);
          }
          catch (Exception e)
          {
@@ -821,11 +825,11 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                   long currentTime = toLongDate(lifeTime.getCurrentTime());
                   long terminationTime = toLongDate(lifeTime.getTerminationTime());
                   long refreshDuration = lifeTime.getRefreshDuration().getTimeInMillis(lifeTime.getCurrentTime().toGregorianCalendar());
-                  exportPortletData = producer.getExportManager().createExportPortletData(exportContext, currentTime, terminationTime, refreshDuration, portletData);
+                  exportPortletData = exportManager.createExportPortletData(exportContext, currentTime, terminationTime, refreshDuration, portletData);
                }
                else
                {
-                  exportPortletData = producer.getExportManager().createExportPortletData(exportContext, -1, -1, -1, portletData);
+                  exportPortletData = exportManager.createExportPortletData(exportContext, -1, -1, -1, portletData);
                }
 
                String portletHandle = exportPortletData.getPortletHandle();
