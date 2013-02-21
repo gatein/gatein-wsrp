@@ -22,8 +22,6 @@
  ******************************************************************************/
 package org.gatein.exports.data;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -38,7 +36,6 @@ public class ExportPortletData extends ExportData
    private static final double VERSION = 1.0;
    private String portletHandle;
    private byte[] portletState;
-   private String exportContextId = NO_ID;
    private ExportContext exportContext;
 
    public ExportPortletData(String portletHandle, byte[] portletState)
@@ -75,8 +72,6 @@ public class ExportPortletData extends ExportData
    {
       portletHandle = ois.readUTF();
 
-      exportContextId = ois.readUTF();
-
       if (ois.available() > 0)
       {
          portletState = new byte[ois.available()];
@@ -88,8 +83,6 @@ public class ExportPortletData extends ExportData
    protected void encodeExtraData(ObjectOutputStream oos) throws IOException
    {
       oos.writeUTF(portletHandle);
-
-      oos.writeUTF(exportContextId);
 
       if (portletState != null)
       {
@@ -105,9 +98,13 @@ public class ExportPortletData extends ExportData
    void setExportContext(ExportContext exportContext)
    {
       this.exportContext = exportContext;
-      exportContextId = exportContext.getId();
    }
 
+   /**
+    * Retrieves the associated ExportContext, if any. Should only return a non-null value in the export by reference scenario.
+    *
+    * @return
+    */
    public ExportContext getExportContext()
    {
       return exportContext;
