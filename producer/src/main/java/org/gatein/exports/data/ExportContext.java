@@ -28,7 +28,6 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,7 +39,7 @@ public class ExportContext extends ExportData
 
    protected static final String TYPE = "WSRP_EC";
    private static final double VERSION = 1.0;
-   
+
    private long currentTime;
    private long terminationTime;
    private long refreshDuration;
@@ -71,32 +70,32 @@ public class ExportContext extends ExportData
    {
       return this.exportByValue;
    }
-   
-   public long getCurrentTime ()
+
+   public long getCurrentTime()
    {
       return currentTime;
    }
-   
+
    public void setCurrentTime(long currentTime)
    {
       this.currentTime = currentTime;
    }
-   
+
    public long getTermintationTime()
    {
       return terminationTime;
    }
-   
+
    public void setTerminationTime(long terminationTime)
    {
       this.terminationTime = terminationTime;
    }
-   
+
    public long getRefreshDuration()
    {
       return refreshDuration;
    }
-   
+
    public void setRefreshDuration(long refreshDuration)
    {
       this.refreshDuration = refreshDuration;
@@ -114,7 +113,7 @@ public class ExportContext extends ExportData
 
    public ExportPortletData removePortlet(ExportPortletData portlet)
    {
-      if(portlets != null)
+      if (portlets != null)
       {
          final ExportPortletData remove = portlets.remove(portlet.getId());
          portlet.setExportContext(null);
@@ -123,7 +122,7 @@ public class ExportContext extends ExportData
 
       return null;
    }
-   
+
    public Collection<ExportPortletData> getPortlets()
    {
       return portlets != null ? portlets.values() : Collections.<ExportPortletData>emptyList();
