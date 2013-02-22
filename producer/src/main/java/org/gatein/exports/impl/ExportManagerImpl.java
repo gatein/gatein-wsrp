@@ -29,7 +29,6 @@ import org.gatein.exports.OperationNotSupportedException;
 import org.gatein.exports.data.ExportContext;
 import org.gatein.exports.data.ExportData;
 import org.gatein.exports.data.ExportPortletData;
-import org.gatein.wsrp.WSRPExceptionFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,8 +43,8 @@ public class ExportManagerImpl implements ExportManager
 
    protected ExportPersistenceManager exportPersistenceManager;
 
-   //set to true if we prefer to export by value instead of by reference
-   protected boolean preferExportByValue = false;
+   // GTNWSRP-350: export by reference is not currently supported so prefer export by value
+   protected boolean preferExportByValue = true;
 
    protected boolean supportExportByValue = true;
 
@@ -62,12 +61,13 @@ public class ExportManagerImpl implements ExportManager
    public ExportContext createExportContext(boolean exportByValueRequired, long currentTime, long terminationTime, long refreshDuration)
       throws UnsupportedEncodingException
    {
-      boolean useExportByValue = false;
-      if (exportByValueRequired || (exportPersistenceManager == null && preferExportByValue))
+      // only use export by reference if we have an ExportPersistenceManager and we don't prefer export by value
+      boolean useExportByValue = true;
+      if (exportPersistenceManager != null && !preferExportByValue)
       {
-         useExportByValue = true;
+         useExportByValue = false;
       }
-      
+
       return new ExportContext(useExportByValue, currentTime, terminationTime, refreshDuration);
    }
 
@@ -171,12 +171,12 @@ public class ExportManagerImpl implements ExportManager
    }
 
    public ExportContext setExportLifetime(byte[] exportContextBytes, long currentTime, long terminationTime, long refreshDuration) throws OperationNotSupportedException, OperationFailedException
-   {  
+   {
       if (getPersistenceManager() == null)
       {
          throw new OperationNotSupportedException("The producer only supports export by value. Cannot call setExportLifetime on this producer");
       }
-      
+
       try
       {
          String type = ExportData.getType(exportContextBytes);
