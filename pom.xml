@@ -72,7 +72,7 @@
   <properties>
     <org.gatein.pc.version>2.4.1.CR02</org.gatein.pc.version>
     <org.gatein.common.version>2.1.0.Final</org.gatein.common.version>
-    <org.gatein.wci.version>2.3.0.Final</org.gatein.wci.version>
+    <org.gatein.wci.version>2.3.1.CR01</org.gatein.wci.version>
 
     <jsf.version>2.1</jsf.version>
     <version.jsf2.impl>2.1.14</version.jsf2.impl>
@@ -84,6 +84,10 @@
     <org.mockito.version>1.8.5</org.mockito.version>
     <org.apache.cxf.version>2.4.6</org.apache.cxf.version>
     <version.jboss.jbossxb>2.0.1.GA</version.jboss.jbossxb>
+    <wsdl4j.version>1.6.2</wsdl4j.version>
+    <commons-httpclient.version>3.1</commons-httpclient.version>
+    <wss4j.version>1.6.5</wss4j.version>
+    <el-api.version>1.0</el-api.version>
 
     <!-- maven-release-plugin -->
     <useReleaseProfile>false</useReleaseProfile>
@@ -250,7 +254,7 @@
       <dependency>
         <groupId>javax.el</groupId>
         <artifactId>el-api</artifactId>
-        <version>1.0</version>
+        <version>${el-api.version}</version>
         <scope>provided</scope>
       </dependency>
 

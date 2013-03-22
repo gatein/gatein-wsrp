@@ -40,7 +40,6 @@
     <dependency>
       <groupId>org.gatein.wsrp</groupId>
       <artifactId>wsrp-consumer</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
