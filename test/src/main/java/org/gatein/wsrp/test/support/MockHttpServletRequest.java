@@ -48,6 +48,7 @@ public class MockHttpServletRequest implements InvocationHandler, Serializable
    public static String scheme = "http";
    public static String serverName = "localhost";
    public static Integer serverPort = 8080;
+   public static String hostURL = scheme + "://" + serverName + ":" + serverPort;
 
    private MockHttpServletRequest(HttpSession session)
    {

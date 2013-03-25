@@ -23,6 +23,8 @@
 
 package org.gatein.wsrp.test.handler;
 
+import org.gatein.wsrp.test.support.MockHttpServletRequest;
+
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -73,7 +75,7 @@ public class MockSOAPMessageContext implements InvocationHandler
          // should only be called to get the endpoint address
          if (BindingProvider.ENDPOINT_ADDRESS_PROPERTY.equals(args[0]))
          {
-            return "http://jboss.com";
+            return MockHttpServletRequest.hostURL;
          }
          if (MessageContext.HTTP_REQUEST_HEADERS.equals(args[0]) || MessageContext.HTTP_RESPONSE_HEADERS.equals(args[0]))
          {
