@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.handler;
 
-import org.apache.commons.httpclient.Cookie;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 import javax.xml.namespace.QName;
@@ -33,6 +32,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
    public boolean handleRequest(SOAPMessageContext msgContext)
    {
       final List<String> cookies = CookieUtil.asExternalFormList(getCookiesFromCurrentInfo());
-      if(cookies.isEmpty())
+      if (cookies.isEmpty())
       {
          return true;
       }
@@ -133,7 +133,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       return CookieUtil.coalesceAndExternalizeCookies(getCookiesFromCurrentInfo());
    }
 
-   private static List<Cookie> getCookiesFromCurrentInfo()
+   private static List<HttpCookie> getCookiesFromCurrentInfo()
    {
       CurrentInfo info = getCurrentInfo(false);
       if (info != null)
@@ -145,7 +145,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             return Collections.emptyList();
          }
 
-         final List<Cookie> cookies = new ArrayList<Cookie>(7);
+         final List<HttpCookie> cookies = new ArrayList<HttpCookie>(7);
          if (sessionInfo.isPerGroupCookies())
          {
             if (info.groupId == null)
@@ -200,9 +200,9 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
          catch (MalformedURLException e)
          {
             // should not happen
-            throw new IllegalArgumentException(endpointAddress + " is not a valid URL for the endpoint address.");
+            throw new IllegalArgumentException("'" + endpointAddress + "' is not a valid URL for the endpoint address.");
          }
-         final List<Cookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
+         final List<HttpCookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;
