@@ -36,7 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.gatein.wsrp.test.support.CookieSupport.*;
+import static org.gatein.wsrp.test.support.CookieSupport.createCookie;
+import static org.gatein.wsrp.test.support.CookieSupport.createCookies;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com?subject=org.gatein.wsrp.handler.RequestHeaderClientHandlerTestCase">Chris
@@ -73,7 +74,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       RequestHeaderClientHandler.setCurrentInfo(groupId, info);
 
       String cookie = RequestHeaderClientHandler.createCoalescedCookieFromCurrentInfo();
-      assertEquals("groupname=groupvalue,groupname2=groupvalue2,username=uservalue,username2=uservalue2", cookie);
+      assertEquals("groupname=\"groupvalue\",groupname2=\"groupvalue2\",username=\"uservalue\",username2=\"uservalue2\"", cookie);
    }
 
    public void testSimpleCookieHandleRequest()
@@ -89,7 +90,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
       RequestHeaderClientHandler.setCurrentInfo(null, sessionInformation);
       handler.handleRequest(msgContext);
 
-      checkCookies(msgContext, 1, "name=value");
+      checkCookies(msgContext, 1, "name=\"value\"");
    }
 
    public void testGroupCookieHandleRequest()
@@ -117,7 +118,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleRequest(msgContext);
 
-      checkCookies(msgContext, 1, "name=value");
+      checkCookies(msgContext, 1, "name=\"value\"");
    }
 
    public void testBothCookiesHandleRequest()
@@ -135,7 +136,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleRequest(msgContext);
 
-      checkCookies(msgContext, 2, "name=value", "usercookie=uservalue");
+      checkCookies(msgContext, 2, "name=\"value\"", "usercookie=\"uservalue\"");
    }
 
    public void testCookieWithoutInitHandleResponse()

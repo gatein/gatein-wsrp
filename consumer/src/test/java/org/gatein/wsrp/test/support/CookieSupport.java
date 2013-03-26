@@ -22,26 +22,27 @@
 
 package org.gatein.wsrp.test.support;
 
-import org.apache.commons.httpclient.Cookie;
-
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public class CookieSupport
 {
-   public static List<Cookie> createCookies(Cookie... cookie)
+   public static List<HttpCookie> createCookies(HttpCookie... cookie)
    {
-      List<Cookie> cookies = new ArrayList<Cookie>(cookie.length);
-      for (Cookie c : cookie)
+      List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookie.length);
+      for (HttpCookie c : cookie)
       {
          cookies.add(c);
       }
       return cookies;
    }
 
-   public static Cookie createCookie(String name, String value, int secondsBeforeExpiration)
+   public static HttpCookie createCookie(String name, String value, int secondsBeforeExpiration)
    {
-      return new Cookie("domain", name, value, "path", secondsBeforeExpiration, false);
+      final HttpCookie cookie = new HttpCookie(name, value);
+      cookie.setMaxAge(secondsBeforeExpiration);
+      return cookie;
    }
 }

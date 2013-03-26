@@ -24,20 +24,16 @@
 package org.gatein.wsrp.handler;
 
 import com.google.common.base.Function;
-import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.cookie.MalformedCookieException;
-import org.apache.commons.httpclient.cookie.RFC2109Spec;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.net.HttpCookie;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,26 +42,25 @@ import java.util.List;
  */
 public class CookieUtil
 {
-   private static final RFC2109Spec cookieParser = new RFC2109Spec();
    private static final Logger log = LoggerFactory.getLogger(CookieUtil.class);
    public static final String SET_COOKIE = "Set-Cookie";
    public static final String COOKIE = "Cookie";
    private static final String EMPTY = "";
-   public static final Function<Cookie, String> COOKIE_STRING_FUNCTION = new Function<Cookie, String>()
+   public static final Function<HttpCookie, String> COOKIE_STRING_FUNCTION = new Function<HttpCookie, String>()
    {
       @Override
-      public String apply(@Nullable Cookie input)
+      public String apply(@Nullable HttpCookie input)
       {
-         return input != null ? input.toExternalForm() : EMPTY;
+         return input != null ? input.toString() : EMPTY;
       }
    };
 
-   public static List<Cookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
+   public static List<HttpCookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
    {
-      List<Cookie> cookies = new ArrayList<Cookie>(cookieValues.size());
+      List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieValues.size());
       for (String cookieValue : cookieValues)
       {
-         cookies.addAll(Arrays.asList(extractCookies(remoteAddress, cookieValue)));
+         cookies.addAll(extractCookies(remoteAddress, cookieValue));
       }
       return cookies;
    }
@@ -76,7 +71,7 @@ public class CookieUtil
     * @param cookies the cookies to be output to external form
     * @return a String representation of the cookies, ready to be sent over the wire.
     */
-   public static String coalesceAndExternalizeCookies(List<Cookie> cookies)
+   public static String coalesceAndExternalizeCookies(List<HttpCookie> cookies)
    {
       if (ParameterValidation.existsAndIsNotEmpty(cookies))
       {
@@ -85,9 +80,9 @@ public class CookieUtil
       return EMPTY;
    }
 
-   public static List<String> asExternalFormList(List<Cookie> cookies)
+   public static List<String> asExternalFormList(List<HttpCookie> cookies)
    {
-      if(ParameterValidation.existsAndIsNotEmpty(cookies))
+      if (ParameterValidation.existsAndIsNotEmpty(cookies))
       {
          return WSRPUtils.transform(cookies, COOKIE_STRING_FUNCTION);
       }
@@ -139,35 +134,26 @@ public class CookieUtil
       return EMPTY;
    }
 
-   private static Cookie[] extractCookies(URL hostURL, String cookieValue)
+   private static List<HttpCookie> extractCookies(URL hostURL, String cookieValue)
    {
-      Cookie[] cookies;
-      try
+      List<HttpCookie> cookies;
+      String host = hostURL.getHost();
+
+      cookies = HttpCookie.parse(cookieValue);
+
+      for (HttpCookie cookie : cookies)
       {
-         String host = hostURL.getHost();
-         int port = hostURL.getPort();
-         if (port == -1)
+         final String domain = cookie.getDomain();
+         if (domain != null && !HttpCookie.domainMatches(domain, host))
          {
-            port = 80; // if the port is not set in the endpoint address, assume it's 80.
-         }
-         String path = hostURL.getPath();
-         boolean secure = hostURL.getProtocol().endsWith("s"); // todo: is that correct?
-
-         cookies = cookieParser.parse(host, port, path, secure, cookieValue);
-
-         for (Cookie cookie : cookies)
-         {
-            cookieParser.validate(host, port, path, secure, cookie);
+            throw new IllegalArgumentException("Cookie '" + cookie + "' doesn't match host '" + host + "'");
          }
       }
-      catch (MalformedCookieException e)
-      {
-         throw new IllegalArgumentException("Malformed cookie: " + cookieValue);
-      }
+
       return cookies;
    }
 
-   public static javax.servlet.http.Cookie convertFrom(Cookie cookie)
+   public static javax.servlet.http.Cookie convertFrom(HttpCookie cookie)
    {
       if (cookie == null)
       {
@@ -179,23 +165,15 @@ public class CookieUtil
       result.setComment(cookie.getComment());
       result.setDomain(cookie.getDomain());
 
-      Date expiryDate = cookie.getExpiryDate();
       int maxAge;
-      if (expiryDate != null)
+      long maxAgeLong = cookie.getMaxAge();
+      if (maxAgeLong >= Integer.MAX_VALUE)
       {
-         long maxAgeLong = expiryDate.getTime() - new Date().getTime();
-         if (maxAgeLong >= Integer.MAX_VALUE)
-         {
-            maxAge = Integer.MAX_VALUE;
-         }
-         else
-         {
-            maxAge = (int)maxAgeLong;
-         }
+         maxAge = Integer.MAX_VALUE;
       }
       else
       {
-         maxAge = -1; // to specify that cookie should not be persisted but removed with the session
+         maxAge = (int)maxAgeLong;
       }
       result.setMaxAge(maxAge);
 
@@ -212,18 +190,18 @@ public class CookieUtil
     * @param cookies the cookies to be purged
     * @return an array of Cookies containing only still valid cookies
     */
-   public static List<Cookie> purgeExpiredCookies(List<Cookie> cookies)
+   public static List<HttpCookie> purgeExpiredCookies(List<HttpCookie> cookies)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(cookies))
       {
          return Collections.emptyList();
       }
 
-      List<Cookie> cleanCookies = new ArrayList<Cookie>(cookies);
+      List<HttpCookie> cleanCookies = new ArrayList<HttpCookie>(cookies);
 
-      for (Cookie cookie : cookies)
+      for (HttpCookie cookie : cookies)
       {
-         if (cookie.isExpired())
+         if (cookie.hasExpired())
          {
             cleanCookies.remove(cookie);
          }

@@ -24,11 +24,11 @@
 package org.gatein.wsrp.consumer.handlers;
 
 import junit.framework.TestCase;
-import org.apache.commons.httpclient.Cookie;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.handler.CookieUtil;
 
+import java.net.HttpCookie;
 import java.util.List;
 
 import static org.gatein.wsrp.test.support.CookieSupport.createCookie;
@@ -43,7 +43,7 @@ import static org.gatein.wsrp.test.support.CookieSupport.createCookies;
 public class ProducerSessionInformationTestCase extends TestCase
 {
    ProducerSessionInformation info;
-   private static final int SLEEP_TIME = 1500;
+   private static final int SLEEP_TIME = 2000;
 
    protected void setUp() throws Exception
    {
@@ -54,10 +54,10 @@ public class ProducerSessionInformationTestCase extends TestCase
    {
       assertTrue(info.getUserCookies().isEmpty());
 
-      List<Cookie> cookies = createCookies(createCookie("name", "value", 1));
+      List<HttpCookie> cookies = createCookies(createCookie("name", "value", 1));
       info.setUserCookies(cookies);
 
-      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name=\"value\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       // wait for cookie expiration
       Thread.sleep(SLEEP_TIME);
@@ -65,10 +65,10 @@ public class ProducerSessionInformationTestCase extends TestCase
 
       cookies = createCookies(createCookie("name1", "value1", 1), createCookie("name2", "value2", 3));
       info.setUserCookies(cookies);
-      assertEquals("name1=value1,name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name1=\"value1\",name2=\"value2\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       Thread.sleep(SLEEP_TIME);
-      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name2=\"value2\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       try
       {
@@ -98,10 +98,10 @@ public class ProducerSessionInformationTestCase extends TestCase
       info.setPerGroupCookies(true);
       info.setGroupCookiesFor(groupId, createCookies(createCookie("name1", "value1", 1), createCookie("name2", "value2", WSRPConstants.SESSION_NEVER_EXPIRES)));
 
-      assertEquals("name1=value1,name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
+      assertEquals("name1=\"value1\",name2=\"value2\"", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
 
       Thread.sleep(SLEEP_TIME);
-      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
+      assertEquals("name2=\"value2\"", CookieUtil.coalesceAndExternalizeCookies(info.getGroupCookiesFor(groupId)));
 
       info.clearGroupCookies();
       assertTrue(info.getGroupCookiesFor(groupId).isEmpty());
@@ -139,16 +139,16 @@ public class ProducerSessionInformationTestCase extends TestCase
       info.setUserCookies(createCookies(createCookie("name", "value", 1)));
 
       info.replaceUserCookiesWith(null);
-      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name=\"value\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       ProducerSessionInformation other = new ProducerSessionInformation();
 
       info.replaceUserCookiesWith(other);
-      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name=\"value\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       other.setUserCookies(createCookies(createCookie("name2", "value2", 1)));
       info.replaceUserCookiesWith(other);
-      assertEquals("name2=value2", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name2=\"value2\"", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
 
       Thread.sleep(SLEEP_TIME);
       info.replaceUserCookiesWith(other);

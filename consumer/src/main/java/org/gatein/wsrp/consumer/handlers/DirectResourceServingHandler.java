@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.io.IOTools;
 import org.gatein.common.util.MultiValuedPropertyMap;
 import org.gatein.common.util.Tools;
@@ -37,6 +36,7 @@ import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceResponse;
 
+import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -85,9 +85,9 @@ public class DirectResourceServingHandler extends ResourceHandler
             {
                if (CookieUtil.SET_COOKIE.equals(key))
                {
-                  List<Cookie> cookies = CookieUtil.extractCookiesFrom(url, values);
+                  final List<HttpCookie> cookies = CookieUtil.extractCookiesFrom(url, values);
                   List<javax.servlet.http.Cookie> propCookies = props.getCookies();
-                  for (Cookie cookie : cookies)
+                  for (HttpCookie cookie : cookies)
                   {
                      propCookies.add(CookieUtil.convertFrom(cookie));
                   }
