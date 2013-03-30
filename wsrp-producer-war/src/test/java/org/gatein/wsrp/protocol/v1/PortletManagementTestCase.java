@@ -433,6 +433,33 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
       }
    }
 
+   @Test
+   public void testGTNWSRP353() throws Exception
+   {
+      String handle = getDefaultHandle();
+
+      // first create clone since we cannot change properties of Producer-Offered Portlets
+      V1PortletContext portletContext = clonePortlet(handle);
+
+      // then set a property for a property that's not in portlet.xml
+      V1PropertyList propertyList = WSRP1TypeFactory.createPropertyList();
+      List<V1Property> properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("unknown", null, "value"));
+      V1SetPortletProperties setPortletProperties = WSRP1TypeFactory.createSetPortletProperties(null, portletContext, propertyList);
+      V1PortletContext response = producer.setPortletProperties(setPortletProperties);
+
+      // read the properties
+      V1GetPortletProperties getPortletProperties = WSRP1TypeFactory.createGetPortletProperties(null, response);
+
+      propertyList = WSRP1TypeFactory.createPropertyList();
+      properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("prefName1", "en", "prefValue1"),
+         WSRP1TypeFactory.createProperty("prefName2", "en", "prefValue2"), WSRP1TypeFactory.createProperty("unknown", WSRPConstants.DEFAULT_LOCALE, "value"));
+
+      checkGetPropertiesResponse(producer.getPortletProperties(getPortletProperties), properties);
+   }
+
+
    private V1PortletContext clonePortlet(String handle) throws V1InvalidUserCategory, V1InconsistentParameters,
       V1InvalidRegistration, V1MissingParameters, V1OperationFailed, V1AccessDenied, V1InvalidHandle
    {
