@@ -30,13 +30,11 @@ import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.portlet.utils.MockRequest;
 import org.gatein.wsrp.spec.v1.WSRP1TypeFactory;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,20 +93,20 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
    @Before
    public void setUp() throws Exception
    {
-         super.setUp();
-         //hack to get around having to have a httpservletrequest when accessing the producer services
-         //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
+      super.setUp();
+      //hack to get around having to have a httpservletrequest when accessing the producer services
+      //I don't know why its really needed, seems to be a dependency where wsrp connects with the pc module
 
-         //NOTE: ideally we could just use the MockHttpServlerRequest and Response, but JBossWeb is looking for particular implementations,
-         //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
-         //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
-         //            .createMockResponse());
-         
-         Request request = new MockRequest();
-         request.setCoyoteRequest(new org.apache.coyote.Request());
-         
-         RequestFacade requestFacade = new RequestFacade(request);
-         ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
+      //NOTE: ideally we could just use the MockHttpServlerRequest and Response, but JBossWeb is looking for particular implementations,
+      //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
+      //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
+      //            .createMockResponse());
+
+      Request request = new MockRequest();
+      request.setCoyoteRequest(new org.apache.coyote.Request());
+
+      RequestFacade requestFacade = new RequestFacade(request);
+      ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
 
 
@@ -437,6 +435,33 @@ public class PortletManagementTestCase extends NeedPortletHandleTest
          ExtendedAssert.fail(e.getMessage());
       }
    }
+
+   @Test
+   public void testGTNWSRP353() throws Exception
+   {
+      String handle = getDefaultHandle();
+
+      // first create clone since we cannot change properties of Producer-Offered Portlets
+      V1PortletContext portletContext = clonePortlet(handle);
+
+      // then set a property for a property that's not in portlet.xml
+      V1PropertyList propertyList = WSRP1TypeFactory.createPropertyList();
+      List<V1Property> properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("unknown", null, "value"));
+      V1SetPortletProperties setPortletProperties = WSRP1TypeFactory.createSetPortletProperties(null, portletContext, propertyList);
+      V1PortletContext response = producer.setPortletProperties(setPortletProperties);
+
+      // read the properties
+      V1GetPortletProperties getPortletProperties = WSRP1TypeFactory.createGetPortletProperties(null, response);
+
+      propertyList = WSRP1TypeFactory.createPropertyList();
+      properties = propertyList.getProperties();
+      Collections.addAll(properties, WSRP1TypeFactory.createProperty("prefName1", "en", "prefValue1"),
+         WSRP1TypeFactory.createProperty("prefName2", "en", "prefValue2"), WSRP1TypeFactory.createProperty("unknown", WSRPConstants.DEFAULT_LOCALE, "value"));
+
+      checkGetPropertiesResponse(producer.getPortletProperties(getPortletProperties), properties);
+   }
+
 
    private V1PortletContext clonePortlet(String handle) throws V1InvalidUserCategory, V1InconsistentParameters,
       V1InvalidRegistration, V1MissingParameters, V1OperationFailed, V1AccessDenied, V1InvalidHandle
