@@ -603,8 +603,15 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
                key = entry.getKey();
                values = entry.getValue();
                prefInfo = info.getPreferences().getPreference(key);
-               displayName = prefInfo.getDisplayName();
-               String lang = WSRPUtils.toString(displayName.getDefaultLocale());
+               String lang = WSRPConstants.DEFAULT_LOCALE;
+               if (prefInfo != null)
+               {
+                  displayName = prefInfo.getDisplayName();
+                  if (displayName != null)
+                  {
+                     lang = WSRPUtils.toString(displayName.getDefaultLocale());
+                  }
+               }
 
                // todo: support multi-valued properties
                if (values.size() != 1)
