@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<jaxws-config xmlns="urn:jboss:jaxws-config:2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xmlns:javaee="http://java.sun.com/xml/ns/javaee"
-              xsi:schemaLocation="urn:jboss:jaxws-config:2.0 schema/jaxws-config_2_0.xsd">
+<jaxws-config xmlns="urn:jboss:jbossws-jaxws-config:4.0" xmlns:javaee="http://java.sun.com/xml/ns/javaee">
 
    <endpoint-config>
       <config-name>GateIn Producer WSSecurity</config-name>
