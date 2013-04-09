@@ -24,7 +24,7 @@
 package org.gatein.wsrp;
 
 import org.gatein.common.RuntimeContext;
-import org.gatein.pc.api.spi.PortalContext;
+import org.gatein.pc.portlet.Version;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -160,9 +160,7 @@ public final class WSRPConstants
    /** Default consumer name if none has been provided in the WSRP descriptor (*-wsrp.xml) */
    public static final String DEFAULT_CONSUMER_NAME;
    /** The String identifying the portal consumer agent */
-   public static final String CONSUMER_AGENT = PortalContext.VERSION.getName() + "."
-      + PortalContext.VERSION.getMajor() + "." + PortalContext.VERSION.getMinor() + "."
-      + PortalContext.VERSION.getQualifier();
+   public static final String CONSUMER_AGENT = "GateIn WSRP Consumer." + Version.MAJOR + "." + Version.MINOR;
 
    static
    {
