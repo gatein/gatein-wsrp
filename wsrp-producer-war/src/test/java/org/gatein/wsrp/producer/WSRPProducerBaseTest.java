@@ -49,13 +49,6 @@ import org.gatein.wsrp.portlet.SessionPortlet;
 import org.gatein.wsrp.portlet.UserContextPortlet;
 import org.gatein.wsrp.producer.config.ProducerRegistrationRequirements;
 import org.gatein.wsrp.producer.handlers.processors.ProducerHelper;
-import org.gatein.wsrp.protocol.v1.MarkupTestCase;
-import org.gatein.wsrp.protocol.v1.NeedPortletHandleTest;
-import org.gatein.wsrp.protocol.v1.PortletManagementTestCase;
-import org.gatein.wsrp.protocol.v1.RegistrationTestCase;
-import org.gatein.wsrp.protocol.v1.ReleaseSessionTestCase;
-import org.gatein.wsrp.protocol.v1.ServiceDescriptionTestCase;
-import org.gatein.wsrp.protocol.v1.V1ProducerBaseTest;
 import org.jboss.arquillian.container.test.api.Deployer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
@@ -65,11 +58,7 @@ import org.jboss.shrinkwrap.api.importer.ExplodedImporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.mockito.Mockito;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -97,21 +86,21 @@ public abstract class WSRPProducerBaseTest extends TestCase
 
    @ArquillianResource
    private Deployer deployer;
-   
+
    protected void deployArchive(String deploymentName)
    {
       deployer.deploy(deploymentName);
    }
-   
+
    protected void undeployArchive(String deploymentName)
    {
       deployer.undeploy(deploymentName);
    }
-   
+
    public void deploy(String warFileName) throws Exception
    {
       deployArchive(warFileName);
-      
+
       WSRPProducer producer = getProducer();
       Set<Portlet> portlets = producer.getPortletInvoker().getPortlets();
       for (Portlet portlet : portlets)
@@ -128,7 +117,7 @@ public abstract class WSRPProducerBaseTest extends TestCase
             Mockito.stub(portletContainer.getManagedPortletApplication()).toReturn(portletApplication);
             Mockito.stub(portletContainer.getId()).toReturn(components.getPortletName());
             Mockito.stub(portletContainer.getInfo()).toReturn(portlet.getInfo());
-    
+
             ManagedObjectLifeCycleEvent lifeCycleEvent = new ManagedObjectLifeCycleEvent(portletContainer, LifeCycleStatus.STARTED);
 
             producer.onEvent(lifeCycleEvent);
@@ -167,49 +156,50 @@ public abstract class WSRPProducerBaseTest extends TestCase
 
    public void undeploy(String warFileName) throws Exception
    {
-         currentlyDeployedArchiveName = null;
+      currentlyDeployedArchiveName = null;
 
-         List<String> handles = war2Handles.get(warFileName);
-         WSRPProducer producer = getProducer();
-         if (handles != null)
+      List<String> handles = war2Handles.get(warFileName);
+      WSRPProducer producer = getProducer();
+      if (handles != null)
+      {
+         for (String handle : handles)
          {
-            for (String handle : handles)
+            // trigger management events so that the service description is properly updated
+            PortletContext context = PortletContext.createPortletContext(handle);
+
+            try
             {
-               // trigger management events so that the service description is properly updated
-               PortletContext context = PortletContext.createPortletContext(handle);
+               Portlet portlet = producer.getPortletInvoker().getPortlet(context);
+               ManagedPortletApplication portletApplication = Mockito.mock(ManagedPortletApplication.class);
+               PortletContext.PortletContextComponents components = context.getComponents();
+               Mockito.stub(portletApplication.getId()).toReturn(components.getApplicationName());
 
-               try
-               {
-                  Portlet portlet = producer.getPortletInvoker().getPortlet(context);
-                  ManagedPortletApplication portletApplication = Mockito.mock(ManagedPortletApplication.class);
-                  PortletContext.PortletContextComponents components = context.getComponents();
-                  Mockito.stub(portletApplication.getId()).toReturn(components.getApplicationName());
+               ManagedPortletContainer portletContainer = Mockito.mock(ManagedPortletContainer.class);
+               Mockito.stub(portletContainer.getManagedPortletApplication()).toReturn(portletApplication);
+               Mockito.stub(portletContainer.getId()).toReturn(components.getPortletName());
+               Mockito.stub(portletContainer.getInfo()).toReturn(portlet.getInfo());
 
-                  ManagedPortletContainer portletContainer = Mockito.mock(ManagedPortletContainer.class);
-                  Mockito.stub(portletContainer.getManagedPortletApplication()).toReturn(portletApplication);
-                  Mockito.stub(portletContainer.getId()).toReturn(components.getPortletName());
-                  Mockito.stub(portletContainer.getInfo()).toReturn(portlet.getInfo());
+               // with changes for GTNPC-86, a portlet switches from STARTED to CREATED state when it gets undeployed or stopped
+               ManagedObjectLifeCycleEvent lifeCycleEvent = new ManagedObjectLifeCycleEvent(portletContainer, LifeCycleStatus.CREATED);
 
-                  ManagedObjectLifeCycleEvent lifeCycleEvent = new ManagedObjectLifeCycleEvent(portletContainer, LifeCycleStatus.STOPPED);
-                  
-                  producer.onEvent(lifeCycleEvent);
-               }
-               catch (Exception e)
-               {
-                  //TODO: there are a lot of errors being thrown here due to the setup of the tests with automated deployment/undeployment of a 'default' archive
-                  //      for each test suite. This does not currently reflect the current tests and this should be fixed.
-                  // do nothing the portlet is already undeployed
-               }
+               producer.onEvent(lifeCycleEvent);
+            }
+            catch (Exception e)
+            {
+               //TODO: there are a lot of errors being thrown here due to the setup of the tests with automated deployment/undeployment of a 'default' archive
+               //      for each test suite. This does not currently reflect the current tests and this should be fixed.
+               // do nothing the portlet is already undeployed
             }
          }
+      }
 
-         // only remove the mapping if we're not undeploying the most used portlet (optimization, as it avoids parsing the SD)
-         if (removeCurrent(warFileName))
-         {
-            war2Handles.remove(warFileName);
-         }
-         
-         undeployArchive(warFileName);
+      // only remove the mapping if we're not undeploying the most used portlet (optimization, as it avoids parsing the SD)
+      if (removeCurrent(warFileName))
+      {
+         war2Handles.remove(warFileName);
+      }
+
+      undeployArchive(warFileName);
    }
 
    protected abstract boolean removeCurrent(String archiveName);
@@ -267,9 +257,9 @@ public abstract class WSRPProducerBaseTest extends TestCase
    }
 
    protected abstract Collection<String> getPortletHandles() throws Exception;
-   
+
    //TODO: move these deployment definitions somewhere else?
-   @Deployment(name="test-basic-portlet.war", managed=false)
+   @Deployment(name = "test-basic-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestBasicPortletArchive()
    {
@@ -278,8 +268,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(BasicPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-markup-portlet.war", managed=false)
+
+   @Deployment(name = "test-markup-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestMarkupPortletArchive()
    {
@@ -288,8 +278,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(MarkupPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-resourcenoencodeurl-portlet.war", managed=false)
+
+   @Deployment(name = "test-resourcenoencodeurl-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestResourceNoEncodeURLPortletArchive()
    {
@@ -298,8 +288,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(ResourceNoEncodeURLPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-applicationscope-portlet.war", managed=false)
+
+   @Deployment(name = "test-applicationscope-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestApplicationScopePortletArchive()
    {
@@ -309,8 +299,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(ApplicationScopeGetPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-session-portlet.war", managed=false)
+
+   @Deployment(name = "test-session-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestSessionPortletArchive()
    {
@@ -319,8 +309,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(SessionPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-dispatcher-portlet.war", managed=false)
+
+   @Deployment(name = "test-dispatcher-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestDispatcherPortletArchive()
    {
@@ -329,8 +319,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(DispatcherPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-getlocales-portlet.war", managed=false)
+
+   @Deployment(name = "test-getlocales-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestGetLocalesPortletArchive()
    {
@@ -339,8 +329,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(GetLocalesPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-encodeurl-portlet.war", managed=false)
+
+   @Deployment(name = "test-encodeurl-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestEncodeURLPortletArchive()
    {
@@ -349,8 +339,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(EncodeURLPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-usercontext-portlet.war", managed=false)
+
+   @Deployment(name = "test-usercontext-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestUserContextPortletArchive()
    {
@@ -359,8 +349,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(UserContextPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-multivalued-portlet.war", managed=false)
+
+   @Deployment(name = "test-multivalued-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestMultiValuedPortletArchive()
    {
@@ -369,8 +359,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(MultiValuedPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-implicitcloning-portlet.war", managed=false)
+
+   @Deployment(name = "test-implicitcloning-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestImplicitCloningPortletArchive()
    {
@@ -379,8 +369,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(ImplicitCloningPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-resource-portlet.war", managed=false)
+
+   @Deployment(name = "test-resource-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestResourcePortletArchive()
    {
@@ -389,8 +379,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(ResourcePortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-renderparam-portlet.war", managed=false)
+
+   @Deployment(name = "test-renderparam-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestRenderParamPortletArchive()
    {
@@ -399,8 +389,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(RenderParamPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-events-portlet.war", managed=false)
+
+   @Deployment(name = "test-events-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestEventsPortletArchive()
    {
@@ -410,8 +400,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(EventConsumerPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-prp-portlet.war", managed=false)
+
+   @Deployment(name = "test-prp-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestPRPPortletArchive()
    {
@@ -420,8 +410,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(RenderParamPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-portletmodes-portlet.war", managed=false)
+
+   @Deployment(name = "test-portletmodes-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestPortletModesPortletArchive()
    {
@@ -430,8 +420,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(RenderParamPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="test-portletstate-portlet.war", managed=false)
+
+   @Deployment(name = "test-portletstate-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestPortletStatePortletArchive()
    {
@@ -440,8 +430,8 @@ public abstract class WSRPProducerBaseTest extends TestCase
       webArchive.addClass(RenderParamPortlet.class);
       return webArchive;
    }
-   
-   @Deployment(name="google-portlet.war", managed=false)
+
+   @Deployment(name = "google-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createGooglePortletArchive()
    {

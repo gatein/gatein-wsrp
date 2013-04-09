@@ -24,7 +24,6 @@
 package org.gatein.wsrp.producer.handlers.processors;
 
 import org.gatein.common.net.media.MediaType;
-import org.gatein.common.util.MarkupInfo;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.Portlet;
@@ -38,6 +37,7 @@ import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.UserContext;
 import org.gatein.pc.api.spi.WindowContext;
 import org.gatein.pc.api.state.AccessMode;
+import org.gatein.pc.portlet.Version;
 import org.gatein.pc.portlet.impl.jsr168.PortletUtils;
 import org.gatein.registration.Registration;
 import org.gatein.registration.RegistrationLocal;
@@ -486,7 +486,7 @@ public abstract class RequestProcessor<Response>
 
          public String getInfo()
          {
-            return PortalContext.VERSION.toString();
+            return Version.VALUE;
          }
 
          public Set<WindowState> getWindowStates()
