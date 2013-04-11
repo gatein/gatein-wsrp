@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,18 +47,18 @@ public class CookieUtil
    public static final String SET_COOKIE = "Set-Cookie";
    public static final String COOKIE = "Cookie";
    private static final String EMPTY = "";
-   public static final Function<HttpCookie, String> COOKIE_STRING_FUNCTION = new Function<HttpCookie, String>()
+   private static final Function<Cookie, String> COOKIE_STRING_FUNCTION = new Function<Cookie, String>()
    {
       @Override
-      public String apply(@Nullable HttpCookie input)
+      public String apply(@Nullable Cookie input)
       {
          return input != null ? input.toString() : EMPTY;
       }
    };
 
-   public static List<HttpCookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
+   public static List<Cookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
    {
-      List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieValues.size());
+      List<Cookie> cookies = new ArrayList<Cookie>(cookieValues.size());
       for (String cookieValue : cookieValues)
       {
          cookies.addAll(extractCookies(remoteAddress, cookieValue));
@@ -71,7 +72,7 @@ public class CookieUtil
     * @param cookies the cookies to be output to external form
     * @return a String representation of the cookies, ready to be sent over the wire.
     */
-   public static String coalesceAndExternalizeCookies(List<HttpCookie> cookies)
+   public static String coalesceAndExternalizeCookies(List<Cookie> cookies)
    {
       if (ParameterValidation.existsAndIsNotEmpty(cookies))
       {
@@ -80,7 +81,7 @@ public class CookieUtil
       return EMPTY;
    }
 
-   public static List<String> asExternalFormList(List<HttpCookie> cookies)
+   public static List<String> asExternalFormList(List<Cookie> cookies)
    {
       if (ParameterValidation.existsAndIsNotEmpty(cookies))
       {
@@ -134,12 +135,15 @@ public class CookieUtil
       return EMPTY;
    }
 
-   private static List<HttpCookie> extractCookies(URL hostURL, String cookieValue)
+   private static List<Cookie> extractCookies(URL hostURL, String cookieValue)
    {
       List<HttpCookie> cookies;
       String host = hostURL.getHost();
 
+      final long creationTime = System.currentTimeMillis();
       cookies = HttpCookie.parse(cookieValue);
+
+      List<Cookie> result = new ArrayList<Cookie>(cookies.size());
 
       for (HttpCookie cookie : cookies)
       {
@@ -148,12 +152,14 @@ public class CookieUtil
          {
             throw new IllegalArgumentException("Cookie '" + cookie + "' doesn't match host '" + host + "'");
          }
+
+         result.add(new Cookie(cookie, creationTime));
       }
 
-      return cookies;
+      return result;
    }
 
-   public static javax.servlet.http.Cookie convertFrom(HttpCookie cookie)
+   public static javax.servlet.http.Cookie convertFrom(Cookie cookie)
    {
       if (cookie == null)
       {
@@ -190,16 +196,16 @@ public class CookieUtil
     * @param cookies the cookies to be purged
     * @return an array of Cookies containing only still valid cookies
     */
-   public static List<HttpCookie> purgeExpiredCookies(List<HttpCookie> cookies)
+   public static List<Cookie> purgeExpiredCookies(List<Cookie> cookies)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(cookies))
       {
          return Collections.emptyList();
       }
 
-      List<HttpCookie> cleanCookies = new ArrayList<HttpCookie>(cookies);
+      List<Cookie> cleanCookies = new ArrayList<Cookie>(cookies);
 
-      for (HttpCookie cookie : cookies)
+      for (Cookie cookie : cookies)
       {
          if (cookie.hasExpired())
          {
@@ -207,5 +213,106 @@ public class CookieUtil
          }
       }
       return cleanCookies;
+   }
+
+   public static class Cookie implements Serializable
+   {
+      private final String externalForm;
+      private final long maxAge;
+      private final long creationTime;
+      private final String name;
+      private final String value;
+      private final String comment;
+      private final String domain;
+      private final String path;
+      private final boolean secure;
+      private final int version;
+
+      public Cookie(HttpCookie cookie, long creationTime)
+      {
+         this(cookie, cookie.getMaxAge(), creationTime);
+      }
+
+      public Cookie(String name, String value, int secondsBeforeExpiration)
+      {
+         this(new HttpCookie(name, value), secondsBeforeExpiration, System.currentTimeMillis());
+      }
+
+      private Cookie(HttpCookie cookie, long secondsBeforeExpiration, long creationTime)
+      {
+         externalForm = cookie.toString();
+         maxAge = secondsBeforeExpiration;
+         this.creationTime = creationTime;
+         name = cookie.getName();
+         value = cookie.getValue();
+         comment = cookie.getComment();
+         domain = cookie.getDomain();
+         path = cookie.getPath();
+         secure = cookie.getSecure();
+         version = cookie.getVersion();
+      }
+
+      public boolean hasExpired()
+      {
+         if (maxAge == 0)
+         {
+            return true;
+         }
+
+         // as per HttpCookie.setMaxAge, negative value implies delete on exit but not expired
+         if (maxAge < 0)
+         {
+            return false;
+         }
+
+         long timeSinceCreated = (System.currentTimeMillis() - creationTime) / 1000;
+         return timeSinceCreated > maxAge;
+      }
+
+      @Override
+      public String toString()
+      {
+         return externalForm;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public String getValue()
+      {
+         return value;
+      }
+
+      public String getComment()
+      {
+         return comment;
+      }
+
+      public String getDomain()
+      {
+         return domain;
+      }
+
+      public long getMaxAge()
+      {
+         return maxAge;
+      }
+
+      public String getPath()
+      {
+         return path;
+      }
+
+      public boolean getSecure()
+      {
+         return secure;
+      }
+
+      public int getVersion()
+      {
+         return version;
+      }
    }
 }

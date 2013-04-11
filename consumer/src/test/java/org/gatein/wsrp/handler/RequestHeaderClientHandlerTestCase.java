@@ -147,7 +147,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      assertEquals("name=value", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name=value", CookieUtil.coalesceCookies(info.getUserCookies()));
       assertFalse(info.isInitCookieDone());
       assertFalse(info.isPerGroupCookies());
    }
@@ -160,7 +160,7 @@ public class RequestHeaderClientHandlerTestCase extends TestCase
 
       handler.handleResponse(msgContext);
       ProducerSessionInformation info = RequestHeaderClientHandler.getCurrentProducerSessionInformation();
-      assertEquals("name1=value1,name2=value2,name3=value3", CookieUtil.coalesceAndExternalizeCookies(info.getUserCookies()));
+      assertEquals("name1=value1,name2=value2,name3=value3", CookieUtil.coalesceCookies(info.getUserCookies()));
    }
 
    public void testCurrentInfo()

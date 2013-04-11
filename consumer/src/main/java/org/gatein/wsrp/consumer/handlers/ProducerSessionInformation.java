@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class ProducerSessionInformation implements Serializable
    private boolean perGroupCookies = false;
 
    /** group id -> List<HttpCookie></HttpCookie> */
-   private Map<String, List<HttpCookie>> groupCookies;
+   private Map<String, List<CookieUtil.Cookie>> groupCookies;
 
    /** portlet handle -> SessionInfo */
    private Map<String, SessionInfo> portletSessions;
@@ -63,7 +62,7 @@ public class ProducerSessionInformation implements Serializable
    private Map<String, String> sessionId2PortletHandle;
 
    /** Cookies sent by the remote producer */
-   private List<HttpCookie> userCookie;
+   private List<CookieUtil.Cookie> userCookie;
 
    /** Parent SessionHandler so that session mappings can be updated */
    private transient SessionHandler parent;
@@ -110,17 +109,17 @@ public class ProducerSessionInformation implements Serializable
       this.parentSessionId = parentSessionId;
    }
 
-   public List<HttpCookie> getUserCookies()
+   public List<String> getUserCookies()
    {
       userCookie = CookieUtil.purgeExpiredCookies(userCookie);
       if (userCookie.isEmpty())
       {
          setInitCookieDone(false);
       }
-      return userCookie;
+      return CookieUtil.asExternalFormList(userCookie);
    }
 
-   public void setUserCookies(List<HttpCookie> userCookie)
+   public void setUserCookies(List<CookieUtil.Cookie> userCookie)
    {
       if (!ParameterValidation.existsAndIsNotEmpty(userCookie))
       {
@@ -150,7 +149,7 @@ public class ProducerSessionInformation implements Serializable
       this.perGroupCookies = perGroupCookies;
    }
 
-   public void setGroupCookiesFor(String groupId, List<HttpCookie> cookies)
+   public void setGroupCookiesFor(String groupId, List<CookieUtil.Cookie> cookies)
    {
       if (!isPerGroupCookies())
       {
@@ -169,7 +168,7 @@ public class ProducerSessionInformation implements Serializable
 
       if (groupCookies == null)
       {
-         groupCookies = new HashMap<String, List<HttpCookie>>();
+         groupCookies = new HashMap<String, List<CookieUtil.Cookie>>();
       }
 
       if (groupCookies.containsKey(groupId))
@@ -180,7 +179,7 @@ public class ProducerSessionInformation implements Serializable
       groupCookies.put(groupId, cookies);
    }
 
-   public List<HttpCookie> getGroupCookiesFor(String groupId)
+   public List<String> getGroupCookiesFor(String groupId)
    {
       if (groupCookies == null)
       {
@@ -188,7 +187,7 @@ public class ProducerSessionInformation implements Serializable
       }
 
       // purge expired cookies
-      List<HttpCookie> cookies = groupCookies.get(groupId);
+      List<CookieUtil.Cookie> cookies = groupCookies.get(groupId);
       if (cookies != null)
       {
          cookies = CookieUtil.purgeExpiredCookies(cookies);
@@ -202,7 +201,7 @@ public class ProducerSessionInformation implements Serializable
          // update cookies for the considered group id
          groupCookies.put(groupId, cookies);
 
-         return cookies;
+         return CookieUtil.asExternalFormList(cookies);
       }
       else
       {
