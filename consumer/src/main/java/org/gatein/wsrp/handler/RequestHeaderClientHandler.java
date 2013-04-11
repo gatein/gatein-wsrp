@@ -32,7 +32,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -86,7 +85,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
    public boolean handleRequest(SOAPMessageContext msgContext)
    {
-      final List<String> cookies = CookieUtil.asExternalFormList(getCookiesFromCurrentInfo());
+      final List<String> cookies = getCookiesFromCurrentInfo();
       if (cookies.isEmpty())
       {
          return true;
@@ -130,10 +129,10 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
 
    public static String createCoalescedCookieFromCurrentInfo()
    {
-      return CookieUtil.coalesceAndExternalizeCookies(getCookiesFromCurrentInfo());
+      return CookieUtil.coalesceCookies(getCookiesFromCurrentInfo());
    }
 
-   private static List<HttpCookie> getCookiesFromCurrentInfo()
+   private static List<String> getCookiesFromCurrentInfo()
    {
       CurrentInfo info = getCurrentInfo(false);
       if (info != null)
@@ -145,7 +144,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             return Collections.emptyList();
          }
 
-         final List<HttpCookie> cookies = new ArrayList<HttpCookie>(7);
+         final List<String> cookies = new ArrayList<String>(7);
          if (sessionInfo.isPerGroupCookies())
          {
             if (info.groupId == null)
@@ -202,7 +201,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             // should not happen
             throw new IllegalArgumentException("'" + endpointAddress + "' is not a valid URL for the endpoint address.");
          }
-         final List<HttpCookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
+         final List<CookieUtil.Cookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;

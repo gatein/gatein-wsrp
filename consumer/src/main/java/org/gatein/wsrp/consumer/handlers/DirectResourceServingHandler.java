@@ -36,7 +36,6 @@ import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceResponse;
 
-import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -85,9 +84,9 @@ public class DirectResourceServingHandler extends ResourceHandler
             {
                if (CookieUtil.SET_COOKIE.equals(key))
                {
-                  final List<HttpCookie> cookies = CookieUtil.extractCookiesFrom(url, values);
+                  final List<CookieUtil.Cookie> cookies = CookieUtil.extractCookiesFrom(url, values);
                   List<javax.servlet.http.Cookie> propCookies = props.getCookies();
-                  for (HttpCookie cookie : cookies)
+                  for (CookieUtil.Cookie cookie : cookies)
                   {
                      propCookies.add(CookieUtil.convertFrom(cookie));
                   }
