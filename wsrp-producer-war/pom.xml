@@ -199,6 +199,66 @@
             </dependency>
          </dependencies>
       </profile>
+      <profile>
+         <id>generate-test-war-files</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-assembly-plugin</artifactId>
+                  <configuration>
+                     <appendAssemblyId>true</appendAssemblyId>
+                     <!-- we don't want to add these archives into the repo -->
+                     <attach>false</attach>
+                     <outputDirectory>${project.build.directory}/test-archives</outputDirectory>
+                     <descriptors>
+                        <descriptor>src/test/assembly/test-applicationscope-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-basic-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-dispatcher-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-encodeurl-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-events-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-eventswithobject-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-getlocales-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-implicitcloning-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-markup-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-multivalued-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-portletmodes-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-portletstate-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-prp-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-renderparam-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-resource-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-resourcenoencodeurl-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-resourceserving-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-session-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-state-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-usercontext-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-windowstates-portlet.xml</descriptor>
+                     </descriptors>
+                  </configuration>
+                  <executions>
+                     <execution>
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- bind to the packaging phase -->
+                        <goals>
+                           <goal>single</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+         <!-- not sure what to do with this dependency -->
+         <dependencies>
+            <dependency>
+               <groupId>org.jboss.as</groupId>
+               <artifactId>jboss-as-arquillian-container-managed</artifactId>
+               <version>${jbossas.version}</version>
+               <scope>test</scope>
+            </dependency>
+         </dependencies>
+      </profile>
    </profiles>
 
    <dependencies>
