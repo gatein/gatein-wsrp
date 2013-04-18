@@ -24,7 +24,6 @@
 package org.gatein.wsrp.protocol.v2;
 
 import com.google.common.base.Function;
-
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.RequestFacade;
 import org.gatein.common.util.ParameterValidation;
@@ -33,13 +32,11 @@ import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.portlet.utils.MockRequest;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.test.ExtendedAssert;
-import org.gatein.wsrp.test.support.MockHttpServletRequest;
 import org.gatein.wsrp.test.support.MockHttpServletResponse;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OverProtocol;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,10 +91,10 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
       //      we we havce to use the Catalina specific classes. Interestingly, its only appears that JBossWeb requires these classes and not upstream Tomcat
       //      ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(null), MockHttpServletResponse
       //            .createMockResponse());
-      
+
       Request request = new MockRequest();
       request.setCoyoteRequest(new org.apache.coyote.Request());
-      
+
       RequestFacade requestFacade = new RequestFacade(request);
       ServletAccess.setRequestAndResponse(requestFacade, MockHttpServletResponse.createMockResponse());
    }
@@ -358,5 +355,47 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
          undeploy("test-basic-portlet.war");
       }
 
+   }
+
+   @Test
+   public void testServiceDescriptionContainsPortletNotDeclaringEnglishAsSupportedLocale() throws Exception
+   {
+      final String warFileName = "test-getlocales-portlet.war";
+      try
+      {
+         deploy(warFileName);
+
+         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+         List<PortletDescription> portlets = description.getOfferedPortlets();
+
+         // make sure that all portlets are present in the service description
+         ExtendedAssert.assertEquals(4, portlets.size());
+      }
+      finally
+      {
+         undeploy(warFileName);
+      }
+   }
+
+   @Test
+   public void testAllSupportedLocalesAreAvailable() throws Exception
+   {
+      final String warFileName = "test-getlocales-portlet.war";
+      try
+      {
+         deploy(warFileName);
+
+         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+
+         final List<String> locales = description.getLocales();
+         assertEquals(3, locales.size());
+         assertTrue(locales.contains("en"));
+         assertTrue(locales.contains("blah")); // not sure if we should fail on improper languages
+         assertTrue(locales.contains("fr"));
+      }
+      finally
+      {
+         undeploy(warFileName);
+      }
    }
 }

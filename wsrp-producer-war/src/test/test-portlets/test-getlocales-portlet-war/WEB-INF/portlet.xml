@@ -21,7 +21,8 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA        ~
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.                  ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' version='2.0'>
+<portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+             xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd' version='2.0'>
    <portlet>
       <portlet-name>Simple Test Get Locales Portlet</portlet-name>
       <portlet-class>org.gatein.wsrp.portlet.GetLocalesPortlet</portlet-class>
@@ -69,9 +70,25 @@
       </portlet-info>
    </portlet>
 
-    <container-runtime-option>
+   <portlet>
+      <portlet-name>English Not Supported Locale Portlet</portlet-name>
+      <portlet-class>org.gatein.wsrp.portlet.GetLocalesPortlet</portlet-class>
+
+      <supports>
+         <mime-type>text/html</mime-type>
+         <portlet-mode>view</portlet-mode>
+      </supports>
+
+      <supported-locale>fr</supported-locale>
+
+      <portlet-info>
+         <title>title</title>
+      </portlet-info>
+   </portlet>
+
+   <container-runtime-option>
       <name>org.gatein.pc.remotable</name>
       <value>true</value>
-    </container-runtime-option>
+   </container-runtime-option>
 
 </portlet-app>
