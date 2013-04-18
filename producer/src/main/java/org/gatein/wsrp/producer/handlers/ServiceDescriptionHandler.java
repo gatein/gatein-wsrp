@@ -79,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -337,11 +338,13 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 
          ServiceDescription serviceDescription = WSRPTypeFactory.createServiceDescription(false);
          serviceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
-         List<String> supportedLocales = producer.getSupportedLocales();
-         serviceDescription.getLocales().addAll(supportedLocales);
          serviceDescription.getSupportedOptions().addAll(OPTIONS);
          serviceDescription.setRegistrationPropertyDescription(registrationProperties);
          serviceDescription.setRequiresRegistration(requireRegistrations);
+
+         // init supported locales
+         final Set<String> knownPortletHandles = portletDescriptions.keySet();
+         Set<String> supportedLocales = new HashSet<String>(knownPortletHandles.size() * 2);
 
          Collection<PortletDescription> portlets;
          if (needsPortletDescriptions)
@@ -349,20 +352,22 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             // if we have a list of portlet handles, filter the list of offered portlets
             if (!ParameterValidation.existsAndIsNotEmpty(portletHandles))
             {
-               portletHandles = new ArrayList<String>(portletDescriptions.keySet());
+               portletHandles = new ArrayList<String>(knownPortletHandles);
             }
 
             portlets = new ArrayList<PortletDescription>(portletHandles.size());
             for (String handle : portletHandles)
             {
-               PortletDescription description = getPortletDescription(handle, desiredLocales);
-               if (description != null)
+               PortletDescriptionInfo descriptionInfo = portletDescriptions.get(handle);
+               if (descriptionInfo != null)
                {
-                  portlets.add(description);
+                  supportedLocales.addAll(descriptionInfo.getSupportedLanguages());
+                  portlets.add(descriptionInfo.getBestDescriptionFor(desiredLocales));
                }
             }
             serviceDescription.getOfferedPortlets().addAll(portlets);
          }
+         serviceDescription.getLocales().addAll(supportedLocales);
 
          // events
          Collection<EventDescription> events = eventDescriptions.values();

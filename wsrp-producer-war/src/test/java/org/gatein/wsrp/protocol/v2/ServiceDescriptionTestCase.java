@@ -376,4 +376,26 @@ public class ServiceDescriptionTestCase extends V2ProducerBaseTest
          undeploy(warFileName);
       }
    }
+
+   @Test
+   public void testAllSupportedLocalesAreAvailable() throws Exception
+   {
+      final String warFileName = "test-getlocales-portlet.war";
+      try
+      {
+         deploy(warFileName);
+
+         ServiceDescription description = producer.getServiceDescription(getNoRegistrationServiceDescriptionRequest());
+
+         final List<String> locales = description.getLocales();
+         assertEquals(3, locales.size());
+         assertTrue(locales.contains("en"));
+         assertTrue(locales.contains("blah")); // not sure if we should fail on improper languages
+         assertTrue(locales.contains("fr"));
+      }
+      finally
+      {
+         undeploy(warFileName);
+      }
+   }
 }
