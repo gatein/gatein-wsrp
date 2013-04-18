@@ -691,13 +691,14 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 
             Set<String> supportedLanguages = getSupportedLanguages();
             // check first if we have an exact match
-            if (desiredLanguages != null)
+            if (desiredLanguages != null && !desiredLanguages.isEmpty())
             {
                for (String languageTag : desiredLanguages)
                {
                   if (supportedLanguages.contains(languageTag))
                   {
                      language = languageTag;
+                     break; // exit loop as soon as we've found a match
                   }
                }
 
@@ -711,6 +712,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
                         if (supportedLanguage.startsWith(desiredLanguage))
                         {
                            language = supportedLanguage;
+                           break; // exit loop as soon as we've found a match
                         }
                      }
                   }
@@ -719,7 +721,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 
             if (language == null)
             {
-               language = "en"; // use English as default
+               // if we still haven't determined a language, use the first available one
+               for (String supportedLanguage : supportedLanguages)
+               {
+                  language = supportedLanguage;
+                  break;
+               }
             }
 
             return languageToDescription.get(language);
