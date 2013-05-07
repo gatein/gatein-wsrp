@@ -91,7 +91,8 @@ public class CXFPortCustomizer implements PortCustomizer
 
    protected boolean handleUserAuthentication(Map<String, Object> propertyMap)
    {
-      if (propertyMap.containsKey(WSHandlerConstants.USER) && propertyMap.get(WSHandlerConstants.USER).equals(GTN_CURRENT_USER))
+      final Object userValue = propertyMap.get(WSHandlerConstants.USER);
+      if (GTN_CURRENT_USER.equals(userValue))
       {
          CredentialsAccessor credentialsAccessor = CredentialsAccess.getInstance().getCredentialsAccessor();
          if (credentialsAccessor != null && credentialsAccessor.getCredentials() != null)
