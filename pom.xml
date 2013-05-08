@@ -71,9 +71,9 @@
    </repositories>
 
    <properties>
-      <org.gatein.pc.version>2.4.1.CR03</org.gatein.pc.version>
+      <org.gatein.pc.version>2.4.1.CR04</org.gatein.pc.version>
       <org.gatein.common.version>2.1.0.Final</org.gatein.common.version>
-      <org.gatein.wci.version>2.3.1.CR01</org.gatein.wci.version>
+      <org.gatein.wci.version>2.3.1.CR04</org.gatein.wci.version>
 
       <jsf.version>2.1</jsf.version>
       <version.jsf2.impl>2.1.14</version.jsf2.impl>
@@ -141,7 +141,7 @@
          <dependency>
             <groupId>org.gatein</groupId>
             <artifactId>gatein-dep</artifactId>
-            <version>1.2.1.CR01</version>
+            <version>1.2.1.CR02</version>
             <type>pom</type>
             <scope>import</scope>
          </dependency>
