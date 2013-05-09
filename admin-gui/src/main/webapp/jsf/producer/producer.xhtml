@@ -38,7 +38,7 @@
       </p>
 
       <h:form id="producer-form">
-         <h:panelGrid columns="2" width="100%">
+         <h:panelGrid columns="2" width="100%" summary="Producer form">
             <h:selectBooleanCheckbox id="cons-reg-req-check"
                                      value="#{producer.registrationRequiredForFullDescription}"
                                      immediate="true" onclick="this.form.submit()"
@@ -56,7 +56,7 @@
 
             <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
             <h:panelGroup rendered="#{producer.registrationRequired}">
-               <h:panelGrid columns="2" width="100%">
+               <h:panelGrid columns="2" width="100%" summary="Registration properties">
                   <h:outputLabel value="#{i18n.producer_config_reg_policy}" for="registrationPolicy"/>
                   <h:selectOneMenu value="#{producer.registrationPolicyClassName}" id="registrationPolicy" immediate="true" onchange="this.form.submit()"
                                    valueChangeListener="#{producer.policyChangeListener}">

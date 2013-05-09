@@ -35,7 +35,8 @@
          <h:dataTable id="consumersList" value="#{consumersMgr.consumers}" var="cons"
                       rendered="#{!consumersMgr.consumersEmpty}"
                       rowClasses="EvenRow,OddRow"
-                      styleClass="UIGrid ConsumerGrid" width="100%">
+                      styleClass="UIGrid ConsumerGrid" width="100%"
+                      summary="Consumer list">
             <h:column headerClass="consumerNameColumn">
                <f:facet name="header">
                   #{i18n.consumers_table_column_consumer}
