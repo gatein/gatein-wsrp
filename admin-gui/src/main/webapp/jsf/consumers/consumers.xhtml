@@ -56,19 +56,20 @@
             <h:column>
                <f:facet name="header">#{i18n.consumers_table_column_actions}</f:facet>
 
-               <h:commandLink action="#{consumersMgr.configureConsumer}" styleClass="actionConfigure"
+               <h:commandLink action="#{consumersMgr.configureConsumer}" styleClass="actionConfigure" title="Configure"
                               id="configure">
                   <f:param name="id" value="#{cons.producerId}"/>
                   #{i18n.consumers_table_action_configure}
                </h:commandLink>
                |
-               <h:commandLink action="#{consumersMgr.refreshConsumer}" styleClass="actionRefresh" id="refresh">
+               <h:commandLink action="#{consumersMgr.refreshConsumer}" styleClass="actionRefresh" title="Refresh" id="refresh">
                   <f:param name="id" value="#{cons.producerId}"/>
                   #{i18n.consumers_table_action_refresh}
                </h:commandLink>
                |
                <h:commandLink action="#{consumersMgr.activateConsumer}" id="activate"
-                              styleClass="#{cons.active ? 'actionDeactivate' : 'actionActivate'}">
+                              styleClass="#{cons.active ? 'actionDeactivate' : 'actionActivate'}" 
+                              title="#{cons.active ? 'Deactivate' : 'Activate'}">
                   <f:param name="id" value="#{cons.producerId}"/>
                   <f:param name="activate" value="#{!cons.active}"/>
                   #{cons.active ? i18n.consumers_table_action_deactivate : i18n.consumers_table_action_activate}
@@ -77,7 +78,8 @@
                   rendered="#{!cons.refreshNeeded and cons.active and cons.producerInfo.registrationRequired}">
                   |
                   <h:commandLink action="#{consumersMgr.registerConsumer}" id="register"
-                                 styleClass="action#{cons.producerInfo.registered ? 'Deregister' : 'Register'}">
+                                 styleClass="action#{cons.producerInfo.registered ? 'Deregister' : 'Register'}"
+                                 title="#{cons.producerInfo.registered ? 'Deregister' : 'Register'}" >
                      <f:param name="id" value="#{cons.producerId}"/>
                      <f:param name="register" value="#{!cons.producerInfo.registered}"/>
                      #{cons.producerInfo.registered ? i18n.consumers_table_action_deregister : i18n.consumers_table_action_register}
@@ -85,19 +87,20 @@
                </h:panelGroup>
                |
                <h:commandLink action="confirmDeleteConsumer" styleClass="actionDelete" id="delete"
-                              actionListener="#{consumersMgr.selectConsumer}">
+                              actionListener="#{consumersMgr.selectConsumer}"
+                              title="Delete">
                   <f:param name="id" value="#{cons.producerId}"/>
                   #{i18n.consumers_table_action_delete}
                </h:commandLink>
                <h:panelGroup rendered="#{cons.active and cons.importExportSupported}">
                   <h:panelGroup rendered="#{! cons.migrationService.availableExportInfosEmpty}">|
-                     <h:commandLink action="#{consumersMgr.importPortlets}" styleClass="actionImport" id="import">
+                     <h:commandLink action="#{consumersMgr.importPortlets}" styleClass="actionImport" title="Import" id="import">
                         <f:param name="id" value="#{cons.producerId}"/>
                         #{i18n.consumers_table_action_import}
                      </h:commandLink>
                   </h:panelGroup>
                   |
-                  <h:commandLink action="#{consumersMgr.exportPortlets}" styleClass="actionExport" id="export">
+                  <h:commandLink action="#{consumersMgr.exportPortlets}" styleClass="actionExport" title="Export" id="export">
                      <f:param name="id" value="#{cons.producerId}"/>
                      #{i18n.consumers_table_action_export}
                   </h:commandLink>
