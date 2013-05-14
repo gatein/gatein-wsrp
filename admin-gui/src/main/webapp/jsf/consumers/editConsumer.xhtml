@@ -10,7 +10,8 @@
       <hr/>
 
       <h:form id="edit-cons-form">
-         <h:panelGrid columns="2" width="100%" styleClass="portlet-table-body #{consumer.active ? 'active' : 'inactive'}" columnClasses="bold">
+         <h:panelGrid columns="2" width="100%" styleClass="portlet-table-body #{consumer.active ? 'active' : 'inactive'}"
+                      columnClasses="bold" summary="#{i18n.edit_consumer_table_summary}">
             <h:outputText value="#{i18n.edit_consumer_producer}"/>
             <h:panelGroup>
                <h:inputText id="id" value="#{consumer.id}"/>
@@ -57,7 +58,7 @@
                                      columnClasses="nameColumn,descColumn,"
                                      headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
                                      styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                     width="95%">
+                                     width="95%" summary="#{i18n.edit_consumer_registration_current}">
                            <h:column>
                               <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
                               #{prop.name}
@@ -101,7 +102,7 @@
                                      columnClasses="nameColumn,descColumn,"
                                      headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
                                      styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                     width="100%">
+                                     width="100%" summary="#{i18n.edit_consumer_registration_expected}">
                            <h:column>
                               <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
                               #{prop.name}

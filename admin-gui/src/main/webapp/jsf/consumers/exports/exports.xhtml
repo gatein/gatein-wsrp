@@ -33,7 +33,8 @@
          <h:panelGroup styleClass="portlet-area-body">
             <c:choose>
                <c:when test="#{consumer.exportsAvailable}">
-                  <h:dataTable id="exportsList" value="#{consumer.existingExports}" var="export" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
+                  <h:dataTable id="exportsList" summary="#{i18n.exports_table_summary}" value="#{consumer.existingExports}"
+                               var="export" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">
                      <h:column>
                         <f:facet name="header">#{i18n.export_detail_export_time}</f:facet>
                         #{export.exportTime}

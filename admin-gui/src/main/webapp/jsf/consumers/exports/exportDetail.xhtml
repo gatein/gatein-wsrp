@@ -44,7 +44,7 @@
                <th>#{i18n.export_detail_portlets}</th>
                <td>
                   <h:dataTable id="exported-portlets" value="#{consumer.currentExport.exportedPortlets}" var="portlet"
-                               rowClasses="EvenRow,OddRow"
+                               rowClasses="EvenRow,OddRow" summary="#{i18n.export_detail_portlets}"
                                styleClass="UIGrid" width="100%">
                      <h:column>
                         <f:facet name="header">#{i18n.export_detail_exported_portlet_name}</f:facet>
@@ -56,7 +56,7 @@
             <tr>
                <th>#{i18n.export_detail_failed}</th>
                <td>
-                  <h:dataTable id="failed-portlets"
+                  <h:dataTable id="failed-portlets" summary="#{i18n.export_detail_failed}"
                                value="#{consumer.currentExport.failedPortlets}"
                                rendered="#{consumer.currentExport.hasFailedPortlets}"
                                var="failedPortlet" rowClasses="EvenRow,OddRow" styleClass="UIGrid" width="100%">

@@ -35,7 +35,7 @@
             <c:when test="#{consumer.portletsAvailable}">
                <h:dataTable id="portletsList" value="#{consumer.portlets}" var="portlet"
                             rendered="#{! empty consumer.portlets}"
-                            rowClasses="EvenRow,OddRow"
+                            rowClasses="EvenRow,OddRow" summary="#{i18n.portlets_table_summary}"
                             styleClass="UIGrid" width="100%">
                   <h:column>
                      <f:facet name="header">#{i18n.portlets_table_column_include}</f:facet>
