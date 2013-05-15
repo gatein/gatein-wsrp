@@ -26,7 +26,6 @@ package org.gatein.wsrp.consumer.spi;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
@@ -49,11 +48,7 @@ public interface WSRPConsumerSPI extends WSRPConsumer
 
    void setTemplatesIfNeeded(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
 
-   void refreshProducerInfo() throws PortletInvokerException;
-
    void handleInvalidRegistrationFault() throws PortletInvokerException;
-
-   ProducerInfo getProducerInfo();
 
    MarkupService getMarkupService() throws PortletInvokerException;
 

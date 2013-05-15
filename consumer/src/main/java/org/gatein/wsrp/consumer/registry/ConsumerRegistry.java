@@ -46,8 +46,6 @@ public interface ConsumerRegistry
 
    WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL) throws ConsumerException;
 
-   void persistConsumer(WSRPConsumer consumer) throws ConsumerException;
-
    /**
     * Activates the consumer associated with the specified identifier if and only if access to the remote producer is
     * properly setup (i.e. the associated service factory MUST be available).

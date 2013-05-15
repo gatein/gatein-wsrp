@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp.test.support;
 
-import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.federation.FederatingPortletInvoker;
 import org.gatein.wsrp.SupportsLastModified;
 import org.gatein.wsrp.WSRPConsumer;
@@ -93,12 +92,6 @@ public class MockConsumerRegistry implements ConsumerRegistrySPI
       producerInfo.getEndpointConfigurationInfo().setWsdlDefinitionURL(wsdlURL);
       consumers.put(id, consumer);
       return consumer;
-   }
-
-   public void persistConsumer(WSRPConsumer consumer)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "WSRPConsumer");
-      consumers.put(consumer.getProducerId(), consumer);
    }
 
    public void activateConsumerWith(String id) throws ConsumerException

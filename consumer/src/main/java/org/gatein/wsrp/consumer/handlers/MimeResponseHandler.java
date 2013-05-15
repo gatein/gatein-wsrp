@@ -274,12 +274,10 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       private final URLFormat format;
       private final Set<String> supportedCustomModes;
       private final Set<String> supportedCustomWindowStates;
-      private final String namespace;
 
       //TODO: the URLFormat here doesn't make any sense, the escaping needs to be unique for each url processed.
       protected MarkupProcessor(String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
       {
-         this.namespace = namespace;
          this.context = context;
          this.format = format;
          supportedCustomModes = info.getSupportedCustomModes();

@@ -187,17 +187,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       log.debug(CONSUMER_WITH_ID + id + "' destroyed");
    }
 
-   public void persistConsumer(WSRPConsumer consumer)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "Consumer");
-
-      ProducerInfo info = consumer.getProducerInfo();
-
-      save(info, CONSUMER_WITH_ID + info.getId() + "' couldn't be persisted!");
-
-      createConsumerFrom(info, true);
-   }
-
    public synchronized void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
    {
       this.federatingPortletInvoker = federatingPortletInvoker;
