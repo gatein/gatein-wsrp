@@ -22,9 +22,18 @@
 
 package org.gatein.wsrp.jcr.mapping.mixins;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Provides default behavior and functionality for classes wishing to use a mixin.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public abstract class MixinHolder<M extends BaseMixin>
 {
+   /**
+    * Retrieves a properly initialized mixin that has been created and persisted with the default initial value if none existed.
+    *
+    * @return the properly initialized mixin associated with this MixinHolder
+    */
    protected M getCreatedMixin()
    {
       M mixin = getMixin();
@@ -37,9 +46,24 @@ public abstract class MixinHolder<M extends BaseMixin>
       return mixin;
    }
 
+   /**
+    * Provides generic access to the mixin. This allows for proper generic encapsulation of the Chromattic-annotated method provided by implementations.
+    *
+    * @return the related mixin
+    */
    public abstract M getMixin();
 
+   /**
+    * Provides a generic way to set the mixin on the holding mapping. This allows for proper generic encapsulation of the Chromattic-annotated method provided by implementations.
+    *
+    * @param mixin the mixin to use on this MixinHolder
+    */
    protected abstract void setMixin(M mixin);
 
+   /**
+    * Provides a generic way to create a new mixin instance. This allows for proper generic encapsulation of the Chromattic-annotated method provided by implementations.
+    *
+    * @return the newly created mixin instance.
+    */
    protected abstract M createMixin();
 }

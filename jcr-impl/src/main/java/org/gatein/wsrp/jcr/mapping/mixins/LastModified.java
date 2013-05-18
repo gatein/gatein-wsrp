@@ -27,7 +27,11 @@ import org.chromattic.api.annotations.MixinType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.wsrp.SupportsLastModified;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * A mixin to record when the attached element was last modified.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 @MixinType(name = "wsrp:lastmodified")
 public abstract class LastModified implements BaseMixin
 {

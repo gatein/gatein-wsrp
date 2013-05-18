@@ -32,23 +32,53 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * Handles consumers' persistence and lifecycles.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12693 $
  * @since 2.6
  */
 public interface ConsumerRegistry
 {
+   /**
+    * Retrieves the list of configured consumers.
+    *
+    * @return the list of configured consumers
+    */
    List<WSRPConsumer> getConfiguredConsumers();
 
+   /**
+    * Retrieves the consumer associated with the specified producer identifier.
+    *
+    * @param id the producer identifier of the consumer we want to retrieve
+    * @return the consumer associated with the specified producer identifier
+    */
    WSRPConsumer getConsumer(String id);
 
+   /**
+    * Retrieves the {@link FederatingPortletInvoker} used by this ConsumerRegistry to register / unregister consumers as PortletInvokers. This is how the portal in which WSRP is
+    * running can interact with remote portlets.
+    *
+    * @return the {@link FederatingPortletInvoker} used by this ConsumerRegistry
+    */
    FederatingPortletInvoker getFederatingPortletInvoker();
 
+   /**
+    * Creates a consumer with the specified associated producer identifier, caching producer metadata for the specified time in seconds and accessing the related producer via the
+    * specified WSDL location.
+    *
+    * @param id                     the producer identifier associated with this consumer
+    * @param expirationCacheSeconds the number of seconds before cached producer metadata is considered obsolete and needs to be retrieved again from the remote producer
+    * @param wsdlURL                the String representation of the URL where the producer WSDL is located
+    * @return a new WSRPConsumer minimally configured to accessed the remote producer publishing the specified WSDL
+    * @throws ConsumerException if something went wrong during the creation, in particular, if attempting to create a consumer with an already existing identifier
+    */
    WSRPConsumer createConsumer(String id, Integer expirationCacheSeconds, String wsdlURL) throws ConsumerException;
 
    /**
-    * Activates the consumer associated with the specified identifier if and only if access to the remote producer is
-    * properly setup (i.e. the associated service factory MUST be available).
+    * Activates the consumer associated with the specified identifier if and only if access to the remote producer is properly setup (i.e. the associated service factory MUST be
+    * available). Activating a consumer means that the consumer is ready to be interacted with, meaning, in particular, that it has been registered with the
+    * FederatingPortletInvoker and that the portal in which WSRP is running can therefore interact with the remote portlets the consumer proxies.
     *
     * @param id the identifier of the consumer to be activated
     * @throws ConsumerException
@@ -63,17 +93,56 @@ public interface ConsumerRegistry
     */
    String updateProducerInfo(ProducerInfo producerInfo) throws ConsumerException;
 
+   /**
+    * Desactivates the consumer, unregistering it from the FederatingPortletInvoker, meaning that it cannot be interacted with anymore by the portal in which WSRP is running.
+    *
+    * @param id the identifier associated with the consumer to deactivate
+    * @throws ConsumerException
+    */
    void deactivateConsumerWith(String id) throws ConsumerException;
 
+   /**
+    * Attempts to register (if the specified boolean is <code>true</code>) or deregister (otherwise) the consumer associated with the specified identifier with the associated
+    * remote producer.
+    *
+    * @param id       the identifier of the consumer to de-/register
+    * @param register <code>true</code> if a registration should be attempted, <code>false</code> if we want to deregister the specified consumer
+    * @throws ConsumerException if something went wrong in particular during the WSRP interaction
+    */
    void registerOrDeregisterConsumerWith(String id, boolean register) throws ConsumerException;
 
+   /**
+    * Destroys the specified consumer taking care of cleaning (if needed) things up at the same time, meaning: unregistering if registered, deactivating if activated and removing
+    * the
+    * consumer from persistent storage.
+    *
+    * @param id the identifier associated with the consumer to destroy
+    * @throws ConsumerException if something went wrong, in particular during potential WSRP interactions
+    */
    void destroyConsumer(String id) throws ConsumerException;
 
+   /** Reloads consumers from persistence, re-initializing any cache from the persisted state. */
    void reloadConsumers();
 
+   /**
+    * Whether or not this registry knows about a consumer with the specified identifier.
+    *
+    * @param id the identifier of a consumer whose existence we want to check with this registry
+    * @return
+    */
    boolean containsConsumer(String id);
 
+   /**
+    * Retrieves the identifiers for all known consumers.
+    *
+    * @return the identifiers for all known consumers.
+    */
    Collection<String> getConfiguredConsumersIds();
 
+   /**
+    * Retrieves the number of configured consumers.
+    *
+    * @return the number of configured consumers.
+    */
    int getConfiguredConsumerNumber();
 }

@@ -38,18 +38,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Base class for ChromatticPersister implementations.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public abstract class BaseChromatticPersister implements ChromatticPersister
 {
    private Chromattic chrome;
+
+   // todo: these constants are used in the GateIn integration and maybe should be moved there.
    public static final String WSRP_WORKSPACE_NAME = "wsrp-system";
    public static final String PORTLET_STATES_WORKSPACE_NAME = "pc-system";
    protected static final String REPOSITORY_NAME = "repository";
+
    protected String workspaceName;
+
+   /** Records which Java class maps to which mapping class. */
    private Map<Class, Class<? extends BaseMapping>> modelToMapping;
 
+   /** Holds thread-specific ChromatticSessions. */
    private ThreadLocal<ChromatticSession> sessionHolder = new ThreadLocal<ChromatticSession>();
 
    public BaseChromatticPersister(String workspaceName)
@@ -57,16 +65,25 @@ public abstract class BaseChromatticPersister implements ChromatticPersister
       this.workspaceName = workspaceName;
    }
 
+   /**
+    * Initializes Chromattic with the specified mapping classes. Mapping classes convert from a JCR representation to an object representation of the persisted data and back.
+    *
+    * @param mappingClasses the list of mapping classes this ChromatticPersister will be able to deal with.
+    * @throws Exception
+    */
    public void initializeBuilderFor(List<Class> mappingClasses) throws Exception
    {
       ChromatticBuilder builder = ChromatticBuilder.create();
       builder.setOptionValue(ChromatticBuilder.INSTRUMENTOR_CLASSNAME, "org.chromattic.apt.InstrumentorImpl");
 
+      //let subclasses set their own options for the builder
       setBuilderOptions(builder);
 
+      // initialize class to mapping map
       modelToMapping = new HashMap<Class, Class<? extends BaseMapping>>(mappingClasses.size());
       for (Class mappingClass : mappingClasses)
       {
+         // if we're passing a BaseMapping, extract the first generic type which corresponds to the model class the BaseMapping deals with
          if (BaseMapping.class.isAssignableFrom(mappingClass))
          {
             Type[] interfaces = mappingClass.getGenericInterfaces();

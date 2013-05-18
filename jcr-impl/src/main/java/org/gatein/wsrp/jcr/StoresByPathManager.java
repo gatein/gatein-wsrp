@@ -27,18 +27,27 @@ import org.chromattic.api.ChromatticSession;
 import org.gatein.wsrp.jcr.mapping.mixins.LastModified;
 
 /**
+ * Provides behavior for JCR stores that can handle their children by path. This allows for more generic code at the ChromatticPersister level.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public interface StoresByPathManager<C>
 {
+   /**
+    * Computes the JCR path of the specified child from the root of the workspace associated with the data.
+    *
+    * @param needsComputedPath the child we want to retrieve the path of
+    * @return the JCR path of the specified child.
+    */
    String getChildPath(C needsComputedPath);
 
    /**
-    * // GTNWSRP-239
+    * Retrieves a LastModified view of the object that needs to be set as modified when this manager is asked to delete a child.
+    * GTNWSRP-239
     *
-    * @param session
-    * @return
+    * @param session the ChromatticSession managing the deletion
+    * @return a LastModified view of the object that needs to be set as modified when this manager is asked to delete a child or <code>null</code> if no such object exists
     */
    LastModified lastModifiedToUpdateOnDelete(ChromatticSession session);
 }

@@ -117,10 +117,10 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * Retrieves an up-to-date list of String representations of user-level cookies.
-    *
-    * @return an up-to-date list of String representations of user-level cookies.
-    */
+      * Retrieves an up-to-date list of String representations of user-level cookies.
+      *
+      * @return an up-to-date list of String representations of user-level cookies.
+      */
    public List<String> getUserCookies()
    {
       userCookie = CookieUtil.purgeExpiredCookies(userCookie);
@@ -438,8 +438,15 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * Record which SessionHandler is handling our data.
-    *
+    * @return the known session id
+    * @since 2.6
+    */
+   Collection<String> getSessionIds()
+   {
+      return sessionId2PortletHandle.keySet();
+   }
+
+   /**
     * @param sessionHandler
     * @since 2.6
     */
@@ -475,8 +482,8 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * Records, in a serializable way, portlet session information.
-    */
+       * Records, in a serializable way, portlet session information.
+       */
    private class SessionInfo implements Serializable
    {
       private long lastInvocationTime;

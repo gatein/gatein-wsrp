@@ -108,6 +108,15 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * WSRPConsumerImpl is in charge of maintaining the consumer's information with respect to its associated producer. This last bit is done using the {@link ProducerInfo} class.
+ * Portlet invocations are handled by an {@link InvocationDispatcher} which examines the invocation to decide which {@link org.gatein.wsrp.consumer.handlers.InvocationHandler}
+ * will handle the request. The consumer also delegates session-related information to its {@link SessionHandler} instance. It takes care of portlet management functionality
+ * defined by the {@link org.gatein.pc.api.PortletInvoker} interface, i.e. listing portlets it knows about, cloning portlet states, accessing or modifying portlet properties,
+ * etc., in essence, anything that's not directly related to portlet invocations. Finally, it deals with import / export functionality on the consumer side of things.
+ * <p/>
+ * WSRP consumers are registered and managed by a {@link org.gatein.wsrp.consumer.registry.ConsumerRegistry} that takes care of configuring, persisting and dealing with consumers
+ * lifecycle.
+ *
  * @author <a href="mailto:boleslaw.dawidowicz@jboss.org">Boleslaw Dawidowicz</a>
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11692 $
@@ -115,10 +124,13 @@ import java.util.TreeMap;
  */
 public class WSRPConsumerImpl implements WSRPConsumerSPI
 {
+   /** Deals with session maintenance */
    private final SessionHandler sessionHandler;
 
+   /** Handles invocation by delegating to the appropriate InvocationHandler */
    private final InvocationDispatcher dispatcher;
 
+   /** ServiceDescription-extracted producer metadata and consumer status with it */
    private ProducerInfo producerInfo;
 
    /** A registration data element used to indicate when no registration was required by the producer */
@@ -148,6 +160,8 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    /** The set of supported user scopes */
    private Set supportedUserScopes = WSRP_DEFAULT_USER_SCOPE; // todo: make it possible to support different user scopes
+
+   /** Whether this Consumer is started */
    private transient boolean started;
 
    public WSRPConsumerImpl(ProducerInfo info)
@@ -216,6 +230,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(portletContext, "PortletContext");
 
+      // by definition, WSRP portlet state is opaque as it comes from a producer which we don't necessarily control and therefore cannot control how portlet state is maintained or serialized
       if (!PortletStateType.OPAQUE.equals(stateType))
       {
          throw new IllegalArgumentException("This PortletInvoker cannot deal with PortletStateTypes other than PortletStateType.OPAQUE. Given: " + stateType);
@@ -484,8 +499,10 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    }
 
    /**
-    * @param invocation
-    * @return
+    * Extracts the targeted portlet context from a given PortletInvocation
+    *
+    * @param invocation the invocation which targeted portlet we want to identify
+    * @return the targeted portlet context
     * @since 2.6
     */
    public static PortletContext getPortletContext(PortletInvocation invocation)
@@ -693,14 +710,13 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }
    }
 
-   // fix-me!
-
    public org.oasis.wsrp.v2.UserContext getUserContextFrom(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
       // first decide if we need to pass the user context...
       SessionParams sessionParams = runtimeContext.getSessionParams();
       if (info != null && info.isUserContextStoredInSession() && sessionParams != null && sessionParams.getSessionID() != null)
       {
+         // todo: check that this is correct: we might have a session and yet no user context stored in it yet
          return null; // the user context is most likely in the session already
       }
 
@@ -732,16 +748,29 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }
    }
 
+   /**
+    * Utility method to extract the HttpServletRequest from the PortletInvocation.
+    *
+    * @param invocation the invocation from which we want to get the underlying HttpServletRequest
+    * @return the HttpServletRequest underlying the specified portlet invocation
+    */
    public static HttpServletRequest getHttpRequest(PortletInvocation invocation)
    {
       AbstractPortletInvocationContext invocationContext = (AbstractPortletInvocationContext)invocation.getContext();
       return invocationContext.getClientRequest();
    }
 
+   /**
+    * Gets the consumer HttpSession associated with the specified PortletInvocation.
+    *
+    * @param invocation the PortletInvocation from which we want to extract the HttpSession
+    * @return the consumer HttpSession associated with the specified PortletInvocation.
+    */
    public static HttpSession getHttpSession(PortletInvocation invocation)
    {
       return getHttpRequest(invocation).getSession();
    }
+
 
    public void onSessionEvent(SessionEvent event)
    {

@@ -1,6 +1,7 @@
 # GateIn WSRP
 
-This project implements Web Services for Remote Portlets (WSRP) for GateIn. It builds mainly on top of the gatein/gatein-pc and gatein/gatein-common projects.
+This project implements [Web Services for Remote Portlets (WSRP)](http://www.oasis-open.org/committees/wsrp) for GateIn. It builds mainly on top of the
+[gatein/gatein-pc](http://github.com/gatein/gatein-pc) and [gatein/gatein-common](http://github.com/gatein/gatein-common) projects.
 This document provides a technical overview of the project.
 
 ## Architecture overview
@@ -8,7 +9,7 @@ This document provides a technical overview of the project.
 ### Concepts
 
 The core principle of GateIn's WSRP implementation is that, from the portal's perspective, there should be no difference between a local and a remote portlet. This is achieved
-using the concept of `PortletInvoker` that is defined by GateIn's portlet container (gatein/gatein-pc project). `PortletInvoker` is an interface that defines all the methods a
+using the concept of `PortletInvoker` that is defined by GateIn's portlet container (`gatein/gatein-pc` project). `PortletInvoker` is an interface that defines all the methods a
 client of the portlet container needs to interact with its portlets. GateIn's portlet container also introduces the idea of `FederatingPortletInvoker` which is a Composite
 implementation of `PortletInvoker`, meaning that it presents itself as a regular `PortletInvoker` but in reality, aggregates several `PortletInvoker`s and contains logic to
 dispatch portlet invocations to the proper `PortletInvoker` based, usually, on the target portlet.
@@ -58,16 +59,21 @@ GateIn WSRP implementation is organized by modules roughly corresponding to func
     to provide such resolution across all the different AS-level modules in JBoss AS 7
 13. `wsrp-producer-war` bundles all the code and artifacts required to provide a WSRP producer as a web application
 
+### Documentation
 
-## Consumer overview
+More detailed documentation is available in javadoc format in classes of particular interest. We provide, below, a brief overview of the most important modules along with their
+more important classes which should be looked at first. Tests also provide valuable information as to expected behavior of classes and therefore can be useful to understand the
+code and its purpose.
+
+## Consumer Overview
 
 The core of the module is, of course, the `WSRPConsumer` interface which inherits from the gatein/gatein-pc `PortletInvoker` interface. It also extends the `SessionEventListener`
-interface from the `api` module to allow it to react to session events the portal the consumer runs into might send and trigger the appropriate WSRP calls.
+interface from the `api` module to allow it to react to session events the portal the consumer runs into might send and trigger the appropriate WSRP calls. Classes of particular
+interest are `WSRPConsumerImpl`, `ProducerInfo`, `InvocationDispatcher`, `InvocationHandler` and `SessionHandler`. The session information associated with a given producer and its
+portlets is recorded using the `ProducerSessionInformation` class.
 
-`WSRPConsumer` is extended by the `WSRPConsumerSPI` interface which provide additional methods targeted at the internal implementation of services. `WSRPConsumerImpl` is the entry
-point to the consumer functionality. It implements `WSRPConsumerSPI` and is in charge of maintaining the consumer's information with respect to its associated producer.
-
-todo
+WSRP consumers are registered and managed by a `ConsumerRegistry` that takes care of configuring, persisting and dealing with consumers lifecycle. `AbstractConsumerRegistry`
+provides the common behavior for `ConsumerRegistry` implementations.
 
 ## Producer overview
 

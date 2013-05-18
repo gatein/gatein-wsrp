@@ -275,7 +275,6 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       private final Set<String> supportedCustomModes;
       private final Set<String> supportedCustomWindowStates;
 
-      //TODO: the URLFormat here doesn't make any sense, the escaping needs to be unique for each url processed.
       protected MarkupProcessor(String namespace, PortletInvocationContext context, org.gatein.pc.api.PortletContext target, URLFormat format, ProducerInfo info)
       {
          this.context = context;
@@ -286,18 +285,19 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
       public String getReplacementFor(String match, String prefix, String suffix, boolean matchedPrefixOnly)
       {
-         // We run into some issues with url encoding. We should not be making assumptions about
-         // what url encoding we should be using. For example, we may be dealing with html encoding (ampersand as &)
-         // or xhtml/xml encoding (ampersand as &amp;) or javascript encoding (ampersand as \x26).
-         // When we recreate the WSRP url as a portlet url, we have to use whatever encoding was used in the original wsrp url,
-         // we need to assume that is the correct encoding for the situation.
+         /*
+         We run into some issues with URL encoding. We should not be making assumptions about which URL encoding we should be using. For example, we may be dealing with HTML
+         encoding (ampersand as &) or XHTML/XML encoding (ampersand as &amp;) or Javascript encoding (ampersand as \x26). When we recreate the WSRP URL as a portlet URL, we must
+         use whatever encoding was used in the original WSRP URL, assuming that this is the correct encoding for the situation.
 
-         // NOTE: there may be other encoding situations we are not currently dealing with :(
+         NOTE: there may be other encoding situations we are not currently dealing with :(
 
-         // Since the url to be written has to be of format wsrp-urlType=[render|resource|blockingAction]&key1=value1&key2=....
-         // we should be able to extract what the '-' is being encoded as and use that as a reference to determine what the '&' is encoded as
+         Since the URL to be written has to be of format wsrp-urlType=[render|resource|blockingAction]&key1=value1&key2=..., we should be able to extract what the '-' is being
+         encoded as and use that as a reference to determine what the '&' is encoded as.
 
-         // NOTE: the wsrp specification only covers the situation of & and &amp; otherwise its acceptable for use to throw an error or ignore rewriting
+         NOTE: the WSRP specification only covers the situation of & and &amp;. It should be acceptable for us to throw an error or ignore rewriting but we still perform our best
+         effort to properly encode the URL.
+         */
 
 
          // a work around for PBR-421
@@ -323,6 +323,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
          WSRPPortletURL portletURL = WSRPPortletURL.create(match, supportedCustomModes, supportedCustomWindowStates, true);
 
+         // escaping format needs to be unique for each processed URL so create a new URLFormat based on what was originally asked but with tailored encoding
          URLFormat urlFormat;
          // If the current url is using &amp; then specify we want to use xml escaped ampersands
          if (match.contains("&amp;"))
@@ -336,7 +337,7 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
 
          String value = context.renderURL(portletURL, urlFormat);
 
-         // we now need to add back the javascript url encoding if it was originally used
+         // If Javascript encoding was used, we need to re-escape the URL for Javascript
          // NOTE: we should fix this by specifying the escaping to be used in URLFormat when it supported (see GTNPC-41)
          if (useJavaScriptEscaping)
          {

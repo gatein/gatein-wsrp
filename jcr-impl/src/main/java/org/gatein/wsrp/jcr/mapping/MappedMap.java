@@ -34,6 +34,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * A Map that allows to filter some properties from Chromattic map views of properties, which will by default include properties we might not be interested in from a model
+ * perspective.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

@@ -44,16 +44,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A request handler that uses a thread local to setup cookies on the wire.
+ * A WS-level handler to intercept cookies returned from the remote producer responses and provide them back again to the producer when invoking WS operations.
  *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
- * @author <a href="mailto:chris.laprun@jboss.com?subject=org.jboss.portal.wsrp.handler.RequestHeaderClientHandler">Chris
- *         Laprun</a>
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  */
 public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContext>
 {
    private static final ThreadLocal<CurrentInfo> local = new ThreadLocal<CurrentInfo>();
-   private static final String EMPTY = "";
 
    public Set<QName> getHeaders()
    {
@@ -83,6 +81,12 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       // nothing to do
    }
 
+   /**
+    * Retrieves cookie information from currently held information and adds them to outbound (producer-bound) messages.
+    *
+    * @param msgContext the SOAP message context to add cookies to
+    * @return <code>true</code> to continue processing, <code>false</code> otherwise (defined by {@link javax.xml.ws.handler.Handler#handleMessage(javax.xml.ws.handler.MessageContext)})
+    */
    public boolean handleRequest(SOAPMessageContext msgContext)
    {
       final List<String> cookies = getCookiesFromCurrentInfo();
@@ -163,11 +167,18 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       return Collections.emptyList();
    }
 
+   /**
+    * Extracts any cookie from the inbound (provider-issued) message and make this information available to other WSRP components via {@link ProducerSessionInformation}.
+    *
+    * @param msgContext the inbound (provider-issued) message from which cookie information is extracted
+    * @return <code>true</code> to continue processing, <code>false</code> otherwise (defined by {@link javax.xml.ws.handler.Handler#handleMessage(javax.xml.ws.handler.MessageContext)})
+    */
    public boolean handleResponse(MessageContext msgContext)
    {
       SOAPMessageContext smc = (SOAPMessageContext)msgContext;
       SOAPMessage message = smc.getMessage();
 
+      // get cookies
       // proper approach through MessageContext.HTTP_RESPONSE_HEADERS
       @SuppressWarnings("unchecked")
       Map<String, List<String>> httpHeaders = (Map<String, List<String>>)smc.get(MessageContext.HTTP_RESPONSE_HEADERS);
@@ -183,6 +194,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
          }
       }
 
+      // if we have cookies...
       if (cookieValues != null)
       {
          String endpointAddress = (String)msgContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
@@ -201,11 +213,15 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
             // should not happen
             throw new IllegalArgumentException("'" + endpointAddress + "' is not a valid URL for the endpoint address.");
          }
+
+         // extract their metadata and check that they are valid for the given domain
          final List<CookieUtil.Cookie> cookies = CookieUtil.extractCookiesFrom(hostURL, cookieValues);
 
+         // retrieve the session information associated with this interaction
          CurrentInfo info = getCurrentInfo(true);
          ProducerSessionInformation sessionInfo = info.sessionInfo;
 
+         // update the current information with the new information
          if (sessionInfo.isPerGroupCookies())
          {
             if (info.groupId == null)
@@ -221,19 +237,32 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
          }
       }
 
+      // allow other handlers in the chain to process the message
       return true;
    }
 
+   /**
+    * Updates the information associated with the current interactions with the specified information.
+    *
+    * @param groupId            the portlet group identifier (if any) associated with the portlet(s) being interacted with
+    * @param sessionInformation the session metadata to associate with the current interaction
+    */
    public static void setCurrentInfo(String groupId, ProducerSessionInformation sessionInformation)
    {
       local.set(new CurrentInfo(groupId, sessionInformation));
    }
 
+   /** Removes any data associated with the current interaction. */
    public static void resetCurrentInfo()
    {
       local.set(null);
    }
 
+   /**
+    * Retrieves the session metadata associated with the current interaction.
+    *
+    * @return the session metadata associated with the current interaction or <code>null</code> if none currently exists
+    */
    public static ProducerSessionInformation getCurrentProducerSessionInformation()
    {
       CurrentInfo info = getCurrentInfo(false);
@@ -246,6 +275,11 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       return null;
    }
 
+   /**
+    * Retrieves the portlet group identifier, if any, associated with the portlets being interacted with.
+    *
+    * @return the portlet group identifier associated with the portlets being interacted with or <code>null</code> if the portlets are not part of a group
+    */
    public static String getCurrentGroupId()
    {
       CurrentInfo info = getCurrentInfo(false);
@@ -256,6 +290,11 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       return null;
    }
 
+   /**
+    * Specifies that the portlets being interacted with are part of the portlet group identified by the specified group identifier
+    *
+    * @param groupId the group identifier for the group the portlets being interacted with are part of
+    */
    public static void setCurrentGroupId(String groupId)
    {
       CurrentInfo currentInfo = local.get();
@@ -277,6 +316,7 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
       return info;
    }
 
+   /** Holder for the current (thread-specific) cookie and session information particular to this consumer-producer exchange. */
    static class CurrentInfo
    {
       public CurrentInfo(String groupId, ProducerSessionInformation sessionInfo)
@@ -285,7 +325,9 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
          this.sessionInfo = sessionInfo;
       }
 
+      /** The WSRP groupId for the portlet being invoked */
       String groupId;
+      /** Session information */
       ProducerSessionInformation sessionInfo;
    }
 }

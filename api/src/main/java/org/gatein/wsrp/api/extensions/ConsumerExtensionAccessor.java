@@ -70,8 +70,8 @@ public interface ConsumerExtensionAccessor
     * org.oasis.wsrp.v2.ResourceResponse}. These classes are the ones that contain the specific information pertaining
     * to markup, interaction, resource or event responses.
     *
-    * @param responseClass
-    * @return
+    * @param responseClass the WSRP 2 response class for which extensions are to be retrieved.
+    * @return a List of UnmarshalledExtensions extracted from the specified response class
     */
    public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
@@ -80,8 +80,8 @@ public interface ConsumerExtensionAccessor
     * <p/>
     * Note that this method is essentially targeted at the internal implementation.
     *
-    * @param responseClass
-    * @param extension
+    * @param responseClass the WSRP response class (among those currently supported) to which extracted and unmarshalled extensions need to be added
+    * @param extension the extracted and unmarshalled extension to add
     */
    public void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 

@@ -36,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Manages the information pertaining to the web service connection to the remote producer via its {@link ServiceFactory} and provides access to the services classes for WSRP
+ * invocations.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13122 $
  * @since 2.6
@@ -237,17 +240,17 @@ public class EndpointConfigurationInfo
    {
       return serviceFactory.getWSRPVersion();
    }
-   
+
    public boolean getWSSEnabled()
    {
       return serviceFactory.isWSSEnabled();
    }
-   
+
    public void setWSSEnabled(boolean enable)
    {
       serviceFactory.enableWSS(enable);
    }
-   
+
    public boolean isWSSAvailable()
    {
       return serviceFactory.isWSSAvailable();

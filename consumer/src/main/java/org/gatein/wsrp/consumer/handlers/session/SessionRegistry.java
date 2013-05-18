@@ -27,7 +27,11 @@ import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 
 import java.util.Set;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Records which consumer-side session is associated with which ProducerSessionInformation.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public interface SessionRegistry
 {
    Set<ProducerSessionInformation> getAll();

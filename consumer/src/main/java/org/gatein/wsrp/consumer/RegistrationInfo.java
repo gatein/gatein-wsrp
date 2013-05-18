@@ -50,6 +50,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Records the registration status of the consumer owning this RegistrationInfo (via its ProducerInfo) with respect to the metadata provided by the producer, i.e. whether or not
+ * registration is required, whether the consumer is currently registered if needed, whether the currently available registration properties are consistent with the producer's
+ * expectations, whether the producer has changed its expectation since we last modified our registration properties and so if we need to modify our registration...
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12686 $
  * @since 2.6
@@ -58,18 +62,32 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
 {
    private static final Logger log = LoggerFactory.getLogger(RegistrationInfo.class);
 
+   // persisted variables
+   /**  The persistence identifier */
    private Long key;
+   /** The name we provide to the producer when we register with it (persisted) */
    private String persistentConsumerName;
+   /** The registration handle the producer provides us with once we have registered with it (persisted) */
    private String persistentRegistrationHandle;
+   /** The registration state (if any) the producer provides us with once we have registered with it (persisted) */
    private byte[] persistentRegistrationState;
+   /** The currently held registration properties that we sent / can send to the producer to register with it (persisted) */
    private Map<QName, RegistrationProperty> persistentRegistrationProperties;
 
+   // transient variables
+   /** whether the producer requires registration, null means we haven't yet checked with the producer */
    private transient Boolean requiresRegistration;
+   /** whether the local data matches what the producer expects, null means we haven't yet checked with the producer */
    private transient Boolean consistentWithProducerExpectations;
+   /** the registration data structured sent to the producer when we register with it, interpolated from the persisted data when needed */
    private transient RegistrationData registrationData;
+   /** whether we need to regenerate the registration data */
    private transient boolean regenerateRegistrationData;
+   /** whether modifications were made locally since we last check with the producer and refreshed our metadata */
    private transient boolean modifiedSinceLastRefresh;
+   /** whether we need to modify our registration with the producer */
    private transient boolean modifyRegistrationNeeded;
+   /** the owner of this RegistrationInfo object */
    private transient ProducerInfo parent;
 
    /**
@@ -173,6 +191,10 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       this.parent = parent;
    }
 
+   /**
+    * Determines whether this RegistrationInfo needs to be refreshed when its {@link #refresh(org.oasis.wsrp.v2.ServiceDescription, String, boolean, boolean, boolean)} method is
+    * called.
+    */
    public boolean isRefreshNeeded()
    {
       boolean result = requiresRegistration == null || isModifiedSinceLastRefresh();
@@ -261,6 +283,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       return persistentRegistrationProperties != null && !persistentRegistrationProperties.isEmpty();
    }
 
+   /** Retrieves the RegistrationData that can be sent to the WSRP producer associated with the consumer owning this RegistrationInfo to perform registration. */
    public RegistrationData getRegistrationData()
    {
       if (registrationData == null || regenerateRegistrationData)
@@ -410,10 +433,15 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    }
 
    /**
-    * @param serviceDescription
-    * @param producerId
-    * @param mergeWithLocalInfo
-    * @param forceRefresh
+    * Refreshes the registration status and information required by the associated WSRP producer based on the information provided in the specified ServiceDescription.
+    *
+    * @param serviceDescription     the ServiceDescription to extract registration information from
+    * @param producerId             the producer identifier associated with the ServiceDescription, used mainly for logging purposes
+    * @param mergeWithLocalInfo     whether the information extracted from the ServiceDescription needs to be merged with any existing registration information already present in
+    *                               this RegistrationInfo prior to the refresh operation. This is useful to provide a clean view of expected registration properties as opposed to
+    *                               a
+    *                               view mixing both existing and missing expected information.
+    * @param forceRefresh           whether or not we should force the refresh regardless of the cache status
     * @param forceCheckOfExtraProps
     * @return
     */
@@ -466,7 +494,8 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          {
             result.setRegistrationProperties(new HashMap<QName, RegistrationProperty>(persistentRegistrationProperties));
          }
-         setModifiedSinceLastRefresh(false);
+
+         // reset modify registration needed flag, it will be reset during the refresh if needed
          setModifyRegistrationNeeded(false);
 
          if (serviceDescription.isRequiresRegistration())
@@ -478,42 +507,51 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             ModelDescription regPropDescs = serviceDescription.getRegistrationPropertyDescription();
             if (regPropDescs != null)
             {
+               // assume success, there'll be time to fail if/when needed
                result.setStatus(RefreshResult.Status.SUCCESS);
+
                List<PropertyDescription> propertyDescriptions = regPropDescs.getPropertyDescriptions();
                if (propertyDescriptions != null && !propertyDescriptions.isEmpty())
                {
+
+                  // extract expected properties from service description
                   Map<QName, RegistrationProperty> descriptionsMap = getRegistrationPropertyDescriptionsFromWSRP(propertyDescriptions);
 
                   // check that we don't have unexpected registration properties and if so, mark them as invalid or remove them
                   Set<QName> expectedNames = descriptionsMap.keySet();
-                  checkForExtraProperties(producerId, result, expectedNames, persistentRegistrationProperties, !mergeWithLocalInfo);
+                  checkForExtraProperties(persistentRegistrationProperties, expectedNames, result, !mergeWithLocalInfo);
 
-                  // Merge existing properties
+                  // now that we've dealt with unexpected properties, check that expected properties map appropriately to existing ones
                   for (RegistrationProperty prop : descriptionsMap.values())
                   {
                      QName name = prop.getName();
                      RegistrationProperty existing = getRegistrationProperty(name);
                      if (existing != null)
                      {
-                        // take the opportunity to add the property description... ^_^
+                        // if the property exists, take the opportunity to add the property description... ^_^
                         existing.setDescription(prop.getDescription());
                         if (existing.isDeterminedInvalid())
                         {
+                           // if it's not valid, result is failure
                            result.setStatus(RefreshResult.Status.FAILURE);
                         }
                      }
                      else
                      {
+                        // if we don't have an existing property for this expected one...
                         if (mergeWithLocalInfo)
                         {
+                           // add it to the existing ones to present a synthetic view to the user if we're merging
                            persistentRegistrationProperties.put(name, prop);
                         }
                         else
                         {
+                           // else add it as missing to the set returned with the result
                            prop.setStatus(RegistrationProperty.Status.MISSING);
                            result.getRegistrationProperties().put(name, prop);
                         }
 
+                        // since the producer is asking for a property we don't currently have, we need to check whether we need to modify the existing registration if we're registered, or fail the refresh if we're not.
                         log.debug("Missing value for property '" + name + "'");
                         setResultAsFailedOrModifyNeeded(result);
                      }
@@ -521,11 +559,13 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
                }
                else
                {
+                  // producer is not asking for any registration properties, decide what to do
                   handleNoRequiredRegistrationProperties(producerId, result, !mergeWithLocalInfo, forceCheckOfExtraProps);
                }
             }
             else
             {
+               // producer is not asking for any registration properties, decide what to do
                handleNoRequiredRegistrationProperties(producerId, result, !mergeWithLocalInfo, forceCheckOfExtraProps);
             }
          }
@@ -542,6 +582,9 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             result.setRegistrationProperties(persistentRegistrationProperties);
          }
 
+         // we just refreshed so we are not modified since last refresh
+         setModifiedSinceLastRefresh(false);
+
          // if issues have been detected, mark the registration as invalid (but do not reset the data)
          // todo: check if the state is consistent with the producer expectations for example if we have registration
          // properties when the producer does not require registration?
@@ -552,6 +595,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       }
       else
       {
+         // we didn't need to refresh
          RegistrationRefreshResult result = new RegistrationRefreshResult();
          result.setStatus(RefreshResult.Status.BYPASSED);
          result.setRegistrationProperties(persistentRegistrationProperties);
@@ -560,7 +604,15 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       }
    }
 
-   private void handleNoRequiredRegistrationProperties(String producerId, RegistrationRefreshResult result, boolean keepExtra, boolean forceCheckOfExtraProps)
+   /**
+    * Decide what to do when the producer doesn't require any registration properties based on current available information.
+    *
+    * @param producerId             identifier of the producer we're refreshing from
+    * @param result                 current result of the refresh to be modified for further downstream processing
+    * @param keepExtraProperties    whether or not to keep unexpected properties if we find any
+    * @param forceCheckOfExtraProps whether or not to force a check for extra, unexpected properties
+    */
+   private void handleNoRequiredRegistrationProperties(String producerId, RegistrationRefreshResult result, boolean keepExtraProperties, boolean forceCheckOfExtraProps)
    {
       log.debug("The producer didn't require any specific registration properties");
       Map<QName, RegistrationProperty> properties = getOrCreateRegistrationPropertiesMap(false);
@@ -569,7 +621,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
          if (forceCheckOfExtraProps || !hasRegisteredIfNeeded())
          {
             log.debug("Registration data is available when none is expected by the producer");
-            checkForExtraProperties(producerId, result, Collections.<QName>emptySet(), properties, keepExtra);
+            checkForExtraProperties(properties, Collections.<QName>emptySet(), result, keepExtraProperties);
          }
          else
          {
@@ -587,37 +639,48 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
    }
 
    /**
-    * @param producerId
-    * @param result
-    * @param expectedNames
-    * @param properties
+    * Check if we have extra properties is the specified properties to check compared to the specified set of expected properties names, updating the current refresh result as
+    * needed, keeping or not any extra properties in the given collection if we find any.
+    *
+    * @param propertiesToCheck   collection of properties to check for extra, unexpected properties
+    * @param expectedNames       set of expected properties names
+    * @param currentResult       current refresh result to be updated for further downstream processing
+    * @param keepExtraProperties whether or not any found extra properties should remain in the collection of properties being looked at
     */
-   private void checkForExtraProperties(String producerId, RegistrationRefreshResult result, Set<QName> expectedNames, Map<QName, RegistrationProperty> properties, boolean keepExtra)
+   private void checkForExtraProperties(Map<QName, RegistrationProperty> propertiesToCheck, Set<QName> expectedNames, RegistrationRefreshResult currentResult, boolean keepExtraProperties)
    {
-      Set<QName> unexpected = new HashSet<QName>(properties.keySet());
+      // copy all existing properties in a new set
+      Set<QName> unexpected = new HashSet<QName>(propertiesToCheck.keySet());
+      // and remove all the properties that are in the set of expected names
       unexpected.removeAll(expectedNames);
+
+      // if we still have some, all we have left is unexpected properties
       if (!unexpected.isEmpty())
       {
+         // we create a status message to explain all the operations we're doing
          StringBuffer message = new StringBuffer("Unexpected registration properties:\n");
          int size = unexpected.size();
          int index = 0;
+
+         // for each unexpected property
          for (QName name : unexpected)
          {
             message.append("'").append(name).append("'");
-            if (keepExtra)
+            if (keepExtraProperties)
             {
-               // mark the prop as invalid
-               RegistrationProperty prop = properties.get(name);
+               // if we keep the unexpected properties, mark the prop as invalid
+               RegistrationProperty prop = propertiesToCheck.get(name);
                prop.setStatus(RegistrationProperty.Status.INVALID_VALUE);
 
                // do the same in the result
-               prop = result.getRegistrationProperties().get(name);
+               prop = currentResult.getRegistrationProperties().get(name);
                prop.setStatus(RegistrationProperty.Status.INEXISTENT);
             }
             else
             {
+               // if we don't keep unexpected properties, remove it
                message.append(" (was removed)");
-               properties.remove(name);
+               propertiesToCheck.remove(name);
             }
 
             if (index++ != size - 1)
@@ -626,10 +689,15 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
             }
          }
          log.debug(message.toString());
-         setResultAsFailedOrModifyNeeded(result);
+         setResultAsFailedOrModifyNeeded(currentResult); // decide whether the result of the operation is a refresh failure or a need to modify the existing registration
       }
    }
 
+   /**
+    * Determines whether the result of the current refresh operation is a failure or a need to modify the existing registration.
+    *
+    * @param result the current refresh result
+    */
    private void setResultAsFailedOrModifyNeeded(RegistrationRefreshResult result)
    {
       if (persistentRegistrationHandle != null)

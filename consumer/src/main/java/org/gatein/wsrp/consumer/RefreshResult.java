@@ -28,6 +28,8 @@ import org.oasis.wsrp.v2.ServiceDescription;
 import static org.gatein.wsrp.consumer.RefreshResult.Status.*;
 
 /**
+ * A detailed status of what happened during a refresh of the producer metadata.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11575 $
  * @since 2.6

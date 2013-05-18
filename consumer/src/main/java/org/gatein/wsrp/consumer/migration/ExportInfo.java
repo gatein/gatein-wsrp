@@ -33,6 +33,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Provides metadata information about the result of an export operation on a remote producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

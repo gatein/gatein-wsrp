@@ -24,10 +24,18 @@
 package org.gatein.wsrp.api.session;
 
 /**
+ * Listener interface for WSRP components interested in session events.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public interface SessionEventListener
 {
+
+   /**
+    * Reacts to the specified SessionEvent.
+    *
+    * @param event the SessionEvent that is being listened to
+    */
    void onSessionEvent(SessionEvent event);
 }

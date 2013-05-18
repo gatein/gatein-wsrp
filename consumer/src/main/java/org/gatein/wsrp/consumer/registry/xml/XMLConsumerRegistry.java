@@ -39,6 +39,8 @@ import java.net.URL;
 import java.util.SortedMap;
 
 /**
+ * Loads consumer configurations from an XML file.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 9360 $
  */

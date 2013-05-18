@@ -33,7 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Base class implementing generic behavior for extension accessors.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public class AbstractExtensionAccessor
 {
    private final ThreadLocal<Map<Class, List<Extension>>> extensions = new ThreadLocal<Map<Class, List<Extension>>>();
