@@ -38,94 +38,143 @@
       </p>
 
       <h:form id="producer-form">
-         <h:panelGrid columns="2" width="100%" summary="#{i18n.producer_config_title}">
+         <table width="100%" summary="#{i18n.producer_config_title}">
+          <tr>
+           <td>
             <h:selectBooleanCheckbox id="cons-reg-req-check"
                                      value="#{producer.registrationRequiredForFullDescription}"
                                      immediate="true" onclick="this.form.submit()"
                                      valueChangeListener="#{producer.requireRegistrationForFullDescListener}"/>
-            <h:outputText value="#{i18n.producer_config_sd_requires_reg}"/>
+           </td>
+           <td scope="row">
+            <h:outputLabel for="cons-reg-req-check" value="#{i18n.producer_config_sd_requires_reg}"/>
+           </td>
+          </tr>
+          <tr>
+           <td>
             <h:selectBooleanCheckbox id="strict-mode-check" value="#{producer.strictMode}"
                                      immediate="true" onclick="this.form.submit()"
                                      valueChangeListener="#{producer.strictModeListener}"/>
-            <h:outputText value="#{i18n.producer_config_strict}"/>
-
+           </td>
+           <td scope="row">
+            <h:outputLabel for="strict-mode-check" value="#{i18n.producer_config_strict}"/>
+           </td>
+          </tr>
+          <tr>
+           <td>
             <h:selectBooleanCheckbox id="req-reg-check" value="#{producer.registrationRequired}" immediate="true"
                                      onclick="this.form.submit()"
                                      valueChangeListener="#{producer.requireRegistrationListener}"/>
-            <h:outputText value="#{i18n.producer_config_requires_reg}"/>
-
+           </td>
+           <td scope="row">
+            <h:outputLabel for="req-reg-check" value="#{i18n.producer_config_requires_reg}"/>
+           </td>
+          </tr>
+          <tr>
+           <td>
             <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
-            <h:panelGroup rendered="#{producer.registrationRequired}">
-               <h:panelGrid columns="2" width="100%" summary="#{i18n.producer_config_reg_policy_validator}">
+           </td>
+           <td scope="row">
+            <h:panelGroup rendered="#{producer.registrationRequired}">               
+               <table width="100%" summary="#{i18n.producer_config_reg_policy_validator}">
+                <tr>
+                 <td scope="row">
                   <h:outputLabel value="#{i18n.producer_config_reg_policy}" for="registrationPolicy"/>
+                 </td>
+                 <td>
                   <h:selectOneMenu value="#{producer.registrationPolicyClassName}" id="registrationPolicy" immediate="true" onchange="this.form.submit()"
                                    valueChangeListener="#{producer.policyChangeListener}">
                      <f:selectItems value="#{producer.availableRegistrationPolicies}"/>
                   </h:selectOneMenu>
-
+                 </td>
+                </tr>
+                <tr>
+                 <td scope="row">
                   <h:outputLabel value="#{i18n.producer_config_reg_prop_validator}" for="validator" rendered="#{producer.defaultRegistrationPolicy}"/>
+                 </td>
+                 <td>
                   <h:selectOneMenu value="#{producer.validatorClassName}" id="validator" rendered="#{producer.defaultRegistrationPolicy}">
                      <f:selectItems value="#{producer.availableValidators}"/>
                   </h:selectOneMenu>
-
-               </h:panelGrid>
+                 </td>
+                </tr> 
+               </table>
             </h:panelGroup>
+           </td>
+          </tr>  
+          
+          <ui:fragment rendered="#{producer.registrationRequired}">
+           <tr>
+            <td scope="row">
+              <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
+            </td>
+            <td>
+              <f:subview id="producer-registration" rendered="#{producer.registrationRequired}">
 
-            <h:outputText value="  " rendered="#{producer.registrationRequired}"/>
-            <f:subview id="producer-registration" rendered="#{producer.registrationRequired}">
-
-               <div class="bar">
-                  <h:outputText value="#{i18n.producer_config_reg_props}" style="font-weight: bold; margin-right: .3em;"/>
-                  <h:commandLink id="add-reg-prop" styleClass="ActionButton" action="#{producer.addRegistrationProperty}" value="#{i18n.producer_config_add_reg_prop}"/>
-               </div>
-
-
-               <f:subview rendered="#{!producer.registrationPropertiesEmpty}" id="reg-props">
-                  <h:dataTable id="reg-properties" value="#{producer.registrationProperties}" var="property"
-                               rendered="#{producer.registrationRequired}" summary="#{i18n.producer_config_reg_props}"
-                               rowClasses="EvenRow,OddRow"
-                               styleClass="UIGrid ConsumerGrid" width="100%">
-                     <h:column>
-                        <f:facet name="header">#{i18n.producer_config_reg_prop_name}</f:facet>
-                        <h:inputText id="name" value="#{property.nameAsString}" validator="#{producer.validate}" required="true" size="20"/>
-                     </h:column>
-                     <h:column>
-                        <f:facet name="header">#{i18n.producer_config_reg_prop_type}</f:facet>
-                        <h:selectOneListbox id="producer-list" disabled="true">
-                           <f:selectItems value="#{producer.supportedPropertyTypes}"/>
-                        </h:selectOneListbox>
-                     </h:column>
-                     <h:column>
-                        <f:facet name="header">#{i18n.producer_config_reg_prop_label}</f:facet>
-                        <h:inputText id="label" value="#{property.label}" validator="#{producer.validateLabelOrHint}" size="20"/>
-                     </h:column>
-                     <h:column>
-                        <f:facet name="header">#{i18n.producer_config_reg_prop_hint}</f:facet>
-                        <h:inputText id="hint" value="#{property.hint}" validator="#{producer.validateLabelOrHint}" size="20"/>
-                     </h:column>
-                     <h:column>
-                        <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
-                        <h:commandLink id="confirm-delete" action="#{producer.confirmPropDeletion(property.nameAsString)}"
-                                       value="#{i18n.producer_config_reg_prop_remove}"
-                                       styleClass="actionDelete"/>
-                     </h:column>
-                  </h:dataTable>
-               </f:subview>
-
-               <f:subview rendered="#{producer.registrationPropertiesEmpty}" id="reg-props-none">
-                  <h:outputText value="#{i18n.producer_config_no_reg_props}"/>
-               </f:subview>
+                <div class="bar">
+                    <h:outputText value="#{i18n.producer_config_reg_props}" style="font-weight: bold; margin-right: .3em;"/>
+                    <h:commandLink id="add-reg-prop" styleClass="ActionButton" action="#{producer.addRegistrationProperty}" value="#{i18n.producer_config_add_reg_prop}"/>
+                </div>
 
 
-            </f:subview>
+                <f:subview rendered="#{!producer.registrationPropertiesEmpty}" id="reg-props">
+                    <h:dataTable id="reg-properties" value="#{producer.registrationProperties}" var="property"
+                                rendered="#{producer.registrationRequired}" summary="#{i18n.producer_config_reg_props}"
+                                rowClasses="EvenRow,OddRow"
+                                styleClass="UIGrid ConsumerGrid" width="100%">
+                      <h:column>
+                          <f:facet name="header">#{i18n.producer_config_reg_prop_name}</f:facet>
+                          <h:outputLabel for="name" value="#{i18n.producer_config_reg_prop_name}" style="display: none;" />
+                          <h:inputText id="name" value="#{property.nameAsString}" validator="#{producer.validate}" required="true" size="20"/>
+                      </h:column>
+                      <h:column>
+                          <f:facet name="header">#{i18n.producer_config_reg_prop_type}</f:facet>
+                          <h:outputLabel for="producer-list" value="#{i18n.producer_config_reg_prop_type}" style="display: none;" />
+                          <h:selectOneListbox id="producer-list" disabled="true">
+                            <f:selectItems value="#{producer.supportedPropertyTypes}"/>
+                          </h:selectOneListbox>
+                      </h:column>
+                      <h:column>
+                          <f:facet name="header">#{i18n.producer_config_reg_prop_label}</f:facet>
+                          <h:outputLabel for="label" value="#{i18n.producer_config_reg_prop_label}" style="display: none;" />
+                          <h:inputText id="label" value="#{property.label}" validator="#{producer.validateLabelOrHint}" size="20"/>
+                      </h:column>
+                      <h:column>
+                          <f:facet name="header">#{i18n.producer_config_reg_prop_hint}</f:facet>
+                          <h:outputLabel for="hint" value="#{i18n.producer_config_reg_prop_hint}" style="display: none;" />
+                          <h:inputText id="hint" value="#{property.hint}" validator="#{producer.validateLabelOrHint}" size="20"/>
+                      </h:column>
+                      <h:column>
+                          <f:facet name="header">#{i18n.producer_config_reg_prop_action}</f:facet>
+                          <h:commandLink id="confirm-delete" action="#{producer.confirmPropDeletion(property.nameAsString)}"
+                                        value="#{i18n.producer_config_reg_prop_remove}"
+                                        styleClass="actionDelete"/>
+                      </h:column>
+                    </h:dataTable>
+                </f:subview>
+
+                <f:subview rendered="#{producer.registrationPropertiesEmpty}" id="reg-props-none">
+                    <h:outputText value="#{i18n.producer_config_no_reg_props}"/>
+                </f:subview>
 
 
+              </f:subview>
+            </td>
+           </tr>
+          </ui:fragment>  
+
+          <tr>
+           <td scope="row">
             <h:outputText value="  "/>
+           </td>
+           <td scope="row">
             <h:panelGroup styleClass="portlet-section-buttonrow">
                <h:commandButton id="reg-save" action="#{producer.save}" styleClass="ActionButton" value="#{i18n.producer_config_save}"/>
                <h:commandButton id="reg-reload" action="#{producer.reloadConfiguration}" styleClass="ActionButton" value="#{i18n.producer_config_cancel}"/>
             </h:panelGroup>
-         </h:panelGrid>
+           </td>
+          </tr>
+         </table>
       </h:form>
 
    </ui:define>

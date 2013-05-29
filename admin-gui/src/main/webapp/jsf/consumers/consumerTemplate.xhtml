@@ -40,7 +40,7 @@
       <div class="bar">
          <f:subview id="add-consumer" rendered="#{showAddConsumer}">
             <h:form id="createConsumer" styleClass="createObjectForm">
-               <span class="portlet-font bold">#{i18n.consumers_create_title}</span>&#160;
+               <span class="portlet-font bold"><h:outputLabel id="consumerNameLabel" for="consumerName" value="#{i18n.consumers_create_title}" /></span>&#160;
                <h:inputText value="#{consumersMgr.selectedId}" id="consumerName"
                             styleClass="portlet-form-input-field"
                             label="Consumer Name" required="true"/>&#160;&#160;
