@@ -56,7 +56,6 @@ import org.oasis.wsrp.v2.PortletPropertyDescriptionResponse;
 import org.oasis.wsrp.v2.PropertyList;
 import org.oasis.wsrp.v2.ReleaseExport;
 import org.oasis.wsrp.v2.ResourceSuspended;
-import org.oasis.wsrp.v2.ReturnAny;
 import org.oasis.wsrp.v2.SetExportLifetime;
 import org.oasis.wsrp.v2.SetPortletProperties;
 import org.oasis.wsrp.v2.SetPortletsLifetime;
@@ -70,54 +69,54 @@ import java.util.List;
  */
 public interface PortletManagementInterface
 {
-   public PortletDescriptionResponse getPortletDescription(GetPortletDescription getPortletDescription)
+   PortletDescriptionResponse getPortletDescription(GetPortletDescription getPortletDescription)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public PortletContext clonePortlet(ClonePortlet clonePortlet)
+   PortletContext clonePortlet(ClonePortlet clonePortlet)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets)
+   DestroyPortletsResponse destroyPortlets(DestroyPortlets destroyPortlets)
       throws InconsistentParameters, InvalidRegistration, MissingParameters, ModifyRegistrationRequired,
       OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public GetPortletsLifetimeResponse getPortletsLifetime(GetPortletsLifetime getPortletsLifetime)
+   GetPortletsLifetimeResponse getPortletsLifetime(GetPortletsLifetime getPortletsLifetime)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired,
       OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public SetPortletsLifetimeResponse setPortletsLifetime(SetPortletsLifetime setPortletsLifetime)
+   SetPortletsLifetimeResponse setPortletsLifetime(SetPortletsLifetime setPortletsLifetime)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired,
       OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public CopyPortletsResponse copyPortlets(CopyPortlets copyPortlets)
+   CopyPortletsResponse copyPortlets(CopyPortlets copyPortlets)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets)
+   ExportPortletsResponse exportPortlets(ExportPortlets exportPortlets)
       throws AccessDenied, ExportByValueNotSupported, InconsistentParameters, InvalidHandle, InvalidRegistration,
       InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
       ResourceSuspended;
 
-   public ImportPortletsResponse importPortlets(ImportPortlets importPortlets)
+   ImportPortletsResponse importPortlets(ImportPortlets importPortlets)
       throws AccessDenied, ExportNoLongerValid, InconsistentParameters, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public List<Extension> releaseExport(ReleaseExport releaseExport);
+   List<Extension> releaseExport(ReleaseExport releaseExport);
 
-   public Lifetime setExportLifetime(SetExportLifetime setExportLifetime)
+   Lifetime setExportLifetime(SetExportLifetime setExportLifetime)
       throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
       OperationNotSupported, ResourceSuspended;
 
-   public PortletContext setPortletProperties(SetPortletProperties setPortletProperties)
+   PortletContext setPortletProperties(SetPortletProperties setPortletProperties)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public PropertyList getPortletProperties(GetPortletProperties getPortletProperties)
+   PropertyList getPortletProperties(GetPortletProperties getPortletProperties)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public PortletPropertyDescriptionResponse getPortletPropertyDescription(GetPortletPropertyDescription getPortletPropertyDescription)
+   PortletPropertyDescriptionResponse getPortletPropertyDescription(GetPortletPropertyDescription getPortletPropertyDescription)
       throws AccessDenied, InconsistentParameters, InvalidHandle, InvalidRegistration, InvalidUserCategory,
       MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported, ResourceSuspended;
 }

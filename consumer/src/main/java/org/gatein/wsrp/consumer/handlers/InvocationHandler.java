@@ -378,7 +378,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
     */
    protected static class RequestPrecursor<Invocation extends PortletInvocation>
    {
-      private final static Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
+      private static final Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
 
       private final PortletContext portletContext;
       private final RuntimeContext runtimeContext;

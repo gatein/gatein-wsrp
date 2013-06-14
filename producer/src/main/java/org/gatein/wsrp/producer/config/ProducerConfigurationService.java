@@ -30,7 +30,7 @@ package org.gatein.wsrp.producer.config;
  */
 public interface ProducerConfigurationService
 {
-   public ProducerConfiguration getConfiguration();
+   ProducerConfiguration getConfiguration();
 
    /**
     * Reloads the producer configuration from persistent storage.

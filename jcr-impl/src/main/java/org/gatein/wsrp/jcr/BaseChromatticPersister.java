@@ -154,7 +154,7 @@ public abstract class BaseChromatticPersister implements ChromatticPersister
 
    public <T> boolean delete(T toDelete, StoresByPathManager<T> manager)
    {
-      Class<? extends Object> modelClass = toDelete.getClass();
+      Class<?> modelClass = toDelete.getClass();
       Class<? extends BaseMapping> baseMappingClass = modelToMapping.get(modelClass);
       if (baseMappingClass == null)
       {

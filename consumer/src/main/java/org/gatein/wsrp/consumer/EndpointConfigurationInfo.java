@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EndpointConfigurationInfo
 {
-   private final static Logger log = LoggerFactory.getLogger(EndpointConfigurationInfo.class);
+   private static final Logger log = LoggerFactory.getLogger(EndpointConfigurationInfo.class);
 
    // transient variables
    /** Access to the WS */

@@ -121,7 +121,7 @@ public class MappedMap<Key, Value>
       }
    }
 
-   public static interface Converter<Internal, External>
+   public interface Converter<Internal, External>
    {
       External fromInternal(Internal internal);
 

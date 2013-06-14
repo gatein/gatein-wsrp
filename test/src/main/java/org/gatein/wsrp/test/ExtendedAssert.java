@@ -36,7 +36,7 @@ import java.util.List;
 public class ExtendedAssert extends Assert
 {
 
-   /** @see #assertEquals(Object[],Object[]) */
+   /** @see #assertEquals(Object[], Object[]) */
    public static void assertEquals(Object[] expected, Object[] actual)
    {
       assertEquals(null, expected, actual);
@@ -52,7 +52,7 @@ public class ExtendedAssert extends Assert
       fail(format(message, expected, actual));
    }
 
-   /** @see #assertEquals(char[],char[]) */
+   /** @see #assertEquals(char[], char[]) */
    public static void assertEquals(char[] expected, char[] actual)
    {
       assertEquals(null, expected, actual);
@@ -68,7 +68,7 @@ public class ExtendedAssert extends Assert
       fail(format(message, expected, actual));
    }
 
-   /** @see #assertEquals(byte[],byte[]) */
+   /** @see #assertEquals(byte[], byte[]) */
    public static void assertEquals(byte[] expected, byte[] actual)
    {
       assertEquals(null, expected, actual);
@@ -211,7 +211,7 @@ public class ExtendedAssert extends Assert
       assertTrue("<" + string1 + "> does not contain <" + string2 + ">", string1.indexOf(string2) >= 0);
    }
 
-   public static interface Decorator
+   public interface Decorator
    {
       void decorate(Object decorated);
    }

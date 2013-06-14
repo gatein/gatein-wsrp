@@ -43,7 +43,7 @@ public class ExtensionAccess
       return producer;
    }
 
-   protected synchronized static void registerConsumerAccessorInstance(ConsumerExtensionAccessor accessor)
+   protected static synchronized void registerConsumerAccessorInstance(ConsumerExtensionAccessor accessor)
    {
       if (consumer != null)
       {
@@ -55,7 +55,7 @@ public class ExtensionAccess
       }
    }
 
-   protected synchronized static void registerProducerAccessorInstance(ProducerExtensionAccessor accessor)
+   protected static synchronized void registerProducerAccessorInstance(ProducerExtensionAccessor accessor)
    {
       if (producer != null)
       {

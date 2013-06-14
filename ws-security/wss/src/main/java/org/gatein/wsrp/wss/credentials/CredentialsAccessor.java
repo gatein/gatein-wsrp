@@ -34,6 +34,6 @@ public interface CredentialsAccessor
 {
 
    /** @return {@link org.gatein.wci.security.Credentials} of current user. */
-   public Credentials getCredentials();
+   Credentials getCredentials();
 
 }

@@ -46,7 +46,7 @@ import java.util.SortedMap;
  */
 public class XMLConsumerRegistry extends InMemoryConsumerRegistry
 {
-   private final static Logger log = LoggerFactory.getLogger(XMLConsumerRegistry.class);
+   private static final Logger log = LoggerFactory.getLogger(XMLConsumerRegistry.class);
 
    /** . */
    private static final String defaultWSRPLocation = "conf/wsrp-consumers-config.xml";

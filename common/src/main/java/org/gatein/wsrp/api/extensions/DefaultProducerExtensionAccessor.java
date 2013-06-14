@@ -63,7 +63,7 @@ public class DefaultProducerExtensionAccessor extends AbstractExtensionAccessor 
       public static final ProducerExtensionAccessor instance = new DefaultProducerExtensionAccessor();
    }
 
-   public synchronized static void registerWithAPI()
+   public static synchronized void registerWithAPI()
    {
       // register instance with API
       if (ExtensionAccess.getProducerExtensionAccessor() == null)

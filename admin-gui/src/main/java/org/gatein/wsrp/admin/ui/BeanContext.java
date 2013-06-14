@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
  */
 public abstract class BeanContext implements Serializable
 {
-   protected final static Logger log = LoggerFactory.getLogger(BeanContext.class);
+   protected static final Logger log = LoggerFactory.getLogger(BeanContext.class);
 
    public static final String STATUS = "status";
    static final String DEFAULT_RESOURCE_NAME = "locale.portlet.Resource";

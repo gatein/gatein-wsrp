@@ -43,11 +43,11 @@ import java.util.Map;
  */
 public class CXFPortCustomizer implements PortCustomizer
 {
-   private final static Logger log = LoggerFactory.getLogger(CXFPortCustomizer.class);
+   private static final Logger log = LoggerFactory.getLogger(CXFPortCustomizer.class);
 
-   protected final static String GTN_CURRENT_USER = "gtn.current.user";
-   protected final static String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
-   protected final static String GTN_NO_USER = "gtn.no.user";
+   protected static final String GTN_CURRENT_USER = "gtn.current.user";
+   protected static final String GTN_USERNAME_TOKEN_IF_AUTHENTICATED = "gtn.UsernameToken.ifCurrentUserAuthenticated";
+   protected static final String GTN_NO_USER = "gtn.no.user";
 
    @Override
    public void customizePort(Object service)

@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 {
-   public final static String DEFAULT_RESOURCE_ID = "_gtn_resid_";
+   public static final String DEFAULT_RESOURCE_ID = "_gtn_resid_";
 
    private String resourceId;
    private StateString resourceState;

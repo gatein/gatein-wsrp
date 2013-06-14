@@ -31,12 +31,12 @@ public class PluginsAccess
    {
    }
 
-   public synchronized static Plugins getPlugins()
+   public static synchronized Plugins getPlugins()
    {
       return plugins;
    }
 
-   public synchronized static void register(Plugins plugins)
+   public static synchronized void register(Plugins plugins)
    {
       if (PluginsAccess.plugins == null)
       {

@@ -43,7 +43,7 @@ public class ExportInfo extends BaseMigrationInfo
    private final byte[] exportContext;
    private long expirationTime;
    private final SortedMap<String, byte[]> handleToExportedState;
-   private final static SortedMap<String, byte[]> EMPTY_EXPORTED = new TreeMap<String, byte[]>();
+   private static final SortedMap<String, byte[]> EMPTY_EXPORTED = new TreeMap<String, byte[]>();
 
    public ExportInfo(long exportTime, SortedMap<QName, List<String>> errorCodeToHandles, SortedMap<String, byte[]> handleToState, byte[] exportContext)
    {

@@ -94,5 +94,5 @@ public interface ProducerExtensionAccessor
     * Clears the currently held extensions. This method is called once per request-response cycle by the internal
     * implementation.
     */
-   public void clear();
+   void clear();
 }

@@ -134,11 +134,11 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    private ProducerInfo producerInfo;
 
    /** A registration data element used to indicate when no registration was required by the producer */
-   private final static RegistrationData REGISTRATION_NOT_NEEDED = WSRPTypeFactory.createDefaultRegistrationData();
+   private static final RegistrationData REGISTRATION_NOT_NEEDED = WSRPTypeFactory.createDefaultRegistrationData();
 
-   private final static Logger log = LoggerFactory.getLogger(WSRPConsumer.class);
+   private static final Logger log = LoggerFactory.getLogger(WSRPConsumer.class);
 
-   private final static String PORTLET_INFO_KEY = "wsrp_portlet_info";
+   private static final String PORTLET_INFO_KEY = "wsrp_portlet_info";
 
    static
    {

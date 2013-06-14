@@ -58,7 +58,7 @@ public abstract class WSRPManagedBean implements Serializable
       FacesContext.getCurrentInstance().renderResponse();
    }
 
-   public static interface PropertyValidator extends Serializable
+   public interface PropertyValidator extends Serializable
    {
       boolean checkForDuplicates();
 

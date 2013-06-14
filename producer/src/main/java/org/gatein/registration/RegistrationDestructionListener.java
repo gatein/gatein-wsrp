@@ -39,7 +39,7 @@ public interface RegistrationDestructionListener
     */
    Vote destructionScheduledFor(Registration registration);
 
-   static class Vote
+   class Vote
    {
       public final boolean result;
       public final String reason;
@@ -62,5 +62,5 @@ public interface RegistrationDestructionListener
       }
    }
 
-   static final Vote SUCCESS = new Vote();
+   Vote SUCCESS = new Vote();
 }

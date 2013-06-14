@@ -39,7 +39,7 @@ public interface SessionEventBroadcaster
     * A default implementation of SessionEventBroadcaster that does nothing, in case we're not interested in
     * SessionEvents.
     */
-   final static class NullSessionEventBroadcaster implements SessionEventBroadcaster
+   final class NullSessionEventBroadcaster implements SessionEventBroadcaster
    {
       public void registerListener(String listenerId, SessionEventListener listener)
       {
@@ -57,5 +57,5 @@ public interface SessionEventBroadcaster
       }
    }
 
-   static final SessionEventBroadcaster NO_OP_BROADCASTER = new NullSessionEventBroadcaster();
+   SessionEventBroadcaster NO_OP_BROADCASTER = new NullSessionEventBroadcaster();
 }
