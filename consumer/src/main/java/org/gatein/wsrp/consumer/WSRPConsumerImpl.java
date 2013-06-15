@@ -422,9 +422,8 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       int changesNumber = changes.length;
       List<Property> updates = new ArrayList<Property>(changesNumber);
       List<ResetProperty> resets = new ArrayList<ResetProperty>(changesNumber);
-      for (int i = 0; i < changesNumber; i++)
+      for (PropertyChange change : changes)
       {
-         PropertyChange change = changes[i];
          switch (change.getType())
          {
             case PropertyChange.PREF_RESET:
