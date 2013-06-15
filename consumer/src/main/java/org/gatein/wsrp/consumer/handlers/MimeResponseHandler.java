@@ -300,11 +300,11 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
          */
 
 
-         // a work around for PBR-421
-         // sometimes the /wsrp-rewrite will be escaped as \/wsrp-rewrite
-         if (match.endsWith("\\"))
+         // PBR-421: sometimes the /wsrp-rewrite will be escaped as \/wsrp-rewrite so there might be a trailing '\' in the match that we need to remove
+         final String trailing = "\\";
+         if (match.endsWith(trailing))
          {
-            match = match.substring(0, match.length() - 1);
+            match = match.substring(0, match.length() - trailing.length());
          }
 
          boolean useJavaScriptEscaping = false;
