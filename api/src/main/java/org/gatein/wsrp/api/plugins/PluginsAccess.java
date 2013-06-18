@@ -22,7 +22,11 @@
 
 package org.gatein.wsrp.api.plugins;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Provides client code with a way to retrieve the current Plugins instance and the server implementation to register its Plugins implementation.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public class PluginsAccess
 {
    private static Plugins plugins;

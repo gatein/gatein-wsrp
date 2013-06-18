@@ -29,6 +29,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
+ * Provides WSRP-wide, thread-safe access to the current (if any) HttpServletRequest and HttpServletResponse for the current user operation.
+ *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision: 8784 $
  */
@@ -74,7 +76,7 @@ public class ServletAccess implements InvocationHandler
       else
       {
          // getInfo()
-         return "A valve that setup a thread local assocation with request and response";
+         return "Provides thread-local access to current HTTP request and response";
       }
    }
 
