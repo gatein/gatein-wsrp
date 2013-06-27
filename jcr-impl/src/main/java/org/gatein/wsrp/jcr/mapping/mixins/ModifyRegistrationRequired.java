@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp.jcr.mapping.mixins;
 
+import org.chromattic.api.annotations.DefaultValue;
 import org.chromattic.api.annotations.MixinType;
 import org.chromattic.api.annotations.Property;
 
@@ -35,6 +36,7 @@ import org.chromattic.api.annotations.Property;
 public abstract class ModifyRegistrationRequired implements BaseMixin
 {
    @Property(name = "wsrp:ismodifyregistrationrequired")
+   @DefaultValue("false")
    public abstract boolean isModifyRegistrationRequired();
 
    public abstract void setModifyRegistrationRequired(boolean modifyRegistrationRequired);
