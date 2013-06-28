@@ -421,9 +421,12 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       }
    }
 
-   public void setRegistrationProperties(Map registrationProperties)
+   public void setRegistrationProperties(Map<QName, RegistrationProperty> registrationProperties)
    {
-      this.persistentRegistrationProperties = registrationProperties;
+      this.persistentRegistrationProperties = getOrCreateRegistrationPropertiesMap(true);
+      persistentRegistrationProperties.clear();
+      persistentRegistrationProperties.putAll(registrationProperties);
+
       regenerateRegistrationData = true;
    }
 

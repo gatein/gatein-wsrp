@@ -29,16 +29,21 @@ import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
+import org.gatein.wsrp.WSRPConstants;
+import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
+
+import javax.xml.namespace.QName;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 @PrimaryType(name = RegistrationPropertyMapping.NODE_NAME)
-public abstract class RegistrationPropertyMapping
+public abstract class RegistrationPropertyMapping implements BaseMapping<RegistrationProperty, RegistrationInfo>
 {
    public static final String NODE_NAME = "wsrp:registrationproperty";
 
@@ -82,5 +87,35 @@ public abstract class RegistrationPropertyMapping
          setDescription(rpdm);
          rpdm.initFrom(desc);
       }
+   }
+
+   @Override
+   public RegistrationProperty toModel(RegistrationProperty initial, RegistrationInfo registrationInfo)
+   {
+      if (initial == null)
+      {
+         initial = new RegistrationProperty();
+      }
+
+      initial.setName(QName.valueOf(getName()));
+      initial.setStatus(getStatus());
+      initial.setListener(registrationInfo); // we need to set the listener before we call setValue
+      initial.setLang(WSRPConstants.DEFAULT_LOCALE);
+      initial.setValue(getValue());
+
+      final RegistrationPropertyDescriptionMapping descriptionMapping = getDescription();
+      if (descriptionMapping != null)
+      {
+         final RegistrationPropertyDescription description = descriptionMapping.toModel(null, null);
+         initial.setDescription(description);
+      }
+
+      return initial;
+   }
+
+   @Override
+   public Class<RegistrationProperty> getModelClass()
+   {
+      return RegistrationProperty.class;
    }
 }

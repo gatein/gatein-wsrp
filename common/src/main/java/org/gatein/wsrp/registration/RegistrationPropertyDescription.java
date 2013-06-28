@@ -67,7 +67,8 @@ public class RegistrationPropertyDescription implements PropertyDescription, Ser
 
    public RegistrationPropertyDescription(String name, QName type)
    {
-      this(new QName(name), type);
+      this.name = createQName(name);
+      this.type = type;
    }
 
    public RegistrationPropertyDescription()
@@ -78,8 +79,8 @@ public class RegistrationPropertyDescription implements PropertyDescription, Ser
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(other, "RegistrationPropertyDescription");
 
-      setName(QName.valueOf(other.name.toString()));
-      setType(QName.valueOf(other.type.toString()));
+      setName(other.name);
+      setType(other.type);
 
       if (other.aliases != null)
       {
@@ -182,8 +183,13 @@ public class RegistrationPropertyDescription implements PropertyDescription, Ser
 
    public void setNameAsString(String name)
    {
+      setName(createQName(name));
+   }
+
+   private QName createQName(String name)
+   {
       final String sanitizedName = ParameterValidation.sanitizeFromPatternWithHandler(name, ParameterValidation.XSS_CHECK, HANDLER);
-      setName(new QName(sanitizedName));
+      return QName.valueOf(sanitizedName);
    }
 
    public String getNameAsString()

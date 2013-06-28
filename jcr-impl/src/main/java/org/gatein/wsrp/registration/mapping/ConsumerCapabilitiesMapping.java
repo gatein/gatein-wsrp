@@ -30,6 +30,7 @@ import org.gatein.pc.api.Mode;
 import org.gatein.pc.api.WindowState;
 import org.gatein.registration.ConsumerCapabilities;
 import org.gatein.registration.impl.ConsumerCapabilitiesImpl;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.List;
  * @version $Revision$
  */
 @PrimaryType(name = ConsumerCapabilitiesMapping.NODE_NAME)
-public abstract class ConsumerCapabilitiesMapping
+public abstract class ConsumerCapabilitiesMapping implements BaseMapping<ConsumerCapabilities, Object>
 {
    public static final String NODE_NAME = "wsrp:consumercapabilities";
 
@@ -112,9 +113,19 @@ public abstract class ConsumerCapabilitiesMapping
 
    public ConsumerCapabilities toConsumerCapabilities()
    {
-      ConsumerCapabilitiesImpl consumerCapabilities = new ConsumerCapabilitiesImpl();
+      return toModel(null, null);
+   }
 
-      consumerCapabilities.setSupportsGetMethod(getSupportsGetMethod());
+   @Override
+   public ConsumerCapabilities toModel(ConsumerCapabilities initial, Object registry)
+   {
+      if (initial == null)
+      {
+         initial = new ConsumerCapabilitiesImpl();
+      }
+
+
+      initial.setSupportsGetMethod(getSupportsGetMethod());
 
       List<String> modeStrings = getSupportedModes();
       if (ParameterValidation.existsAndIsNotEmpty(modeStrings))
@@ -124,7 +135,7 @@ public abstract class ConsumerCapabilitiesMapping
          {
             modes.add(Mode.create(modeString));
          }
-         consumerCapabilities.setSupportedModes(modes);
+         initial.setSupportedModes(modes);
       }
 
       List<String> windowStateStrings = getSupportedWindowStates();
@@ -135,21 +146,27 @@ public abstract class ConsumerCapabilitiesMapping
          {
             windowStates.add(WindowState.create(windowStateString));
          }
-         consumerCapabilities.setSupportedWindowStates(windowStates);
+         initial.setSupportedWindowStates(windowStates);
       }
 
       List<String> userProfileData = getSupportedUserProfileData();
       if (ParameterValidation.existsAndIsNotEmpty(userProfileData))
       {
-         consumerCapabilities.setSupportedUserProfileData(userProfileData);
+         initial.setSupportedUserProfileData(userProfileData);
       }
 
       List<String> userScopes = getSupportedUserScopes();
       if (ParameterValidation.existsAndIsNotEmpty(userScopes))
       {
-         consumerCapabilities.setSupportedUserScopes(userScopes);
+         initial.setSupportedUserScopes(userScopes);
       }
 
-      return consumerCapabilities;
+      return initial;
+   }
+
+   @Override
+   public Class<ConsumerCapabilities> getModelClass()
+   {
+      return ConsumerCapabilities.class;
    }
 }
