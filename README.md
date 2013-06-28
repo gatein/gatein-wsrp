@@ -65,6 +65,23 @@ More detailed documentation is available in javadoc format in classes of particu
 more important classes which should be looked at first. Tests also provide valuable information as to expected behavior of classes and therefore can be useful to understand the
 code and its purpose.
 
+## Persistence overview
+
+While the code is structured to be indedependent of the persistence layer, we provide a complete implementation of all persistence services backed by a JCR repository. This
+implementation is found in the `jcr-impl` module. We rely on the [Chromattic](https://github.com/vietj/chromattic) JCR to Object model mapper via the `ChromatticPersister`
+interface and its `BaseChromatticPersister` implementation. For each persisted subsystem, a `ChromatticPersister` is defined and initialized with a set of mapping classes it can
+deal with. These mapping classes perform the conversion between JCR data and object model and so reflect the data organization structure. We also provide a set of mixins which
+allow to dynamically add "fields" to persited object without needing a schema migration, which is quite helpful to seamlessly augment functionality without forcing users to perform
+a database upgrade. Base JCR functionality is found in the `org.gatein.wsrp.jcr` package. The rest of the module is organized by persistent subsystems, as follows:
+
+- `JCRMigrationService` persists data exported from the producer resulting from the consumer calling the WSRP export operation to be able to perform an import operation later
+- `JCRConsumerRegistry` persists consumers configuration, i.e. all metadata required by consumers to connect and interact with remote producers
+- `JCRProducerConfigurationService` persists the local producer configuration
+- `JCRPortletStatePersistenceManager` persists the portlet state information that results from consumers interacting with the portlets exposed remotely by the local producer
+- `JCRRegistrationPersistenceManager` persists registration information resulting of remote consumers interacting with the local producer
+
+Each service is bundled in its own package with a `mapping` sub-package gathering Chromattic mapping classes for this particular service.
+
 ## Consumer Overview
 
 The core of the module is, of course, the `WSRPConsumer` interface which inherits from the gatein/gatein-pc `PortletInvoker` interface. It also extends the `SessionEventListener`
@@ -73,13 +90,15 @@ interest are `WSRPConsumerImpl`, `ProducerInfo`, `InvocationDispatcher`, `Invoca
 portlets is recorded using the `ProducerSessionInformation` class.
 
 WSRP consumers are registered and managed by a `ConsumerRegistry` that takes care of configuring, persisting and dealing with consumers lifecycle. `AbstractConsumerRegistry`
-provides the common behavior for `ConsumerRegistry` implementations.
+provides the common behavior for `ConsumerRegistry` implementations. Below is a UML class diagram showing the organization of the registry-related classes.
+
+![ConsumerRegistry class diagram](img/registry.png)
 
 ## Producer overview
 
 todo
 
-## Persistence overview
+## Admin UI overview
 
 todo
 
