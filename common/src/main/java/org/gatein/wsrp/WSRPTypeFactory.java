@@ -590,7 +590,7 @@ public class WSRPTypeFactory
     */
    public static MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCachedItem)
    {
-      boolean isUseCachedItem = (useCachedItem == null) ? false : useCachedItem.booleanValue();
+      boolean isUseCachedItem = (useCachedItem != null) && useCachedItem.booleanValue();
 
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
