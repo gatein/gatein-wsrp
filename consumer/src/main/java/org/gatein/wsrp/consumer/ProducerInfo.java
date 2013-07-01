@@ -221,12 +221,7 @@ public class ProducerInfo extends SupportsLastModified
    @Override
    public String toString()
    {
-      final StringBuilder sb = new StringBuilder();
-      sb.append("ProducerInfo");
-      sb.append("{key='").append(key).append('\'');
-      sb.append(", id='").append(getId()).append('\'');
-      sb.append('}');
-      return sb.toString();
+      return "ProducerInfo {key='" + key + "', id='" + getId() + "'}";
    }
 
    public ConsumerRegistrySPI getRegistry()

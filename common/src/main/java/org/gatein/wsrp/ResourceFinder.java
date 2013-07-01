@@ -1150,7 +1150,7 @@ public class ResourceFinder
                         continue;
                      }
                      sepIdx += 2;
-                     StringBuffer sb = new StringBuffer(file.length() - sepIdx + resourceName.length());
+                     StringBuilder sb = new StringBuilder(file.length() - sepIdx + resourceName.length());
                      sb.append(file.substring(sepIdx));
                      sb.append(resourceName);
                      entryName = sb.toString();
@@ -1255,7 +1255,7 @@ public class ResourceFinder
 
    private URL targetURL(URL base, String name) throws MalformedURLException
    {
-      StringBuffer sb = new StringBuffer(base.getFile().length() + name.length());
+      StringBuilder sb = new StringBuilder(base.getFile().length() + name.length());
       sb.append(base.getFile());
       sb.append(name);
       String file = sb.toString();

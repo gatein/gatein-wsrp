@@ -123,7 +123,7 @@ public class CookieUtil
             logBuffer.append("Cookie headers:\n");
          }
 
-         StringBuffer cookieBuffer = new StringBuffer(128 * cookieNumber);
+         StringBuilder cookieBuffer = new StringBuilder(128 * cookieNumber);
          for (String cookie : cookies)
          {
             cookieBuffer.append(cookie);

@@ -102,13 +102,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
          url = URLTools.encodeXWWWFormURL(url);
 
          // build the WSRP resource URL with rewrite tokens
-         StringBuffer sb = new StringBuffer(url.length() * 2);
-         sb.append(WSRPRewritingConstants.BEGIN_WSRP_REWRITE).append(WSRPRewritingConstants.URL_TYPE_NAME)
-            .append(EQ).append(WSRPRewritingConstants.URL_TYPE_RESOURCE).append(AMP)
-            .append(WSRPRewritingConstants.RESOURCE_URL).append(EQ).append(url)
-            .append(AMP).append(WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE)
-            .append(EQ_TRUE).append(WSRPRewritingConstants.END_WSRP_REWRITE);
-         return sb.toString();
+         return WSRPRewritingConstants.BEGIN_WSRP_REWRITE + WSRPRewritingConstants.URL_TYPE_NAME + EQ + WSRPRewritingConstants.URL_TYPE_RESOURCE + AMP + WSRPRewritingConstants.RESOURCE_URL + EQ + url + AMP + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + EQ_TRUE + WSRPRewritingConstants.END_WSRP_REWRITE;
       }
 
       return url;
