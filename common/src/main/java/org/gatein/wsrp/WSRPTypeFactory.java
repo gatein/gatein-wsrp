@@ -914,7 +914,7 @@ public class WSRPTypeFactory
       template = TextTools.replace(template, WSRPRewritingConstants.ENC_CLOSE, WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
 
       // fix for GTNWSRP-22
-      if (RESOURCE_URL == url)
+      if (RESOURCE_URL.equals(url))
       {
          template += ADDITIONAL_RESOURCE_URL_PARAMS;
       }

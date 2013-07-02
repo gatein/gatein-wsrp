@@ -50,7 +50,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -262,7 +261,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       ProducerInfo producerInfo = getProducerInfo();
 
       // only show expected registration info if it is different from the one we currently have
-      return producerInfo.isModifyRegistrationRequired() && producerInfo.getRegistrationInfo() != producerInfo.getExpectedRegistrationInfo();
+      return producerInfo.isModifyRegistrationRequired() && !producerInfo.getRegistrationInfo().equals(producerInfo.getExpectedRegistrationInfo());
    }
 
    public boolean isRegistrationLocallyModified()
@@ -774,7 +773,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    {
       ExportInfo export = getCurrentExport().getExport();
       final WSRPConsumer consumer = getConsumer();
-      if (consumer.getMigrationService().remove(export) == export)
+      if (consumer.getMigrationService().remove(export).equals(export))
       {
          // release the export on the producer
          try
