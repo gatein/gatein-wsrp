@@ -969,13 +969,16 @@ public class ResourceFinder
       if (dir.isDirectory())
       {
          File[] files = dir.listFiles();
-         for (File file : files)
+         if (files != null)
          {
-            if (!file.isDirectory())
+            for (File file : files)
             {
-               String name = file.getName();
-               URL url = file.toURI().toURL();
-               resources.put(name, url);
+               if (!file.isDirectory())
+               {
+                  String name = file.getName();
+                  URL url = file.toURI().toURL();
+                  resources.put(name, url);
+               }
             }
          }
       }

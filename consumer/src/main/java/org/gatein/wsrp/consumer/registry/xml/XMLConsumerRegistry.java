@@ -84,6 +84,12 @@ public class XMLConsumerRegistry extends InMemoryConsumerRegistry
       if (configurationIS == null)
       {
          URL defaultWSRPURL = Thread.currentThread().getContextClassLoader().getResource(defaultWSRPLocation);
+
+         if(defaultWSRPURL == null)
+         {
+            throw new RuntimeException("Couldn't find any XML WSRP configuration file at " + defaultWSRPLocation);
+         }
+
          try
          {
             configurationIS = defaultWSRPURL.openStream();
