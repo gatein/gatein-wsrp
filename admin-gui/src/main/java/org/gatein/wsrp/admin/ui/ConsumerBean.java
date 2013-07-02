@@ -374,7 +374,6 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          {
             // update values
             ProducerInfo prodInfo = getProducerInfo();
-            EndpointConfigurationInfo endpointInfo = prodInfo.getEndpointConfigurationInfo();
             internalSetWsdl(wsdl);
 
             saveToRegistry(prodInfo);

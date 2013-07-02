@@ -190,8 +190,8 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(propertyName, "Property name");
 
-      QName type = getPropertyDescription(propertyName).getType();
       // todo: decide if type is actually compatible with value...
+//      QName type = getPropertyDescription(propertyName).getType();
       return true;
    }
 

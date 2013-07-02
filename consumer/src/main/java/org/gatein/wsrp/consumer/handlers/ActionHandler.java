@@ -167,7 +167,6 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       }
 
       // check for multi-part
-      RequestContextWrapper requestContext = new RequestContextWrapper(actionInvocation.getRequestContext());
       try
       {
          MultiPartResult multiPartResult = MultiPartUtil.getMultiPartContent(invocation.getRequestContext());

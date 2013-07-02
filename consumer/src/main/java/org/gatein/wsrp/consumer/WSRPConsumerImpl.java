@@ -845,13 +845,13 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
                }
 
                // todo: deal with expiration time
-               Lifetime lifetime = lifetimeHolder.value;
+               /*Lifetime lifetime = lifetimeHolder.value;
                if (lifetime != null)
                {
                   XMLGregorianCalendar currentTime = lifetime.getCurrentTime();
                   Duration refreshDuration = lifetime.getRefreshDuration();
                   XMLGregorianCalendar terminationTime = lifetime.getTerminationTime();
-               }
+               }*/
 
                ExportInfo exportInfo = new ExportInfo(System.currentTimeMillis(), errorCodeToHandle, handleToState, exportContextHolder.value);
                getConsumerRegistry().getMigrationService().add(exportInfo);

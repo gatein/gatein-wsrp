@@ -57,7 +57,7 @@ public class ResourceBean implements Map<String, String>
    public String get(Object key)
    {
       FacesContext facesContext = FacesContext.getCurrentInstance();
-      String url = null;
+      String url;
       if (null == key)
       {
          url = null;

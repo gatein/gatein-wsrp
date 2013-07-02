@@ -92,7 +92,7 @@ public class UserContextConverter
       String bdateAsString = userInfos.get(INFO_USER_BDATE);
       if (bdateAsString != null)
       {
-         DatatypeFactory datatypeFactory = null;
+         DatatypeFactory datatypeFactory;
          try
          {
             datatypeFactory = DatatypeFactory.newInstance();

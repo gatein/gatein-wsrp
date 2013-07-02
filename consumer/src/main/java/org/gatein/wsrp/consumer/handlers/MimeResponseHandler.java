@@ -148,10 +148,11 @@ public abstract class MimeResponseHandler<Invocation extends PortletInvocation, 
       final ResponseProperties properties;
       if (ParameterValidation.existsAndIsNotEmpty(clientAttributes))
       {
-         URL producerURL;
+
          try
          {
-            producerURL = new URL(producerURLAsString);
+            // make sure the URL is valid
+            new URL(producerURLAsString);
          }
          catch (MalformedURLException e)
          {
