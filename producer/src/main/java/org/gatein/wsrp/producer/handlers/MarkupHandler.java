@@ -77,17 +77,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Handles WSRP Markup requests on behalf of the producer.
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 10090 $
  * @since 2.4
  */
 public class MarkupHandler extends ServiceHandler implements MarkupInterface
 {
-   public static final String PBI = "PerformBlockingInteraction";
-   public static final String GET_MARKUP = "GetMarkup";
-   public static final String GET_RESOURCE = "GetResource";
-   public static final String HANDLE_EVENTS = "HandleEvents";
-
    public MarkupHandler(WSRPProducerImpl producer)
    {
       super(producer);

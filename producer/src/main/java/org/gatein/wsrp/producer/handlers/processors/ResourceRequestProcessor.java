@@ -29,7 +29,6 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPResourceURL;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetResource;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -79,12 +78,6 @@ class ResourceRequestProcessor extends MimeResponseProcessor<GetResource, Resour
    List<Extension> getResponseExtensionsFor(ResourceResponse resourceResponse)
    {
       return resourceResponse.getExtensions();
-   }
-
-   @Override
-   String getContextName()
-   {
-      return MarkupHandler.GET_RESOURCE;
    }
 
    @Override

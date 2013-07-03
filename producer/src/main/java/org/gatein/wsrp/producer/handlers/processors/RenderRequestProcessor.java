@@ -28,7 +28,6 @@ import org.gatein.pc.api.invocation.RenderInvocation;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
-import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.oasis.wsrp.v2.Extension;
 import org.oasis.wsrp.v2.GetMarkup;
 import org.oasis.wsrp.v2.InvalidHandle;
@@ -86,11 +85,6 @@ class RenderRequestProcessor extends MimeResponseProcessor<GetMarkup, MarkupCont
    org.oasis.wsrp.v2.UserContext getUserContext()
    {
       return request.getUserContext();
-   }
-
-   String getContextName()
-   {
-      return MarkupHandler.GET_MARKUP;
    }
 
    AccessMode getAccessMode()

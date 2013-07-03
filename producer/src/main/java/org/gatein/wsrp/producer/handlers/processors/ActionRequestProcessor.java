@@ -32,7 +32,6 @@ import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
-import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.BlockingInteractionResponse;
 import org.oasis.wsrp.v2.Extension;
@@ -101,11 +100,6 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Pe
    org.oasis.wsrp.v2.UserContext getUserContext()
    {
       return request.getUserContext();
-   }
-
-   String getContextName()
-   {
-      return MarkupHandler.PBI;
    }
 
    AccessMode getAccessMode() throws MissingParameters

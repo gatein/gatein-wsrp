@@ -33,7 +33,6 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.payload.PayloadUtils;
-import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
@@ -75,7 +74,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    protected void checkRequest(HandleEvents handleEvents) throws MissingParameters, OperationFailed, OperationNotSupported
    {
       EventParams eventParams = handleEvents.getEventParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", "HandleEvents");
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams.getPortletStateChange(), "portletStateChange", "EventParams");
       List<Event> events = eventParams.getEvents();
       if (!ParameterValidation.existsAndIsNotEmpty(events))
@@ -118,12 +117,6 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    UserContext getUserContext()
    {
       return request.getUserContext();
-   }
-
-   @Override
-   String getContextName()
-   {
-      return MarkupHandler.HANDLE_EVENTS;
    }
 
    @Override

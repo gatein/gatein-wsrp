@@ -85,6 +85,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Provides the default behavior for
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13121 $
  * @since 2.6
@@ -108,7 +109,7 @@ public abstract class RequestProcessor<Request, Response>
       this.producer = producer;
       this.request = request;
       checkRequest(request);
-      prepareInvocation();
+      prepareInvocation(request);
    }
 
    protected void checkRequest(Request request) throws MissingParameters, OperationFailed, OperationNotSupported
@@ -116,24 +117,26 @@ public abstract class RequestProcessor<Request, Response>
       // default implementation does nothing
    }
 
-   void prepareInvocation() throws InvalidRegistration, OperationFailed, InvalidHandle,
+   void prepareInvocation(Request request) throws InvalidRegistration, OperationFailed, InvalidHandle,
       UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters, ModifyRegistrationRequired, UnsupportedLocale
    {
+      final String contextName = request.getClass().getSimpleName();
+
       Registration registration = producer.getRegistrationOrFailIfInvalid(getRegistrationContext());
 
       // get session information and deal with it
       final RuntimeContext runtimeContext = getRuntimeContext();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", contextName);
 
       checkForSessionIDs(runtimeContext);
 
       // get parameters
       final MimeRequest params = getParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", contextName);
 
       // get portlet handle
       PortletContext wsrpPC = getPortletContext();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", contextName);
       org.gatein.pc.api.PortletContext portletContext = WSRPUtils.convertToPortalPortletContext(wsrpPC);
 
       // check locales
@@ -227,8 +230,6 @@ public abstract class RequestProcessor<Request, Response>
    public abstract PortletContext getPortletContext();
 
    abstract org.oasis.wsrp.v2.UserContext getUserContext();
-
-   abstract String getContextName();
 
    abstract AccessMode getAccessMode() throws MissingParameters;
 
