@@ -38,6 +38,7 @@ import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ResourceContext;
@@ -56,20 +57,16 @@ import java.util.List;
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */
-class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, ResourceResponse>
+class ResourceRequestProcessor extends MimeResponseProcessor<GetResource, ResourceContext, ResourceResponse>
 {
-   private final GetResource getResource;
-
-   public ResourceRequestProcessor(ProducerHelper producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, ModifyRegistrationRequired, UnsupportedLocale
+   public ResourceRequestProcessor(ProducerHelper producer, GetResource getResource) throws InvalidRegistration, OperationFailed, MissingParameters, InvalidHandle, UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, ModifyRegistrationRequired, UnsupportedLocale, OperationNotSupported
    {
-      super(producer);
-      this.getResource = getResource;
-      prepareInvocation();
+      super(producer, getResource);
    }
 
    public PortletContext getPortletContext()
    {
-      return getResource.getPortletContext();
+      return request.getPortletContext();
    }
 
    @Override
@@ -93,35 +90,35 @@ class ResourceRequestProcessor extends MimeResponseProcessor<ResourceContext, Re
    @Override
    MimeRequest getParams()
    {
-      return getResource.getResourceParams();
+      return request.getResourceParams();
    }
 
    @Override
-   RegistrationContext getRegistrationContext()
+   public RegistrationContext getRegistrationContext()
    {
-      return getResource.getRegistrationContext();
+      return request.getRegistrationContext();
    }
 
    @Override
    RuntimeContext getRuntimeContext()
    {
-      return getResource.getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    @Override
    UserContext getUserContext()
    {
-      return getResource.getUserContext();
+      return request.getUserContext();
    }
 
    protected PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context)
    {
       ResourceInvocation resourceInvocation = new ResourceInvocation(context);
 
-      ResourceParams resourceParams = this.getResource.getResourceParams();
+      ResourceParams resourceParams = this.request.getResourceParams();
 
       // only set the resource id if it's different from the place holder we use if the portlet doesn't set one
-      String id = this.getResource.getResourceParams().getResourceID();
+      String id = this.request.getResourceParams().getResourceID();
       if (!WSRPResourceURL.DEFAULT_RESOURCE_ID.equals(id))
       {
          resourceInvocation.setResourceId(id);

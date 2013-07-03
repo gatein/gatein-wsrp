@@ -51,7 +51,6 @@ import org.oasis.wsrp.v2.HandleEvents;
 import org.oasis.wsrp.v2.HandleEventsResponse;
 import org.oasis.wsrp.v2.InconsistentParameters;
 import org.oasis.wsrp.v2.InitCookie;
-import org.oasis.wsrp.v2.InteractionParams;
 import org.oasis.wsrp.v2.InvalidCookie;
 import org.oasis.wsrp.v2.InvalidHandle;
 import org.oasis.wsrp.v2.InvalidRegistration;
@@ -64,7 +63,6 @@ import org.oasis.wsrp.v2.OperationFailed;
 import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletStateChangeRequired;
-import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.ReleaseSessions;
 import org.oasis.wsrp.v2.ResourceResponse;
 import org.oasis.wsrp.v2.ResourceSuspended;
@@ -103,24 +101,18 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, ResourceSuspended,
       UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getMarkup, GET_MARKUP);
-
-      RequestProcessor<MarkupResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, getMarkup);
-
-      String handle = requestProcessor.getPortletContext().getPortletHandle();
-      PortletInvocationResponse response;
       try
       {
-         response = invoke(requestProcessor, getMarkup.getRegistrationContext(), GET_MARKUP, handle);
+         return invoke(getMarkup);
       }
-      catch (PortletInvokerException e)
+      catch (PortletStateChangeRequired portletStateChangeRequired)
       {
-         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not render portlet '" + handle + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't happen", portletStateChangeRequired);
       }
-
-      checkForError(response);
-
-      return requestProcessor.processResponse(response);
+      catch (OperationNotSupported operationNotSupported)
+      {
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't happen", operationNotSupported);
+      }
    }
 
    public ResourceResponse getResource(GetResource getResource)
@@ -128,24 +120,14 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, OperationNotSupported,
       ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(getResource, GET_RESOURCE);
-
-      RequestProcessor<ResourceResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, getResource);
-
-      String handle = requestProcessor.getPortletContext().getPortletHandle();
-      PortletInvocationResponse response;
       try
       {
-         response = invoke(requestProcessor, getResource.getRegistrationContext(), GET_RESOURCE, handle);
+         return invoke(getResource);
       }
-      catch (PortletInvokerException e)
+      catch (PortletStateChangeRequired portletStateChangeRequired)
       {
-         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not access portlet resource '" + handle + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't happen", portletStateChangeRequired);
       }
-
-      checkForError(response);
-
-      return requestProcessor.processResponse(response);
    }
 
    public BlockingInteractionResponse performBlockingInteraction(PerformBlockingInteraction performBlockingInteraction)
@@ -153,30 +135,14 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       InvalidUserCategory, MissingParameters, ModifyRegistrationRequired, OperationFailed, PortletStateChangeRequired,
       ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode, UnsupportedWindowState
    {
-      WSRP2ExceptionFactory.throwOperationFailedIfValueIsMissing(performBlockingInteraction, PBI);
-      final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", PBI);
-
-      RequestProcessor<BlockingInteractionResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, performBlockingInteraction);
-
-      PortletInvocationResponse response;
-      String handle = requestProcessor.getPortletContext().getPortletHandle();
       try
       {
-         response = invoke(requestProcessor, performBlockingInteraction.getRegistrationContext(), PBI, handle);
+         return invoke(performBlockingInteraction);
       }
-      catch (PortletStateChangeRequiredException e)
+      catch (OperationNotSupported operationNotSupported)
       {
-         throw WSRP2ExceptionFactory.throwWSException(PortletStateChangeRequired.class, e.getLocalizedMessage(), e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Shouldn't happen", operationNotSupported);
       }
-      catch (PortletInvokerException e)
-      {
-         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not perform action on portlet '" + handle + "'", e);
-      }
-
-      checkForError(response);
-
-      return requestProcessor.processResponse(response);
    }
 
    public List<Extension> releaseSessions(ReleaseSessions releaseSessions)
@@ -209,14 +175,40 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       PortletStateChangeRequired, ResourceSuspended, UnsupportedLocale, UnsupportedMimeType, UnsupportedMode,
       UnsupportedWindowState
    {
-      RequestProcessor<HandleEventsResponse> requestProcessor = ProcessorFactory.getProcessorFor(producer, handleEvents);
+      return invoke(handleEvents);
+   }
 
-      PortletInvocationResponse response;
+   private <Request, Response> Response invoke(Request request) throws OperationFailed, ModifyRegistrationRequired, InvalidRegistration, UnsupportedMimeType, MissingParameters, UnsupportedLocale, InvalidHandle, UnsupportedWindowState, UnsupportedMode, PortletStateChangeRequired, OperationNotSupported
+   {
+      RequestProcessor<Request, Response> requestProcessor = ProcessorFactory.getProcessorFor(producer, request);
+
+      final PortletInvocationResponse response;
       String handle = requestProcessor.getPortletContext().getPortletHandle();
+      String invocationType = request.getClass().getSimpleName();
 
       try
       {
-         response = invoke(requestProcessor, handleEvents.getRegistrationContext(), HANDLE_EVENTS, handle);
+         log.debug(invocationType + " on portlet '" + handle + "'");
+
+         Registration registration = producer.getRegistrationOrFailIfInvalid(requestProcessor.getRegistrationContext());
+         RegistrationLocal.setRegistration(registration);
+         final PortletInvocation invocation = requestProcessor.getInvocation();
+
+         final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.producerDelegate();
+         if (delegate != null)
+         {
+            delegate.processInvocation(invocation);
+         }
+
+         response = producer.getPortletInvoker().invoke(invocation);
+
+         if (delegate != null)
+         {
+            delegate.processInvocationResponse(response, invocation);
+         }
+
+         log.debug(invocationType + " done");
+
       }
       catch (PortletStateChangeRequiredException e)
       {
@@ -224,38 +216,12 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       }
       catch (PortletInvokerException e)
       {
-         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not handle event on portlet '" + handle + "'", e);
+         throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not perform " + invocationType + " on portlet '" + handle + "'", e);
       }
 
       checkForError(response);
 
       return requestProcessor.processResponse(response);
-   }
-
-   private PortletInvocationResponse invoke(RequestProcessor requestProcessor, RegistrationContext registrationContext, String invocationType, String handle)
-      throws PortletInvokerException, OperationFailed, ModifyRegistrationRequired, InvalidRegistration
-   {
-      log.debug(invocationType + " on portlet '" + handle + "'");
-
-      Registration registration = producer.getRegistrationOrFailIfInvalid(registrationContext);
-      RegistrationLocal.setRegistration(registration);
-      final PortletInvocation invocation = requestProcessor.getInvocation();
-
-      final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.producerDelegate();
-      if (delegate != null)
-      {
-         delegate.processInvocation(invocation);
-      }
-
-      final PortletInvocationResponse response = producer.getPortletInvoker().invoke(invocation);
-
-      if (delegate != null)
-      {
-         delegate.processInvocationResponse(response, invocation);
-      }
-
-      log.debug(invocationType + " done");
-      return response;
    }
 
    private void checkForError(PortletInvocationResponse response)

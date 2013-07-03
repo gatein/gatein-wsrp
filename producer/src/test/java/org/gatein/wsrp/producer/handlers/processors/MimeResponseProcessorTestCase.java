@@ -42,6 +42,7 @@ import org.oasis.wsrp.v2.MarkupType;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.UnsupportedLocale;
@@ -60,7 +61,7 @@ public class MimeResponseProcessorTestCase extends TestCase
 {
    private static final String PORTLET_HANDLE = "/app.portletHandle";
 
-   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale
+   public void testShouldUseProvidedNamespace() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale, OperationNotSupported
    {
       String namespace = "namespace";
       ServletAccess.setRequestAndResponse(MockHttpServletRequest.createMockRequest(MockHttpSession.createMockSession()), MockHttpServletResponse.createMockResponse());
@@ -73,7 +74,7 @@ public class MimeResponseProcessorTestCase extends TestCase
       assertEquals("namespace", processor.invocation.getWindowContext().getNamespace());
    }
 
-   public void testShouldProperlyHandleWildCardsInRequestedMimeTypes() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale
+   public void testShouldProperlyHandleWildCardsInRequestedMimeTypes() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale, OperationNotSupported
    {
       List<String> mimeTypes = new ArrayList<String>(1);
       mimeTypes.add("*/*");
@@ -123,7 +124,7 @@ public class MimeResponseProcessorTestCase extends TestCase
       }
    }
 
-   public void testShouldReturnFirstMimeTypeMatching() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale
+   public void testShouldReturnFirstMimeTypeMatching() throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, ModifyRegistrationRequired, UnsupportedWindowState, InvalidRegistration, UnsupportedLocale, OperationNotSupported
    {
       List<String> mimeTypes = new ArrayList<String>(2);
       mimeTypes.add("text/xml");

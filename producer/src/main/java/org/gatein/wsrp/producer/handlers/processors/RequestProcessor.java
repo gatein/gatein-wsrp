@@ -61,6 +61,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -88,7 +89,7 @@ import java.util.Set;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-public abstract class RequestProcessor<Response>
+public abstract class RequestProcessor<Request, Response>
 {
    private static final String WINDOW_STATE = "window state";
    private static final String PORTLET_MODE = "portlet mode";
@@ -100,11 +101,19 @@ public abstract class RequestProcessor<Response>
    protected Portlet portlet;
    protected WSRPInstanceContext instanceContext;
    protected ProducerHelper producer;
+   protected final Request request;
 
-
-   protected RequestProcessor(ProducerHelper producer)
+   protected RequestProcessor(ProducerHelper producer, Request request) throws MissingParameters, InvalidRegistration, InvalidHandle, UnsupportedLocale, UnsupportedMimeType, UnsupportedWindowState, OperationFailed, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
       this.producer = producer;
+      this.request = request;
+      checkRequest(request);
+      prepareInvocation();
+   }
+
+   protected void checkRequest(Request request) throws MissingParameters, OperationFailed, OperationNotSupported
+   {
+      // default implementation does nothing
    }
 
    void prepareInvocation() throws InvalidRegistration, OperationFailed, InvalidHandle,
@@ -209,7 +218,7 @@ public abstract class RequestProcessor<Response>
       setInvocation(invocation);
    }
 
-   abstract RegistrationContext getRegistrationContext();
+   public abstract RegistrationContext getRegistrationContext();
 
    abstract RuntimeContext getRuntimeContext();
 

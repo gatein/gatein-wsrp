@@ -64,16 +64,16 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<HandleEventsResponse>
+class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<HandleEvents, HandleEventsResponse>
 {
-   private HandleEvents handleEvents;
-
    public EventRequestProcessor(ProducerHelper producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported, ModifyRegistrationRequired, UnsupportedLocale
    {
-      super(producer);
-      this.handleEvents = handleEvents;
+      super(producer, handleEvents);
+   }
 
-      // validate request parameters
+   @Override
+   protected void checkRequest(HandleEvents handleEvents) throws MissingParameters, OperationFailed, OperationNotSupported
+   {
       EventParams eventParams = handleEvents.getEventParams();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", getContextName());
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams.getPortletStateChange(), "portletStateChange", "EventParams");
@@ -86,40 +86,38 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
 
       if (events.size() > 1)
       {
-         throw WSRP2ExceptionFactory.createWSException(OperationNotSupported.class,
-            "GateIn currently doesn't support sending multiple events to process at once.", null);
+         throw WSRP2ExceptionFactory.createWSException(OperationNotSupported.class, "GateIn currently doesn't support sending multiple events to process at once.", null);
       }
-      prepareInvocation();
    }
 
    @Override
-   RegistrationContext getRegistrationContext()
+   public RegistrationContext getRegistrationContext()
    {
-      return handleEvents.getRegistrationContext();
+      return request.getRegistrationContext();
    }
 
    @Override
    RuntimeContext getRuntimeContext()
    {
-      return handleEvents.getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    @Override
    MimeRequest getParams()
    {
-      return handleEvents.getMarkupParams();
+      return request.getMarkupParams();
    }
 
    @Override
    public PortletContext getPortletContext()
    {
-      return handleEvents.getPortletContext();
+      return request.getPortletContext();
    }
 
    @Override
    UserContext getUserContext()
    {
-      return handleEvents.getUserContext();
+      return request.getUserContext();
    }
 
    @Override
@@ -131,7 +129,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    @Override
    AccessMode getAccessMode() throws MissingParameters
    {
-      StateChange stateChange = handleEvents.getEventParams().getPortletStateChange();
+      StateChange stateChange = request.getEventParams().getPortletStateChange();
 
       return WSRPUtils.getAccessModeFromStateChange(stateChange);
    }
@@ -141,7 +139,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    {
       EventInvocation eventInvocation = new EventInvocation(context);
 
-      final EventParams eventParams = handleEvents.getEventParams();
+      final EventParams eventParams = request.getEventParams();
       List<Event> events = eventParams.getEvents();
 
       if (events.size() > 1)

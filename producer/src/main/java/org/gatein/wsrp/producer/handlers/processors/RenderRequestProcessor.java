@@ -39,6 +39,7 @@ import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
 import org.oasis.wsrp.v2.RuntimeContext;
@@ -54,41 +55,37 @@ import java.util.List;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-class RenderRequestProcessor extends MimeResponseProcessor<MarkupContext, MarkupResponse>
+class RenderRequestProcessor extends MimeResponseProcessor<GetMarkup, MarkupContext, MarkupResponse>
 {
-   private final GetMarkup getMarkup;
-
-   public RenderRequestProcessor(ProducerHelper producer, GetMarkup getMarkup) throws UnsupportedMimeType,
-      UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters, InvalidRegistration, OperationFailed, ModifyRegistrationRequired, UnsupportedLocale
+   public RenderRequestProcessor(ProducerHelper producer, GetMarkup getMarkup) throws UnsupportedMimeType, UnsupportedWindowState, InvalidHandle, UnsupportedMode,
+      MissingParameters, InvalidRegistration, OperationFailed, ModifyRegistrationRequired, UnsupportedLocale, OperationNotSupported
    {
-      super(producer);
-      this.getMarkup = getMarkup;
-      prepareInvocation();
+      super(producer, getMarkup);
    }
 
-   RegistrationContext getRegistrationContext()
+   public RegistrationContext getRegistrationContext()
    {
-      return getMarkup.getRegistrationContext();
+      return request.getRegistrationContext();
    }
 
    RuntimeContext getRuntimeContext()
    {
-      return getMarkup.getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    MimeRequest getParams()
    {
-      return getMarkup.getMarkupParams();
+      return request.getMarkupParams();
    }
 
    public PortletContext getPortletContext()
    {
-      return getMarkup.getPortletContext();
+      return request.getPortletContext();
    }
 
    org.oasis.wsrp.v2.UserContext getUserContext()
    {
-      return getMarkup.getUserContext();
+      return request.getUserContext();
    }
 
    String getContextName()

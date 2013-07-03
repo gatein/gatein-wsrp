@@ -36,7 +36,17 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.payload.PayloadUtils;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -45,13 +55,13 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Response>
+abstract class MimeResponseProcessor<Request, LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Request, Response>
 {
    private static final String EMPTY = "";
 
-   protected MimeResponseProcessor(ProducerHelper producer)
+   protected MimeResponseProcessor(ProducerHelper producer, Request request) throws InvalidRegistration, InvalidHandle, UnsupportedLocale, UnsupportedMimeType, UnsupportedWindowState, OperationFailed, MissingParameters, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
-      super(producer);
+      super(producer, request);
    }
 
    @Override

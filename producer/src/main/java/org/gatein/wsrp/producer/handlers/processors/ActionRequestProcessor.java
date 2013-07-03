@@ -43,6 +43,7 @@ import org.oasis.wsrp.v2.MimeRequest;
 import org.oasis.wsrp.v2.MissingParameters;
 import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -61,42 +62,45 @@ import java.util.List;
  * @version $Revision: 13121 $
  * @since 2.6
  */
-class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<BlockingInteractionResponse>
+class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<PerformBlockingInteraction, BlockingInteractionResponse>
 {
-   private final PerformBlockingInteraction performBlockingInteraction;
-
-   ActionRequestProcessor(ProducerHelper producer, PerformBlockingInteraction performBlockingInteraction)
-      throws UnsupportedMimeType, UnsupportedWindowState, InvalidHandle, UnsupportedMode, MissingParameters,
-      InvalidRegistration, OperationFailed, ModifyRegistrationRequired, UnsupportedLocale
+   ActionRequestProcessor(ProducerHelper producer, PerformBlockingInteraction performBlockingInteraction) throws MissingParameters, InvalidRegistration, UnsupportedLocale,
+      UnsupportedMimeType, UnsupportedWindowState, OperationFailed, InvalidHandle, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
-      super(producer);
-      this.performBlockingInteraction = performBlockingInteraction;
-      prepareInvocation();
+      super(producer, performBlockingInteraction);
    }
 
-   RegistrationContext getRegistrationContext()
+
+   @Override
+   protected void checkRequest(PerformBlockingInteraction performBlockingInteraction) throws MissingParameters
    {
-      return performBlockingInteraction.getRegistrationContext();
+      final InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(interactionParams, "InteractionParams", performBlockingInteraction.getClass().getSimpleName());
+   }
+
+   public RegistrationContext getRegistrationContext()
+   {
+      return request.getRegistrationContext();
    }
 
    RuntimeContext getRuntimeContext()
    {
-      return performBlockingInteraction.getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    MimeRequest getParams()
    {
-      return performBlockingInteraction.getMarkupParams();
+      return request.getMarkupParams();
    }
 
    public PortletContext getPortletContext()
    {
-      return performBlockingInteraction.getPortletContext();
+      return request.getPortletContext();
    }
 
    org.oasis.wsrp.v2.UserContext getUserContext()
    {
-      return performBlockingInteraction.getUserContext();
+      return request.getUserContext();
    }
 
    String getContextName()
@@ -106,7 +110,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
 
    AccessMode getAccessMode() throws MissingParameters
    {
-      StateChange stateChange = performBlockingInteraction.getInteractionParams().getPortletStateChange();
+      StateChange stateChange = request.getInteractionParams().getPortletStateChange();
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(stateChange, "portletStateChange", "InteractionParams");
       return WSRPUtils.getAccessModeFromStateChange(stateChange);
    }
@@ -114,7 +118,7 @@ class ActionRequestProcessor extends UpdateNavigationalStateResponseProcessor<Bl
    PortletInvocation initInvocation(WSRPPortletInvocationContext context)
    {
       ActionInvocation invocation = new ActionInvocation(context);
-      InteractionParams interactionParams = performBlockingInteraction.getInteractionParams();
+      InteractionParams interactionParams = request.getInteractionParams();
 
       // Request context
       WSRPRequestContext requestContext = WSRPRequestContext.createRequestContext(markupRequest, interactionParams);
