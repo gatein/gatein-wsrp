@@ -83,7 +83,7 @@ public interface RegistrationPolicy
     *
     * @param consumerName the name of the Consumer being created
     * @return the name of the ConsumerGroup the Consumer must be automatically added to or <code>null</code> if the
-    *         Consumer will not be automatically to a ConsumerGroup at creation
+    *         Consumer will not be automatically added to a ConsumerGroup at creation
     * @throws IllegalArgumentException if the specified Consumer name if <code>null</code> or empty
     */
    String getAutomaticGroupNameFor(String consumerName) throws IllegalArgumentException;
@@ -130,33 +130,38 @@ public interface RegistrationPolicy
    void validateConsumerGroupName(String groupName, RegistrationManager manager) throws IllegalArgumentException, RegistrationException;
 
    /**
-    * TODO
+    * Whether this RegistrationPolicy allows access to the specified named operation on the portlet identified by the specified PortletContext in the context of the specified
+    * Registration.
     *
-    * @param portletContext
-    * @param registration
-    * @param operation
-    * @return
+    * @param portletContext the PortletContext identifying which portlet we're trying to interact with
+    * @param registration   the registration in which context the operation will take place
+    * @param operation      the name of the operation, which should be the calling method's name (without parameters). Currently, only {@link org.gatein.pc.api.PortletInvoker}'s
+    *                       methods and getServiceDescription are checked
+    * @return <code>true</code> if the operation is allowed in the given context, <code>false</code> otherwise
     */
    boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation);
 
    /**
-    * TODO
+    * Whether or not this RegistrationPolicy is wrapped in a RegistrationPolicyWrapper. Mostly targeted at the internal implementation.
     *
-    * @return
+    * @return <code>true</code> whether this RegistrationPolicy is wrapped in in a {@link org.gatein.registration.policies.RegistrationPolicyWrapper}, <code>false</code> otherwise
     */
    boolean isWrapped();
 
    /**
-    * TODO
+    * Retrieves this RegistrationPolicy's class name. Note that this retrieves the underlying class name if the RegistrationPolicy is wrapped so this method is guaranteed to
+    * always
+    * return the "real" implementation class name, not {@link org.gatein.registration.policies.RegistrationPolicyWrapper}'s class name. :)
     *
-    * @return
+    * @return this RegistrationPolicy's "real" class name, i.e. this class' name if it's not wrapped or the wrapped RegistrationPolicy's class name if it is
     */
    String getClassName();
 
    /**
-    * TODO
+    * Retrieves this RegistrationPolicy's real class object. Guaranteed to retrieve this class instance if this RegistrationPolicy is not wrapped, or the wrapped
+    * RegistrationPolicy's class if it is.
     *
-    * @return
+    * @return this class instance if this RegistrationPolicy is not wrapped, or the wrapped RegistrationPolicy's class if it is.
     */
    Class<? extends RegistrationPolicy> getRealClass();
 }

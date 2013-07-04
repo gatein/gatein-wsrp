@@ -44,6 +44,8 @@ import org.oasis.wsrp.v2.UpdateResponse;
 import java.util.List;
 
 /**
+ * Provides common behavior for RequestProcessors dealing with UpdateNavigationalStateResponse from the portlet container.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

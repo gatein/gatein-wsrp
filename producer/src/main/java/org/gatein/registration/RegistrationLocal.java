@@ -24,7 +24,7 @@ package org.gatein.registration;
 
 
 /**
- * Hold registration provided by the consumer for the duration of the invocation.
+ * Holds registration provided by the consumer for the duration of the invocation on behalf of the producer.
  *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision: 8784 $

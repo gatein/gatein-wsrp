@@ -83,12 +83,22 @@ public interface Consumer
     */
    String getId();
 
+   /**
+    * Retrieves the ConsumerCapabilities of this Consumer
+    *
+    * @return
+    */
    ConsumerCapabilities getCapabilities();
 
    void setCapabilities(ConsumerCapabilities capabilities);
 
    void setGroup(ConsumerGroup group) throws RegistrationException, DuplicateRegistrationException;
 
+   /**
+    * Retrieves the Consumer agent associated with this Consumer
+    *
+    * @return
+    */
    String getConsumerAgent();
 
    void setConsumerAgent(String consumerAgent) throws IllegalArgumentException, IllegalStateException;

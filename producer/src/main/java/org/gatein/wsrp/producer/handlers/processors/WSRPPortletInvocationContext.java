@@ -47,6 +47,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Provides a WSRP-specific implementation of {@link PortletInvocationContext}, resulting of the extraction of metadata from the WSRP request by a {@link RequestProcessor}.
+ *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13121 $
@@ -76,6 +78,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
       this.instanceContext = instanceContext;
       this.windowContext = windowContext;
 
+      // access to the servlet environment the request is running in
       request = ServletAccess.getRequest();
       response = ServletAccess.getResponse();
    }

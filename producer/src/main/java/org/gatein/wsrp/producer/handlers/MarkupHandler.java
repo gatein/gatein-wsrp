@@ -77,7 +77,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles WSRP Markup requests on behalf of the producer.
+ * Handles WSRP Markup requests on behalf of the producer. Actual processing is delegated to {@link RequestProcessor} instances while the handler provides the template for each
+ * invocation.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 10090 $
  * @since 2.4
@@ -176,6 +178,7 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
 
    private <Request, Response> Response invoke(Request request) throws OperationFailed, ModifyRegistrationRequired, InvalidRegistration, UnsupportedMimeType, MissingParameters, UnsupportedLocale, InvalidHandle, UnsupportedWindowState, UnsupportedMode, PortletStateChangeRequired, OperationNotSupported
    {
+      // get the proper RequestProcessor based on the request
       RequestProcessor<Request, Response> requestProcessor = ProcessorFactory.getProcessorFor(producer, request);
 
       final PortletInvocationResponse response;
@@ -186,18 +189,24 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
       {
          log.debug(invocationType + " on portlet '" + handle + "'");
 
+         // check the registration and make it available to other parts of the code via RegistrationLocal
          Registration registration = producer.getRegistrationOrFailIfInvalid(requestProcessor.getRegistrationContext());
          RegistrationLocal.setRegistration(registration);
+
+         // get the portlet container invocation from the RequestProcessor
          final PortletInvocation invocation = requestProcessor.getInvocation();
 
+         // let the producer invocation handler delegate process the invocation before we perform the actual invocation
          final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.producerDelegate();
          if (delegate != null)
          {
             delegate.processInvocation(invocation);
          }
 
+         // get the portlet invoker to perform the invocation
          response = producer.getPortletInvoker().invoke(invocation);
 
+         // let the producer invocation handler delegate get a chance to process the response
          if (delegate != null)
          {
             delegate.processInvocationResponse(response, invocation);
@@ -215,16 +224,18 @@ public class MarkupHandler extends ServiceHandler implements MarkupInterface
          throw WSRP2ExceptionFactory.throwWSException(OperationFailed.class, "Could not perform " + invocationType + " on portlet '" + handle + "'", e);
       }
 
+      // check if the response is actually an error and react in consequence
       checkForError(response);
 
+      // let the RequestProcessor finalize the response if needed
       return requestProcessor.processResponse(response);
    }
 
-   private void checkForError(PortletInvocationResponse response)
-      throws UnsupportedMode, OperationFailed, UnsupportedWindowState
+   private void checkForError(PortletInvocationResponse response) throws UnsupportedMode, OperationFailed, UnsupportedWindowState
    {
       if (response instanceof ErrorResponse)
       {
+         // if we have an ErrorResponse, try to interpret it as a WSRP exception
          ErrorResponse errorResult = (ErrorResponse)response;
          Throwable cause = errorResult.getCause();
          if (cause instanceof PortletModeException)

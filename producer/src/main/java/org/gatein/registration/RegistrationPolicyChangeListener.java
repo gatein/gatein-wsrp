@@ -24,11 +24,18 @@
 package org.gatein.registration;
 
 /**
+ * Allows to react to changes in RegistrationPolicy on the producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 8966 $
  * @since 2.6.3
  */
 public interface RegistrationPolicyChangeListener
 {
+   /**
+    * Called whenever the RegistrationPolicy associated with the producer's configuration has been changed to the new specified one.
+    *
+    * @param policy the new RegistrationPolicy
+    */
    void policyUpdatedTo(RegistrationPolicy policy);
 }

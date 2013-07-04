@@ -29,11 +29,18 @@ import javax.xml.namespace.QName;
 import java.util.Map;
 
 /**
+ * Allows to react to changes in a set of registration properties in the producer's configuration.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 9177 $
  * @since 2.6
  */
 public interface RegistrationPropertyChangeListener
 {
+   /**
+    * Called whenever registration properties have been changed in the producer's configuration to the specified new propertiy descriptions.
+    *
+    * @param newRegistrationProperties a Map of the new registration property descriptions, associating the property QName to its description
+    */
    void propertiesHaveChanged(Map<QName, ? extends PropertyDescription> newRegistrationProperties);
 }

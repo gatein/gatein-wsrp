@@ -36,6 +36,8 @@ import javax.xml.namespace.QName;
 import java.util.Map;
 
 /**
+ * Wraps user-provided RegistrationPolicy implementations so that we can decorate their functionality with default behavior such as consumer name sanitation.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

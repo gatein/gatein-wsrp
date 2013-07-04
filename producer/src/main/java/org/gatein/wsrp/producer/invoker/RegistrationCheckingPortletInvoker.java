@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * A special PortletInvoker implementation that keeps track of which portlets are associated with which Registration.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -87,15 +89,24 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
    }
 
+   /**
+    * Is the specified PortletContext known in the context of the current Registration?
+    *
+    * @param portletContext the PortletContext we want to know about
+    * @return <code>true</code> if the current Registration knows about the specified PortletContext, <code>false</code> otherwise
+    * @throws PortletInvokerException
+    */
    private boolean isPortletContextKnown(PortletContext portletContext) throws PortletInvokerException
    {
       final PortletStatus status = super.getStatus(portletContext);
       if (PortletStatus.OFFERED == status)
       {
+         // if the portlet is offered, then no need to check further
          return true;
       }
       else
       {
+         // otherwise, check the current registration
          Registration registration = RegistrationLocal.getRegistration();
          if (registration != null)
          {
@@ -111,6 +122,7 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
          }
          else
          {
+            // if we don't have a registration, decide based on status
             return status != null;
          }
       }
@@ -123,6 +135,7 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
       if (registration != null)
       {
+         // add all the portlets that the current Registration knows about to the set of offered portlets
          Set<PortletContext> contexts = registration.getKnownPortletContexts();
          for (PortletContext context : contexts)
          {
@@ -181,6 +194,7 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
          PortletInvocationResponse response = super.invoke(invocation);
 
+         // we need to check if the instance context was modified (for example, if an implicit cloned happened) to remember the new one and associate it with the current Registration
          InstanceContext instanceContext = invocation.getInstanceContext();
          if (instanceContext instanceof WSRPInstanceContext)
          {
@@ -208,6 +222,14 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
 
    }
 
+   /**
+    * Checks that the specified named operation is allowed by the specified Registration for the specified PortletContext. Delegates to the producer's RegistrationPolicy.
+    *
+    * @param portletContext
+    * @param registration
+    * @param operation
+    * @throws NoSuchPortletException
+    */
    private void checkOperationIsAllowed(PortletContext portletContext, Registration registration, String operation) throws NoSuchPortletException
    {
       if (!getPolicy().allowAccessTo(portletContext, registration, operation))
@@ -312,6 +334,7 @@ public class RegistrationCheckingPortletInvoker extends PortletInvokerIntercepto
          {
             try
             {
+               // as the portlet context should have been modified after a clone, we need to associate it to the current Registration
                registration.addPortletContext(updatedPortletContext);
             }
             catch (RegistrationException e)

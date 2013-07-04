@@ -345,6 +345,7 @@ public class ProducerRegistrationRequirementsImpl extends SupportsLastModified i
             policy = new DefaultRegistrationPolicy();
          }
 
+         // wrap the policy to make sure we have default behavior properly set up
          this.policy = RegistrationPolicyWrapper.wrap(policy);
          policyClassName = policy.getClassName();
 

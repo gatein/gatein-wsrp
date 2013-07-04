@@ -96,7 +96,18 @@ provides the common behavior for `ConsumerRegistry` implementations. Below is a 
 
 ## Producer overview
 
-todo
+The core class of the producer module is `WSRPProducer` and its `WSRPProducerImpl` implementation. The producer is configured using a `ProducerConfigurationService` implementation
+and delegates WSRP calls to a `PortletInvoker`, which can access the portlets that have been deployed and made remotable. The producer manages consumers' registrations using a
+`RegistrationManager` implementation, while import/export operations are handled by an `ExportManager` implementation. For more flexibility, the producer can learn about the
+context it runs in using a `ProducerContext` implementation, though this aspect is currently underdeveloped.
+
+Going into more details, the actual producer implementation uses several handlers, each handling a specific aspect of the WSRP protocol: `MarkupHandler` deals with the WSRP Markup
+interface, `ServiceDescriptionHandler` deals with ServiceDescription interface calls, `RegistrationHandler` deals with the Registration interface while `PortletManagementHandler`
+deals with the PortletManagement interface.
+
+The `RegistrationManager` delegates several key decisions to a `RegistrationPolicy` isntance which might be implementated by WSRP users and dynamically added via a plugin mechanism.
+This allows users of the WSRP producer to customize its behavior without having to touch the actual implementation. Persistence operations are delegated to a
+`RegistrationPersistenceManager` instance.
 
 ## Admin UI overview
 

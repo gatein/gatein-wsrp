@@ -97,19 +97,63 @@ public interface Registration
     */
    void setStatus(RegistrationStatus status);
 
+   /**
+    * Updates properties to use the specified ones.
+    *
+    * @param registrationProperties the new registration properties
+    */
    void updateProperties(Map registrationProperties);
 
+   /**
+    * Removes the property identified by the specified QName.
+    *
+    * @param propertyName the QName identifying the property to remove
+    */
    void removeProperty(QName propertyName);
 
+   /**
+    * Removes the property identified by the specified name, which should resolve to a proper QName.
+    *
+    * @param propertyName the name identifying the property to remove
+    */
    void removeProperty(String propertyName);
 
+   /**
+    * Retrieves the value of the property identified by the specified QName.
+    *
+    * @param propertyName the name of the property which value we want to retrieve
+    * @return the value of the property associated with the specified QName
+    */
    Object getPropertyValueFor(QName propertyName);
 
+   /**
+    * Retrieves the value of the property idenfified by the specified name.
+    *
+    * @param propertyName the name (which must resolve to a proper QName) of the property which value we want to retrieve
+    * @return the value of the property associated with the specified name
+    */
    Object getPropertyValueFor(String propertyName);
 
+   /**
+    * Whether this Registration knows of the specified PortletContext.
+    *
+    * @param portletContext a PortletContext we want to determine whether it's part of the set managed by this Registration
+    * @return <code>true</code> if this Registration knows the specified PortletContext, <code>false</code> otherwise
+    */
    boolean knows(PortletContext portletContext);
 
+   /**
+    * Retrieves the set of known PortletContexts.
+    *
+    * @return the set of known PortletContexts.
+    */
    Set<PortletContext> getKnownPortletContexts();
 
+   /**
+    * Whether this Registration knows of the specified String version of a PortletContext.
+    *
+    * @param portletContextId a String representation of a PortletContext
+    * @return <code>true</code> if this Registration knows the specified PortletContext, <code>false</code> otherwise
+    */
    boolean knows(String portletContextId);
 }
