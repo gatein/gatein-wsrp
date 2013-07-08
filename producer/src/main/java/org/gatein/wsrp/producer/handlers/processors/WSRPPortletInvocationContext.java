@@ -130,6 +130,8 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
       {
          Boolean wantSecureBool = urlFormat.getWantSecure();
          boolean wantSecure = (wantSecureBool != null ? wantSecureBool : false);
+
+         // add contextual information to help URL generation
          WSRPPortletURL.URLContext context = new WSRPPortletURL.URLContext(WSRPPortletURL.URLContext.SERVER_ADDRESS,
             URLTools.getServerAddressFrom(request), WSRPPortletURL.URLContext.PORTLET_CONTEXT, instanceContext.getPortletContext());
 
@@ -140,6 +142,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
          }
          context.setValueFor(WSRPPortletURL.URLContext.INSTANCE_KEY, WSRPTypeFactory.getPortletInstanceKey(instanceContext));
          context.setValueFor(WSRPPortletURL.URLContext.NAMESPACE, WSRPTypeFactory.getNamespacePrefix(windowContext, instanceContext.getPortletContext().getId()));
+         context.setValueFor(WSRPPortletURL.URLContext.ESCAPE_XML, urlFormat.getWantEscapeXML());
 
          WSRPPortletURL url = WSRPPortletURL.create(containerURL, wantSecure, context);
          return url.toString();

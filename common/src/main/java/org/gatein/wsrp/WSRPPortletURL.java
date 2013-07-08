@@ -23,6 +23,7 @@
 
 package org.gatein.wsrp;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.gatein.common.text.FastURLDecoder;
 import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.ActionURL;
@@ -62,6 +63,8 @@ public abstract class WSRPPortletURL implements ContainerURL
    private static final String PARAM_SEPARATOR = "|";
    private static final int URL_TYPE_END = WSRPRewritingConstants.URL_TYPE_NAME.length() + EQUALS.length();
    private boolean secure;
+   private final String ampersand;
+   private final boolean escapeXML;
 
    private Mode mode;
 
@@ -233,7 +236,7 @@ public abstract class WSRPPortletURL implements ContainerURL
       }
 
       // standardize parameter separators
-      
+
       //NOTE: this is an error here, we should not be getting AMP_AMP, but if makes more sense for
       //      now to handle the situation right now than to throw an error.
       //      If we reneable this check, make sure to uncomment testDoublyEncodedAmpersand in WSRPPortletURLTestCase
@@ -241,7 +244,7 @@ public abstract class WSRPPortletURL implements ContainerURL
       //{
       //	throw new IllegalArgumentException(encodedURL + " contains a doubly encoded &!");
       //}
-      
+
       encodedURL = TextTools.replace(encodedURL, AMP_AMP, PARAM_SEPARATOR);
       encodedURL = TextTools.replace(encodedURL, ENCODED_AMPERSAND, PARAM_SEPARATOR);
       encodedURL = TextTools.replace(encodedURL, AMPERSAND, PARAM_SEPARATOR);
@@ -313,10 +316,16 @@ public abstract class WSRPPortletURL implements ContainerURL
       this.windowState = windowState;
       this.secure = secure;
       this.navigationalState = navigationalState;
+      final Object escapeXMLValue = context.getValueFor(URLContext.ESCAPE_XML);
+      escapeXML = escapeXMLValue != null ? (Boolean)escapeXMLValue : true;
+      ampersand = escapeXML ? ENCODED_AMPERSAND : AMPERSAND;
    }
 
    protected WSRPPortletURL()
    {
+      // default for XML escaping should be true to match JSR-286
+      ampersand = ENCODED_AMPERSAND;
+      escapeXML = true;
    }
 
    protected final void setParams(Map<String, String> params, String originalURL)
@@ -493,8 +502,17 @@ public abstract class WSRPPortletURL implements ContainerURL
    {
       if (value != null)
       {
-         sb.append(AMPERSAND).append(name).append(EQUALS).append(value);
+         sb.append(ampersand).append(name).append(EQUALS).append(encodeValueIfNeeded(value));
       }
+   }
+
+   private String encodeValueIfNeeded(String value)
+   {
+      if (escapeXML)
+      {
+         value = StringEscapeUtils.escapeXml(value);
+      }
+      return value;
    }
 
    private static Map<String, String> extractParams(String encodedURL, String originalURL, Set<String> customModes, Set<String> customWindowStates)
@@ -629,6 +647,7 @@ public abstract class WSRPPortletURL implements ContainerURL
       public static final String REGISTRATION_HANDLE = "org.gatein.wsrp.registration";
       public static final String INSTANCE_KEY = "org.gatein.wsrp.instance.key";
       public static final String NAMESPACE = "org.gatein.wsrp.namespace";
+      public static final String ESCAPE_XML = "org.gatein.wsrp.escapeXML";
 
       public static final URLContext EMPTY = new URLContext()
       {

@@ -194,6 +194,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
 
       V1MarkupResponse response = producer.getMarkup(getMarkup);
 
+      // MarkupPortlet edit mode outputs a Portlet URL using BaseURL.toString so *NOT* XML-encoded
       String namespacePrefix = getMarkup.getRuntimeContext().getNamespacePrefix();
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
          "-interactionState=JBPNS_/wsrp_rewrite' id='" + namespacePrefix + "portfolioManager'><table><tr><td>Stock symbol</t" +
@@ -547,6 +548,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       {
          V1GetMarkup getMarkup = createMarkupRequestForCurrentlyDeployedPortlet();
 
+         // EncodeURLPortlet uses BaseURL.toString which *doesn't* XML-encode URLs
          V1MarkupResponse response = producer.getMarkup(getMarkup);
          checkMarkupResponse(response, "wsrp_rewrite?wsrp-urlType=blockingAction&wsrp-interactionState=JBPNS_/wsrp_rewrite\n" +
             "wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite");
@@ -870,6 +872,7 @@ public class MarkupTestCase extends NeedPortletHandleTest
       ExtendedAssert.assertNotNull(markupContext);
       String markupString = markupContext.getMarkupString();
       ExtendedAssert.assertString1ContainsString2(markupString, "count = " + count);
+      // SessionPortlet outputs URLs using toString so *NOT* XML-encoded
       ExtendedAssert.assertString1ContainsString2(markupString, "<a href='wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite'>render</a>");
 
       // checking session

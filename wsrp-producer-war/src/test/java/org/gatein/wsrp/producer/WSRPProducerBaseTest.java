@@ -340,6 +340,16 @@ public abstract class WSRPProducerBaseTest extends TestCase
       return webArchive;
    }
 
+   @Deployment(name = "test-escapexml-portlet.war", managed = false)
+   @OverProtocol("Servlet 2.5")
+   public static WebArchive createTestEscapeXMLPortletArchive()
+   {
+      WebArchive webArchive = ShrinkWrap.create(WebArchive.class, "test-escapexml-portlet.war");
+      webArchive.merge(ShrinkWrap.create(WebArchive.class).as(ExplodedImporter.class).importDirectory("src/test/test-portlets/test-escapexml-portlet-war").as(WebArchive.class));
+      webArchive.addClass(EncodeURLPortlet.class);
+      return webArchive;
+   }
+
    @Deployment(name = "test-usercontext-portlet.war", managed = false)
    @OverProtocol("Servlet 2.5")
    public static WebArchive createTestUserContextPortletArchive()
