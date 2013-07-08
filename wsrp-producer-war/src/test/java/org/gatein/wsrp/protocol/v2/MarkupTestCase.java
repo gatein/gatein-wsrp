@@ -253,6 +253,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
 
       MarkupResponse response = producer.getMarkup(getMarkup);
 
+      // MarkupPortlet edit mode outputs a Portlet URL using BaseURL.toString so *NOT* XML-encoded
       String namespacePrefix = getMarkup.getRuntimeContext().getNamespacePrefix();
       checkMarkupResponse(response, "<form method='post' action='wsrp_rewrite?wsrp-urlType=blockingAction&wsrp" +
          "-interactionState=JBPNS_/wsrp_rewrite' id='" + namespacePrefix + "portfolioManager'><table><tr><td>Stock symbol</t" +
@@ -699,6 +700,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       {
          GetMarkup getMarkup = createMarkupRequestForCurrentlyDeployedPortlet();
 
+         // EncodeURLPortlet uses BaseURL.toString which *doesn't* XML-encode URLs
          MarkupResponse response = producer.getMarkup(getMarkup);
          checkMarkupResponse(response, "wsrp_rewrite?wsrp-urlType=blockingAction&wsrp-interactionState=JBPNS_/wsrp_rewrite\n" +
             "wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite");
@@ -707,6 +709,31 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       {
          undeploy(encodeURLPortletArchive);
       }
+   }
+
+   @Test
+   public void testEscapeXml() throws Exception
+   {
+      undeploy(DEFAULT_MARKUP_PORTLET_WAR);
+      final String archive = "test-escapexml-portlet.war";
+      deploy(archive);
+
+      try
+      {
+         final GetMarkup markup = createMarkupRequestForCurrentlyDeployedPortlet();
+         final MarkupResponse response = producer.getMarkup(markup);
+         final String markupString = response.getMarkupContext().getItemString();
+         final String[] split = markupString.split("SEPARATOR");
+         assertEquals(3, split.length);
+         assertTrue(split[0].contains("default") && split[0].contains("&amp;"));
+         assertTrue(split[1].contains("escapeTrue") && split[1].contains("&amp;"));
+         assertTrue(split[2].contains("escapeFalse") && !split[2].contains("&amp;") && split[2].contains("&"));
+      }
+      finally
+      {
+         undeploy(archive);
+      }
+
    }
 
    @Test
@@ -965,6 +992,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
          undeploy(archive);
       }
    }*/
+
 
    @Test
    public void testGetMarkupWithSimpleEvent() throws Exception
@@ -1422,6 +1450,7 @@ public class MarkupTestCase extends org.gatein.wsrp.protocol.v2.NeedPortletHandl
       ExtendedAssert.assertNotNull(markupContext);
       String markupString = markupContext.getItemString();
       ExtendedAssert.assertString1ContainsString2(markupString, "count = " + count);
+      // SessionPortlet outputs URLs using toString so *NOT* XML-encoded
       ExtendedAssert.assertString1ContainsString2(markupString, "<a href='wsrp_rewrite?wsrp-urlType=render&wsrp-navigationalState=JBPNS_/wsrp_rewrite'>render</a>");
 
       // checking session

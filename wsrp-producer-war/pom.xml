@@ -61,7 +61,7 @@
                      </archiverConfig>
                      <archive>
                         <manifestEntries>
-                           <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc</Dependencies>
+                           <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc,org.apache.commons.lang</Dependencies>
                         </manifestEntries>
                      </archive>
                      <descriptors>
@@ -215,6 +215,7 @@
                         <descriptor>src/test/assembly/test-basic-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-dispatcher-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-encodeurl-portlet.xml</descriptor>
+                        <descriptor>src/test/assembly/test-escapexml-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-events-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-eventswithobject-portlet.xml</descriptor>
                         <descriptor>src/test/assembly/test-getlocales-portlet.xml</descriptor>
@@ -336,7 +337,6 @@
          <groupId>javax.ccpp</groupId>
          <artifactId>ccpp</artifactId>
          <scope>test</scope>
-         <version>1.0</version>
          <!--TODO: move version to parent pom -->
       </dependency>
 
@@ -352,6 +352,11 @@
          <groupId>org.gatein.wci</groupId>
          <artifactId>wci-jboss7</artifactId>
          <version>${org.gatein.wci.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>commons-lang</groupId>
+         <artifactId>commons-lang</artifactId>
          <scope>test</scope>
       </dependency>
 
@@ -393,7 +398,7 @@
                   <JBOSS_HOME>${project.build.directory}/servers/jboss-as-${jbossas.version}</JBOSS_HOME>
                </systemPropertyVariables>
                <!--<includes>
-                  <include>**/protocol/v2/PortletManagementTestCase.java</include>
+                  <include>**/protocol/v2/MarkupTestCase.java</include>
                </includes>-->
             </configuration>
          </plugin>
