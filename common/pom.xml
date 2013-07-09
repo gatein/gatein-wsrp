@@ -83,10 +83,6 @@
          <groupId>com.google.guava</groupId>
          <artifactId>guava</artifactId>
       </dependency>
-      <dependency>
-         <groupId>commons-lang</groupId>
-         <artifactId>commons-lang</artifactId>
-      </dependency>
 
       <!-- tests -->
       <dependency>

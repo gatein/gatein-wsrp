@@ -61,7 +61,7 @@
                      </archiverConfig>
                      <archive>
                         <manifestEntries>
-                           <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc,org.apache.commons.lang</Dependencies>
+                           <Dependencies>org.apache.cxf,org.jboss.xb,org.jboss.common-core,org.jboss.as.web,org.jboss.msc</Dependencies>
                         </manifestEntries>
                      </archive>
                      <descriptors>
