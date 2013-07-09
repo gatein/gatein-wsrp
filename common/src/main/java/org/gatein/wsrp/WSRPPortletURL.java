@@ -23,7 +23,6 @@
 
 package org.gatein.wsrp;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.gatein.common.text.FastURLDecoder;
 import org.gatein.common.text.TextTools;
 import org.gatein.pc.api.ActionURL;
@@ -38,6 +37,7 @@ import org.gatein.pc.api.WindowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +65,17 @@ public abstract class WSRPPortletURL implements ContainerURL
    private boolean secure;
    private final String ampersand;
    private final boolean escapeXML;
+
+   private static final Map<Character, String> XML_ENTITIES = new HashMap<Character, String>(7);
+
+   static
+   {
+      XML_ENTITIES.put('"', "quot"); // double-quote
+      XML_ENTITIES.put('&', "amp"); // ampersand
+      XML_ENTITIES.put('<', "lt"); // less-than
+      XML_ENTITIES.put('>', "gt"); // greater-than
+      XML_ENTITIES.put('\'', "apos"); // apostrophe
+   }
 
    private Mode mode;
 
@@ -510,7 +521,35 @@ public abstract class WSRPPortletURL implements ContainerURL
    {
       if (escapeXML)
       {
-         value = StringEscapeUtils.escapeXml(value);
+         int len = value.length();
+         StringWriter writer = new StringWriter(len * 2);
+
+         for (int i = 0; i < len; i++)
+         {
+            char c = value.charAt(i);
+            final String entityName = XML_ENTITIES.get(c);
+            if (entityName == null)
+            {
+               if (c > 0x7F)
+               {
+                  writer.write("&#");
+                  writer.write(Integer.toString(c, 10));
+                  writer.write(';');
+               }
+               else
+               {
+                  writer.write(c);
+               }
+            }
+            else
+            {
+               writer.write('&');
+               writer.write(entityName);
+               writer.write(';');
+            }
+         }
+
+         value = writer.toString();
       }
       return value;
    }
