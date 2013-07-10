@@ -428,6 +428,7 @@ public class MarkupTestCase extends V2ConsumerBaseTest
       TestPortletInvocationContext ac = new TestPortletInvocationContext();
       ActionInvocation action = new ActionInvocation(ac);
       action.setInstanceContext(new AbstractInstanceContext(portletHandle));
+      action.setWindowContext(new AbstractWindowContext("windowContextId"));
       action.setSecurityContext(new AbstractSecurityContext(MockHttpServletRequest.createMockRequest(null)));
       action.setUserContext(new MockUserContext());
       action.setTarget(PortletContext.createPortletContext(portletHandle, false));
