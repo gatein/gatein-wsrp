@@ -121,6 +121,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Handles PortletManagement calls on behalf of the producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 11147 $
  * @since 2.4
@@ -339,7 +341,7 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
 
       RegistrationContext toRegistationContext = copyPortlets.getToRegistrationContext();
 
-      //if toRegistrationCotnext is null, then we use the fromRegistrationContext (from spec).
+      //if toRegistrationContext is null, then we use the fromRegistrationContext (from spec).
       //NOTE: this means we can't move between a PortletContext on a registered consumer to a non-registered consumer
       // between two non-registered consumers will still be ok.
       if (toRegistationContext == null)
@@ -368,10 +370,10 @@ public class PortletManagementHandler extends ServiceHandler implements PortletM
             {
                org.gatein.pc.api.PortletContext portalPC = WSRPUtils.convertToPortalPortletContext(portletContext);
 
-               //NOTE: There are two ways we can do a copy. We can export using one registration and import using another. This seems the most straight forward way to do this, just seems a little overkill.
+               //NOTE: There are two ways we can do a copy. We can export using one registration and import using another. This seems the most straightforward way to do this, just seems a little overkill.
                // OR we can copy the portlet, then use the RegistrationManager and RegistrationPolicy to delete the PC from one registration and add it to another. But we don't actually 
                // create the copy under the toRegistration and we would need to add extra checks here to make sure the toRegistration has the proper permissions.
-               // Note sure why there is even a copy portlet operation since it can be replicated by an export and then an import operation.
+               // Not sure why there is even a copy portlet operation since it can be replicated by an export and then an import operation.
 
                org.gatein.pc.api.PortletContext exportedPortletContext = producer.getPortletInvoker().exportPortlet(PortletStateType.OPAQUE, portalPC);
                //Change the registration to the new registration and try and do an import. This should force the new import to be under the new registration context

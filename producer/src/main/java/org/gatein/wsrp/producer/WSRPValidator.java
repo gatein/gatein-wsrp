@@ -28,6 +28,8 @@ import org.gatein.wsrp.WSRPPortletURL;
 import org.gatein.wsrp.WSRPUtils;
 
 /**
+ * Allows to configure the level of validation that the producer performs on incoming requests.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
