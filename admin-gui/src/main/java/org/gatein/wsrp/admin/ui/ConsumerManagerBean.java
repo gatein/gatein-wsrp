@@ -37,13 +37,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Manages consumers via a {@link ConsumerRegistry} instance.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12865 $
  * @since 2.6
  */
 public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
 {
+   /** The associated ConsumerRegistry */
    private transient ConsumerRegistry registry;
+   /** Which consumer is currently selected? */
    private String selectedId;
 
    private static final String NO_CONSUMER = "bean_consumermanager_no_consumer";
@@ -53,13 +57,15 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    private static final String REFRESH_FAILURE = "bean_consumermanager_refresh_failure";
    private static final String REFRESH_FAILURE_WSDL = "bean_consumermanager_refresh_failure_wsdl";
    private static final String REFRESH_EXCEPTION = "bean_consumermanager_refresh_exception";
+
+   // JSF navigation outcome constants
    static final String CONFIGURE_CONSUMER = "configureConsumer";
    static final String EXPORT = "export";
    static final String EXPORTS = "exports";
    static final String EXPORT_DETAIL = "exportDetail";
    static final String IMPORT = "import";
-
    static final String CONSUMERS = "consumers";
+
    static final String EXPECTED_REG_INFO_KEY = "expectedRegistrationInfo";
    static final String REFRESH_MODIFY = "bean_consumermanager_refresh_modify";
    static final String REQUESTED_CONSUMER_ID = "id";
@@ -108,6 +114,11 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
       return getRegistry().getConfiguredConsumers();
    }
 
+   /**
+    * Reloads consumers from persistent storage.
+    *
+    * @return
+    */
    public String reload()
    {
       getRegistry().reloadConsumers();
@@ -118,6 +129,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    {
       if (refreshConsumerId() != null)
       {
+         // are we activating or deactivating?
          boolean activate = Boolean.valueOf(beanContext.getParameter("activate"));
          try
          {
@@ -126,6 +138,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
                WSRPConsumer consumer = getSelectedConsumer();
                if (consumer.isRefreshNeeded())
                {
+                  // refresh the consumer
                   RefreshResult result = internalRefresh(consumer);
                   if (result != null && !result.hasIssues())
                   {
@@ -134,11 +147,13 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
                }
                else
                {
+                  // no refresh needed, activate the consumer
                   getRegistry().activateConsumerWith(selectedId);
                }
             }
             else
             {
+               // deactivate
                getRegistry().deactivateConsumerWith(selectedId);
             }
          }
@@ -147,6 +162,7 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
             beanContext.createErrorMessageFrom(e);
          }
 
+         // redisplay the consumer list
          return listConsumers();
       }
       else
@@ -160,12 +176,12 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
    {
       if (refreshConsumerId() != null)
       {
+         // are we registering or deregistering?
          boolean register = Boolean.valueOf(beanContext.getParameter("register"));
-
          try
          {
             getRegistry().registerOrDeregisterConsumerWith(selectedId, register);
-            return CONFIGURE_CONSUMER;
+            return CONFIGURE_CONSUMER; // display the selected consumer's configuration
          }
          catch (Exception e)
          {
@@ -182,22 +198,25 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
 
    public String createConsumer()
    {
-      selectedId = checkNameValidity(selectedId, MESSAGE_TARGET);
+      // check that the identifier we chose for the consumer is valid and doesn't already exist
+      selectedId = checkAndReturnValueIfValid(selectedId, MESSAGE_TARGET);
       if (selectedId != null)
       {
          try
          {
+            // if we're good, create it with default values
             getRegistry().createConsumer(selectedId, ProducerInfo.DEFAULT_CACHE_VALUE, null);
-            return CONFIGURE_CONSUMER;
+            return CONFIGURE_CONSUMER; // and display its configuration screen via ConsumerBean
          }
          catch (Exception e)
          {
-            selectedId = null;
+            selectedId = null; // deselect the consumer on error
             beanContext.createErrorMessageFrom(MESSAGE_TARGET, e);
             return null;
          }
       }
 
+      // if we ran into an issue, re-display the current page without going through navigation
       return null;
    }
 
@@ -207,8 +226,9 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
       {
          try
          {
+            // destroy the consumer
             getRegistry().destroyConsumer(selectedId);
-            return listConsumers();
+            return listConsumers(); // and re-display updated list
          }
          catch (Exception e)
          {
@@ -223,6 +243,11 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
       }
    }
 
+   /**
+    * Displays the configuration for the currently selected consumer
+    *
+    * @return
+    */
    public String configureConsumer()
    {
       if (refreshConsumerId() != null)
@@ -377,12 +402,18 @@ public class ConsumerManagerBean extends WSRPManagedBean implements Serializable
       refreshConsumerId();
    }
 
+   /**
+    * Makes sure we have the proper consumer selected
+    *
+    * @return
+    */
    private String refreshConsumerId()
    {
       selectedId = beanContext.getParameter(REQUESTED_CONSUMER_ID);
       return selectedId;
    }
 
+   /** Displays an error message if we're trying to do something with a consumer and yet don't have any selected, which, hopefully, shouldn't happen too often! :) */
    private void noSelectedConsumerError()
    {
       beanContext.createErrorMessage(NO_CONSUMER);

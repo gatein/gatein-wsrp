@@ -32,6 +32,8 @@ import javax.faces.event.PhaseListener;
 import java.util.Map;
 
 /**
+ * Displays the error page if the WSRP service is not available.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

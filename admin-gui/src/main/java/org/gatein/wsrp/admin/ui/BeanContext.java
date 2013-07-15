@@ -35,6 +35,9 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
+ * Provides a context that UI beans can query to retrieve information from the environment in which they run. This helps isolate UI-framework functionality from the core
+ * functionality, though, in practice, some of the actual implementation (JSF) leaked through. Also helps with unit testing.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13374 $
  * @since 2.6
@@ -49,6 +52,7 @@ public abstract class BeanContext implements Serializable
    private static final String CAUSE = "bean_support_cause";
    private static final String CURRENT_PLACEHOLDER = "###";
 
+
    private String resourceName = DEFAULT_RESOURCE_NAME;
 
    public void setResourceName(String resourceName)
@@ -62,7 +66,7 @@ public abstract class BeanContext implements Serializable
    }
 
    /**
-    * Retrieves the value of the parameter which name is given from the JSF request.
+    * Retrieves the value of the parameter which name is given from the request.
     *
     * @param key name of the parameter which value we want to retrieve
     * @return
@@ -70,19 +74,41 @@ public abstract class BeanContext implements Serializable
    public abstract String getParameter(String key);
 
    /**
-    * @param target
-    * @param message
-    * @param severity
-    * @param additionalParams
+    * Creates the specified message targeting the specified UI element with the specified severity (semantically left open) with the specified additional parameters.
+    *
+    * @param target           the identifier of the target UI element
+    * @param message          the message to created
+    * @param severity         the severity of the message
+    * @param additionalParams potentially <code>null</code> additional parameters
     */
    protected abstract void createMessage(String target, String message, Object severity, Object... additionalParams);
 
+   /**
+    * Lets subclasses specify the object denoting the error severity
+    *
+    * @return
+    */
    protected abstract Object getErrorSeverity();
 
+   /**
+    * Lets subclasses specify the object denoting the information severity
+    *
+    * @return
+    */
    protected abstract Object getInfoSeverity();
 
+   /**
+    * Retrieves the current locale for the UI.
+    *
+    * @return
+    */
    protected abstract Locale getLocale();
 
+   /**
+    * Retrieves the IP address of the server on which the UI is running.
+    *
+    * @return
+    */
    public abstract String getServerAddress();
 
    public void createErrorMessage(String localizedMessageId, Object... params)
@@ -168,8 +194,8 @@ public abstract class BeanContext implements Serializable
     *
     * @param e the Throwable for which a localized message is to be retrieved
     * @return the localized message associated with the specified Throwable if it exists or the localized value
-    *         associated with the {@link #UNEXPECTED_ERROR} resource bundle entry to which is appended the Throwable
-    *         class name.
+    * associated with the {@link #UNEXPECTED_ERROR} resource bundle entry to which is appended the Throwable
+    * class name.
     */
    private String getLocalizedMessageOrExceptionName(Throwable e)
    {
@@ -194,8 +220,7 @@ public abstract class BeanContext implements Serializable
    /**
     * Removes the object identified by the specified name(s) from the session. For a JSF backed implementation, this
     * will allow for the object/bean (defined as session-scoped in <code>faces-config.xml</code>) to be recreated by
-    * JSF
-    * when needed.
+    * JSF when needed.
     *
     * @param name       name of the object to be removed
     * @param otherNames additional names of objects to be removed
@@ -287,16 +312,33 @@ public abstract class BeanContext implements Serializable
       return checkObject(result, expectedClass, errorMessage);
    }
 
-   protected <T> T checkObject(Object result, Class<T> expectedClass, String errorMessage)
+   /**
+    * Checks whether the specified object is an instance of the specified expected class or throws an <code>IllegalArgumentException</code> with the specified error message.
+    *
+    * @param toCheck       the object to check
+    * @param expectedClass the class we expect the object to be an instance of
+    * @param errorMessage  the error message if the object is not an instance of the expected class
+    * @param <T>           the type of the expected class
+    * @return the specified object to check cast to the specified class
+    */
+   protected <T> T checkObject(Object toCheck, Class<T> expectedClass, String errorMessage)
    {
-      if (result != null && !expectedClass.isAssignableFrom(result.getClass()))
+      if (toCheck != null && !expectedClass.isAssignableFrom(toCheck.getClass()))
       {
-         throw new IllegalArgumentException(errorMessage.replace(CURRENT_PLACEHOLDER, result.toString()));
+         throw new IllegalArgumentException(errorMessage.replace(CURRENT_PLACEHOLDER, toCheck.toString()));
       }
 
-      return expectedClass.cast(result);
+      return expectedClass.cast(toCheck);
    }
 
+   /**
+    * Finds and retrieves the bean associated with the specified name if it is an instance of the specified type.
+    *
+    * @param name the name of the bean to retrieve
+    * @param type the expected type of the bean
+    * @param <T>  the expected type of the bean
+    * @return the bean if we found it cast to the expected type
+    */
    public abstract <T> T findBean(String name, Class<T> type);
 
    /**

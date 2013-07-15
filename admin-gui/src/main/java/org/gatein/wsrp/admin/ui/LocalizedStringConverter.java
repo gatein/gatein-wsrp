@@ -30,6 +30,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
 /**
+ * Converts a {@link LocalizedString} into a JSF-displayable object and back.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 9153 $
  * @since 2.6.3

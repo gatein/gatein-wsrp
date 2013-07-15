@@ -57,6 +57,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Handles consumer configuration details.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12865 $
  * @since 2.6
@@ -64,11 +66,17 @@ import java.util.Map;
 public class ConsumerBean extends WSRPManagedBean implements Serializable
 {
    public static final SelectablePortletToHandleFunction SELECTABLE_TO_HANDLE = new SelectablePortletToHandleFunction();
+   /** The consumer we're currently dealing with */
    private transient WSRPConsumer consumer;
+   /** The ConsumerManagerBean that handles all consumers */
    private transient ConsumerManagerBean manager;
+   /** Did we modify the configuration since it was last saved? */
    private boolean modified;
+   /** The associated producer's WSDL URL String representation */
    private String wsdl;
+   /** The consumer's identifier */
    private String id;
+   /** The time of the currently selected export information (export time is discriminative) */
    private long currentExportTime;
 
    private static final String NULL_ID_CONSUMER = "bean_consumer_null_id";
@@ -87,8 +95,11 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
    private static final String CONSUMER_TYPE = "CONSUMER_TYPE";
    private static final String CURRENT_EXPORT_TIME = "currentExportTime";
 
+   /** UI-friendly list of portlet handles known by the associated consumer */
    private transient DataModel portletHandles;
+   /** UI-friendly list of existing export results */
    private transient DataModel existingExports;
+   /** UI-friendly current export information */
    private transient ExportInfoDisplay currentExport;
 
    public void setManager(ConsumerManagerBean manager)
@@ -96,6 +107,10 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
       this.manager = manager;
    }
 
+   /**
+    * Whether the configuration has been modified since it was last saved.
+    * @return
+    */
    public boolean isModified()
    {
       return modified || getProducerInfo().isModifyRegistrationRequired() || isRegistrationLocallyModified();
@@ -122,7 +137,7 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          // need to check that the new id is valid
          if (isOldAndNewDifferent(oldId, id))
          {
-            id = checkNameValidity(id, "edit-cons-form:id");
+            id = checkAndReturnValueIfValid(id, "edit-cons-form:id");
             if (id != null)
             {
                info.setId(id);
