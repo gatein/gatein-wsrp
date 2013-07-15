@@ -48,7 +48,7 @@ public interface ConsumerExtensionAccessor
     * @return a List containing the Extensions needed to be added to the target class or an empty List if no such
     *         extension exists.
     */
-   public List<Extension> getRequestExtensionsFor(Class targetClass);
+   List<Extension> getRequestExtensionsFor(Class targetClass);
 
    /**
     * Adds an extension before it is sent to the producer to elements of the specified target class.
@@ -60,7 +60,7 @@ public interface ConsumerExtensionAccessor
     * @param targetClass the class of elements on which extensions need to be added before being sent to the producer
     * @param extension   the extension to be added in the form of a {@link org.w3c.dom.Element} (<strong>strongly</strong> recommended) or a {@link java.io.Serializable} object
     */
-   public void addRequestExtension(Class targetClass, Object extension);
+   void addRequestExtension(Class targetClass, Object extension);
 
    /**
     * Retrieves extensions that were sent by the producer for instances of the specified response class.
@@ -70,25 +70,25 @@ public interface ConsumerExtensionAccessor
     * org.oasis.wsrp.v2.ResourceResponse}. These classes are the ones that contain the specific information pertaining
     * to markup, interaction, resource or event responses.
     *
-    * @param responseClass
-    * @return
+    * @param responseClass the WSRP 2 response class for which extensions are to be retrieved.
+    * @return a List of UnmarshalledExtensions extracted from the specified response class
     */
-   public List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
+   List<UnmarshalledExtension> getResponseExtensionsFrom(Class responseClass);
 
    /**
     * Adds the specified unmarshalled extension to be linked to the specified WSRP response class.
     * <p/>
     * Note that this method is essentially targeted at the internal implementation.
     *
-    * @param responseClass
-    * @param extension
+    * @param responseClass the WSRP response class (among those currently supported) to which extracted and unmarshalled extensions need to be added
+    * @param extension the extracted and unmarshalled extension to add
     */
-   public void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
+   void addResponseExtension(Class responseClass, UnmarshalledExtension extension);
 
    /**
     * Clears the currently held extensions. This method is called once per request-response cycle by the internal
     * implementation.
     */
-   public void clear();
+   void clear();
 
 }

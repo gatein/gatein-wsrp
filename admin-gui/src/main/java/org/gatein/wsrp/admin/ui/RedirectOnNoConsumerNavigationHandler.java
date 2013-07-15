@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Handles JSF navigation making sure that we always have a valid state to display, in particular, re-displays the consumers list if we're asking to display a consumer's
+ * configuration without a proper consumer to be found.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

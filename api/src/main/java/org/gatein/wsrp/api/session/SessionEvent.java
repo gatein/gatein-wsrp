@@ -26,17 +26,30 @@ package org.gatein.wsrp.api.session;
 import javax.servlet.http.HttpSession;
 
 /**
+ * An HTTP session event.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public interface SessionEvent
 {
+   /** What type of event is it? */
    enum SessionEventType
    {
       SESSION_CREATED, SESSION_DESTROYED
    }
 
+   /**
+    * Retrieves the type of this event.
+    *
+    * @return the type of this event.
+    */
    SessionEventType getType();
 
+   /**
+    * Retrieves the HttpSession that triggered this event.
+    *
+    * @return the HttpSession that triggered this event.
+    */
    HttpSession getSession();
 }

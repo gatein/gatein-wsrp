@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
 {
-   public final static String DEFAULT_RESOURCE_ID = "_gtn_resid_";
+   public static final String DEFAULT_RESOURCE_ID = "_gtn_resid_";
 
    private String resourceId;
    private StateString resourceState;
@@ -108,7 +108,7 @@ public class WSRPResourceURL extends WSRPPortletURL implements ResourceURL
       }
 
       // false is the default value, so we don't actually need to add it to the string
-      if (preferOperation != false)
+      if (preferOperation)
       {
          createURLParameter(sb, WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION, Boolean.toString(preferOperation));
       }

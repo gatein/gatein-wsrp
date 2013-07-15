@@ -42,7 +42,7 @@ import java.util.Collection;
 /** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
 public class BEAPolicyIgnoringPortCustomizer implements PortCustomizer
 {
-   private final static Logger log = LoggerFactory.getLogger(BEAPolicyIgnoringPortCustomizer.class);
+   private static final Logger log = LoggerFactory.getLogger(BEAPolicyIgnoringPortCustomizer.class);
 
    public static final String IGNORE_BEA_POLICY_PROPERTY_NAME = "org.gatein.wsrp.consumer.ignoreDefaultBEAPolicy";
    private static final QName BEA_DEFAULT_POLICY = new QName("http://www.bea.com/wls90/security/policy", "Identity");

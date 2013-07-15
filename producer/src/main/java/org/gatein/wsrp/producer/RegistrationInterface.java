@@ -58,11 +58,11 @@ public interface RegistrationInterface
    RegistrationState modifyRegistration(ModifyRegistration modifyRegistration)
       throws InvalidRegistration, MissingParameters, OperationFailed, OperationNotSupported, ResourceSuspended;
 
-   public Lifetime getRegistrationLifetime(GetRegistrationLifetime getRegistrationLifetime)
+   Lifetime getRegistrationLifetime(GetRegistrationLifetime getRegistrationLifetime)
       throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
       OperationNotSupported, ResourceSuspended;
 
-   public Lifetime setRegistrationLifetime(SetRegistrationLifetime setRegistrationLifetime)
+   Lifetime setRegistrationLifetime(SetRegistrationLifetime setRegistrationLifetime)
       throws AccessDenied, InvalidHandle, InvalidRegistration, ModifyRegistrationRequired, OperationFailed,
       OperationNotSupported, ResourceSuspended;
 }

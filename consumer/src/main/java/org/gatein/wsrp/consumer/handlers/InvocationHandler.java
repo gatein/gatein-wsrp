@@ -65,12 +65,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Handles a specific type of PortletInvocation, translating it back and forth into WSRP-understable structures.
+ *
+ * @param <Invocation> the type of PortletInvocation this InvocationHandler handles
+ * @param <Request>    the type of WSRP request this InvocationHandler can translate to from a portlet container request
+ * @param <Response>   the type of WSRP response this InvocationHandler can translate back to portlet container responses
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13121 $
  * @since 2.4 (May 31, 2006)
  */
 public abstract class InvocationHandler<Invocation extends PortletInvocation, Request, Response>
 {
+   /** The consumer owning this handler */
    protected final WSRPConsumerSPI consumer;
 
    protected static Logger log = LoggerFactory.getLogger(InvocationHandler.class);
@@ -91,22 +97,34 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       this.consumer = consumer;
    }
 
+   /**
+    * Translates a portlet container request into a WSRP request, calls the appropriate WSRP operation and translates the received response back into something the portlet
+    * container can deal with, taking care of any exception, dealing with the ones we can or transforming them into portlet container exceptions when we can't deal with them
+    * ourselves. Follows the Template Method design pattern.
+    *
+    * @param invocation the initiating portlet container request that will be transformed into a WSRP request
+    * @return an appropriate PortletInvocationResponse translated from the WSRP response sent by the producer
+    * @throws PortletInvokerException
+    */
    public PortletInvocationResponse handle(Invocation invocation) throws PortletInvokerException
    {
-      // Extracts basic required information from invocation
+      // Extracts basic, common required information from invocation
       RequestPrecursor<Invocation> requestPrecursor = new RequestPrecursor<Invocation>(consumer, invocation);
 
-      // create the specific request
+      // create the specific request, customizing it with specific parameters if needed
       Request request = prepareRequest(requestPrecursor, invocation);
 
-      // Perform the request
       try
       {
+         // Perform the request and get the response
          Response response = performRequest(request, invocation);
+
+         // process the response
          return processResponse(response, invocation, requestPrecursor);
       }
       catch (Exception e)
       {
+         // if we didn't get a straight PortletInvokerException (which means we already asserted that the WSRP can't deal with it), try to transform it into something we can deal with
          if (!(e instanceof PortletInvokerException))
          {
             final PortletInvocationResponse response = dealWithError(e, invocation, getRuntimeContextFrom(request));
@@ -124,6 +142,15 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
    }
 
+   /**
+    * Attempts to perform the specified request, taking care of setting and updating cookies if required, at most {@link #MAXIMUM_RETRY_NUMBER} times to give the consumer the
+    * opportunity to react to specific errors (such as need to invoke initCookie or modifyRegistration) that can sometimes be recovered from.
+    *
+    * @param request    the request to perform
+    * @param invocation the PortletInvocation that initiated the current WSRP request
+    * @return the producer's reponse
+    * @throws Exception
+    */
    protected Response performRequest(Request request, PortletInvocation invocation) throws Exception
    {
       int retryCount = 0;
@@ -205,7 +232,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          {
             sessionHandler.initCookieIfNeeded(invocation);
 
-            // re-attempt invocation
+            // re-attempt invocation since we can recover from this error
             return handle(invocation);
          }
          catch (Exception e)
@@ -216,19 +243,23 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
       else if (error instanceof InvalidSession)
       {
+         // invalidate the currently held session information
          log.debug("Session invalidated after InvalidSessionFault, will re-send session-stored information.");
          sessionHandler.handleInvalidSessionFault(invocation, runtimeContext);
 
+         // and re-attempt invocation as we can recover from this
          return handle(invocation);
       }
       else if (error instanceof InvalidRegistration)
       {
+         // invalidate the registration information, we can't recover from this, the user will have to check the admin UI to see what's wrong
          consumer.handleInvalidRegistrationFault();
 
          return new ErrorResponse(error);
       }
       else if (error instanceof ModifyRegistrationRequired)
       {
+         // we can't recover from this, the user will need to check the admin UI to see how to modify the current registration to make it comply with the new producer's requirements
          consumer.handleModifyRegistrationRequiredFault();
 
          return new ErrorResponse(error);
@@ -240,6 +271,12 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
    }
 
+   /**
+    * Attempts to unwrap nested errors to make them more palatable to users.
+    *
+    * @param errorResponse the error response we're trying to make simpler
+    * @return hopefully, a simplified error response, one that more clearly identifies the root issue
+    */
    protected ErrorResponse unwrapWSRPError(ErrorResponse errorResponse)
    {
       Throwable cause = errorResponse.getCause();
@@ -264,20 +301,57 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
       }
    }
 
-//   protected abstract void updateUserContext(Request request, UserContext userContext);
+   // template method hook points
 
-//   protected abstract void updateRegistrationContext(Request request) throws PortletInvokerException;
-
+   /**
+    * Extracts the RuntimeContext from the specific WSRP request.
+    *
+    * @param request the request to extract a RuntimeContext from
+    * @return the RuntimeContext instance associated with the specified request
+    */
    protected abstract RuntimeContext getRuntimeContextFrom(Request request);
 
+   /**
+    * Performs the actual specific WSRP call for the specified request.
+    *
+    * @param request the WSRP request to perform
+    * @return the producer's response
+    * @throws Exception
+    */
    protected abstract Response performRequest(Request request) throws Exception;
 
+   /**
+    * Created and further prepares the specific requests based on common extracted information from the specified RequestPrecursor and the originating portlet invocation.
+    *
+    * @param requestPrecursor the common extracted information for this request
+    * @param invocation       the portlet invocation from which we're trying to perform a WSRP call
+    * @return the fully prepared request
+    */
    protected abstract Request prepareRequest(RequestPrecursor<Invocation> requestPrecursor, Invocation invocation);
 
+   /**
+    * Converts the WSRP response into a portlet container {@link PortletInvocationResponse} based on its type and on whether other WSRP components need to be informed of potential
+    * changes from the producer.
+    *
+    * @param response         the original WSRP response
+    * @param invocation       the PortletInvocation that triggered the WSRP call
+    * @param requestPrecursor the request precursor information we extracted before performing the request
+    * @return the appropriate PortletInvocationResponse based on the WSRP producer's response
+    * @throws PortletInvokerException
+    */
    protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
 
+   /**
+    * Extracts extensions from the response.
+    *
+    * @param response the WSRP response to extract extensions from
+    * @return a potentially empty list of extensions for the specified response
+    */
    protected abstract List<Extension> getExtensionsFrom(Response response);
 
+   /**
+    * Processes extensions, making them available if needed to the {@link org.gatein.wsrp.api.extensions.ConsumerExtensionAccessor}. Used by subclasses.
+    */
    protected void processExtensions(Response response)
    {
       final List<Extension> extensions = WSRPUtils.replaceByEmptyListIfNeeded(getExtensionsFrom(response));
@@ -304,7 +378,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
     */
    protected static class RequestPrecursor<Invocation extends PortletInvocation>
    {
-      private final static Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
+      private static final Logger log = LoggerFactory.getLogger(RequestPrecursor.class);
 
       private final PortletContext portletContext;
       private final RuntimeContext runtimeContext;

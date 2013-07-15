@@ -33,6 +33,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Provides metadata about the result of a WSRP import operation on a producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

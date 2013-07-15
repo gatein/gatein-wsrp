@@ -27,6 +27,7 @@ import org.chromattic.api.annotations.Id;
 import org.chromattic.api.annotations.PrimaryType;
 import org.chromattic.api.annotations.Property;
 import org.gatein.common.util.ParameterValidation;
+import org.gatein.wsrp.jcr.mapping.BaseMapping;
 import org.gatein.wsrp.registration.LocalizedString;
 import org.gatein.wsrp.registration.RegistrationPropertyDescription;
 
@@ -37,7 +38,7 @@ import javax.xml.namespace.QName;
  * @version $Revision$
  */
 @PrimaryType(name = RegistrationPropertyDescriptionMapping.NODE_NAME)
-public abstract class RegistrationPropertyDescriptionMapping
+public abstract class RegistrationPropertyDescriptionMapping implements BaseMapping<RegistrationPropertyDescription, Object>
 {
    public static final String NODE_NAME = "wsrp:registrationpropertydescription";
 
@@ -95,7 +96,23 @@ public abstract class RegistrationPropertyDescriptionMapping
 
    public RegistrationPropertyDescription toRegistrationPropertyDescription()
    {
-      RegistrationPropertyDescription desc = new RegistrationPropertyDescription(getName(), QName.valueOf(getType()));
+      return toModel(null, null);
+   }
+
+   @Override
+   public RegistrationPropertyDescription toModel(RegistrationPropertyDescription initial, Object registry)
+   {
+      RegistrationPropertyDescription desc = initial;
+      if (desc == null)
+      {
+         desc = new RegistrationPropertyDescription(getName(), QName.valueOf(getType()));
+      }
+      else
+      {
+         desc.setName(QName.valueOf(getName()));
+         desc.setType(QName.valueOf(getType()));
+      }
+
       desc.setPersistentKey(getPersistentKey());
 
       String description = getDescription();
@@ -115,5 +132,11 @@ public abstract class RegistrationPropertyDescriptionMapping
       }
 
       return desc;
+   }
+
+   @Override
+   public Class<RegistrationPropertyDescription> getModelClass()
+   {
+      return RegistrationPropertyDescription.class;
    }
 }

@@ -39,10 +39,7 @@
 }
 
 .wsrp-consumers-ui div.tab-container {
-   border-bottom: 1px solid #B3C0C7;
-   border-right: 1px solid #B3C0C7;
-   border-left: 1px solid #B3C0C7;
-   border-top: 1px solid #B3C0C7;
+   border: 1px solid #B3C0C7;
    padding: 15px 0 10px 0;
 }
 
@@ -306,8 +303,7 @@
    border-top: 0;
    background-color: #fff;
    padding: 4px;
-   margin: 0;
-   margin-bottom: .5em;
+   margin: 0 0 .5em;
    display: block;
 }
 

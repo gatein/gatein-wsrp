@@ -25,6 +25,8 @@ package org.gatein.wsrp.api.extensions;
 import org.w3c.dom.Element;
 
 /**
+ * An extension value, unmarshalled from a SOAP message.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

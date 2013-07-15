@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Provides JCR-backed (using Chromattic) implementation of ConsumerRegistry.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -67,7 +69,9 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    private final String rootNodePath;
    static final String PRODUCER_INFOS_PATH = ProducerInfosMapping.NODE_NAME;
 
+   /** Classes that this class knows how to map from JCR data and back */
    public static final List<Class> mappingClasses = new ArrayList<Class>(6);
+   /** An InputStream issued from a configuration file or URL, to initialize this registry from */
    private InputStream configurationIS;
 
    static
@@ -95,17 +99,20 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
    }
 
    /**
+    * Creates a new JCRConsumerRegistry.
     * for tests
     *
-    * @param persister
-    * @param loadFromXMLIfNeeded
-    * @param rootNodePath
+    * @param persister           the ChromatticPersister that will deal with JCR via Chromattic
+    * @param loadFromXMLIfNeeded whether or not we should load initial data from an XML configuration file
+    * @param rootNodePath        the root node path, only useful to be specified for tests where the root node path of the JCR hierarchy might not be standard
     */
    protected JCRConsumerRegistry(ChromatticPersister persister, boolean loadFromXMLIfNeeded, String rootNodePath)
    {
       this.persister = persister;
       this.loadFromXMLIfNeeded = loadFromXMLIfNeeded;
       this.rootNodePath = rootNodePath.endsWith("/") ? rootNodePath : rootNodePath + "/";
+
+      // load consumers from persistence
       initConsumerCache();
    }
 
@@ -125,7 +132,11 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       setConsumerCache(new InMemoryConsumerCache(this));
    }
 
-   /** @param is  */
+   /**
+    * Specifies an InputStream pointing to a configuration this registry needs to load.
+    *
+    * @param is an InputStream pointing to a configuration this registry needs to load
+    */
    public void setConfigurationIS(InputStream is)
    {
       this.configurationIS = is;
@@ -140,10 +151,13 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
          final long now = SupportsLastModified.now();
 
+         // since we're creating a new ProducerInfo, we need to modify the parent as well
          ProducerInfosMapping pims = getProducerInfosMapping(session);
          pims.setLastModified(now);
 
+         // use ProducerInfosMapping to create a child ProducerInfo node and initialize it
          ProducerInfoMapping pim = pims.createProducerInfo(info.getId());
+         // we first need to persist the ProducerInfoMapping as a child of the ProducerInfosMapping element, using its id as path
          String key = session.persist(pims, pim, info.getId());
          info.setKey(key);
          info.setLastModified(now);
@@ -168,6 +182,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
    public String update(ProducerInfo producerInfo)
    {
+      // retrieve the ProducerInfo by its persistence key because it's producer identifier might change (if it's been renamed for example)
       String key = producerInfo.getKey();
       if (key == null)
       {
@@ -183,6 +198,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
+         // retrieve the mapping associated with the persistence key and if it exists, reset it to the data of the specified ProducerInfo
          ProducerInfoMapping pim = session.findById(ProducerInfoMapping.class, key);
          if (pim == null)
          {
@@ -205,6 +221,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
 
          if (!idUnchanged)
          {
+            // the consumer was renamed, we need to update its parent
             Map<String, ProducerInfoMapping> nameToProducerInfoMap = pims.getNameToProducerInfoMap();
             nameToProducerInfoMap.put(pim.getId(), pim);
          }
@@ -226,6 +243,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
+         // get the ProducerInfoMappings from JCR
          List<ProducerInfoMapping> pims = getProducerInfosMapping(session).getProducerInfos();
          List<ProducerInfo> infos = new ArrayList<ProducerInfo>(pims.size());
          for (ProducerInfoMapping pim : pims)
@@ -299,6 +317,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
+         // this operation is not part of Chromattic, so use the JCR functionality directly
          return session.getJCRSession().itemExists(rootNodePath + getPathFor(id));
       }
       catch (RepositoryException e)
@@ -317,6 +336,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       {
          ChromatticSession session = persister.getSession();
 
+         // use JCR directly to only retrieve the ProducerInfo identifiers, this is a little bit convoluted, unfortunately, and we should probably check that we indeed perform better than via Chromattic
          final RowIterator rows = getProducerInfoIds(session);
 
          final long size = rows.getSize();
@@ -348,6 +368,14 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
+   /**
+    * Uses JCR directly to only retrieve the identifiers of persisted ProducerInfos to avoid having to create full ProducerInfoMappings when we only want the identifiers. This
+    * *should* be faster but I guess that depends on the JCR implementation and would need to be evaluated.
+    *
+    * @param session the ChromatticSession used to access the JCR store
+    * @return a RowIterator JCR view over the ProducerInfo identifiers
+    * @throws RepositoryException
+    */
    private RowIterator getProducerInfoIds(ChromatticSession session) throws RepositoryException
    {
       final Session jcrSession = session.getJCRSession();
@@ -378,18 +406,25 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
       }
    }
 
+   /**
+    * Load the root element containing all ProducerInfos from JCR, priming the JCR store with data from XML configuration files if no data has been persisted already, if requested.
+    * Loading initial data from XML is controlled by the value of {@link #loadFromXMLIfNeeded}.
+    *
+    * @param session the ChromatticSession used to access the JCR store
+    * @return the ProducerInfosMapping element representing the collection of ProducerInfos
+    */
    private ProducerInfosMapping getProducerInfosMapping(ChromatticSession session)
    {
       ProducerInfosMapping producerInfosMapping = session.findByPath(ProducerInfosMapping.class, PRODUCER_INFOS_PATH);
 
-      // if we don't have info from JCR, load from XML and populate JCR
       if (producerInfosMapping == null)
       {
+         // we don't currently have any persisted data in JCR so first create the JCR node
          producerInfosMapping = session.insert(ProducerInfosMapping.class, ProducerInfosMapping.NODE_NAME);
 
          if (loadFromXMLIfNeeded)
          {
-            // Load from XML
+            // loading initial data is requested so do it
             XMLConsumerRegistry fromXML = new XMLConsumerRegistry(configurationIS);
             fromXML.reloadConsumers();
 
@@ -400,6 +435,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
             {
                ProducerInfo info = consumer.getProducerInfo();
 
+               // create the ProducerInfoMapping children node
                ProducerInfoMapping pim = producerInfosMapping.createProducerInfo(info.getId());
 
                // need to add to parent first to attach newly created ProducerInfoMapping
@@ -411,6 +447,7 @@ public class JCRConsumerRegistry extends AbstractConsumerRegistry implements Sto
                // update ProducerInfo with the persistence key
                info.setKey(pim.getKey());
 
+               // populate the cache with the newly created consumer
                consumerCache.putConsumer(info.getId(), consumer);
             }
 

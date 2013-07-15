@@ -39,6 +39,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * JCR-backed (via Chromattic) persistent implementation of MigrationService.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

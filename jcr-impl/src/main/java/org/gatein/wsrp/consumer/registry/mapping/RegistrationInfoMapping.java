@@ -34,12 +34,13 @@ import org.gatein.wsrp.consumer.RegistrationInfo;
 import org.gatein.wsrp.consumer.RegistrationProperty;
 import org.gatein.wsrp.jcr.ChromatticPersister;
 import org.gatein.wsrp.jcr.mapping.BaseMapping;
-import org.gatein.wsrp.registration.RegistrationPropertyDescription;
-import org.gatein.wsrp.registration.mapping.RegistrationPropertyDescriptionMapping;
 
+import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -104,22 +105,17 @@ public abstract class RegistrationInfoMapping implements BaseMapping<Registratio
       initial.setRegistrationState(IOTools.safeGetBytes(getRegistrationState()));
 
       // registration properties
-      for (RegistrationPropertyMapping rpm : getRegistrationProperties())
+      final List<RegistrationPropertyMapping> properties = getRegistrationProperties();
+      final Map<QName, RegistrationProperty> propertyMap = new HashMap<QName, RegistrationProperty>(properties.size());
+      for (RegistrationPropertyMapping rpm : properties)
       {
-         RegistrationProperty prop = initial.setRegistrationPropertyValue(rpm.getName(), rpm.getValue());
-
-         RegistrationPropertyDescriptionMapping rpdm = rpm.getDescription();
-         if (rpdm != null)
-         {
-            RegistrationPropertyDescription desc = rpdm.toRegistrationPropertyDescription();
-            prop.setDescription(desc);
-         }
-
-         prop.setStatus(rpm.getStatus());
+         final RegistrationProperty property = rpm.toModel(null, initial);
+         propertyMap.put(property.getName(), property);
 
          // set RegistrationInfo as listener of property changes
-         prop.setListener(initial);
+         property.setListener(initial);
       }
+      initial.setRegistrationProperties(propertyMap);
 
       return initial;
    }

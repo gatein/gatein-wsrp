@@ -86,6 +86,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Handles service description calls on behalf of the producer. Implements {@link ManagedObjectRegistryEventListener} to listen to portlet deployment operations to be able to
+ * update the service description accordingly.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12017 $
  * @since 2.4
@@ -94,6 +97,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 {
    // JBPORTAL-1220: force call to initCookie... Required so that BEA version < 9.2 will behave properly as a Consumer
    private static final CookieProtocol BEA_8_CONSUMER_FIX = CookieProtocol.PER_USER;
+   /** Stores service description so that we don't constantly need to regenerate it on each call. */
    private ServiceDescriptionInfo serviceDescription;
 
    private static final List<String> OPTIONS = new ArrayList<String>(5);
@@ -170,6 +174,11 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       return description;
    }
 
+   /**
+    * Listens to portlet deployment events and updates the service description accordingly.
+    *
+    * @param event
+    */
    public void onEvent(ManagedObjectRegistryEvent event)
    {
       if (event instanceof ManagedObjectEvent)
@@ -177,6 +186,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          ManagedObjectEvent managedObjectEvent = (ManagedObjectEvent)event;
          ManagedObject managedObject = managedObjectEvent.getManagedObject();
 
+         // we're only interested in portlet events
          if (managedObject instanceof ManagedPortletContainer)
          {
             ManagedPortletContainer portletContainer = (ManagedPortletContainer)managedObject;
@@ -185,14 +195,16 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
 
             org.gatein.pc.api.PortletContext pc = org.gatein.pc.api.PortletContext.createPortletContext(applicationId, containerId);
 
+            // and more specifically, their lifecycle eventds
             if (managedObjectEvent instanceof ManagedObjectLifeCycleEvent)
             {
                ManagedObjectLifeCycleEvent lifeCycleEvent = (ManagedObjectLifeCycleEvent)managedObjectEvent;
                LifeCycleStatus status = lifeCycleEvent.getStatus();
                if (LifeCycleStatus.STARTED.equals(status))
                {
+                  // if the portlet started, add it to the service description
                   final PortletInfo info = portletContainer.getInfo();
-                  // only add the portlet if it's remotable
+                  // but only if it's remotable
                   if (isRemotable(info.getRuntimeOptionsInfo()))
                   {
                      serviceDescription.addPortletDescription(pc, info);
@@ -200,6 +212,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
                }
                else
                {
+                  // otherwise, remove the description of the portlet
                   serviceDescription.removePortletDescription(pc);
                }
             }
@@ -208,6 +221,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       }
    }
 
+   /**
+    * Retrieves the WSRP-friendly names for the specified Locales.
+    *
+    * @param locales the Locales we want to get the WSRP-friendly versions
+    * @return
+    */
    private static List<String> getLocaleNamesFrom(Collection<Locale> locales)
    {
       if (locales == null || locales.isEmpty())
@@ -243,11 +262,18 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       return result;
    }
 
+   /** Resets the service description to its original, pristine state */
    public void reset()
    {
       serviceDescription = new ServiceDescriptionInfo();
    }
 
+   /**
+    * Whether the specified runtime options contains the remotable option.
+    *
+    * @param runtimeOptions
+    * @return
+    */
    public boolean isRemotable(Map<String, RuntimeOptionInfo> runtimeOptions)
    {
       RuntimeOptionInfo runtimeOptionInfo = runtimeOptions.get(RuntimeOptionInfo.REMOTABLE_RUNTIME_OPTION);
@@ -255,14 +281,25 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       return runtimeOptionInfo != null && "true".equals(runtimeOptionInfo.getValues().get(0));
    }
 
+   /** Stores all service description related metadata so that we don't constantly need to re-generate it on each call. */
    private class ServiceDescriptionInfo
    {
+      /** When were we last generated? */
       private long lastGenerated;
+      /** Event descriptions */
       private Map<QName, EventDescription> eventDescriptions;
+      /**
+       * Since events can be declared by several portlets, we need to have a reference counting mechanism on event descriptions so that we can ensure that, when a portlet is
+       * removed, we only remove the related event description if and only if no other portlets reference it.
+       */
       private Map<QName, Integer> eventReferenceCount;
+      /** Portlet descriptions */
       private Map<String, PortletDescriptionInfo> portletDescriptions;
+      /** Registration properties */
       private ModelDescription registrationProperties;
+      /** Whether we've already been initialized or not */
       private boolean initialized = false;
+      /** Does the associated producer require registration? */
       private boolean requireRegistrations;
 
       private ServiceDescriptionInfo()
@@ -270,6 +307,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          reset();
       }
 
+      /** Resets all metadata. */
       void reset()
       {
          lastGenerated = 0;
@@ -281,8 +319,14 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          requireRegistrations = false;
       }
 
+      /**
+       * Updates the held registration properties based on the new specified producer registration requirements.
+       *
+       * @param requirements the newly specified registration requirements from which we want to update
+       */
       private void updateRegistrationProperties(ProducerRegistrationRequirements requirements)
       {
+         // only update our information if the new requirements are posterior to our last modification, since, presumably, we updated them at that time
          long lastModified = requirements.getLastModified();
          if (lastModified > lastGenerated)
          {
@@ -305,10 +349,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             // update need to register
             requireRegistrations = requirements.isRegistrationRequired();
 
+            // we just got re-generated
             lastGenerated = SupportsLastModified.now();
          }
       }
 
+      /** Updates portlet descriptions from the set of remotable portlets known by the associated producer. */
       private void updatePortletDescriptions()
       {
          try
@@ -330,38 +376,55 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
+      /**
+       * Retrieves a ServiceDescription instance ready to be sent to the consumer with the specified information.
+       *
+       * @param needsRegistrationProperties do we want to include registration properties?
+       * @param needsPortletDescriptions    do we want to include portlet descriptions?
+       * @param portletHandles              list of portlet handles that we only want to include in the service description
+       * @param desiredLocales              desired locales for which the service description should be adapted along a best effort policy
+       * @return a ServiceDescription instance ready to be sent to the consumer with the specified information.
+       */
       private ServiceDescription getServiceDescription(boolean needsRegistrationProperties, boolean needsPortletDescriptions, List<String> portletHandles, List<String> desiredLocales)
       {
+         // initialize if needed
          initIfNeeded();
 
+         // only add registration properties if we asked for them
          ModelDescription registrationProperties = needsRegistrationProperties ? this.registrationProperties : null;
 
+         // set the service description details
          ServiceDescription serviceDescription = WSRPTypeFactory.createServiceDescription(false);
          serviceDescription.setRequiresInitCookie(BEA_8_CONSUMER_FIX);
          serviceDescription.getSupportedOptions().addAll(OPTIONS);
          serviceDescription.setRegistrationPropertyDescription(registrationProperties);
          serviceDescription.setRequiresRegistration(requireRegistrations);
 
-         // init supported locales
+         // init supported locales. Note that this doesn't mean that all portlets support all these languages but rather that at least one portlet supports at least one of these languages.
          final Set<String> knownPortletHandles = portletDescriptions.keySet();
          Set<String> supportedLocales = new HashSet<String>(knownPortletHandles.size() * 2);
 
+         // if we asked for portlet decriptions, add them to the service description we will return
          Collection<PortletDescription> portlets;
          if (needsPortletDescriptions)
          {
-            // if we have a list of portlet handles, filter the list of offered portlets
+            // if we don't have a list of portlet handles, select all of them
             if (!ParameterValidation.existsAndIsNotEmpty(portletHandles))
             {
                portletHandles = new ArrayList<String>(knownPortletHandles);
             }
 
+            // for each selected portlet
             portlets = new ArrayList<PortletDescription>(portletHandles.size());
             for (String handle : portletHandles)
             {
+               // retrieve the associated description
                PortletDescriptionInfo descriptionInfo = portletDescriptions.get(handle);
                if (descriptionInfo != null)
                {
+                  // add the languages that the portlet supports to the set of supported languages
                   supportedLocales.addAll(descriptionInfo.getSupportedLanguages());
+                  // and add the best-effort localized description for this portlet based on the locales the consumer asked for
                   portlets.add(descriptionInfo.getBestDescriptionFor(desiredLocales));
                }
             }
@@ -376,6 +439,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          return serviceDescription;
       }
 
+      /** Initializes this service description if we were not already */
       private void initIfNeeded()
       {
          if (!initialized)
@@ -384,6 +448,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
+      /**
+       * Adds the specified event metadata in the specified locale
+       *
+       * @param info
+       * @param locale
+       */
       private void addEventInfo(EventInfo info, Locale locale)
       {
          QName name = info.getName();
@@ -408,18 +478,26 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
+      /**
+       * Removes the even information associated with the specified QName
+       *
+       * @param name the name of the event which information we want to remove
+       */
       private void removeEvent(QName name)
       {
+         // retrieve the reference count for this event
          Integer current = eventReferenceCount.get(name);
          if (current != null)
          {
             if (current == 1)
             {
+               // only remove the even description if we only have one reference to it left
                eventDescriptions.remove(name);
                eventReferenceCount.remove(name);
             }
             else
             {
+               // otherwise, simply decrease the reference count for that event
                eventReferenceCount.put(name, current - 1);
             }
          }
@@ -433,6 +511,13 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          portletDescriptions.put(handle, desc);
       }
 
+      /**
+       * Creates the portlet description metadata associated with the specified portlet.
+       *
+       * @param info   the portlet metadata from the portlet container
+       * @param handle the portlet handle of the portlet for which we want to create the metadata
+       * @return the metadata for the portlet
+       */
       private PortletDescriptionInfo createPortletDescription(PortletInfo info, String handle)
       {
          if (log.isDebugEnabled())
@@ -440,6 +525,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             log.debug("Constructing portlet description for: " + handle);
          }
 
+         // supported MIME types, modes, window states and locales
          CapabilitiesInfo capInfo = info.getCapabilities();
          Collection<MediaType> allMediaTypes = capInfo.getMediaTypes();
          List<MarkupType> markupTypes = new ArrayList<MarkupType>(allMediaTypes.size());
@@ -451,15 +537,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             markupTypes.add(markupType);
          }
 
-         MetaInfo metaInfo = info.getMeta();
-
-
-         // iterate over locales and create a portlet description for each
+         // prepare languages for which we will generated a portlet description
          Set<Locale> supportedLocales = info.getCapabilities().getAllLocales();
          List<String> supportedLanguages;
          if (supportedLocales.size() == 0)
          {
-            // use English as failback per PLT.25.8.1
+            // if the portlet doesn't specify supported languages, use English as failback per PLT.25.8.1
             supportedLocales = Collections.singleton(Locale.ENGLISH);
             supportedLanguages = Collections.singletonList("en");
          }
@@ -475,6 +558,8 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             portletDescriptions.put(handle, descriptionInfo);
          }
 
+         // iterate over locales and create a portlet description for each
+         MetaInfo metaInfo = info.getMeta();
          for (Locale localeMatch : supportedLocales)
          {
             PortletDescription desc = WSRPTypeFactory.createPortletDescription(handle, markupTypes);
@@ -516,6 +601,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             EventingInfo eventsInfo = info.getEventing();
             if (eventsInfo != null)
             {
+               // produced events are mapped to published events in wsrp
                Map<QName, ? extends EventInfo> producedEvents = eventsInfo.getProducedEvents();
                if (ParameterValidation.existsAndIsNotEmpty(producedEvents))
                {
@@ -526,6 +612,8 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
                      addEventInfo(entry.getValue(), localeMatch);
                   }
                }
+
+               // consumed events -> handled events in wsrp
                Map<QName, ? extends EventInfo> consumedEvents = eventsInfo.getConsumedEvents();
                if (ParameterValidation.existsAndIsNotEmpty(consumedEvents))
                {
@@ -596,28 +684,34 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
       }
 
       /**
-       * @param context
-       * @param desiredLocales
-       * @param registration
-       * @return
+       * Retrieves the PortletDescription associated to the specified PortletContext with metadata using the desired locales, scoped to the specified Registration.
+       *
+       * @param context        the PortletContext identifying the portlet we want to retrieve the description of
+       * @param desiredLocales the locales from which we are ready to accept a description
+       * @param registration   the Registration associated with the calling consumer
+       * @return the description associated to the specified portlet or <code>null</code> if no such portlet exists or if the {@link org.gatein.registration.RegistrationPolicy}
+       * associated with the producer doesn't allow access to the portlet description for the specified registration
        */
       public PortletDescription getPortletDescription(PortletContext context, List<String> desiredLocales, Registration registration)
       {
          initIfNeeded();
 
          org.gatein.pc.api.PortletContext pcContext = WSRPUtils.convertToPortalPortletContext(context);
+
+         // does the specified registration allow access to the specified portlet?
          if (producer.getRegistrationManager().getPolicy().allowAccessTo(pcContext, registration, "getPortletDescription"))
          {
             PortletDescription description = getPortletDescription(context.getPortletHandle(), desiredLocales);
 
+            // the producer doesn't know of the portlet so it's not a producer-offered portlet
             if (description == null)
             {
-               // check if we asked for the description of a clone
+               // however, it might be a clone so check if the registration knows of a clone with that portlet context
                if (registration.knows(pcContext))
                {
                   try
                   {
-                     // retrieve initial context from portlet info and get description from it
+                     // clones have the same metadata as original portlets so retrieve initial context from portlet info and get description from it
                      Portlet portlet = producer.getPortletWith(pcContext, registration);
                      PortletInfo info = portlet.getInfo();
                      org.gatein.pc.api.PortletContext original = org.gatein.pc.api.PortletContext.createPortletContext(info.getApplicationName(), info.getName());
@@ -651,6 +745,11 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
+      /**
+       * Removes the description for the portlet identified by the specified context
+       *
+       * @param pc
+       */
       public void removePortletDescription(org.gatein.pc.api.PortletContext pc)
       {
          String handle = WSRPUtils.convertToWSRPPortletContext(pc).getPortletHandle();
@@ -658,7 +757,7 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          PortletDescription description = getPortletDescription(handle, null);
          if (description != null)
          {
-            // deal with events
+            // remove associated events
             for (QName event : description.getHandledEvents())
             {
                removeEvent(event);
@@ -672,8 +771,13 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
          }
       }
 
+      /**
+       * Records the description for each supported languages for a given portlet. These are generated only once when the associated portlets are added so that we only need to
+       * filter the proper information when we return a service description to the consumer.
+       */
       private class PortletDescriptionInfo
       {
+         /** Associates a language to a portlet description */
          private Map<String, PortletDescription> languageToDescription;
 
          private PortletDescriptionInfo(List<String> supportedLanguages)
@@ -685,19 +789,30 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             }
          }
 
+         /**
+          * Retrieves a Set of all supported languages by the portlet.
+          *
+          * @return a Set of languages by the associated portlet
+          */
          public Set<String> getSupportedLanguages()
          {
             return languageToDescription.keySet();
          }
 
+         /**
+          * Retrieves the best description for the specified languages based on what the portlet supports.
+          *
+          * @param desiredLanguages a List of ordered (most desired first) languages for which we're willing to accept a description for the associated portlet
+          * @return
+          */
          public PortletDescription getBestDescriptionFor(List<String> desiredLanguages)
          {
             String language = null;
 
             Set<String> supportedLanguages = getSupportedLanguages();
-            // check first if we have an exact match
             if (desiredLanguages != null && !desiredLanguages.isEmpty())
             {
+               // check first if we have an exact match
                for (String languageTag : desiredLanguages)
                {
                   if (supportedLanguages.contains(languageTag))
@@ -737,6 +852,12 @@ public class ServiceDescriptionHandler extends ServiceHandler implements Service
             return languageToDescription.get(language);
          }
 
+         /**
+          * Adds the specified portlet description for the specified language.
+          *
+          * @param language the language for which we're adding a description
+          * @param desc     the portlet description to associate to the specified language
+          */
          public void addDescriptionFor(String language, PortletDescription desc)
          {
             languageToDescription.put(language, desc);

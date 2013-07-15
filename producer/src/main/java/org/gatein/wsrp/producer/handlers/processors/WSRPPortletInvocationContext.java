@@ -47,6 +47,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Provides a WSRP-specific implementation of {@link PortletInvocationContext}, resulting of the extraction of metadata from the WSRP request by a {@link RequestProcessor}.
+ *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13121 $
@@ -76,6 +78,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
       this.instanceContext = instanceContext;
       this.windowContext = windowContext;
 
+      // access to the servlet environment the request is running in
       request = ServletAccess.getRequest();
       response = ServletAccess.getResponse();
    }
@@ -102,13 +105,7 @@ class WSRPPortletInvocationContext extends AbstractPortletInvocationContext impl
          url = URLTools.encodeXWWWFormURL(url);
 
          // build the WSRP resource URL with rewrite tokens
-         StringBuffer sb = new StringBuffer(url.length() * 2);
-         sb.append(WSRPRewritingConstants.BEGIN_WSRP_REWRITE).append(WSRPRewritingConstants.URL_TYPE_NAME)
-            .append(EQ).append(WSRPRewritingConstants.URL_TYPE_RESOURCE).append(AMP)
-            .append(WSRPRewritingConstants.RESOURCE_URL).append(EQ).append(url)
-            .append(AMP).append(WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE)
-            .append(EQ_TRUE).append(WSRPRewritingConstants.END_WSRP_REWRITE);
-         return sb.toString();
+         return WSRPRewritingConstants.BEGIN_WSRP_REWRITE + WSRPRewritingConstants.URL_TYPE_NAME + EQ + WSRPRewritingConstants.URL_TYPE_RESOURCE + AMP + WSRPRewritingConstants.RESOURCE_URL + EQ + url + AMP + WSRPRewritingConstants.RESOURCE_REQUIRES_REWRITE + EQ_TRUE + WSRPRewritingConstants.END_WSRP_REWRITE;
       }
 
       return url;

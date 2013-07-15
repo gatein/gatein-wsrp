@@ -56,9 +56,9 @@ import java.util.Map;
  */
 public class PayloadUtils
 {
-   private final static Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
-   private final static Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
-   private final static ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>()
+   private static final Map<String, XSDTypeConverter> typeToConverters = new HashMap<String, XSDTypeConverter>(19);
+   private static final Map<Class, XSDTypeConverter> classToConverters = new HashMap<Class, XSDTypeConverter>(19);
+   private static final ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>()
    {
       @Override
       protected DocumentBuilder initialValue()

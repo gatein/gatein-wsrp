@@ -49,17 +49,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Provides a base implementation for ConsumerRegistry behavior. It is <em>strongly</em> recommended that implementations inherit from this abstract superclass. The goal is to
+ * make sure that the consumer states are properly stored and consistent across cluster nodes.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12693 $
  * @since 2.6
  */
 public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 {
-   /** Gives access to the Portal's portlet invokers */
+   /** Gives access to the Portal's portlet invokers to be able to register/unregisters consumers as PortletInvokers */
    private FederatingPortletInvoker federatingPortletInvoker;
 
+   /** Broadcasts session events to consumers and their interested components. Provided default implementation should be replaced when services are wired at the portal level. */
    private SessionEventBroadcaster sessionEventBroadcaster = SessionEventBroadcaster.NO_OP_BROADCASTER;
+   /** Deals with import/export functionality. Provided default implementation should be replaced when services are wired at the portal level. */
    private MigrationService migrationService = new InMemoryMigrationService();
+   /** Records which portlet session is associated with which ProducerSessionInformation */
    private SessionRegistry sessionRegistry = new InMemorySessionRegistry();
 
    private static final String CONSUMER_WITH_ID = "Consumer with id '";
@@ -67,6 +73,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
    protected static final Logger log = LoggerFactory.getLogger(AbstractConsumerRegistry.class);
 
+   /** Caches consumers to avoid having to recreate them if possible as the lifecycle transitions might be a little complex and not completely possible to restore from persistence */
    protected ConsumerCache consumerCache;
 
    protected AbstractConsumerRegistry()
@@ -74,6 +81,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       initConsumerCache();
    }
 
+   /** Initializes the ConsumerCache so that subclasses have the opportunity to do some specific processing. */
    protected abstract void initConsumerCache();
 
    public synchronized void setConsumerCache(ConsumerCache consumers)
@@ -185,17 +193,6 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       }
 
       log.debug(CONSUMER_WITH_ID + id + "' destroyed");
-   }
-
-   public void persistConsumer(WSRPConsumer consumer)
-   {
-      ParameterValidation.throwIllegalArgExceptionIfNull(consumer, "Consumer");
-
-      ProducerInfo info = consumer.getProducerInfo();
-
-      save(info, CONSUMER_WITH_ID + info.getId() + "' couldn't be persisted!");
-
-      createConsumerFrom(info, true);
    }
 
    public synchronized void setFederatingPortletInvoker(FederatingPortletInvoker federatingPortletInvoker)
@@ -410,6 +407,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
                consumer.refresh(false);
             }
 
+            // only register with the FederatingPortletInvoker if we're not already
             if (!federatingPortletInvoker.isResolved(id))
             {
                federatingPortletInvoker.registerInvoker(id, consumer);
@@ -424,6 +422,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
                consumer.deactivate();
             }
 
+            // only unregisters with the FederatingPortletInvoker if we are registered
             if (federatingPortletInvoker.isResolved(id))
             {
                federatingPortletInvoker.unregisterInvoker(id);
@@ -498,6 +497,7 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
       }
    }
 
+   /** Implements a local cache for consumers. */
    protected static class InMemoryConsumerCache implements ConsumerCache
    {
 
@@ -512,13 +512,18 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
 
       public void initFromStorage()
       {
+         // first, remove all existing state
          clear();
+
+         // then load ProducerInfos from persistence and create consumers from them
          Iterator<ProducerInfo> infosFromStorage = registry.getProducerInfosFromStorage();
          while (infosFromStorage.hasNext())
          {
             ProducerInfo info = infosFromStorage.next();
             consumers.put(info.getId(), createConsumer(info));
          }
+
+         // since our state is fresh from persistence, we can't possibly be invalidated! :)
          setInvalidated(false);
       }
 
@@ -541,11 +546,19 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          return getUpdatedConsumer(id, consumer);
       }
 
+      /**
+       * Updates the specified consumer if its local state doesn't match the persisted state anymore.
+       *
+       * @param id       the identifier of the consumer to update in case the specified consumer is <code>null</code>, which might happen if, for example, the consumer is not
+       *                 present locally
+       * @param consumer the consumer to update if required
+       * @return an updated version (if so needed) of the consumer identified with the specified identifier
+       */
       private WSRPConsumer getUpdatedConsumer(String id, WSRPConsumer consumer)
       {
          if (consumer == null || consumer.getProducerInfo().getLastModified() < registry.getPersistedLastModifiedForProducerInfoWith(id))
          {
-            // if consumer is not in cache or was modified in persistence, (re-)load it from persistence
+            // if consumer is not in cache (null) or was modified in persistence, (re-)load it from persistence
             ProducerInfo info = registry.loadProducerInfo(id);
             if (info != null)
             {
@@ -555,11 +568,13 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
             }
             else
             {
+               // we didn't find any consumer with that id in persistence either, return null
                return null;
             }
          }
          else
          {
+            // our consumer is already up-to-date, return it
             return consumer;
          }
       }
@@ -590,15 +605,22 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          this.invalidated = invalidated;
       }
 
+      /**
+       * Refreshes the cache information if needed. In particular, this means that after calling this method, the set of cached consumers should be consistent with the persisted
+       * state, all consumers being up-to-date with their persisted state, obsolete consumers are removed, new ones are added.
+       */
       protected void refreshIfNeeded()
       {
+         // if we've been invalidated, remove all cached consumers
          if (isInvalidated())
          {
             consumers.clear();
          }
 
-         // first remove all obsolete Consumers in cache
+         // get the identifiers of known consumers from the persistence layer
          Collection<String> consumersIds = registry.getConfiguredConsumersIds();
+
+         // first remove all obsolete Consumers in cache
          Set<String> obsoleteConsumers = new HashSet<String>(consumers.keySet());
          obsoleteConsumers.removeAll(consumersIds);
          for (String obsolete : obsoleteConsumers)
@@ -609,18 +631,23 @@ public abstract class AbstractConsumerRegistry implements ConsumerRegistrySPI
          // then check, for each consumer, if it has been modified since we last checked
          for (String id : consumersIds)
          {
+            // get the cached consumer
             WSRPConsumer consumerInfo = consumers.get(id);
+
             if (consumerInfo != null)
             {
+               // if we have a consumer for that id, check that it's up-to-date and update it if needed
                getUpdatedConsumer(id, consumerInfo);
             }
             else
             {
+               // if we don't have a consumer for that id, load it from persistence and cache it
                ProducerInfo producerInfo = registry.loadProducerInfo(id);
                consumers.put(id, createConsumer(producerInfo));
             }
          }
 
+         // state that we're not invalid anymore if we previously were
          setInvalidated(false);
       }
    }

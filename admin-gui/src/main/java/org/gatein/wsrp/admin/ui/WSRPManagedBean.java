@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
 
 
 /**
+ * Provides base behavior for WSRP admin UI beans.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13413 $
  * @since 2.6
@@ -44,8 +46,10 @@ public abstract class WSRPManagedBean implements Serializable
 {
    protected transient Logger log = LoggerFactory.getLogger(getClass());
 
+   /** The BeanContext associated with this bean */
    protected BeanContext beanContext;
 
+   /** The name of the action associated with a cancel operation for this bean, i.e. which view should we redirect to if the user cancels the current view. */
    private String cancelOutcome;
 
    public static final String INVALID_NAME = "INVALID_NAME_ERROR";
@@ -58,20 +62,61 @@ public abstract class WSRPManagedBean implements Serializable
       FacesContext.getCurrentInstance().renderResponse();
    }
 
-   public static interface PropertyValidator extends Serializable
+   /** Provides an API to validate input properties. */
+   public interface PropertyValidator extends Serializable
    {
+      /**
+       * Determines whether this PropertyValidator checks for duplicated values.
+       *
+       * @return <code>true</code> if this PropertyValidator checks for duplicated values, <code>false</code> otherwise
+       */
       boolean checkForDuplicates();
 
-      String getObjectTypeName();
+      /**
+       * Retrieves the name of the type of objects this PropertyValidator can validate.
+       *
+       * @return
+       */
+      String getTypeOfValidatedValues();
 
-      boolean isAlreadyExisting(String propertyName);
+      /**
+       * Determines whether the specified property value already exists.
+       *
+       * @param value
+       * @return
+       */
+      boolean isAlreadyExisting(String value);
 
-      String doSimpleChecks(String name);
+      /**
+       * Performs a quick check that the specified value doesn't contain any invalid characters to be able to fail fast before performing a full regex validation.
+       *
+       * @param value the value we want to check
+       * @return the validated value or <code>null</code> if it doesn't conform to the expected format
+       */
+      String checkForInvalidCharacters(String value);
 
+      /**
+       * Retrieves the {@link org.gatein.common.util.ParameterValidation.ValidationErrorHandler} associated with this PropertyValidator. Allows implementations to vary how error
+       * messages are presented to client code, depending on the context they run in.
+       *
+       * @param name                  the name of the property being validated
+       * @param targetForErrorMessage the UI component target for the potential error message
+       * @return
+       */
       ParameterValidation.ValidationErrorHandler getValidationErrorHandler(String name, String targetForErrorMessage);
 
+      /**
+       * Retrieves the regular expression this PropertyValidator uses to validate values.
+       *
+       * @return
+       */
       Pattern getValidationPattern();
 
+      /**
+       * Retrieves the key associated to the error message in the localization resource bundle.
+       *
+       * @return
+       */
       String getErrorKey();
    }
 
@@ -97,72 +142,105 @@ public abstract class WSRPManagedBean implements Serializable
       this.cancelOutcome = cancelOutcome;
    }
 
-   public String checkNameValidity(String name, String targetForErrorMessage)
+   public String checkAndReturnValueIfValid(String value, String targetForErrorMessage)
    {
-      return checkNameValidity(name, targetForErrorMessage, validator);
+      return checkAndReturnValueIfValid(value, targetForErrorMessage, validator);
    }
 
-   public String checkNameValidity(String name, String targetForErrorMessage, PropertyValidator validator)
+   /**
+    * Asks the specified PropertyValidator to check the validity of the specified value, using the specified target for error messages
+    *
+    * @param value                 the value to be validated
+    * @param targetForErrorMessage the name of the UI component being targeted when an error message needs to be displayed
+    * @param validator             the PropertyValidator that will validate the values
+    * @return the validated value or <code>null</code> otherwise
+    */
+   public String checkAndReturnValueIfValid(String value, String targetForErrorMessage, PropertyValidator validator)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(validator, "PropertyValidator");
 
-      String objectTypeName = validator.getObjectTypeName();
-      if (ParameterValidation.isNullOrEmpty(name))
+      final String objectTypeName = validator.getTypeOfValidatedValues();
+      if (ParameterValidation.isNullOrEmpty(value))
       {
-         beanContext.createTargetedErrorMessage(targetForErrorMessage, validator.getErrorKey(), name, getLocalizedType(objectTypeName));
+         beanContext.createTargetedErrorMessage(targetForErrorMessage, validator.getErrorKey(), value, getLocalizedType(objectTypeName));
          return null;
       }
       else
       {
-         String original = name;
-         name = validator.doSimpleChecks(name);
+         String original = value;
+         value = validator.checkForInvalidCharacters(value);
 
-         // we got an invalid name after simple checks, fail!
-         if (name == null)
+         // we got an invalid value after quickly checking for invalid characters, fail!
+         if (value == null)
          {
             beanContext.createTargetedErrorMessage(targetForErrorMessage, validator.getErrorKey(), original, getLocalizedType(objectTypeName));
             return null;
          }
 
-         // Trim name
-         name = name.trim();
+         // Trim value
+         value = value.trim();
 
-         // "sanitize" name: if it's invalid, return null and output message
-         name = ParameterValidation.sanitizeFromPatternWithHandler(name, validator.getValidationPattern(),
-            validator.getValidationErrorHandler(name, targetForErrorMessage));
+         // "sanitize" value: if it's invalid, return null and output message
+         value = ParameterValidation.sanitizeFromPatternWithHandler(value, validator.getValidationPattern(), validator.getValidationErrorHandler(value, targetForErrorMessage));
 
-         // we got an invalid name, fail!
-         if (name == null)
+         // we got an invalid value, fail!
+         if (value == null)
          {
             return null;
          }
 
          // Check for duplicate
-         if (validator.checkForDuplicates() && validator.isAlreadyExisting(name))
+         if (validator.checkForDuplicates() && validator.isAlreadyExisting(value))
          {
-            getDuplicateErrorMessage(name, targetForErrorMessage, objectTypeName);
+            getDuplicateErrorMessage(value, targetForErrorMessage, objectTypeName);
             return null;
          }
 
-         return name;
+         return value;
       }
    }
 
-   protected void getDuplicateErrorMessage(String name, String targetForErrorMessage, String objectTypeName)
+   /**
+    * Retrieves the localized error message to display when the specified value is a duplicate of an already existing one.
+    *
+    * @param value
+    * @param targetForErrorMessage
+    * @param objectTypeName
+    */
+   protected void getDuplicateErrorMessage(String value, String targetForErrorMessage, String objectTypeName)
    {
-      beanContext.createTargetedErrorMessage(targetForErrorMessage, DUPLICATE, name, getLocalizedType(objectTypeName));
+      beanContext.createTargetedErrorMessage(targetForErrorMessage, DUPLICATE, value, getLocalizedType(objectTypeName));
    }
 
+   /**
+    * Retrieves the localized description for the specified object type name (type of validated values).
+    *
+    * @param objectTypeName
+    * @return
+    */
    private String getLocalizedType(String objectTypeName)
    {
       return beanContext.getMessageFromBundle(objectTypeName);
    }
 
+   /**
+    * Retrieves the name of the type of objects this bean deals with.
+    *
+    * @return
+    */
    protected abstract String getObjectTypeName();
 
+   /**
+    * Checks whether the specified value (understood as an identifier for entities this bean manages) is already known to this bean and therefore would consist of a duplicated
+    * value.
+    *
+    * @param objectName
+    * @return
+    */
    public abstract boolean isAlreadyExisting(String objectName);
 
    /**
+    * Determines whether the specified old and new values are different after being normalized.
     * @param oldValue
     * @param newValue
     * @return
@@ -238,25 +316,33 @@ public abstract class WSRPManagedBean implements Serializable
          return true;
       }
 
-      public String getObjectTypeName()
+      public String getTypeOfValidatedValues()
       {
+         // delegate to the enclosing bean
          return WSRPManagedBean.this.getObjectTypeName();
       }
 
-      public boolean isAlreadyExisting(String propertyName)
+      public boolean isAlreadyExisting(String value)
       {
-         return WSRPManagedBean.this.isAlreadyExisting(propertyName);
+         // delegate to the enclosing bean
+         return WSRPManagedBean.this.isAlreadyExisting(value);
       }
 
-      public String doSimpleChecks(String name)
+      /**
+       * Checks whether the specified value contains '.' or '/'.
+       *
+       * @param value the value which format we want to check
+       * @return
+       */
+      public String checkForInvalidCharacters(String value)
       {
          // if name contains . or /, it's invalid for a Portal object
-         return (name.indexOf('.') != -1 || name.indexOf('/') != -1) ? null : name;
+         return (value.indexOf('.') != -1 || value.indexOf('/') != -1) ? null : value;
       }
 
       public ParameterValidation.ValidationErrorHandler getValidationErrorHandler(String name, String targetForErrorMessage)
       {
-         return new MessageValidationHandler(null, targetForErrorMessage, name, getObjectTypeName());
+         return new MessageValidationHandler(null, targetForErrorMessage, name, getTypeOfValidatedValues());
       }
 
       public Pattern getValidationPattern()

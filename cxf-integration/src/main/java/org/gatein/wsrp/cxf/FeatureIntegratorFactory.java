@@ -48,7 +48,7 @@ public class FeatureIntegratorFactory
 {
    private static Logger log = LoggerFactory.getLogger(FeatureIntegratorFactory.class);
 
-   protected final static FeatureIntegratorFactory instance = new FeatureIntegratorFactory();
+   protected static final FeatureIntegratorFactory instance = new FeatureIntegratorFactory();
 
    protected List<AbstractFeature> features = new ArrayList<AbstractFeature>();
 

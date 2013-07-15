@@ -24,20 +24,37 @@
 package org.gatein.wsrp.jcr.mapping;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * Provides the default behavior for mapping classes allowing roundtrip conversion between JCR-stored data and object model.
+ *
+ * @param <T> the type of model objects this mapping can convert to and from
+ * @param <R> the type of a registry-like object capable of either registering or creating new model objects for mappings that need to know about such an object, if no registry
+ *            needs to be known, using Object for this type is fine
  */
 public interface BaseMapping<T, R>
 {
-   /**
-    * Must match constant used by implementations to identify the JCR node name/type that the implementation
-    * represents.
-    */
-   public static final String JCR_TYPE_NAME_CONSTANT_NAME = "NODE_NAME";
+   /** Must match constant used by implementations to identify the JCR node name/type that this mapping represents. */
+   String JCR_TYPE_NAME_CONSTANT_NAME = "NODE_NAME";
 
+   /**
+    * Initializes this BaseMapping from the data of the specified model object
+    *
+    * @param model the model object to initialize from
+    */
    void initFrom(T model);
 
+   /**
+    * Converts this BaseMapping into a model object, creating a new one if needed or resetting the specified initial value to the persisted state.
+    *
+    * @param initial  a potentially <code>null</code> initial value that will be reset to the persisted state
+    * @param registry the registry associated with instances of the specified model type
+    * @return a new model instance or the specified initial value reset to the persisted state
+    */
    T toModel(T initial, R registry);
 
+   /**
+    * Retrieves the Java class of the model object this BaseMapping deals with.
+    *
+    * @return the Java class of the model object this BaseMapping deals with.
+    */
    Class<T> getModelClass();
 }

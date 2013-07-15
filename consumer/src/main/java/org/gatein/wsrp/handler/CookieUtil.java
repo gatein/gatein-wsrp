@@ -56,6 +56,13 @@ public class CookieUtil
       }
    };
 
+   /**
+    * Extract cookies from the specified list of String representation of cookies, validating them to check if they are valid for the domain associated with the specified URL.
+    *
+    * @param remoteAddress the address from which the cookies are supposed to be issued
+    * @param cookieValues a list of String representation of cookies
+    * @return a list of {@link Cookie} objects providing the cookie information extracted from the String representations
+    */
    public static List<Cookie> extractCookiesFrom(URL remoteAddress, List<String> cookieValues)
    {
       List<Cookie> cookies = new ArrayList<Cookie>(cookieValues.size());
@@ -67,7 +74,7 @@ public class CookieUtil
    }
 
    /**
-    * Create a String representation of the specified array of Cookies.
+    * Coalesce the list of specified cookies into a single String representation suitable to be used as part of an HTTP response
     *
     * @param cookies the cookies to be output to external form
     * @return a String representation of the cookies, ready to be sent over the wire.
@@ -81,6 +88,12 @@ public class CookieUtil
       return EMPTY;
    }
 
+   /**
+    * Converts the specified internal Cookie representations into a list of String representations, ready to be sent over the wire.
+    *
+    * @param cookies the internal Cookies to be output to external form
+    * @return a list of String representations of the input Cookies, one per Cookie
+    */
    public static List<String> asExternalFormList(List<Cookie> cookies)
    {
       if (ParameterValidation.existsAndIsNotEmpty(cookies))
@@ -110,7 +123,7 @@ public class CookieUtil
             logBuffer.append("Cookie headers:\n");
          }
 
-         StringBuffer cookieBuffer = new StringBuffer(128 * cookieNumber);
+         StringBuilder cookieBuffer = new StringBuilder(128 * cookieNumber);
          for (String cookie : cookies)
          {
             cookieBuffer.append(cookie);
@@ -159,6 +172,12 @@ public class CookieUtil
       return result;
    }
 
+   /**
+    * Converts the specified internal Cookie into a javax.servlet.http.Cookie object.
+    *
+    * @param cookie the internal Cookie to be converted
+    * @return a javax.servlet.http.Cookie corresponding to the internal representation
+    */
    public static javax.servlet.http.Cookie convertFrom(Cookie cookie)
    {
       if (cookie == null)
@@ -215,6 +234,9 @@ public class CookieUtil
       return cleanCookies;
    }
 
+   /**
+    * An internal representation of Cookie metadata, able to be serialized across cluster nodes (javax.servlet.http.Cookie is not Serializable).
+    */
    public static class Cookie implements Serializable
    {
       private final String externalForm;

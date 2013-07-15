@@ -63,7 +63,7 @@ public class DefaultConsumerExtensionAccessor extends AbstractExtensionAccessor 
       public static final ConsumerExtensionAccessor instance = new DefaultConsumerExtensionAccessor();
    }
 
-   public synchronized static void registerWithAPI()
+   public static synchronized void registerWithAPI()
    {
       // register instance with API
       if (ExtensionAccess.getConsumerExtensionAccessor() == null)

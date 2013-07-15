@@ -26,7 +26,6 @@ package org.gatein.wsrp.consumer.spi;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.wsrp.WSRPConsumer;
-import org.gatein.wsrp.consumer.ProducerInfo;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.handlers.session.SessionRegistry;
 import org.gatein.wsrp.consumer.portlet.info.WSRPPortletInfo;
@@ -41,19 +40,48 @@ import org.oasis.wsrp.v2.UserContext;
  */
 public interface WSRPConsumerSPI extends WSRPConsumer
 {
+   /**
+    * Retrieves the current RegistrationContext if any
+    *
+    * @return the current RegistrationContext if any
+    * @throws PortletInvokerException
+    */
    RegistrationContext getRegistrationContext() throws PortletInvokerException;
 
+   /**
+    * Retrieves the user context if needed by the portlet from the invocation.
+    *
+    * @param info           the portlet information for the portlet being interacted with, specifically used to see if the portlet stores the user context in the session
+    * @param invocation     the portlet invocation
+    * @param runtimeContext the WSRP runtime context to check whether a session exists which would indicate that the user context is already in session
+    * @return the user context associated with the specified invocation or <code>null</code> if it's asserted that it's stored in the session so that it's not sent again
+    * @throws PortletInvokerException
+    */
    UserContext getUserContextFrom(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
 
+   /**
+    * Retrieves the SessionHandler associated with this consumer.
+    *
+    * @return the SessionHandler associated with this consumer
+    */
    SessionHandler getSessionHandler();
 
+   /**
+    * Adds templates (see http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-spec-os-01.html#_Producer_URL_Writing) if required.
+    *
+    * @param info           the portlet information for the portlet being interacted with, to check if it requires templates
+    * @param invocation     the portlet invocation
+    * @param runtimeContext the WSRP runtime context to which the templates need to be added
+    * @throws PortletInvokerException
+    */
    void setTemplatesIfNeeded(WSRPPortletInfo info, PortletInvocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException;
 
-   void refreshProducerInfo() throws PortletInvokerException;
-
+   /**
+    * Performs required maintenance when the consumer receives an InvalidaRegistrationFault from the producer. Notably, resets the registration status and check with the producer.
+    *
+    * @throws PortletInvokerException
+    */
    void handleInvalidRegistrationFault() throws PortletInvokerException;
-
-   ProducerInfo getProducerInfo();
 
    MarkupService getMarkupService() throws PortletInvokerException;
 
@@ -65,9 +93,23 @@ public interface WSRPConsumerSPI extends WSRPConsumer
     */
    boolean supportsUserScope(String userScope);
 
+   /**
+    * Retrieves the WSRP-specific {@link org.gatein.pc.api.info.PortletInfo} implementation for the portlet targeted by the specified invocation
+    *
+    * @param invocation the invocation targeting the portlet we want info about
+    * @return the WSRP-specific {@link org.gatein.pc.api.info.PortletInfo} implementation for the portlet targeted by the specified invocation
+    * @throws PortletInvokerException
+    */
    WSRPPortletInfo getPortletInfo(PortletInvocation invocation) throws PortletInvokerException;
 
+   /**
+    * Retrieves the SessionRegistry associated with this consumer.
+    * @return the SessionRegistry associated with this consumer.
+    */
    SessionRegistry getSessionRegistry();
 
+   /**
+    * Performs required operations when the consumer receives a ModifyRegistrationRequiredFault from the producer to get the consumer ready to call modifyRegistration.
+    */
    void handleModifyRegistrationRequiredFault();
 }

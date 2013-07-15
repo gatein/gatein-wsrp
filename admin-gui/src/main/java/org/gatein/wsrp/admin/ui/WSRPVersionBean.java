@@ -26,6 +26,8 @@ package org.gatein.wsrp.admin.ui;
 import org.gatein.wsrp.WSRPConstants;
 
 /**
+ * Allows the display of the current version of the WSRP component.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */

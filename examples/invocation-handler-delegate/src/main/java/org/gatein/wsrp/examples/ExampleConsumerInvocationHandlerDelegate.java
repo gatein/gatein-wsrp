@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class ExampleConsumerInvocationHandlerDelegate extends InvocationHandlerDelegate
 {
-   private final static Logger log = LoggerFactory.getLogger(InvocationHandlerDelegate.class);
+   private static final Logger log = LoggerFactory.getLogger(InvocationHandlerDelegate.class);
 
    @Override
    public void processInvocation(PortletInvocation invocation)

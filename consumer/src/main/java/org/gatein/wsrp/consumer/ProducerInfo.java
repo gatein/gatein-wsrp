@@ -78,14 +78,31 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * ProducerInfo handles the consumer's state with respect to its remote producer. It encapsulates all the information needed to access and properly interact with a remote
+ * producer. In this respect, ProducerInfo encapsulates all the persisted state of the consumer.
+ * <p/>
+ * It records, in particular:
+ * <ul>
+ * <li>the name assigned to this producer that is used to identify which consumer ({@link org.gatein.pc.api.PortletInvoker}) by the {@link
+ * org.gatein.pc.federation.FederatingPortletInvoker} when it chooses which invoker to dispatch to</li>
+ * <li>the connection to the remote producer via its {@link EndpointConfigurationInfo} member</li>
+ * <li>the registration status and data that the remote producer requires using its {@link RegistrationInfo} member</li>
+ * <li>as well as all the information gathered from examining the {@link ServiceDescription} returned by the producer</li>
+ * </ul>
+ * <p/>
+ * The relation between a consumer and a producer is quite complex so it is usually cached to avoid having to retrieve and parse the producer's {@link ServiceDescription} for each
+ * WSRP operation. However, since this relation can evolve over time, it is also necessary to be able to refresh it depending on the information returned by the producer as the
+ * result of an interaction with it. In particular, the registration status might have changed or the cached information is staled. This updating of the producer metadata is
+ * performed by the {@link #detailedRefresh(boolean)} method, which is the most important method of this class.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12692 $
  * @since 2.6
  */
 public class ProducerInfo extends SupportsLastModified
 {
-   private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
-   private final static boolean debug = log.isDebugEnabled();
+   private static final Logger log = LoggerFactory.getLogger(ProducerInfo.class);
+   private static final boolean debug = log.isDebugEnabled();
    public static final Integer DEFAULT_CACHE_VALUE = 300;
 
    // Persistent information
@@ -131,12 +148,20 @@ public class ProducerInfo extends SupportsLastModified
    /** Time at which the cache expires */
    private transient long expirationTimeMillis;
 
-   private transient final ConsumerRegistrySPI registry;
+   /** The ConsumerRegistry used to persist Consumers and ProducerInfos, accessed using the internal SPI */
+   private final transient ConsumerRegistrySPI registry;
    private static final String ERASED_LOCAL_REGISTRATION_INFORMATION = "Erased local registration information!";
 
+   /**
+    * The registration information that the remote producer expects extracted from the service description it sent, as opposed to the currently held registration information, which
+    * might be out of sync
+    */
    private transient RegistrationInfo expectedRegistrationInfo;
 
+   /** Custom modes supported by the remote producer */
    private transient Map<String, ItemDescription> customModes;
+
+   /** Custom window states supported by the remote producer */
    private transient Map<String, ItemDescription> customWindowStates;
 
    /** Events */
@@ -196,12 +221,7 @@ public class ProducerInfo extends SupportsLastModified
    @Override
    public String toString()
    {
-      final StringBuilder sb = new StringBuilder();
-      sb.append("ProducerInfo");
-      sb.append("{key='").append(key).append('\'');
-      sb.append(", id='").append(getId()).append('\'');
-      sb.append('}');
-      return sb.toString();
+      return "ProducerInfo {key='" + key + "', id='" + getId() + "'}";
    }
 
    public ConsumerRegistrySPI getRegistry()
@@ -281,11 +301,7 @@ public class ProducerInfo extends SupportsLastModified
       return persistentRegistrationInfo.hasLocalInfo();
    }
 
-   /**
-    * Determines whether the associated consumer is active.
-    *
-    * @return
-    */
+   /** Determines whether the associated consumer is active. */
    public boolean isActive()
    {
       return persistentActive/* && persistentEndpointInfo.isAvailable()*/;
@@ -294,8 +310,6 @@ public class ProducerInfo extends SupportsLastModified
    /**
     * Activates or de-activate this Consumer. Note that this shouldn't be called directly as ConsumersRegistry will
     * handle activation.
-    *
-    * @param active
     */
    public void setActive(boolean active)
    {
@@ -364,6 +378,14 @@ public class ProducerInfo extends SupportsLastModified
       return detailedRefresh(forceRefresh).didRefreshHappen();
    }
 
+   /**
+    * Refreshes the producer's information from the service description if required.
+    *
+    * @param forceRefresh whether or not to force a refresh regardless of whether one would have been required based on
+    *                     cache expiration
+    * @return detailed information about the result of the refresh in the form of a {@link RefreshResult} object
+    * @throws PortletInvokerException if registration was required but couldn't be achieved properly
+    */
    public RefreshResult detailedRefresh(boolean forceRefresh) throws PortletInvokerException
    {
       RefreshResult result = internalRefresh(forceRefresh);
@@ -399,6 +421,7 @@ public class ProducerInfo extends SupportsLastModified
             expectedRegistrationInfo = persistentRegistrationInfo;
          }
 
+         // persist any changes made to this ProducerInfo
          registry.updateProducerInfo(this);
       }
 
@@ -414,8 +437,8 @@ public class ProducerInfo extends SupportsLastModified
          return new RefreshResult(RefreshResult.Status.MODIFY_REGISTRATION_REQUIRED);
       }
 
-      // might neeed a different cache value: right now, we cache the whole producer info but we might want to cache
-      // POPs and rest of producer info separetely...
+      // might need a different cache value: right now, we cache the whole producer info but we might want to cache
+      // POPs and rest of producer info separately...
       if (forceRefresh || isRefreshNeeded(true))
       {
          log.debug("Refreshing info for producer '" + getId() + "'");
@@ -495,8 +518,8 @@ public class ProducerInfo extends SupportsLastModified
 
    private RefreshResult handleModifyRegistrationNeeded(RefreshResult result) throws PortletInvokerException
    {
-      ServiceDescription serviceDescription;// attempt to get unregistered service description
-      serviceDescription = getServiceDescription(true);
+      ServiceDescription serviceDescription;
+      serviceDescription = getServiceDescription(true); // attempt to get unregistered service description
       result.setServiceDescription(serviceDescription);
 
       // re-validate the registration information
@@ -519,6 +542,15 @@ public class ProducerInfo extends SupportsLastModified
       return result;
    }
 
+   /**
+    * Parse the information contained in the specified {@link ServiceDescription} and update the internal state
+    *
+    * @param forceRefresh       whether we should force the parsing of the information (currently only used to force updating the registration metadata)
+    * @param serviceDescription the ServiceDescription to parse the metadata from
+    * @param result             the RefreshResult that was created by the refresh call that trigger the parsing of the ServiceDescription metadata
+    * @return the RefreshResult that was specified as a parameter, modified as needed
+    * @throws PortletInvokerException
+    */
    private RefreshResult refreshInfo(boolean forceRefresh, ServiceDescription serviceDescription, RefreshResult result)
       throws PortletInvokerException
    {
@@ -624,7 +656,7 @@ public class ProducerInfo extends SupportsLastModified
    /**
     * Extracts a map of offered Portlet objects from ServiceDescription
     *
-    * @param sd
+    * @param sd the service description to extract portlets from
     * @return a Map (portlet handle -> Portlet) of the offered portlets.
     */
    private Map extractOfferedPortlets(ServiceDescription sd)
@@ -666,8 +698,10 @@ public class ProducerInfo extends SupportsLastModified
    }
 
    /**
-    * @param portletDescription
-    * @return
+    * Create a custom {@link Portlet} implementation that also contains WSRP-specific information from the specified PortletDescription.
+    *
+    * @param portletDescription the PortletDescription to extract information from
+    * @return a custom {@link Portlet} implementation that also contains WSRP-specific information
     * @since 2.6
     */
    WSRPPortlet createWSRPPortletFromPortletDescription(PortletDescription portletDescription)
@@ -708,6 +742,14 @@ public class ProducerInfo extends SupportsLastModified
       return wsrpPortlet;
    }
 
+   /**
+    * Retrieve (possibly from cache) the {@link Portlet} associated with the specified {@link PortletContext}.
+    *
+    * @param portletContext the PortletContext identifying the portlet to be retrieved
+    * @return the {@link Portlet} associated with the specified {@link PortletContext}
+    * @throws PortletInvokerException if no portlet with the specified PortletContext could be found or if an error happened while attempting to retrieve the portlet information
+    *                                 from the remote producer if the portlet couldn't be resolved from the local cache
+    */
    public Portlet getPortlet(PortletContext portletContext) throws PortletInvokerException
    {
       String portletHandle = portletContext.getId();
@@ -810,7 +852,7 @@ public class ProducerInfo extends SupportsLastModified
       // calling getNumberOfPortlets refreshes the information if needed so no need to redo it here
       Map<String, Portlet> all = new LinkedHashMap<String, Portlet>(getNumberOfPortlets());
 
-      if(popsMap != null)
+      if (popsMap != null)
       {
          all.putAll(popsMap);
       }
@@ -846,7 +888,9 @@ public class ProducerInfo extends SupportsLastModified
    }
 
    /**
-    * @return
+    * Determines whether the metadata cache is expired and therefore, if a refresh from the producer might be required to obtain fresher information.
+    *
+    * @return <code>true</code> if the cache is expired, <code>false</code> otherwise
     * @since 2.6
     */
    private boolean isCacheExpired()
@@ -892,8 +936,6 @@ public class ProducerInfo extends SupportsLastModified
    /**
     * Returns the cache expiration duration in seconds as a positive value or zero so that it's safe to use in cache
     * expiration time computations.
-    *
-    * @return
     */
    private int getSafeExpirationCacheSeconds()
    {
@@ -1134,10 +1176,9 @@ public class ProducerInfo extends SupportsLastModified
    /**
     * Attempts to register with the producer.
     *
-    * @param serviceDescription
-    * @param forceRefresh
-    * @return <code>true</code> if the client code should ask for a new service description, <code>false</code> if the
-    *         specified description is good to be further processed
+    * @param serviceDescription an optional service description containing the information required by the producer to properly register with it
+    * @param forceRefresh       whether to force a refresh (regardless of cache status)
+    * @return a RefreshResult containing the status of the operation
     * @throws PortletInvokerException
     * @since 2.6
     */
@@ -1372,7 +1413,7 @@ public class ProducerInfo extends SupportsLastModified
    /**
     * Public for tests
     *
-    * @param option
+    * @param option a valid WSRP 2 option String, see {@link WSRP2Constants}' OPTIONS_* fields for valid values.
     */
    public void setSupportedOption(String option)
    {

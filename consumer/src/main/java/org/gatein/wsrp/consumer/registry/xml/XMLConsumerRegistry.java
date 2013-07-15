@@ -39,12 +39,14 @@ import java.net.URL;
 import java.util.SortedMap;
 
 /**
+ * Loads consumer configurations from an XML file.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 9360 $
  */
 public class XMLConsumerRegistry extends InMemoryConsumerRegistry
 {
-   private final static Logger log = LoggerFactory.getLogger(XMLConsumerRegistry.class);
+   private static final Logger log = LoggerFactory.getLogger(XMLConsumerRegistry.class);
 
    /** . */
    private static final String defaultWSRPLocation = "conf/wsrp-consumers-config.xml";
@@ -82,6 +84,12 @@ public class XMLConsumerRegistry extends InMemoryConsumerRegistry
       if (configurationIS == null)
       {
          URL defaultWSRPURL = Thread.currentThread().getContextClassLoader().getResource(defaultWSRPLocation);
+
+         if(defaultWSRPURL == null)
+         {
+            throw new RuntimeException("Couldn't find any XML WSRP configuration file at " + defaultWSRPLocation);
+         }
+
          try
          {
             configurationIS = defaultWSRPURL.openStream();

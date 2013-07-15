@@ -28,22 +28,50 @@ import org.chromattic.api.format.FormatterContext;
 import org.chromattic.api.format.ObjectFormatter;
 
 /**
+ * Encapsulates Chromattic to make it a little simpler to use.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public interface ChromatticPersister
 {
+   /**
+    * Retrieves the current ChromatticSession or open a new one if none already existed.
+    *
+    * @return the current ChromatticSession or a new one if none already existed
+    */
    ChromatticSession getSession();
 
+   /**
+    * Closes the current ChromatticSession, saving the associated operations if so specified
+    *
+    * @param save whether or not to save the operations associated with the session
+    */
    void closeSession(boolean save);
 
+   /** Saves the modifications made in the context of the current session but keep the session open. */
    void save();
 
+   /**
+    * Deletes the specified object from the specified manager, the manager being, most of the time, the parent of the object to be deleted.
+    *
+    * @param toDelete the object to delete
+    * @param manager the StoresByPathManager object that needs to be notified (to be updated) of the deletion
+    * @param <T> the type of the object to delete
+    * @return the object that was deleted or <code>null</code> if no such object existed in persistence
+    */
    <T> boolean delete(T toDelete, StoresByPathManager<T> manager);
 
+   /**
+    * Checks whether the current session is closed.
+    * @return <code>true</code> if no current session exists or if it's closed, <code>false</code> otherwise
+    */
    boolean isSessionClosed();
 
-   public static class QNameFormatter implements ObjectFormatter
+   /**
+    * Encodes and decodes QName to be properly persisted in JCR since ':', '{' and '}' are reserved chars.
+    */
+   class QNameFormatter implements ObjectFormatter
    {
       private static final String OPEN_BRACE_REPLACEMENT = "-__";
       private static final String CLOSE_BRACE_REPLACEMENT = "__-";
@@ -83,7 +111,10 @@ public interface ChromatticPersister
       }
    }
 
-   public static class PortletNameFormatter implements ObjectFormatter
+   /**
+    * Encodes and decodes portlet contexts to be properly persisted in JCR as '/' is a reserved char.
+    */
+   class PortletNameFormatter implements ObjectFormatter
    {
       public static final String SLASH_REPLACEMENT = "-_-";
       private static final String SLASH = "/";

@@ -65,11 +65,11 @@ import java.util.Set;
  */
 public class WSRPUtils
 {
-   private final static Map<String, String> JSR168_WSRP_WINDOW_STATES = new HashMap<String, String>(7);
-   private final static Map<String, WindowState> WSRP_JSR168_WINDOW_STATES = new HashMap<String, WindowState>(7);
-   private final static Map<String, String> JSR168_WSRP_MODES = new HashMap<String, String>(7);
-   private final static Map<String, Mode> WSRP_JSR168_MODES = new HashMap<String, Mode>(7);
-   private final static Map<CacheLevel, String> JSR286_WSRP_CACHE = new HashMap<CacheLevel, String>(7);
+   private static final Map<String, String> JSR168_WSRP_WINDOW_STATES = new HashMap<String, String>(7);
+   private static final Map<String, WindowState> WSRP_JSR168_WINDOW_STATES = new HashMap<String, WindowState>(7);
+   private static final Map<String, String> JSR168_WSRP_MODES = new HashMap<String, String>(7);
+   private static final Map<String, Mode> WSRP_JSR168_MODES = new HashMap<String, Mode>(7);
+   private static final Map<CacheLevel, String> JSR286_WSRP_CACHE = new HashMap<CacheLevel, String>(7);
    private static final String SET_OF_LOCALES = "set of Locales";
    private static final String MODE = "Mode";
    private static final String WSRP_MODE_NAME = "wsrp portlet name";

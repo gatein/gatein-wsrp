@@ -209,6 +209,15 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
       // this is already the behavior in the RegistrationPersistenceManager so no need to do anything
    }
 
+   /**
+    * Allows all operations without performing any checks.
+    *
+    * @param portletContext the PortletContext identifying which portlet we're trying to interact with
+    * @param registration   the registration in which context the operation will take place
+    * @param operation      the name of the operation, which should be the calling method's name (without parameters). Currently, only {@link org.gatein.pc.api.PortletInvoker}'s
+    *                       methods and getServiceDescription are checked
+    * @return <code>true</code>
+    */
    public boolean allowAccessTo(PortletContext portletContext, Registration registration, String operation)
    {
       return true;
@@ -234,7 +243,7 @@ public class DefaultRegistrationPolicy implements RegistrationPolicy
     * this
     * method manually, as the validator is configured via the WSRP Producer xml configuration file.
     *
-    * @param validator
+    * @param validator the RegistrationPropertyValidator to use to validate registration properties
     */
    public void setValidator(RegistrationPropertyValidator validator)
    {

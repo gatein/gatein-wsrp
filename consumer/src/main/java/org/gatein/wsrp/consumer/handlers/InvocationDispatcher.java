@@ -45,6 +45,9 @@ import org.gatein.wsrp.spec.v2.WSRP2RewritingConstants;
 import java.util.Map;
 
 /**
+ * Decides which {@link InvocationHandler} will handle a given {@link PortletInvocation}, originating from the portal, to convert it into one or more WSRP calls. See {@link
+ * #dispatchAndHandle(org.gatein.pc.api.invocation.PortletInvocation)}.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -67,10 +70,20 @@ public class InvocationDispatcher
       directResourceHandler = new DirectResourceServingHandler(consumer);
    }
 
+   /**
+    * Determines which {@link InvocationHandler} will handle the specified invocation and call its {@link InvocationHandler#handle(org.gatein.pc.api.invocation.PortletInvocation)}
+    * method, giving the consumer-side {@link InvocationHandlerDelegate} a chance to pre- and post-process the invocation. Also resets any set extensions by {@link
+    * org.gatein.wsrp.api.extensions.ConsumerExtensionAccessor} during the invocation.
+    *
+    * @param invocation the PortletInvocation coming from the portal that needs to be converted into
+    * @return
+    * @throws PortletInvokerException
+    */
    public PortletInvocationResponse dispatchAndHandle(PortletInvocation invocation) throws PortletInvokerException
    {
       InvocationHandler handler;
 
+      // select handler based on specified invocation
       if (invocation instanceof RenderInvocation)
       {
          handler = renderHandler;
@@ -87,8 +100,10 @@ public class InvocationDispatcher
          String resourceURL;
          String preferOperationAsString;
 
+         // extract needed information to perform the WSRP resource call
          if (!ParameterValidation.isNullOrEmpty(resourceInvocationId))
          {
+            // the resource id should be encoded with the necessary information
             Map<String, String> resourceMap = WSRPResourceURL.decodeResource(resourceInvocationId);
             resourceId = resourceMap.get(WSRP2RewritingConstants.RESOURCE_ID);
             resourceURL = resourceMap.get(WSRPRewritingConstants.RESOURCE_URL);
@@ -147,6 +162,7 @@ public class InvocationDispatcher
          throw new InvocationException("Unknown invocation type: " + invocation);
       }
 
+      // allow consumer delegate to pre-process the invocation before we actually invoke the handler
       final InvocationHandlerDelegate delegate = InvocationHandlerDelegate.consumerDelegate();
       if (delegate != null)
       {
@@ -155,8 +171,10 @@ public class InvocationDispatcher
 
       try
       {
+         // invoke the handler
          final PortletInvocationResponse response = handler.handle(invocation);
 
+         // and let the consumer delegate process the response
          if (delegate != null)
          {
             delegate.processInvocationResponse(response, invocation);
@@ -166,6 +184,7 @@ public class InvocationDispatcher
       }
       finally
       {
+         // clear any extensions potentially set during this particular interaction
          ExtensionAccess.getConsumerExtensionAccessor().clear();
       }
    }

@@ -53,7 +53,7 @@ import java.util.Map;
 public class WSRPEventPayloadInterceptor extends PortletInvokerInterceptor
 {
    /** . */
-   private final static Logger log = LoggerFactory.getLogger(WSRPEventPayloadInterceptor.class);
+   private static final Logger log = LoggerFactory.getLogger(WSRPEventPayloadInterceptor.class);
 
    public PortletInvocationResponse invoke(PortletInvocation invocation) throws IllegalArgumentException, PortletInvokerException
    {

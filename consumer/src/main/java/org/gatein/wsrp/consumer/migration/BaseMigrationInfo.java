@@ -35,12 +35,14 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Provides basic behavior for migration (i.e. WSRP import/export) functionality.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public class BaseMigrationInfo
 {
-   protected final static Map<QName, List<String>> EMPTY_FAILED = new TreeMap<QName, List<String>>();
+   protected static final Map<QName, List<String>> EMPTY_FAILED = new TreeMap<QName, List<String>>();
    protected final Map<QName, List<String>> errorCodeToHandles;
    protected final long exportTime;
 

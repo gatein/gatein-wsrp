@@ -26,6 +26,8 @@ package org.gatein.registration.policies;
 import javax.xml.namespace.QName;
 
 /**
+ * Provides default implementation of RegistrationPropertyValidator that only checks that values are non-empty Strings.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 8784 $
  * @since 2.6

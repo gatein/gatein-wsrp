@@ -38,6 +38,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Provides a JSF-backed BeanContext implementation. This is the main implementation since the UI is currently based on JSF.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13413 $
  * @since 2.6

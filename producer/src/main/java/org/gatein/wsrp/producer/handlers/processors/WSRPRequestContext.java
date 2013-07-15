@@ -182,10 +182,7 @@ abstract class WSRPRequestContext implements RequestContext, org.apache.commons.
             {
                InternetHeaders headers = new InternetHeaders();
 
-               StringBuffer paramContentDisposition = new StringBuffer(paramContentDispositionHeader);
-               paramContentDisposition.append(formParam.getName()).append("\"");
-
-               headers.addHeader(FileUpload.CONTENT_DISPOSITION, paramContentDisposition.toString());
+               headers.addHeader(FileUpload.CONTENT_DISPOSITION, paramContentDispositionHeader + formParam.getName() + "\"");
 
                MimeBodyPart mimeBodyPart = new MimeBodyPart(headers, formParam.getValue().getBytes());
                parts.addBodyPart(mimeBodyPart);

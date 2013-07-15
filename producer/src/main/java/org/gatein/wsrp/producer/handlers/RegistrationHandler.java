@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Handles registration operations on behalf of the producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13202 $
  * @since 2.4
@@ -270,9 +272,12 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
    }
 
    /**
-    * @param reg
-    * @param throwExceptionIfInvalid
-    * @return
+    * Determines whether the specified Registration is valid or not.
+    *
+    * @param reg                     the Registration which status we want to determine
+    * @param throwExceptionIfInvalid whether we should throw an exception if the Registration is found invalid
+    * @return <code>true</code> if the registration is valid, <code>false</code> otherwise, though the method might throw an exception if the registration is found invalid and we
+    *         asked it to throw an exception instead of just returning <code>false</code>
     * @since 2.6.2
     */
    public boolean isRegistrationValid(Registration reg, boolean throwExceptionIfInvalid) throws InvalidRegistration, OperationFailed, ModifyRegistrationRequired
@@ -332,6 +337,8 @@ public class RegistrationHandler extends ServiceHandler implements RegistrationI
    }
 
    /**
+    * Retrieves the Registration associated with the specified RegistrationContext.
+    *
     * @param registrationContext
     * @return
     * @since 2.6.2

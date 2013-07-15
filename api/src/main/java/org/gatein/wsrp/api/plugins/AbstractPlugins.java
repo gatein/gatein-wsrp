@@ -26,7 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Provides base behavior for server-specific Plugins implementations.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public abstract class AbstractPlugins implements Plugins
 {
    private static final List<String> KNOWN_PLUGIN_INTERFACES = new ArrayList<String>(3);
@@ -63,6 +67,14 @@ public abstract class AbstractPlugins implements Plugins
       }
    }
 
+   /**
+    * Retrieves a list of fully qualified names of detected implementations of the WSRP extension interface specified by its provided fully qualified name, providing a default
+    * implementation class name.
+    *
+    * @param pluginClassName                the fully qualified name of the plugin interface of which we want to retrieve the available implementations
+    * @param defaultImplementationClassName the fully qualified name of the default implementation
+    * @return a list of fully qualified names of detected implementations of the specified WSRP plugin
+    */
    protected abstract List<String> getImplementationNamesFor(String pluginClassName, String defaultImplementationClassName);
 
    @Override
@@ -90,5 +102,14 @@ public abstract class AbstractPlugins implements Plugins
       }
    }
 
+   /**
+    * Retrieves the Class object corresponding to the implementation named as specified by the provided name of the specified plugin interface.
+    *
+    * @param className   the fully qualified name of the implementation which Class we want to retrieve
+    * @param pluginClass the interface of the plugin which the specified implementation is supposed to conform to
+    * @param <T>         the type of the plugin
+    * @return the Class object for the specified implementation of the provided plugin interface
+    * @throws ClassNotFoundException if no such implementation exists
+    */
    protected abstract <T> Class<? extends T> getImplementationNamed(String className, Class<T> pluginClass) throws ClassNotFoundException;
 }

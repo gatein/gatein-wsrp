@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Translates WSRP-encoded URLs into portlet container-understandable URLs (and back).
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 13470 $
  * @since 2.4 (Apr 28, 2006)
@@ -85,6 +87,14 @@ public abstract class WSRPPortletURL implements ContainerURL
       log.debug("Using " + (strict ? "strict" : "lenient") + " rewriting parameters validation mode.");
    }
 
+   /**
+    * Factory method to create the appropriate WSRPPortletURL based on the specified ContainerURL.
+    *
+    * @param containerURL a ContainerURL to be converter into WSRP-understandable URL
+    * @param secure whether or not this URL needs to be secure
+    * @param context contextual information that might be needed by URLs but are not readily available in the ContainerURL
+    * @return a new WSRPPortletURL containing all the information to generate a valid WSRP URL
+    */
    public static WSRPPortletURL create(ContainerURL containerURL, boolean secure, URLContext context)
    {
       if (containerURL == null)
@@ -128,6 +138,14 @@ public abstract class WSRPPortletURL implements ContainerURL
       return url;
    }
 
+   /**
+    * Extracts the URL information contained in the specified WSRP-encoded String into a WSRPPortletURL object.
+    *
+    * @param encodedURL a WSRP-encoded String representation of a portlet URL
+    * @param customModes potentially empty set of custom modes to check if modes found in the encoded URL are valid
+    * @param customWindowStates potentially empty set of custom window states to check if window states found in the encoded URL are valid
+    * @return a WSRPPortletURL containing the information extracted from the encoded URL
+    */
    public static WSRPPortletURL create(String encodedURL, Set<String> customModes, Set<String> customWindowStates)
    {
       return create(encodedURL, customModes, customWindowStates, false);

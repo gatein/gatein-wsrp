@@ -33,7 +33,6 @@ import org.gatein.pc.api.state.AccessMode;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.payload.PayloadUtils;
-import org.gatein.wsrp.producer.handlers.MarkupHandler;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.oasis.wsrp.v2.Event;
 import org.oasis.wsrp.v2.EventParams;
@@ -64,18 +63,18 @@ import java.util.List;
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<HandleEventsResponse>
+class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<HandleEvents, HandleEventsResponse>
 {
-   private HandleEvents handleEvents;
-
    public EventRequestProcessor(ProducerHelper producer, HandleEvents handleEvents) throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType, UnsupportedWindowState, InvalidRegistration, OperationNotSupported, ModifyRegistrationRequired, UnsupportedLocale
    {
-      super(producer);
-      this.handleEvents = handleEvents;
+      super(producer, handleEvents);
+   }
 
-      // validate request parameters
+   @Override
+   protected void checkRequest(HandleEvents handleEvents) throws MissingParameters, OperationFailed, OperationNotSupported
+   {
       EventParams eventParams = handleEvents.getEventParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams, "event params", "HandleEvents");
       WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(eventParams.getPortletStateChange(), "portletStateChange", "EventParams");
       List<Event> events = eventParams.getEvents();
       if (!ParameterValidation.existsAndIsNotEmpty(events))
@@ -86,52 +85,44 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
 
       if (events.size() > 1)
       {
-         throw WSRP2ExceptionFactory.createWSException(OperationNotSupported.class,
-            "GateIn currently doesn't support sending multiple events to process at once.", null);
+         throw WSRP2ExceptionFactory.createWSException(OperationNotSupported.class, "GateIn currently doesn't support sending multiple events to process at once.", null);
       }
-      prepareInvocation();
    }
 
    @Override
-   RegistrationContext getRegistrationContext()
+   public RegistrationContext getRegistrationContext()
    {
-      return handleEvents.getRegistrationContext();
+      return request.getRegistrationContext();
    }
 
    @Override
    RuntimeContext getRuntimeContext()
    {
-      return handleEvents.getRuntimeContext();
+      return request.getRuntimeContext();
    }
 
    @Override
    MimeRequest getParams()
    {
-      return handleEvents.getMarkupParams();
+      return request.getMarkupParams();
    }
 
    @Override
    public PortletContext getPortletContext()
    {
-      return handleEvents.getPortletContext();
+      return request.getPortletContext();
    }
 
    @Override
    UserContext getUserContext()
    {
-      return handleEvents.getUserContext();
-   }
-
-   @Override
-   String getContextName()
-   {
-      return MarkupHandler.HANDLE_EVENTS;
+      return request.getUserContext();
    }
 
    @Override
    AccessMode getAccessMode() throws MissingParameters
    {
-      StateChange stateChange = handleEvents.getEventParams().getPortletStateChange();
+      StateChange stateChange = request.getEventParams().getPortletStateChange();
 
       return WSRPUtils.getAccessModeFromStateChange(stateChange);
    }
@@ -141,7 +132,7 @@ class EventRequestProcessor extends UpdateNavigationalStateResponseProcessor<Han
    {
       EventInvocation eventInvocation = new EventInvocation(context);
 
-      final EventParams eventParams = handleEvents.getEventParams();
+      final EventParams eventParams = request.getEventParams();
       List<Event> events = eventParams.getEvents();
 
       if (events.size() > 1)

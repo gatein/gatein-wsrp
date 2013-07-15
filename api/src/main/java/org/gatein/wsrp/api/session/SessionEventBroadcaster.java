@@ -24,6 +24,9 @@
 package org.gatein.wsrp.api.session;
 
 /**
+ * Broadcasts session events to registered listeners, so that the running environment only needs to provide an implementation of this interface so that WSRP components interested
+ * in session events can register with it instead of having to know about the running environment.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -35,11 +38,8 @@ public interface SessionEventBroadcaster
 
    void notifyListenersOf(SessionEvent event);
 
-   /**
-    * A default implementation of SessionEventBroadcaster that does nothing, in case we're not interested in
-    * SessionEvents.
-    */
-   final static class NullSessionEventBroadcaster implements SessionEventBroadcaster
+   /** A default implementation of SessionEventBroadcaster that does nothing, in case we're not interested in SessionEvents. */
+   final class NullSessionEventBroadcaster implements SessionEventBroadcaster
    {
       public void registerListener(String listenerId, SessionEventListener listener)
       {
@@ -57,5 +57,5 @@ public interface SessionEventBroadcaster
       }
    }
 
-   static final SessionEventBroadcaster NO_OP_BROADCASTER = new NullSessionEventBroadcaster();
+   SessionEventBroadcaster NO_OP_BROADCASTER = new NullSessionEventBroadcaster();
 }

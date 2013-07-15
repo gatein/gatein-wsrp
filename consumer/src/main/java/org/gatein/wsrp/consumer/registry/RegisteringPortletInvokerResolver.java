@@ -35,10 +35,8 @@ import org.gatein.wsrp.consumer.spi.ConsumerRegistrySPI;
 import java.util.Collection;
 
 /**
- * Attempts to activate a WSRP consumer named like the missing invoker that trigger the invocation of this
- * PortletInvokerResolver. This is in particularly helpful to activate configured consumers that haven't been started
- * yet
- * when a portlet referencing them is accessed.
+ * Attempts to activate a WSRP consumer named like the missing invoker that triggered the invocation of this PortletInvokerResolver. This is in particularly helpful to activate
+ * configured consumers that haven't been started yet when a portlet referencing them is accessed.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
@@ -50,7 +48,7 @@ public class RegisteringPortletInvokerResolver implements PortletInvokerResolver
    public FederatedPortletInvoker resolvePortletInvokerFor(String invokerId, FederatingPortletInvoker callingInvoker, String compoundPortletId) throws NoSuchPortletException
    {
       FederatingPortletInvoker registryInvoker = consumerRegistry.getFederatingPortletInvoker();
-      if (registryInvoker != callingInvoker)
+      if (!registryInvoker.equals(callingInvoker))
       {
          throw new IllegalArgumentException("Trying to use a ConsumerRegistry already linked to a different FederatingPortletInvoker ("
             + registryInvoker + ") than the specified one (" + callingInvoker + ")");
@@ -58,9 +56,9 @@ public class RegisteringPortletInvokerResolver implements PortletInvokerResolver
 
       WSRPConsumer consumer = consumerRegistry.getConsumer(invokerId);
 
-      // if there's no consumer with that invoker id, then there's nothing much we can do
       if (consumer == null)
       {
+         // if there's no consumer with that invoker id, then there's nothing much we can do
          if (compoundPortletId != null)
          {
             throw new NoSuchPortletException(compoundPortletId);

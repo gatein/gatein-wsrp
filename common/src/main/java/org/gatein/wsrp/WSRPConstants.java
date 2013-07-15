@@ -218,6 +218,12 @@ public final class WSRPConstants
    public static final QName XSD_TIME = new QName("http://www.w3.org/2001/XMLSchema", "time");
    public static final QName XSD_DATE = new QName("http://www.w3.org/2001/XMLSchema", "date");
    public static final QName XSD_ANY_SIMPLE_TYPE = new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType");
+
+   /**
+    * The name of the attribute used by the producer to set a portlet request attribute to <code>Boolean.TRUE</code> as part of its invocation process to allow the invoked
+    * portlets
+    * to check whether the request is coming from WSRP.
+    */
    public static final String FROM_WSRP_ATTRIBUTE_NAME = "org.gatein.invocation.fromWSRP";
 
    private WSRPConstants()

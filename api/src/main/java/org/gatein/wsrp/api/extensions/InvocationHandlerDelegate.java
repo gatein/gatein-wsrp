@@ -80,7 +80,7 @@ public abstract class InvocationHandlerDelegate
     *
     * @param delegate
     */
-   public synchronized static void registerConsumerDelegate(InvocationHandlerDelegate delegate)
+   public static synchronized void registerConsumerDelegate(InvocationHandlerDelegate delegate)
    {
       consumerDelegate = delegate;
    }
@@ -90,7 +90,7 @@ public abstract class InvocationHandlerDelegate
     *
     * @param delegate
     */
-   public synchronized static void registerProducerDelegate(InvocationHandlerDelegate delegate)
+   public static synchronized void registerProducerDelegate(InvocationHandlerDelegate delegate)
    {
       producerDelegate = delegate;
    }

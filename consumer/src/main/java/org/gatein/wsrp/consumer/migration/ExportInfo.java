@@ -33,6 +33,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Provides metadata information about the result of an export operation on a remote producer.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -41,7 +43,7 @@ public class ExportInfo extends BaseMigrationInfo
    private final byte[] exportContext;
    private long expirationTime;
    private final SortedMap<String, byte[]> handleToExportedState;
-   private final static SortedMap<String, byte[]> EMPTY_EXPORTED = new TreeMap<String, byte[]>();
+   private static final SortedMap<String, byte[]> EMPTY_EXPORTED = new TreeMap<String, byte[]>();
 
    public ExportInfo(long exportTime, SortedMap<QName, List<String>> errorCodeToHandles, SortedMap<String, byte[]> handleToState, byte[] exportContext)
    {

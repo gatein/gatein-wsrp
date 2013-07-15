@@ -101,7 +101,17 @@ public interface WSRPProducer extends ProducerConfigurationChangeListener, Manag
     */
    void setExportManager(ExportManager exportManager);
 
+   /**
+    * Retrieves the ProducerContext known by this WSRPProducer.
+    *
+    * @return the ProducerContext known by this WSRPProducer.
+    */
    ProducerContext getProducerContext();
 
+   /**
+    * Sets the ProducerContext implementation.
+    *
+    * @param producerContext the ProducerContext implementation that this producer should be using.
+    */
    void setProducerContext(ProducerContext producerContext);
 }

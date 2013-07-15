@@ -61,6 +61,7 @@ import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.NavigationalContext;
 import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.PortletDescription;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -84,11 +85,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision: 13121 $
- * @since 2.6
+ * Provides the default behavior for WSRP request processing, converting WSRP operation and data into portlet container invocation and back.
+ *
+ * @param <Request>  the type of the WSRP requests this class is expected to be able to process
+ * @param <Response> the type of WSRP responses this class is expected to return once it's not processing the request
  */
-public abstract class RequestProcessor<Response>
+public abstract class RequestProcessor<Request, Response>
 {
    private static final String WINDOW_STATE = "window state";
    private static final String PORTLET_MODE = "portlet mode";
@@ -100,31 +102,64 @@ public abstract class RequestProcessor<Response>
    protected Portlet portlet;
    protected WSRPInstanceContext instanceContext;
    protected ProducerHelper producer;
+   protected final Request request;
 
-
-   protected RequestProcessor(ProducerHelper producer)
+   protected RequestProcessor(ProducerHelper producer, Request request) throws MissingParameters, InvalidRegistration, InvalidHandle, UnsupportedLocale, UnsupportedMimeType, UnsupportedWindowState, OperationFailed, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
       this.producer = producer;
+      this.request = request;
+      checkRequest(request);
+      prepareInvocation(request);
    }
 
-   void prepareInvocation() throws InvalidRegistration, OperationFailed, InvalidHandle,
+   /**
+    * Allows subclasses to provide more specific checks on the request before preparing the invocation to be able to fail fast if the request doesn't provide all required data.
+    *
+    * @param request the request we want to check
+    * @throws MissingParameters
+    * @throws OperationFailed
+    * @throws OperationNotSupported
+    */
+   protected void checkRequest(Request request) throws MissingParameters, OperationFailed, OperationNotSupported
+   {
+      // default implementation does nothing
+   }
+
+   /**
+    * Prepares all data common to all requests, converting WSRP information into portlet container invocation data.
+    *
+    * @param request the WSRP request to process
+    * @throws InvalidRegistration
+    * @throws OperationFailed
+    * @throws InvalidHandle
+    * @throws UnsupportedMimeType
+    * @throws UnsupportedWindowState
+    * @throws UnsupportedMode
+    * @throws MissingParameters
+    * @throws ModifyRegistrationRequired
+    * @throws UnsupportedLocale
+    */
+   void prepareInvocation(Request request) throws InvalidRegistration, OperationFailed, InvalidHandle,
       UnsupportedMimeType, UnsupportedWindowState, UnsupportedMode, MissingParameters, ModifyRegistrationRequired, UnsupportedLocale
    {
+      // the context name for error messages
+      final String contextName = request.getClass().getSimpleName();
+
+      // retrieve the registration associated with the request or fail
       Registration registration = producer.getRegistrationOrFailIfInvalid(getRegistrationContext());
 
       // get session information and deal with it
       final RuntimeContext runtimeContext = getRuntimeContext();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", getContextName());
-
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(runtimeContext, "RuntimeContext", contextName);
       checkForSessionIDs(runtimeContext);
 
       // get parameters
       final MimeRequest params = getParams();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(params, "MarkupParams", contextName);
 
       // get portlet handle
       PortletContext wsrpPC = getPortletContext();
-      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", getContextName());
+      WSRP2ExceptionFactory.throwMissingParametersIfValueIsMissing(wsrpPC, "PortletContext", contextName);
       org.gatein.pc.api.PortletContext portletContext = WSRPUtils.convertToPortalPortletContext(wsrpPC);
 
       // check locales
@@ -167,7 +202,6 @@ public abstract class RequestProcessor<Response>
       // prepare information for invocation
       final org.oasis.wsrp.v2.UserContext wsrpUserContext = getUserContext();
       checkUserContext(wsrpUserContext);
-
       SecurityContext securityContext = createSecurityContext(params, runtimeContext, wsrpUserContext);
       final MediaType mediaType = createMediaType(markupRequest);
       PortalContext portalContext = createPortalContext(params, markupRequest);
@@ -176,11 +210,12 @@ public abstract class RequestProcessor<Response>
       instanceContext = createInstanceContext(portletContext, getAccessMode(), portletInstanceKey);
       WindowContext windowContext = createWindowContext(portletContext.getId(), runtimeContext);
 
-      // prepare the invocation
+      // prepare the invocation context
       WSRPPortletInvocationContext context = new WSRPPortletInvocationContext(mediaType, securityContext, portalContext, userContext, instanceContext, windowContext);
+      // and use it to initialize the invocation that will send to the PortletInvoker
       PortletInvocation invocation = initInvocation(context);
 
-      // mark the invocation as coming from WSRP
+      // mark the invocation as coming from WSRP, useful for bridges and/or web framework
       final HashMap<String, Object> attributes = new HashMap<String, Object>();
       attributes.put(WSRPConstants.FROM_WSRP_ATTRIBUTE_NAME, Boolean.TRUE);
       invocation.setRequestAttributes(attributes);
@@ -205,11 +240,15 @@ public abstract class RequestProcessor<Response>
          }
       }
 
+      // finish contextualizing the invocation
       context.contextualize(invocation);
       setInvocation(invocation);
    }
 
-   abstract RegistrationContext getRegistrationContext();
+   // The following method allows generic processing of the request by providing a way for subclasses to extract information from the specific requests they handle since requests
+   // don't share common hierarchy that would have allowed use of polymorphism
+
+   public abstract RegistrationContext getRegistrationContext();
 
    abstract RuntimeContext getRuntimeContext();
 
@@ -219,21 +258,37 @@ public abstract class RequestProcessor<Response>
 
    abstract org.oasis.wsrp.v2.UserContext getUserContext();
 
-   abstract String getContextName();
-
    abstract AccessMode getAccessMode() throws MissingParameters;
 
+   /**
+    * Creates the proper PortletInvocation subclass appropriate to handle the WSRP request and initializes any specific information it needs from the specified context.
+    *
+    * @param context the WSRPPortletInvocationContext from which to initalize the portlet invocation
+    * @return a PortletInvocation apt to convey the meaning of the WSRP request to the portlet container
+    */
    abstract PortletInvocation initInvocation(WSRPPortletInvocationContext context);
 
+   /**
+    * Extracts extensions from the specific response class.
+    *
+    * @param response the WSRP response resulting of the request processing
+    * @return extensions from the specific response class.
+    */
    abstract List<Extension> getResponseExtensionsFor(Response response);
 
+   /**
+    * Processes the response if needed, cleaning things up.
+    *
+    * @param response the response resulting of the request processing
+    * @return the WSRP response ready to be sent back to the consumer
+    */
    public Response processResponse(PortletInvocationResponse response)
    {
       try
       {
          final Response wsrpResponse = internalProcessResponse(response);
 
-         // extensions
+         // add any extensions set by the potential ProducerExtensionAccessor instance set up by the user to the response
          List<Extension> extensions = ExtensionAccess.getProducerExtensionAccessor().getResponseExtensionsFor(wsrpResponse.getClass());
          getResponseExtensionsFor(wsrpResponse).addAll(extensions);
 
@@ -241,11 +296,19 @@ public abstract class RequestProcessor<Response>
       }
       finally
       {
+         // remove the Registration since the invocation is finished
          RegistrationLocal.setRegistration(null);
+         // remove the extensions from the ProducerExtensionsAccessor
          ExtensionAccess.getProducerExtensionAccessor().clear();
       }
    }
 
+   /**
+    * Lets subclasses perform their specific processing of the portlet container response and create the proper WSRP response class.
+    *
+    * @param response the PortletInvocationResponse that we got from the portlet container as a response of the invocation
+    * @return the WSRP response class corresponding to the result of the portlet container processing of the request
+    */
    protected abstract Response internalProcessResponse(PortletInvocationResponse response);
 
 
@@ -374,7 +437,7 @@ public abstract class RequestProcessor<Response>
    }
 
    /**
-    * Retrieves the desired value from the set of possible values if such value exists or throw an
+    * Retrieves the desired value from the set of possible values if such value exists or throws an
     * <code>IllegalArgumentException</code>.
     *
     * @param possibleValues the set of supported values

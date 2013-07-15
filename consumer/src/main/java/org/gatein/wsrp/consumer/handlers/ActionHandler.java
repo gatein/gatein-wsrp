@@ -23,10 +23,6 @@
 
 package org.gatein.wsrp.consumer.handlers;
 
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUpload;
-import org.apache.commons.fileupload.util.Streams;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.PortletInvokerException;
 import org.gatein.pc.api.StateString;
@@ -50,12 +46,8 @@ import org.oasis.wsrp.v2.PerformBlockingInteraction;
 import org.oasis.wsrp.v2.PortletContext;
 import org.oasis.wsrp.v2.RuntimeContext;
 import org.oasis.wsrp.v2.UpdateResponse;
-import org.oasis.wsrp.v2.UploadContext;
 
 import javax.xml.ws.Holder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -135,7 +127,7 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
          throw new IllegalArgumentException("ActionHandler can only handle ActionInvocations!");
       }
 
-      ActionInvocation actionInvocation = (ActionInvocation)invocation;
+      ActionInvocation actionInvocation = invocation;
 
       PortletContext portletContext = requestPrecursor.getPortletContext();
       if (debug)
@@ -167,7 +159,6 @@ public class ActionHandler extends NavigationalStateUpdatingHandler<ActionInvoca
       }
 
       // check for multi-part
-      RequestContextWrapper requestContext = new RequestContextWrapper(actionInvocation.getRequestContext());
       try
       {
          MultiPartResult multiPartResult = MultiPartUtil.getMultiPartContent(invocation.getRequestContext());

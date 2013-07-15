@@ -73,12 +73,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
     * HTTP request timeout property. JAX-WS doesn't standardize that value, so needs to be adapted per used
     * implementation
     */
-   static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
-   static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
-   static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
+   private static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
+   private static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
+   private static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
 
-   static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
-   static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
+   private static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
+   private static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
 
    private static final Logger log = LoggerFactory.getLogger(SOAPServiceFactory.class);
 
@@ -445,7 +445,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       private final QName wsrp2ServiceQName;
       private final QName wsrp1ServiceQName;
-      private final static WSDLFactory wsdlFactory;
+      private static final WSDLFactory wsdlFactory;
 
       static
       {

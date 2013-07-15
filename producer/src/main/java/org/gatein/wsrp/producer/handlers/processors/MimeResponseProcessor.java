@@ -36,22 +36,35 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.servlet.ServletAccess;
 import org.gatein.wsrp.payload.PayloadUtils;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
 import org.oasis.wsrp.v2.MimeResponse;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.w3c.dom.Element;
 
 import java.util.List;
 
 /**
- * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
- * @version $Revision$
+ * Provides common behavior for requests resulting in usage of WSRP MimeResponse subclasses (currently MarkupContext and ResourceContext).
+ *
+ * @param <Request>           the type of the WSRP request
+ * @param <LocalMimeResponse> the type of the actual subclass of MimeResponse this class deals with
+ * @param <Response>          the type of WSRP response this class deals with
  */
-abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Response>
+abstract class MimeResponseProcessor<Request, LocalMimeResponse extends MimeResponse, Response> extends RequestProcessor<Request, Response>
 {
    private static final String EMPTY = "";
 
-   protected MimeResponseProcessor(ProducerHelper producer)
+   protected MimeResponseProcessor(ProducerHelper producer, Request request) throws InvalidRegistration, InvalidHandle, UnsupportedLocale, UnsupportedMimeType, UnsupportedWindowState, OperationFailed, MissingParameters, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
-      super(producer);
+      super(producer, request);
    }
 
    @Override
@@ -106,6 +119,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
             break;
       }
 
+      // create the appropriate MimeResponse subclass based on content of the portlet container ContentResponse
       LocalMimeResponse mimeResponse = WSRPTypeFactory.createMimeResponse(contentType, itemString, itemBinary, getReifiedClass());
 
       mimeResponse.setLocale(markupRequest.getLocale());
@@ -133,7 +147,7 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
          mimeResponse.setCacheControl(WSRPTypeFactory.createCacheControl(expires, WSRPConstants.CACHE_PER_USER));
       }
 
-      // GTNWSRP-336
+      // GTNWSRP-336: make sure we transmit response properties to the consumer
       final ResponseProperties properties = content.getProperties();
       if (properties != null)
       {
@@ -168,14 +182,37 @@ abstract class MimeResponseProcessor<LocalMimeResponse extends MimeResponse, Res
       }
    }
 
+   /**
+    * Lets subclasses create the actual WSRP response based on the actual MimeResponse.
+    *
+    * @param mimeResponse the MimeResponse used as the basis for the WSRP response
+    * @return the WSRP response
+    */
    protected abstract Response createResponse(LocalMimeResponse mimeResponse);
 
+   /**
+    * Retrieves the actual class of the MimeResponse subclass this class deals with.
+    *
+    * @return
+    */
    protected abstract Class<LocalMimeResponse> getReifiedClass();
 
+   /**
+    * Allows subclasses to further process the response if needed.
+    *
+    * @param mimeResponse the MimeResponse subclass we're dealing with
+    * @param response     the PortletInvocationResponse we got from the portlet container
+    */
    protected void additionallyProcessIfNeeded(LocalMimeResponse mimeResponse, PortletInvocationResponse response)
    {
       // default implementation does nothing
    }
 
+   /**
+    * Creates and initializes the proper PortletInvocation based on the specified context.
+    *
+    * @param context the context from which to initialize a PortletInvocation
+    * @return the initialized PortletInvocation matching the WSRP request
+    */
    protected abstract PortletInvocation internalInitInvocation(WSRPPortletInvocationContext context);
 }

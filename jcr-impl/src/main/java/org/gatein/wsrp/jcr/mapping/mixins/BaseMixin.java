@@ -23,8 +23,18 @@
 
 package org.gatein.wsrp.jcr.mapping.mixins;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * Provides base behavior for mixins, which capture a specific view of the persisted data, potentially cross-cutting functionality. Mixin implementations are meant to focus on a
+ * single aspect of the persisted data with very narrow functional scope. They are useful to add dynamically new data into already persisted information without having to change
+ * the persistence "schema", thus allowing rather seamless evolution of the persisted data.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 public interface BaseMixin
 {
+   /**
+    * Provides a means to initialize the value held by this mixin. Useful when the {@link org.chromattic.api.annotations.DefaultValue} annotation cannot be used because the initial
+    * value is not known at compile time.
+    */
    void initializeValue();
 }

@@ -27,21 +27,33 @@ import org.gatein.common.util.ParameterValidation;
 import org.gatein.pc.api.invocation.response.UpdateNavigationalStateResponse;
 import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
+import org.oasis.wsrp.v2.InvalidHandle;
+import org.oasis.wsrp.v2.InvalidRegistration;
+import org.oasis.wsrp.v2.MissingParameters;
+import org.oasis.wsrp.v2.ModifyRegistrationRequired;
 import org.oasis.wsrp.v2.NavigationalContext;
+import org.oasis.wsrp.v2.OperationFailed;
+import org.oasis.wsrp.v2.OperationNotSupported;
 import org.oasis.wsrp.v2.PortletContext;
+import org.oasis.wsrp.v2.UnsupportedLocale;
+import org.oasis.wsrp.v2.UnsupportedMimeType;
+import org.oasis.wsrp.v2.UnsupportedMode;
+import org.oasis.wsrp.v2.UnsupportedWindowState;
 import org.oasis.wsrp.v2.UpdateResponse;
 
 import java.util.List;
 
 /**
+ * Provides common behavior for RequestProcessors dealing with UpdateNavigationalStateResponse from the portlet container.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
-abstract class UpdateNavigationalStateResponseProcessor<Response> extends RequestProcessor<Response>
+abstract class UpdateNavigationalStateResponseProcessor<Request, Response> extends RequestProcessor<Request, Response>
 {
-   public UpdateNavigationalStateResponseProcessor(ProducerHelper producer)
+   public UpdateNavigationalStateResponseProcessor(ProducerHelper producer, Request request) throws InvalidRegistration, InvalidHandle, UnsupportedLocale, UnsupportedMimeType, UnsupportedWindowState, OperationFailed, MissingParameters, UnsupportedMode, ModifyRegistrationRequired, OperationNotSupported
    {
-      super(producer);
+      super(producer, request);
    }
 
    protected String getNewStateOrNull(UpdateNavigationalStateResponse renderResult, boolean forMode)

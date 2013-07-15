@@ -237,7 +237,7 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>, S
       this.listener = listener;
    }
 
-   static interface PropertyChangeListener
+   interface PropertyChangeListener
    {
       /**
        * Only called if an actual change occurred, i.e. oldvalue is guaranteed to be different from newValue

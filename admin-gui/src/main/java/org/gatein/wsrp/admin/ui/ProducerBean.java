@@ -294,7 +294,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          toValidate = LocalizedStringConverter.getAsString(o);
       }
 
-      final String validated = this.checkNameValidity(toValidate, uiComponent.getClientId(facesContext), validator);
+      final String validated = this.checkAndReturnValueIfValid(toValidate, uiComponent.getClientId(facesContext), validator);
       if (validated == null)
       {
          throw new ValidatorException(new FacesMessage()); // need a non-null FacesMessage to avoid NPE
@@ -488,7 +488,7 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
       public void updateIfNeededFrom()
       {
          // cool down period to avoid hammering the DB with constant checks
-         if(System.currentTimeMillis() - lastUpdateCheckTime < 100)
+         if (System.currentTimeMillis() - lastUpdateCheckTime < 100)
          {
             return;
          }
@@ -515,8 +515,14 @@ public class ProducerBean extends WSRPManagedBean implements Serializable
          return false;
       }
 
+      /**
+       * Only checks if the specified value contains a '/'
+       *
+       * @param value the value which format we want to check
+       * @return
+       */
       @Override
-      public String doSimpleChecks(String value)
+      public String checkForInvalidCharacters(String value)
       {
          // allow . in value
          return (value.indexOf('/') != -1) ? null : value;

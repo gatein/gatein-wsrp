@@ -24,6 +24,8 @@
 package org.gatein.registration;
 
 /**
+ * A listener that can be notified before a Registration is destroy to get a chance to veto the destruction.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
@@ -31,7 +33,7 @@ public interface RegistrationDestructionListener
 {
    /**
     * Called before the specified registration is destroyed. Listener has the opportunity to prevent destruction by
-    * returning <code>false</code>.
+    * returning a negative Vote.
     *
     * @param registration the Registration about to be destroyed
     * @return {@link #SUCCESS} if this listener agrees to move forward with the destruction, or a negative Vote built
@@ -39,7 +41,7 @@ public interface RegistrationDestructionListener
     */
    Vote destructionScheduledFor(Registration registration);
 
-   static class Vote
+   class Vote
    {
       public final boolean result;
       public final String reason;
@@ -62,5 +64,5 @@ public interface RegistrationDestructionListener
       }
    }
 
-   static final Vote SUCCESS = new Vote();
+   Vote SUCCESS = new Vote();
 }

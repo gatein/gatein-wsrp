@@ -45,25 +45,24 @@ import org.oasis.wsrp.v2.UnsupportedWindowState;
  */
 public class ProcessorFactory
 {
-   public static RequestProcessor getProcessorFor(ProducerHelper producer, Object request)
+   public static <Request, Response> RequestProcessor<Request, Response> getProcessorFor(ProducerHelper producer, Request request)
       throws OperationFailed, UnsupportedMode, InvalidHandle, MissingParameters, UnsupportedMimeType,
-      UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale
+      UnsupportedWindowState, InvalidRegistration, ModifyRegistrationRequired, UnsupportedLocale, OperationNotSupported
    {
+      RequestProcessor processor;
       if (request instanceof GetMarkup)
       {
-         return new RenderRequestProcessor(producer, (GetMarkup)request);
+         processor = new RenderRequestProcessor(producer, (GetMarkup)request);
       }
       else if (request instanceof PerformBlockingInteraction)
       {
-         PerformBlockingInteraction performBlockingInteraction = (PerformBlockingInteraction)request;
-         return new ActionRequestProcessor(producer, performBlockingInteraction);
+         processor = new ActionRequestProcessor(producer, (PerformBlockingInteraction)request);
       }
       else if (request instanceof HandleEvents)
       {
-         HandleEvents handleEvents = (HandleEvents)request;
          try
          {
-            return new EventRequestProcessor(producer, handleEvents);
+            processor = new EventRequestProcessor(producer, (HandleEvents)request);
          }
          catch (OperationNotSupported operationNotSupported)
          {
@@ -73,12 +72,13 @@ public class ProcessorFactory
       }
       else if (request instanceof GetResource)
       {
-         GetResource getResource = (GetResource)request;
-         return new ResourceRequestProcessor(producer, getResource);
+         processor = new ResourceRequestProcessor(producer, (GetResource)request);
       }
       else
       {
          throw new IllegalArgumentException("Unknown request type: " + request.getClass().getSimpleName());
       }
+
+      return (RequestProcessor<Request, Response>)processor;
    }
 }

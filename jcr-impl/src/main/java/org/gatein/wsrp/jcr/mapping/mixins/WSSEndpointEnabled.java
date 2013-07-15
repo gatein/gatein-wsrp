@@ -27,6 +27,8 @@ import org.chromattic.api.annotations.MixinType;
 import org.chromattic.api.annotations.Property;
 
 /**
+ * A mixin to record whether WS-Security is enabled for a consumer.
+ *
  * @author <a href="mailto:mwringe@redhat.com">Matt Wringe</a>
  * @version $Revision$
  */

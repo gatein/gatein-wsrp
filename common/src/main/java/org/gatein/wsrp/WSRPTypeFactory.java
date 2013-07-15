@@ -590,7 +590,7 @@ public class WSRPTypeFactory
     */
    public static MarkupContext createMarkupContext(String mediaType, String markupString, byte[] markupBinary, Boolean useCachedItem)
    {
-      boolean isUseCachedItem = (useCachedItem == null) ? false : useCachedItem.booleanValue();
+      boolean isUseCachedItem = (useCachedItem != null) && useCachedItem.booleanValue();
 
       MarkupContext markupContext = new MarkupContext();
       markupContext.setMimeType(mediaType);
@@ -914,7 +914,7 @@ public class WSRPTypeFactory
       template = TextTools.replace(template, WSRPRewritingConstants.ENC_CLOSE, WSRPRewritingConstants.REWRITE_PARAMETER_CLOSE);
 
       // fix for GTNWSRP-22
-      if (RESOURCE_URL == url)
+      if (RESOURCE_URL.equals(url))
       {
          template += ADDITIONAL_RESOURCE_URL_PARAMS;
       }

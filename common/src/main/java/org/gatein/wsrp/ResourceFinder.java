@@ -969,13 +969,16 @@ public class ResourceFinder
       if (dir.isDirectory())
       {
          File[] files = dir.listFiles();
-         for (File file : files)
+         if (files != null)
          {
-            if (!file.isDirectory())
+            for (File file : files)
             {
-               String name = file.getName();
-               URL url = file.toURI().toURL();
-               resources.put(name, url);
+               if (!file.isDirectory())
+               {
+                  String name = file.getName();
+                  URL url = file.toURI().toURL();
+                  resources.put(name, url);
+               }
             }
          }
       }
@@ -984,8 +987,7 @@ public class ResourceFinder
    private static void readJarEntries(URL location, String basePath, Map<String, URL> resources) throws IOException
    {
       JarURLConnection conn = (JarURLConnection)location.openConnection();
-      JarFile jarfile = null;
-      jarfile = conn.getJarFile();
+      JarFile jarfile = conn.getJarFile();
 
       Enumeration<JarEntry> entries = jarfile.entries();
       while (entries != null && entries.hasMoreElements())
@@ -1150,7 +1152,7 @@ public class ResourceFinder
                         continue;
                      }
                      sepIdx += 2;
-                     StringBuffer sb = new StringBuffer(file.length() - sepIdx + resourceName.length());
+                     StringBuilder sb = new StringBuilder(file.length() - sepIdx + resourceName.length());
                      sb.append(file.substring(sepIdx));
                      sb.append(resourceName);
                      entryName = sb.toString();
@@ -1255,7 +1257,7 @@ public class ResourceFinder
 
    private URL targetURL(URL base, String name) throws MalformedURLException
    {
-      StringBuffer sb = new StringBuffer(base.getFile().length() + name.length());
+      StringBuilder sb = new StringBuilder(base.getFile().length() + name.length());
       sb.append(base.getFile());
       sb.append(name);
       String file = sb.toString();

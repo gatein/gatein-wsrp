@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Manages session informations on behalf of a consumer.
+ * Manages session information and operations on behalf of a consumer.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 9360 $
@@ -74,16 +74,31 @@ public class SessionHandler implements SessionEventListener
       this.consumer = consumer;
    }
 
+   /**
+    * Whether initCookie needs to be called once per user.
+    *
+    * @return whether initCookie needs to be called once per user.
+    */
    public boolean isPerUserCookieInit()
    {
       return CookieProtocol.PER_USER.equals(getRequiresInitCookie());
    }
 
+   /**
+    * Whether the associated producer requires initCookie to be called.
+    *
+    * @return whether the associated producer requires initCookie to be called.
+    */
    public boolean requiresInitCookie()
    {
       return getRequiresInitCookie() != null && !CookieProtocol.NONE.equals(getRequiresInitCookie());
    }
 
+   /**
+    * Whether initCookie needs to be called once per portlet group.
+    *
+    * @return whether initCookie needs to be called once per portlet group.
+    */
    private boolean requiresGroupInitCookie()
    {
       return requiresInitCookie() && CookieProtocol.PER_GROUP.equals(getRequiresInitCookie());
@@ -95,6 +110,12 @@ public class SessionHandler implements SessionEventListener
       RequestHeaderClientHandler.resetCurrentInfo();
    }
 
+   /**
+    * Invokes initCookie if needed (i.e. if not already done) on the producer for the specified PortletInvocation.
+    *
+    * @param invocation the current PortletInvocation potentially requiring the consumer to call initCookie on the producer
+    * @throws PortletInvokerException
+    */
    public void initCookieIfNeeded(PortletInvocation invocation) throws PortletInvokerException
    {
       initCookieIfNeeded(invocation, true);
@@ -173,6 +194,13 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
+   /**
+    * Sets the session in the WSRP RuntimeContext for the specified portlet.
+    *
+    * @param invocation     the PortletInvocation needing session information to be transmitted
+    * @param runtimeContext the WSRP RuntimeContext on which the session information must be set
+    * @param portletHandle  the handle identifying the portlet being interacted with
+    */
    void setSessionIdIfNeeded(PortletInvocation invocation, RuntimeContext runtimeContext, String portletHandle)
    {
       ProducerSessionInformation producerSessionInfo = getProducerSessionInformation(invocation, false);
@@ -192,6 +220,13 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
+   /**
+    * Updates, if needed, the known session information based on the data provided by the specified SessionContext (i.e. producer-provided data).
+    *
+    * @param sessionContext the WSRP SessionContext containing potential session information updates
+    * @param invocation     the current PortletInvocation
+    * @param portletHandle  the handle identifying the portlet being interacted with
+    */
    public void updateSessionIfNeeded(SessionContext sessionContext, PortletInvocation invocation, String portletHandle)
    {
       if (sessionContext != null)
@@ -202,6 +237,11 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
+   /**
+    * Updates cookies data for the current invocation, if needed.
+    *
+    * @param invocation the current invocation
+    */
    void updateCookiesIfNeeded(PortletInvocation invocation)
    {
       ProducerSessionInformation sessionInfo = getProducerSessionInformation(invocation, true);
@@ -212,6 +252,12 @@ public class SessionHandler implements SessionEventListener
       }
    }
 
+   /**
+    * Retrieves the ProducerSessionInformation containing the current state of what is known session-wise for this producer, creating a new one if none existed previously.
+    *
+    * @param invocation the current PortletInvocation (to be able to retrieve the current consumer-side HTTP session where the information is kept)
+    * @return the current ProducerSessionInformation or a new one if none existed previously
+    */
    public ProducerSessionInformation getProducerSessionInformation(PortletInvocation invocation)
    {
       return getProducerSessionInformation(invocation, true);
@@ -223,6 +269,12 @@ public class SessionHandler implements SessionEventListener
       return getProducerSessionInformation(session, create);
    }
 
+   /**
+    * Retrieves the ProducerSessionInformation from the specified session.
+    *
+    * @param session the consumer-side session to retrieve a ProducerSessionInformation from
+    * @return the ProducerSessionInformation stored in the specified consumer-side session or <code>null</code> if none exists
+    */
    public ProducerSessionInformation getProducerSessionInformation(HttpSession session)
    {
       return getProducerSessionInformation(session, false);
@@ -236,6 +288,7 @@ public class SessionHandler implements SessionEventListener
 
       if (sessionInformation != null)
       {
+         // update the parent the information in case it hadn't been initialized properly
          sessionInformation.setParent(this);
          sessionInformation.setParentSessionId(session.getId());
       }
@@ -253,6 +306,11 @@ public class SessionHandler implements SessionEventListener
       return sessionInformation;
    }
 
+   /**
+    * Generates a key to store the producer session information in the consumer-side session.
+    *
+    * @return the key to store the producer session information in the consumer-side session.
+    */
    private String getProducerSessionInformationKey()
    {
       return SESSION_ID_PREFIX + consumer.getProducerId();
@@ -276,7 +334,6 @@ public class SessionHandler implements SessionEventListener
       HttpSession session = WSRPConsumerImpl.getHttpSession(invocation);
 
       // remove the associated info from the known producer session informations
-
       ProducerSessionInformation info = getProducerSessionInformation(session, false);
       if (info != null)
       {
@@ -386,6 +443,11 @@ public class SessionHandler implements SessionEventListener
 
    // SessionEventListener implementation
 
+   /**
+    * Listen to consumer-side session destruction events to notify the producer that the portlet sessions for that user need to be released.
+    *
+    * @param event any SessionEvent so we need to only process {@link SessionEvent.SessionEventType#SESSION_DESTROYED} event types
+    */
    public void onSessionEvent(SessionEvent event)
    {
       if (SessionEvent.SessionEventType.SESSION_DESTROYED.equals(event.getType()))
@@ -413,13 +475,13 @@ public class SessionHandler implements SessionEventListener
    }
 
    /**
-    * Copied from org.jboss.web.tomcat.service.session.Util.
+    * Returns a session id with any trailing jvmRoute removed. Needed for session handling code to work properly in clustered environment where the session id might contain the
+    * node identifier.
     * <p/>
-    * Returns a session id with any trailing jvmRoute removed.
+    * Copied from org.jboss.web.tomcat.service.session.Util.
     *
     * @param sessionId the raw session id
-    * @return <code>sessionId</code> with the final '.' and any
-    *         characters thereafter removed.
+    * @return <code>sessionId</code> with the final '.' and any characters thereafter removed.
     */
    public static String getRealId(String sessionId)
    {
@@ -440,9 +502,11 @@ public class SessionHandler implements SessionEventListener
 
 
    /**
-    * @param originalHandle
-    * @param newHandle
-    * @param invocation
+    * Maintains session information associated with portlets when their handle is modified (for example, after a clone operation).
+    *
+    * @param originalHandle the original handle of the portlet
+    * @param newHandle the new portlet handle
+    * @param invocation the invocation associated with the operation
     * @since 2.6
     */
    public void updateSessionInfoFor(String originalHandle, String newHandle, PortletInvocation invocation)

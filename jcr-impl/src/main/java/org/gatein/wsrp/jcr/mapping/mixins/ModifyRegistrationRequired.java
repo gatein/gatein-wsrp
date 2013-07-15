@@ -23,14 +23,20 @@
 
 package org.gatein.wsrp.jcr.mapping.mixins;
 
+import org.chromattic.api.annotations.DefaultValue;
 import org.chromattic.api.annotations.MixinType;
 import org.chromattic.api.annotations.Property;
 
-/** @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a> */
+/**
+ * A mixin to record whether the attached consumer needs to call modifyRegistration.
+ *
+ * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
+ */
 @MixinType(name = "wsrp:modifyregistrationrequired")
 public abstract class ModifyRegistrationRequired implements BaseMixin
 {
    @Property(name = "wsrp:ismodifyregistrationrequired")
+   @DefaultValue("false")
    public abstract boolean isModifyRegistrationRequired();
 
    public abstract void setModifyRegistrationRequired(boolean modifyRegistrationRequired);

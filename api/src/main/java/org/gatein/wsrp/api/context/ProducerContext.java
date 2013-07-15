@@ -27,10 +27,17 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * Provides an interface to pass information about the context in which the producer is running. Currently, not doing much.
+ *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision$
  */
 public interface ProducerContext
 {
+   /**
+    * Retrieves the list of locales supported by the environment in which the producer is running.
+    *
+    * @return the list of locales supported by the environment in which the producer is running.
+    */
    List<Locale> getSupportedLocales();
 }

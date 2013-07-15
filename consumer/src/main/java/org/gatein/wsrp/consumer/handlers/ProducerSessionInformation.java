@@ -39,7 +39,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Records session and cookie information for a producer.
+ * Records portlet session and cookie information for a given producer. Per the WSRP spec, cookies can be initialized by the producer and should then be returned on each
+ * invocation by the consumer. This initialization can happen once per user or once per portlet group so we need to track this information whether cookies have been initialized
+ * for a given portlet group / user. See the <a href='http://docs.oasis-open.org/wsrp/v2/wsrp-2.0-spec-os-01.html#_CookieProtocol'>WSRP CookieProtocol specification</a> for more
+ * details.
+ * <p/>
+ * We also need to track portlet sessions for each portlet and potential user-level cookies (which the remote producer might use independently of WSRP).
+ * <p/>
+ * Unless otherwise specified, public method that return cookies and their various representations, do so after having purged any expired cookies.
  *
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
  * @version $Revision: 12736 $
@@ -52,22 +59,22 @@ public class ProducerSessionInformation implements Serializable
    private boolean initCookieDone = false;
    private boolean perGroupCookies = false;
 
-   /** group id -> List<HttpCookie></HttpCookie> */
+   /** Which cookies are associated with a given portlet group id */
    private Map<String, List<CookieUtil.Cookie>> groupCookies;
 
-   /** portlet handle -> SessionInfo */
+   /** Which session data is associated with which portlet */
    private Map<String, SessionInfo> portletSessions;
 
-   /** session id -> portlet handle */
+   /** Which portlet session is associated with which portlet */
    private Map<String, String> sessionId2PortletHandle;
 
-   /** Cookies sent by the remote producer */
+   /** Cookies sent by the remote producer for this user */
    private List<CookieUtil.Cookie> userCookie;
 
    /** Parent SessionHandler so that session mappings can be updated */
    private transient SessionHandler parent;
 
-   /** The identifier of the Session containing this ProducerSessionInformation */
+   /** The identifier of the local (consumer) Session containing this ProducerSessionInformation */
    private String parentSessionId;
 
    String getParentSessionId()
@@ -109,6 +116,11 @@ public class ProducerSessionInformation implements Serializable
       this.parentSessionId = parentSessionId;
    }
 
+   /**
+      * Retrieves an up-to-date list of String representations of user-level cookies.
+      *
+      * @return an up-to-date list of String representations of user-level cookies.
+      */
    public List<String> getUserCookies()
    {
       userCookie = CookieUtil.purgeExpiredCookies(userCookie);
@@ -129,26 +141,47 @@ public class ProducerSessionInformation implements Serializable
       this.userCookie = userCookie;
    }
 
+   /**
+    * Whether we already called initCookie for the associated producer.
+    *
+    * @return <code>true</code> if initCookie has already been called, <code>false</code> otherwise
+    */
    public boolean isInitCookieDone()
    {
       return initCookieDone;
    }
 
-   public void setInitCookieDone(boolean initCookieDone)
+   void setInitCookieDone(boolean initCookieDone)
    {
       this.initCookieDone = initCookieDone;
    }
 
+   /**
+    * Whether the producer required cookies to be initialized per portlet group instead of per user.
+    *
+    * @return <code>true</code> if the producer required cookies to be initialized per portlet group, <code>false</code> otherwise
+    */
    public boolean isPerGroupCookies()
    {
       return perGroupCookies;
    }
 
+   /**
+    * Only public for test purposes.
+    *
+    * @param perGroupCookies
+    */
    public void setPerGroupCookies(boolean perGroupCookies)
    {
       this.perGroupCookies = perGroupCookies;
    }
 
+   /**
+    * Associates the given cookies with a given portlet group, as identified by the specified group identifier.
+    *
+    * @param groupId the portlet group identifier
+    * @param cookies the cookies to be associated with the portlet group
+    */
    public void setGroupCookiesFor(String groupId, List<CookieUtil.Cookie> cookies)
    {
       if (!isPerGroupCookies())
@@ -179,6 +212,12 @@ public class ProducerSessionInformation implements Serializable
       groupCookies.put(groupId, cookies);
    }
 
+   /**
+    * Retrieves the String representations of the cookies associated with the portlet group identified by the specified group identifier.
+    *
+    * @param groupId the group identifier for which we want to retrieve the associated cookies
+    * @return the String representations of the cookies associated with the specified portlet group
+    */
    public List<String> getGroupCookiesFor(String groupId)
    {
       if (groupCookies == null)
@@ -209,11 +248,17 @@ public class ProducerSessionInformation implements Serializable
       }
    }
 
-   public void clearGroupCookies()
+   void clearGroupCookies()
    {
       groupCookies = null;
    }
 
+   /**
+    * Associates the portlet session information provided by the specified SessionContext with the portlet identified by the specified portlet handle.
+    *
+    * @param portletHandle  the handle of the portlet with which session information needs to be associated
+    * @param sessionContext the new session information to be associated to the portlet
+    */
    public void addSessionForPortlet(String portletHandle, SessionContext sessionContext)
    {
       // sessionContext is validated in SessionInfo constructor
@@ -253,7 +298,7 @@ public class ProducerSessionInformation implements Serializable
       return idResult.id;
    }
 
-   public int getNumberOfSessions()
+   int getNumberOfSessions()
    {
       if (portletSessions != null)
       {
@@ -266,10 +311,12 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * @param sessionId
+    * Removes the portlet session identified with the specified session identifier.
+    *
+    * @param sessionId the identifier of the session to be removed
     * @return the id of the removed session or <code>null</code> if the session had already expired
     */
-   public String removeSession(String sessionId)
+   String removeSession(String sessionId)
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(sessionId, "session id");
 
@@ -283,10 +330,12 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
+    * Removes all sessions.
+    *
     * @return a list containing the session ids that were still valid when they were removed and would need to be
     *         released
     */
-   public List<String> removeSessions()
+   List<String> removeSessions()
    {
       List<String> idsToRelease = new ArrayList<String>(getNumberOfSessions());
 
@@ -308,10 +357,12 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-    * @param portletHandle
+    * Removes the session information associated with the specified portlet as identified by the given handle.
+    *
+    * @param portletHandle the handle of the portlet which session needs to be removed
     * @return the id of the removed session or <code>null</code> if the session had already expired
     */
-   public String removeSessionForPortlet(String portletHandle)
+   String removeSessionForPortlet(String portletHandle)
    {
       SessionIdResult result = removeSessionIdForPortlet(portletHandle);
 
@@ -342,7 +393,7 @@ public class ProducerSessionInformation implements Serializable
       return result;
    }
 
-   public void replaceUserCookiesWith(ProducerSessionInformation currentSessionInfo)
+   void replaceUserCookiesWith(ProducerSessionInformation currentSessionInfo)
    {
       if (currentSessionInfo != null && currentSessionInfo.userCookie != null && !currentSessionInfo.userCookie.isEmpty())
       {
@@ -408,11 +459,11 @@ public class ProducerSessionInformation implements Serializable
     * Update the mappings that were associated with the specified original portlet handle after it has been modified as
     * a result of a clone operation to the specified new handle.
     *
-    * @param originalHandle
-    * @param newHandle
+    * @param originalHandle the original portlet handle before an operation modified it
+    * @param newHandle the new portlet handle as resulting of a WSRP call
     * @since 2.6
     */
-   public void updateHandleAssociatedInfo(String originalHandle, String newHandle)
+   void updateHandleAssociatedInfo(String originalHandle, String newHandle)
    {
       ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(originalHandle, "original handle",
          "Updating information associated with a portlet handle");
@@ -430,6 +481,9 @@ public class ProducerSessionInformation implements Serializable
       }
    }
 
+   /**
+       * Records, in a serializable way, portlet session information.
+       */
    private class SessionInfo implements Serializable
    {
       private long lastInvocationTime;
