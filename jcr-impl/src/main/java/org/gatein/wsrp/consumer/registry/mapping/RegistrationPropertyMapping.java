@@ -99,9 +99,9 @@ public abstract class RegistrationPropertyMapping implements BaseMapping<Registr
 
       initial.setName(QName.valueOf(getName()));
       initial.setStatus(getStatus());
-      initial.setListener(registrationInfo); // we need to set the listener before we call setValue
       initial.setLang(WSRPConstants.DEFAULT_LOCALE);
       initial.setValue(getValue());
+      initial.setListener(registrationInfo); // we don't want to trigger property changes event here so set the listener after value has been set
 
       final RegistrationPropertyDescriptionMapping descriptionMapping = getDescription();
       if (descriptionMapping != null)

@@ -434,14 +434,14 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
          ProducerInfo info = getProducerInfo();
          if (isModified())
          {
+            // save old info in case something goes wrong
+            RegistrationInfo oldReg = getProducerInfo().getRegistrationInfo();
+
             // get updated registration info
             RegistrationInfo newReg = getExpectedRegistrationInfo();
 
             // make sure we save any modified registration properties
             saveToRegistry(info);
-
-            // save old info in case something goes wrong
-            RegistrationInfo oldReg = getProducerInfo().getRegistrationInfo();
 
             // check that we have the proper state
             if (newReg == null)
@@ -461,12 +461,9 @@ public class ConsumerBean extends WSRPManagedBean implements Serializable
 
             try
             {
-               // todo: this should be done better cf regPropListener
-               newReg.setModifiedSinceLastRefresh(true); // mark as modified to force refresh of RegistrationData
                // attempt to modify the registration using new registration info
                info.setRegistrationInfo(newReg);
-               info.modifyRegistration();
-               newReg.setModifiedSinceLastRefresh(false);
+               info.modifyRegistration(true);
 
                beanContext.createInfoMessage(MODIFY_REG_SUCCESS);
             }

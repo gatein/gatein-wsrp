@@ -822,7 +822,7 @@ public class RegistrationInfo implements RegistrationProperty.PropertyChangeList
       parent.modifyNow();
    }
 
-   private void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)
+   void setModifyRegistrationNeeded(boolean modifyRegistrationNeeded)
    {
       this.modifyRegistrationNeeded = modifyRegistrationNeeded;
    }
