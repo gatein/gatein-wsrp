@@ -111,8 +111,23 @@ This allows users of the WSRP producer to customize its behavior without having 
 
 ## Admin UI overview
 
-todo
+The WSRP administration user interface allows users to configure and perform maintenance operations on both consumers (which access remote producers) and producer. It is currently
+implemented using JSF and uses the JBoss PortletBridge to work as a portlet as well. The functionality is implemented via a set of beans which provide the interface to WSRP services;
+
+- `ConsumerManagerBean` deals with consumers creation, activation/deactivation, registration/deregistration, basically interacts with the portal's `ConsumerRegistry`
+- `ConsumerBean` deals with the particulars of a specific consumer's configuration, in particular specifying the URL of the WSDL published by the remote producer and dealing with
+  the potential registration requirements specified by the producer but also deals with import/export interacting with the portal's `MigrationService`
+- `ProducerBean` deals with the producer configuration interacting with the `ProducerConfigurationService`
+
+Base functionality is provided via `WSRPManagedBean` in particular with respect to value validations and access to the running context via `BeanContext`.
+
+The view technology uses Facelets with a fairly straightforward organization.
+
+The diagram below sums up the previous information.
+
+![Administration UI beans](img/admin-ui.png)
 
 ## Integration in GateIn
 
-todo
+WSRP is integrated in GateIn via GateIn's extension mechanism and is documented in the context of the GateIn project. In essence, the integration provides implementations of WSRP
+API interfaces and wires all the services together so that WSRP can access the proper portal information whether on the consumer or producer side.
