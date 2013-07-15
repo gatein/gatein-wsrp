@@ -21,15 +21,18 @@ package org.gatein.wsrp.portlet;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA         *
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.                   *
  ******************************************************************************/
-import java.io.IOException;
-import java.io.PrintWriter;
 
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
+import javax.portlet.PortletModeException;
 import javax.portlet.PortletSecurityException;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * A simple portlet to test session handling in WSRP.
@@ -40,6 +43,16 @@ import javax.portlet.RenderResponse;
 public class SessionPortlet extends GenericPortlet
 {
    private static final String COUNT = "count";
+   private static final String NAME = "name";
+
+   public void processAction(ActionRequest req, ActionResponse resp) throws PortletModeException, IOException
+   {
+      String value = req.getParameter(NAME);
+      if (value != null)
+      {
+         req.getPortletSession().setAttribute(NAME, value);
+      }
+   }
 
    protected void doView(RenderRequest req, RenderResponse resp) throws PortletException, PortletSecurityException, IOException
    {
@@ -57,6 +70,15 @@ public class SessionPortlet extends GenericPortlet
       writer.write("<p>Session id: " + session.getId() + "</p>");
       writer.write("<p>count = " + count + "</p>");
       writer.write("<a href='" + resp.createRenderURL() + "'>render</a>");
+
+      StringBuffer sb = new StringBuffer(256);
+      sb.append("<br/><form method='post' action='")
+         .append(resp.createActionURL())
+         .append("'><input name='").append(NAME)
+         .append("'/><input type='submit' value='Submit'></form>")
+         .append("<hr/>Value is ").append(req.getPortletSession().getAttribute(NAME));
+
+      writer.write(sb.toString());
 
       //
       writer.close();

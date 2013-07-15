@@ -30,7 +30,6 @@ import org.gatein.pc.api.StateString;
 import org.gatein.pc.api.invocation.PortletInvocation;
 import org.gatein.pc.api.invocation.response.ErrorResponse;
 import org.gatein.pc.api.invocation.response.PortletInvocationResponse;
-import org.gatein.pc.api.spi.InstanceContext;
 import org.gatein.pc.api.spi.PortletInvocationContext;
 import org.gatein.pc.api.spi.SecurityContext;
 import org.gatein.pc.api.spi.WindowContext;
@@ -173,8 +172,10 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             WindowContext windowContext = invocation.getWindowContext();
             runtimeContext.setNamespacePrefix(WSRPTypeFactory.getNamespaceFrom(windowContext));
 
-            InstanceContext instanceContext = invocation.getInstanceContext();
-            runtimeContext.setPortletInstanceKey(instanceContext == null ? null : instanceContext.getId());
+            // GTNWSRP-369: InstanceContext doesn't actually provide any useful information, use WindowContext's id instead
+            /*InstanceContext instanceContext = invocation.getInstanceContext();
+            runtimeContext.setPortletInstanceKey(WSRPTypeFactory.getPortletInstanceKey(instanceContext));*/
+            runtimeContext.setPortletInstanceKey(windowContext.getId());
          }
 
          try

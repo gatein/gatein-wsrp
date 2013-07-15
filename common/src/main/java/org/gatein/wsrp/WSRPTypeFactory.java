@@ -1819,7 +1819,7 @@ public class WSRPTypeFactory
 
    public static String getPortletInstanceKey(InstanceContext instanceContext)
    {
-      return instanceContext.getId();
+      return instanceContext == null ? null : instanceContext.getId();
    }
 
    public static String getNamespacePrefix(WindowContext windowContext, String portletHandle)
