@@ -103,11 +103,25 @@ context it runs in using a `ProducerContext` implementation, though this aspect 
 
 Going into more details, the actual producer implementation uses several handlers, each handling a specific aspect of the WSRP protocol: `MarkupHandler` deals with the WSRP Markup
 interface, `ServiceDescriptionHandler` deals with ServiceDescription interface calls, `RegistrationHandler` deals with the Registration interface while `PortletManagementHandler`
-deals with the PortletManagement interface.
+deals with the PortletManagement interface. `MarkupHandler` implements the main interface that deals with the core `PortletInvoker` functionality and therefore is a little more
+complex than the other handlers. In particular, it delegates request processing to specific `RequestProcessor` instances. These, in turn, create WSRP-specific implementations of
+invocation contextual information with `WSRPPortletInvocationContext` and its related classes. The following diagram sums up this organization:
 
-The `RegistrationManager` delegates several key decisions to a `RegistrationPolicy` isntance which might be implementated by WSRP users and dynamically added via a plugin mechanism.
-This allows users of the WSRP producer to customize its behavior without having to touch the actual implementation. Persistence operations are delegated to a
-`RegistrationPersistenceManager` instance.
+![Producer handler hierarchy](img/producer-handler.png)
+
+The producer is configured using a `ProducerConfigurationService` managing a `ProducerConfiguration` instance and its associated `ProducerRegistrationRequirements` instance. The
+configuration can be loaded from XML, in particular via `SimpleXMLProducerConfigurationService`, and then persisted in a JCR store using `JCRProducerConfigurationService` and its
+associated mapping classes, as summed up in the following diagram:
+
+![Producer configuration](img/producer-configuration.png)
+
+The producer manages consumer registrations via its `RegistrationManager`. The `RegistrationManager`, in turns, delegates several key decisions to a `RegistrationPolicy` instance
+which might be implemented by WSRP users and dynamically added via a plugin mechanism. This allows users of the WSRP producer to customize its behavior without having to touch the
+actual implementation. Of particular interest, we provide a `DefaultRegistrationPolicy` implementation with useful behavior, delegating validation of registration properties
+provided by consumers to a `RegistrationPropertyValidator` instance that users can implement if they are satisfied with the behavior provided by the `DefaultRegistrationPolicy`.
+Persistence operations are delegated to a `RegistrationPersistenceManager` instance. This is summed up in the following diagram:
+
+![Producer registration](img/producer-registration.png)
 
 ## Admin UI overview
 
