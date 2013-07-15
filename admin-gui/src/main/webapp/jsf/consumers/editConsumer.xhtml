@@ -3,211 +3,211 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:h="http://java.sun.com/jsf/html">
 
-   <ui:param name="showAddConsumer" value="false"/>
+<ui:param name="showAddConsumer" value="false"/>
 
-   <ui:define name="content">
+<ui:define name="content">
 
-      <hr/>
+<hr/>
 
-      <h:form id="edit-cons-form">
-         <table width="100%" class="portlet-table-body #{consumer.active ? 'active' : 'inactive'}" summary="#{i18n.edit_consumer_table_summary}">
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputLabel for="id" value="#{i18n.edit_consumer_producer}"/>
-           </td>
-           <td>
-            <h:panelGroup>
-               <h:inputText id="id" value="#{consumer.id}"/>
-               <h:message styleClass="portlet-msg-error" for="id"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputLabel for="cache" value="#{i18n.edit_consumer_cache}"/>
-           </td>
-           <td>
-            <h:panelGroup>
-               <h:inputText id="cache" value="#{consumer.cache}"/>
-               #{i18n.edit_consumer_cache_seconds}
-               <h:message styleClass="portlet-msg-error" for="cache"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputLabel for="timeout" value="#{i18n.edit_consumer_timeout}"/>
-           </td>
-           <td>
-            <h:panelGroup>
-               <h:inputText id="timeout" value="#{consumer.timeout}"/>
-               #{i18n.edit_consumer_timeout_milliseconds}
-               <h:message styleClass="portlet-msg-error" for="timeout"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputLabel for="wsdl" value="#{i18n.edit_consumer_endpoint}"/>
-           </td>
-           <td>
-            <h:panelGroup>
-               <h:inputText id="wsdl" size="70" value="#{consumer.wsdl}"/>
-               <h:message styleClass="portlet-msg-error" for="wsdl"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputLabel for="enableSecurity" value="#{i18n.edit_enable_ws_security}" rendered="#{consumer.wssAvailable}"/>
-           </td>
-           <td>
-            <h:panelGroup rendered="#{consumer.wssAvailable}">
-               <h:selectBooleanCheckbox id="enableSecurity" value="#{consumer.wssEnabled}"/>
-               <h:message styleClass="portlet-msg-error" for="wsdl"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          
-          <ui:fragment rendered="#{consumer.localInfoPresent}">
-           <tr>
+<h:form id="edit-cons-form">
+    <table width="100%" class="portlet-table-body #{consumer.active ? 'active' : 'inactive'}" summary="#{i18n.edit_consumer_table_summary}">
+        <tr>
             <td class="bold" scope="row">
-             <h:outputText value="#{i18n.edit_consumer_registration}" rendered="#{consumer.localInfoPresent}"/>
+                <h:outputLabel for="id" value="#{i18n.edit_consumer_producer}"/>
             </td>
-            <td>           
-              <f:subview rendered="#{consumer.localInfoPresent}" id="localInfo">
-                <h:outputText value="#{i18n.edit_consumer_no_registration}" rendered="#{consumer.registrationChecked and !consumer.registrationRequired}"/>
+            <td>
+                <h:panelGroup>
+                    <h:inputText id="id" value="#{consumer.id}"/>
+                    <h:message styleClass="portlet-msg-error" for="id"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputLabel for="cache" value="#{i18n.edit_consumer_cache}"/>
+            </td>
+            <td>
+                <h:panelGroup>
+                    <h:inputText id="cache" value="#{consumer.cache}"/>
+                    #{i18n.edit_consumer_cache_seconds}
+                    <h:message styleClass="portlet-msg-error" for="cache"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputLabel for="timeout" value="#{i18n.edit_consumer_timeout}"/>
+            </td>
+            <td>
+                <h:panelGroup>
+                    <h:inputText id="timeout" value="#{consumer.timeout}"/>
+                    #{i18n.edit_consumer_timeout_milliseconds}
+                    <h:message styleClass="portlet-msg-error" for="timeout"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputLabel for="wsdl" value="#{i18n.edit_consumer_endpoint}"/>
+            </td>
+            <td>
+                <h:panelGroup>
+                    <h:inputText id="wsdl" size="70" value="#{consumer.wsdl}"/>
+                    <h:message styleClass="portlet-msg-error" for="wsdl"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputLabel for="enableSecurity" value="#{i18n.edit_enable_ws_security}" rendered="#{consumer.wssAvailable}"/>
+            </td>
+            <td>
+                <h:panelGroup rendered="#{consumer.wssAvailable}">
+                    <h:selectBooleanCheckbox id="enableSecurity" value="#{consumer.wssEnabled}"/>
+                    <h:message styleClass="portlet-msg-error" for="wsdl"/>
+                </h:panelGroup>
+            </td>
+        </tr>
 
-                <f:subview id="existing" rendered="#{consumer.registrationChecked and consumer.registrationRequired}">
-                    <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_current}</h3>
-                    <h:panelGroup styleClass="portlet-area-body">
-                      <h:panelGroup rendered="#{consumer.registrationPropertiesExisting}">
-                          <h:dataTable id="existingProps"
-                                      value="#{consumer.registrationProperties}" var="prop"
-                                      rowClasses="portlet-section-body,portlet-section-alternate"
-                                      columnClasses="nameColumn,descColumn,"
-                                      headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
-                                      styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                      width="95%" summary="#{i18n.edit_consumer_registration_current}">
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
-                                #{prop.name}
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
-                                #{prop.description.label.value}
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
-                                <h:inputText id="prop-value-input" value="#{prop.value}" size="50"
-                                            disabled="#{consumer.displayExpectedNeeded}"/>
-                                <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
-                                              rendered="#{prop.determinedInvalid}"
-                                              converter="faces.convert.RegistrationProperty.Status"/>
-                            </h:column>
-                          </h:dataTable>
+        <ui:fragment rendered="#{consumer.localInfoPresent}">
+            <tr>
+                <td class="bold" scope="row">
+                    <h:outputText value="#{i18n.edit_consumer_registration}"/>
+                </td>
+                <td>
+                    <f:subview id="localInfo">
+                        <h:outputText value="#{i18n.edit_consumer_no_registration}" rendered="#{consumer.registrationChecked and !consumer.registrationRequired}"/>
+
+                        <f:subview id="existing" rendered="#{consumer.registrationChecked and consumer.registrationRequired}">
+                            <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_current}</h3>
+                            <h:panelGroup styleClass="portlet-area-body">
+                                <h:panelGroup rendered="#{consumer.registrationPropertiesExisting}">
+                                    <h:dataTable id="existingProps"
+                                                 value="#{consumer.registrationProperties}" var="prop"
+                                                 rowClasses="portlet-section-body,portlet-section-alternate"
+                                                 columnClasses="nameColumn,descColumn,"
+                                                 headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
+                                                 styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
+                                                 width="95%" summary="#{i18n.edit_consumer_registration_current}">
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
+                                            #{prop.name}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
+                                            #{prop.description.label.value}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
+                                            <h:inputText id="prop-value-input" value="#{prop.value}" size="50"
+                                                         disabled="#{consumer.displayExpectedNeeded}"/>
+                                            <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
+                                                          rendered="#{prop.determinedInvalid}"
+                                                          converter="faces.convert.RegistrationProperty.Status"/>
+                                        </h:column>
+                                    </h:dataTable>
 
 
-                          <h:commandLink id="cons-update-link" action="#{consumer.update}" styleClass="ActionButton"
-                                        value="#{i18n.edit_consumer_registration_update_props}"
-                                        rendered="#{consumer.registered}"/>
-                          <h:commandLink id="modify-reg-link" styleClass="ActionButton"
-                                        action="#{consumer.modifyRegistration}"
-                                        value="#{i18n.edit_consumer_registration_modify}"
-                                        title="#{i18n.edit_consumer_registration_modify_title}"
-                                        rendered="#{consumer.registrationLocallyModified}"/>
-                      </h:panelGroup>
-                      <h:outputText value="#{i18n.edit_consumer_registration_no_props}" rendered="#{!consumer.registrationPropertiesExisting}"/>
-                      <br style="clear:both;"/>
-                    </h:panelGroup>
-                  
-                    <br/>
+                                    <h:commandLink id="cons-update-link" action="#{consumer.update}" styleClass="ActionButton"
+                                                   value="#{i18n.edit_consumer_registration_update_props}"
+                                                   rendered="#{consumer.registered}"/>
+                                    <h:commandLink id="modify-reg-link" styleClass="ActionButton"
+                                                   action="#{consumer.modifyRegistration}"
+                                                   value="#{i18n.edit_consumer_registration_modify}"
+                                                   title="#{i18n.edit_consumer_registration_modify_title}"
+                                                   rendered="#{consumer.registrationLocallyModified}"/>
+                                </h:panelGroup>
+                                <h:outputText value="#{i18n.edit_consumer_registration_no_props}" rendered="#{!consumer.registrationPropertiesExisting}"/>
+                                <br style="clear:both;"/>
+                            </h:panelGroup>
 
-                    <f:subview rendered="#{consumer.displayExpectedNeeded}" id="expected">
-                      <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_expected}</h3>
-                      <h:panelGroup styleClass="portlet-area-body">
-                          <h:dataTable id="expectedProps" rendered="#{consumer.expectedRegistrationPropertiesExisting}"
-                                      value="#{consumer.expectedRegistrationProperties}" var="prop"
-                                      rowClasses="portlet-section-body,portlet-section-alternate"
-                                      columnClasses="nameColumn,descColumn,"
-                                      headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
-                                      styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                      width="100%" summary="#{i18n.edit_consumer_registration_expected}">
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
-                                #{prop.name}
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
-                                #{prop.description.label.value}
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
-                                <h:inputText id="prop-value-input" value="#{prop.value}" size="50"/>
-                                <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
-                                              rendered="#{prop.determinedInvalid}"
-                                              converter="faces.convert.RegistrationProperty.Status"/>
-                            </h:column>
-                          </h:dataTable>
-                          <h:outputText value="#{i18n.edit_consumer_registration_no_props}" rendered="#{!consumer.expectedRegistrationPropertiesExisting}"/>
+                            <br/>
 
-                          <h:commandLink id="edit-reg-link" styleClass="ActionButton"
-                                        action="#{consumer.modifyRegistration}"
-                                        value="#{i18n.edit_consumer_registration_modify}"
-                                        title="#{i18n.edit_consumer_registration_modify_title}"/>
-                          <br style="clear:both;"/>
-                      </h:panelGroup>
+                            <f:subview rendered="#{consumer.displayExpectedNeeded}" id="expected">
+                                <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_expected}</h3>
+                                <h:panelGroup styleClass="portlet-area-body">
+                                    <h:dataTable id="expectedProps" rendered="#{consumer.expectedRegistrationPropertiesExisting}"
+                                                 value="#{consumer.expectedRegistrationProperties}" var="prop"
+                                                 rowClasses="portlet-section-body,portlet-section-alternate"
+                                                 columnClasses="nameColumn,descColumn,"
+                                                 headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
+                                                 styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
+                                                 width="100%" summary="#{i18n.edit_consumer_registration_expected}">
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
+                                            #{prop.name}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
+                                            #{prop.description.label.value}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
+                                            <h:inputText id="prop-value-input" value="#{prop.value}" size="50"/>
+                                            <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
+                                                          rendered="#{prop.determinedInvalid}"
+                                                          converter="faces.convert.RegistrationProperty.Status"/>
+                                        </h:column>
+                                    </h:dataTable>
+                                    <h:outputText value="#{i18n.edit_consumer_registration_no_props}" rendered="#{!consumer.expectedRegistrationPropertiesExisting}"/>
+
+                                    <h:commandLink id="edit-reg-link" styleClass="ActionButton"
+                                                   action="#{consumer.modifyRegistration}"
+                                                   value="#{i18n.edit_consumer_registration_modify}"
+                                                   title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                    <br style="clear:both;"/>
+                                </h:panelGroup>
+                            </f:subview>
+                        </f:subview>
                     </f:subview>
-                </f:subview>
-              </f:subview>
-             </td>
-           </tr>
-          </ui:fragment>
-          
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputText value="#{i18n.edit_consumer_registration_context}" rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}"/>
-           </td>
-           <td>
-            <h:panelGroup rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}" id="handle">
-               #{i18n.edit_consumer_registration_context_handle}
-               <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
+                </td>
+            </tr>
+        </ui:fragment>
 
-               <h:commandLink id="erase-cons-link" action="confirmEraseRegistration" styleClass="ActionButton"
-                              value="#{i18n.edit_consumer_registration_context_erase}"
-                              title="#{i18n.edit_consumer_registration_context_erase_title}"/>
-            </h:panelGroup>
-           </td>
-          </tr>
-          <tr>
-           <td class="bold" scope="row">
-            <h:outputText value=""/>
-           </td>
-           <td>
-            <h:panelGroup styleClass="portlet-section-buttonrow">
-               <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}" styleClass="ActionButton"
-                              actionListener="#{consumersMgr.selectConsumer}"
-                              rendered="#{consumer.importExportSupported}"
-                              value="#{i18n.edit_consumer_export}"
-                              title="#{i18n.edit_consumer_export_title}">
-                  <f:param name="id" value="#{consumer.id}"/>
-               </h:commandLink>
-               <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}" styleClass="ActionButton"
-                              actionListener="#{consumersMgr.selectConsumer}"
-                              rendered="#{consumer.importExportSupported and ! consumer.availableExportInfosEmpty}"
-                              value="#{i18n.edit_consumer_import}"
-                              title="#{i18n.edit_consumer_import_title}">
-                  <f:param name="id" value="#{consumer.id}"/>
-               </h:commandLink>
-               <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
-                                value="#{i18n.edit_consumer_refresh}"
-                                title="#{i18n.edit_consumer_refresh_title}" styleClass="ActionButton"/>
-               <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}" immediate="true"
-                              value="#{i18n.edit_consumer_cancel}" styleClass="ActionButton"/>
-            </h:panelGroup>
-           </td>
-          </tr>  
-         </table>
-      </h:form>
-   </ui:define>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputText value="#{i18n.edit_consumer_registration_context}" rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}"/>
+            </td>
+            <td>
+                <h:panelGroup rendered="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}" id="handle">
+                    #{i18n.edit_consumer_registration_context_handle}
+                    <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
+
+                    <h:commandLink id="erase-cons-link" action="confirmEraseRegistration" styleClass="ActionButton"
+                                   value="#{i18n.edit_consumer_registration_context_erase}"
+                                   title="#{i18n.edit_consumer_registration_context_erase_title}"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold" scope="row">
+                <h:outputText value=""/>
+            </td>
+            <td>
+                <h:panelGroup styleClass="portlet-section-buttonrow">
+                    <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}" styleClass="ActionButton"
+                                   actionListener="#{consumersMgr.selectConsumer}"
+                                   rendered="#{consumer.importExportSupported}"
+                                   value="#{i18n.edit_consumer_export}"
+                                   title="#{i18n.edit_consumer_export_title}">
+                        <f:param name="id" value="#{consumer.id}"/>
+                    </h:commandLink>
+                    <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}" styleClass="ActionButton"
+                                   actionListener="#{consumersMgr.selectConsumer}"
+                                   rendered="#{consumer.importExportSupported and ! consumer.availableExportInfosEmpty}"
+                                   value="#{i18n.edit_consumer_import}"
+                                   title="#{i18n.edit_consumer_import_title}">
+                        <f:param name="id" value="#{consumer.id}"/>
+                    </h:commandLink>
+                    <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
+                                     value="#{i18n.edit_consumer_refresh}"
+                                     title="#{i18n.edit_consumer_refresh_title}" styleClass="ActionButton"/>
+                    <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}" immediate="true"
+                                   value="#{i18n.edit_consumer_cancel}" styleClass="ActionButton"/>
+                </h:panelGroup>
+            </td>
+        </tr>
+    </table>
+</h:form>
+</ui:define>
 </ui:decorate>
