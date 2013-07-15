@@ -228,8 +228,10 @@ public class RegistrationProperty implements Comparable<RegistrationProperty>, S
 
    private void notifyListener(String oldValue, String newValue, Status oldStatus)
    {
-      ParameterValidation.throwIllegalArgExceptionIfNull(listener, "PropertyChangeListener");
-      listener.propertyValueChanged(this, oldStatus, oldValue, newValue);
+      if (listener != null)
+      {
+         listener.propertyValueChanged(this, oldStatus, oldValue, newValue);
+      }
    }
 
    public void setListener(PropertyChangeListener listener)

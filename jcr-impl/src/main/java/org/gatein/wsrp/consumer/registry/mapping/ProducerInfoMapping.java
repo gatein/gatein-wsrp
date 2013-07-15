@@ -108,7 +108,6 @@ public abstract void setAvailable(boolean available);*/
       setExpirationCacheSeconds(producerInfo.getExpirationCacheSeconds());
       setId(producerInfo.getId());
       setLastModified(producerInfo.getLastModified());
-      setModifyRegistrationRequired(producerInfo.isModifyRegistrationRequired());
 
       EndpointInfoMapping eim = getEndpointInfo();
       eim.initFrom(producerInfo.getEndpointConfigurationInfo());
@@ -133,7 +132,6 @@ public abstract void setAvailable(boolean available);*/
       info.setActive(getActive());
       info.setExpirationCacheSeconds(getExpirationCacheSeconds());
       info.setLastModified(getLastModified());
-      info.setModifyRegistrationRequired(getModifyRegistrationRequired());
 
       // endpoint
       EndpointConfigurationInfo endInfo = getEndpointInfo().toModel(info.getEndpointConfigurationInfo(), info);

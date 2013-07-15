@@ -125,12 +125,6 @@ public class ProducerInfo extends SupportsLastModified
    /** The activated status of the associated Consumer */
    private boolean persistentActive;
 
-   /**
-    * GTNWSRP-239: whether or not this ProducerInfo requires ModifyRegistration to be called, currently persisted via
-    * mixin
-    */
-   private boolean isModifyRegistrationRequired;
-
    // Transient information
 
    /** The Cookie handling policy required by the Producer */
@@ -304,7 +298,7 @@ public class ProducerInfo extends SupportsLastModified
    /** Determines whether the associated consumer is active. */
    public boolean isActive()
    {
-      return persistentActive/* && persistentEndpointInfo.isAvailable()*/;
+      return persistentActive;
    }
 
    /**
@@ -344,15 +338,15 @@ public class ProducerInfo extends SupportsLastModified
 
    public boolean isModifyRegistrationRequired()
    {
-      return isModifyRegistrationRequired || persistentRegistrationInfo.isModifyRegistrationNeeded();
+      return persistentRegistrationInfo.isModifyRegistrationNeeded();
    }
 
    // FIX-ME: remove when a better dirty management is in place at property level
 
    public void setModifyRegistrationRequired(boolean modifyRegistrationRequired)
    {
-      modifyNowIfNeeded(isModifyRegistrationRequired, modifyRegistrationRequired);
-      this.isModifyRegistrationRequired = modifyRegistrationRequired;
+      modifyNowIfNeeded(persistentRegistrationInfo.isModifyRegistrationNeeded(), modifyRegistrationRequired);
+      persistentRegistrationInfo.setModifyRegistrationNeeded(modifyRegistrationRequired);
    }
 
    public CookieProtocol getRequiresInitCookie()
@@ -526,8 +520,6 @@ public class ProducerInfo extends SupportsLastModified
       RefreshResult registrationResult = internalRefreshRegistration(serviceDescription, false, true, true);
       if (registrationResult.hasIssues())
       {
-         // if the registration validation has issues, we need to modify our local information
-         setModifyRegistrationRequired(true);
          setActive(false);
       }
       else
@@ -1283,9 +1275,14 @@ public class ProducerInfo extends SupportsLastModified
 
    public void modifyRegistration() throws PortletInvokerException
    {
+      modifyRegistration(false);
+   }
+
+   public void modifyRegistration(boolean force) throws PortletInvokerException
+   {
       try
       {
-         modifyRegistration(false);
+         internalModifyRegistration(force);
       }
       finally
       {
@@ -1293,7 +1290,7 @@ public class ProducerInfo extends SupportsLastModified
       }
    }
 
-   private void modifyRegistration(boolean force) throws PortletInvokerException
+   private void internalModifyRegistration(boolean force) throws PortletInvokerException
    {
       if (persistentRegistrationInfo.getRegistrationHandle() != null)
       {
@@ -1317,9 +1314,6 @@ public class ProducerInfo extends SupportsLastModified
 
                // force refresh of internal RegistrationInfo state
                persistentRegistrationInfo.setRegistrationValidInternalState();
-
-               // registration is not modified anymore :)
-               setModifyRegistrationRequired(false);
 
                // update state
                persistentRegistrationInfo.setRegistrationState(registrationState.value);
