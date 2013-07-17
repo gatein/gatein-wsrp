@@ -36,7 +36,7 @@
 
    <groupId>org.gatein.wsrp</groupId>
    <artifactId>wsrp-parent</artifactId>
-   <version>2.2.11.Final-SNAPSHOT</version>
+   <version>2.2.11.Final</version>
 
    <packaging>pom</packaging>
 
