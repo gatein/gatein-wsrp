@@ -81,7 +81,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
 
    private static final Logger log = LoggerFactory.getLogger(SOAPServiceFactory.class);
-
    private String wsdlDefinitionURL;
 
    private boolean isV2 = false;
@@ -97,6 +96,12 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private boolean wssEnabled;
 
    private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
+
+   @Override
+   public String toString()
+   {
+      return "SOAPServiceFactory (@" + Integer.toHexString(hashCode()) + ") URL=" + wsdlDefinitionURL + ", WSRP version " + (isV2 ? "2" : "1");
+   }
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -280,60 +285,63 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public void start() throws Exception
    {
-      try
+      if (!isAvailable())
       {
-         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
-         URL wsdlURL = new URI(wsdlDefinitionURL).toURL();
-
-         WSDLInfo wsdlInfo = new WSDLInfo(wsdlDefinitionURL);
-
-         // try to get v2 of service if possible, first
-         QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
-         QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
-         if (wsrp2 != null)
+         try
          {
-            wsService = Service.create(wsdlURL, wsrp2);
+            ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
+            URL wsdlURL = new URI(wsdlDefinitionURL).toURL();
 
-            // init the service ports
-            initPortFor(WSRPV2MarkupPortType.class);
-            initPortFor(WSRPV2ServiceDescriptionPortType.class);
-            initPortFor(WSRPV2PortletManagementPortType.class);
-            initPortFor(WSRPV2RegistrationPortType.class);
+            WSDLInfo wsdlInfo = new WSDLInfo(wsdlDefinitionURL);
 
-            setFailed(false);
-            setAvailable(true);
-            isV2 = true;
+            // try to get v2 of service if possible, first
+            QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
+            QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
+            if (wsrp2 != null)
+            {
+               wsService = Service.create(wsdlURL, wsrp2);
+
+               // init the service ports
+               initPortFor(WSRPV2MarkupPortType.class);
+               initPortFor(WSRPV2ServiceDescriptionPortType.class);
+               initPortFor(WSRPV2PortletManagementPortType.class);
+               initPortFor(WSRPV2RegistrationPortType.class);
+
+               setFailed(false);
+               setAvailable(true);
+               isV2 = true;
+            }
+            else if (wsrp1 != null)
+            {
+               wsService = Service.create(wsdlURL, wsrp1);
+
+               // init the service ports
+               initPortFor(WSRPV1MarkupPortType.class);
+               initPortFor(WSRPV1ServiceDescriptionPortType.class);
+               initPortFor(WSRPV1PortletManagementPortType.class);
+               initPortFor(WSRPV1RegistrationPortType.class);
+
+               setFailed(false);
+               setAvailable(true);
+               isV2 = false;
+            }
+            else
+            {
+               throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
+            }
          }
-         else if (wsrp1 != null)
+         catch (MalformedURLException e)
          {
-            wsService = Service.create(wsdlURL, wsrp1);
-
-            // init the service ports
-            initPortFor(WSRPV1MarkupPortType.class);
-            initPortFor(WSRPV1ServiceDescriptionPortType.class);
-            initPortFor(WSRPV1PortletManagementPortType.class);
-            initPortFor(WSRPV1RegistrationPortType.class);
-
-            setFailed(false);
-            setAvailable(true);
-            isV2 = false;
+            setFailed(true);
+            throw new IllegalArgumentException(wsdlDefinitionURL + " is not a well-formed URL specifying where to find the WSRP services definition.", e);
          }
-         else
+         catch (Exception e)
          {
-            throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
+            log.info("Couldn't access WSDL information at " + wsdlDefinitionURL + ". Service won't be available", e);
+            setAvailable(false);
+            setFailed(true);
+            throw e;
          }
-      }
-      catch (MalformedURLException e)
-      {
-         setFailed(true);
-         throw new IllegalArgumentException(wsdlDefinitionURL + " is not a well-formed URL specifying where to find the WSRP services definition.", e);
-      }
-      catch (Exception e)
-      {
-         log.info("Couldn't access WSDL information at " + wsdlDefinitionURL + ". Service won't be available", e);
-         setAvailable(false);
-         setFailed(true);
-         throw e;
       }
    }
 
@@ -439,6 +447,16 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       PortCustomizerRegistry registry = PortCustomizerRegistry.getInstance();
       return registry != null && registry.hasWSSFocusedCustomizers();
+   }
+
+   @Override
+   public ServiceFactory clone()
+   {
+      final SOAPServiceFactory factory = new SOAPServiceFactory();
+      factory.wssEnabled = this.wssEnabled;
+      factory.msBeforeTimeOut = this.msBeforeTimeOut;
+      factory.wsdlDefinitionURL = this.wsdlDefinitionURL;
+      return factory;
    }
 
    protected static class WSDLInfo

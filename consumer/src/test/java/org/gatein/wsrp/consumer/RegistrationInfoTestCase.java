@@ -24,8 +24,10 @@
 package org.gatein.wsrp.consumer;
 
 import junit.framework.TestCase;
+import org.gatein.common.util.Version;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.WSRPTypeFactory;
+import org.gatein.wsrp.services.ServiceFactory;
 import org.gatein.wsrp.test.protocol.v2.ServiceDescriptionBehavior;
 import org.oasis.wsrp.v2.Property;
 import org.oasis.wsrp.v2.RegistrationContext;
@@ -52,6 +54,15 @@ public class RegistrationInfoTestCase extends TestCase
    {
       ProducerInfo pi = new ProducerInfo(null);
       info = pi.getRegistrationInfo();
+      // to avoid having the endpoint try to refresh when the registration info wants the WSRP version :(
+      pi.setEndpointConfigurationInfo(new EndpointConfigurationInfo()
+      {
+         @Override
+         Version getWSRPVersion()
+         {
+            return ServiceFactory.WSRP2;
+         }
+      });
    }
 
    public void testInitialState()

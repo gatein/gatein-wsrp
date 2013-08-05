@@ -26,6 +26,7 @@ package org.gatein.wsrp.consumer.handlers;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.wsrp.WSRPConstants;
 import org.gatein.wsrp.handler.CookieUtil;
+import org.gatein.wsrp.services.ServiceFactory;
 import org.oasis.wsrp.v2.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +78,22 @@ public class ProducerSessionInformation implements Serializable
    /** The identifier of the local (consumer) Session containing this ProducerSessionInformation */
    private String parentSessionId;
 
-   String getParentSessionId()
+   /** The ServiceFactory that handles calls for this consumer session */
+   private ServiceFactory factory;
+
+   public String getParentSessionId()
    {
       return parentSessionId;
+   }
+
+   public ServiceFactory getServiceFactory()
+   {
+      return factory;
+   }
+
+   public void setServiceFactory(ServiceFactory serviceFactory)
+   {
+      this.factory = serviceFactory;
    }
 
    /**
@@ -117,10 +131,10 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-      * Retrieves an up-to-date list of String representations of user-level cookies.
-      *
-      * @return an up-to-date list of String representations of user-level cookies.
-      */
+    * Retrieves an up-to-date list of String representations of user-level cookies.
+    *
+    * @return an up-to-date list of String representations of user-level cookies.
+    */
    public List<String> getUserCookies()
    {
       userCookie = CookieUtil.purgeExpiredCookies(userCookie);
@@ -285,7 +299,7 @@ public class ProducerSessionInformation implements Serializable
     *
     * @param portletHandle the handle of the portlet for which the session id is to be retrieved
     * @return the session id for the specified portlet, <code>null</code> if there is no session associated with the
-    *         portlet or if the session has expired.
+    * portlet or if the session has expired.
     */
    public String getSessionIdForPortlet(String portletHandle)
    {
@@ -333,7 +347,7 @@ public class ProducerSessionInformation implements Serializable
     * Removes all sessions.
     *
     * @return a list containing the session ids that were still valid when they were removed and would need to be
-    *         released
+    * released
     */
    List<String> removeSessions()
    {
@@ -460,7 +474,7 @@ public class ProducerSessionInformation implements Serializable
     * a result of a clone operation to the specified new handle.
     *
     * @param originalHandle the original portlet handle before an operation modified it
-    * @param newHandle the new portlet handle as resulting of a WSRP call
+    * @param newHandle      the new portlet handle as resulting of a WSRP call
     * @since 2.6
     */
    void updateHandleAssociatedInfo(String originalHandle, String newHandle)
@@ -482,8 +496,8 @@ public class ProducerSessionInformation implements Serializable
    }
 
    /**
-       * Records, in a serializable way, portlet session information.
-       */
+    * Records, in a serializable way, portlet session information.
+    */
    private class SessionInfo implements Serializable
    {
       private long lastInvocationTime;

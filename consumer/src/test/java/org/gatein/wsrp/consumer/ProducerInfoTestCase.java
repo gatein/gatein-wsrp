@@ -26,6 +26,7 @@ package org.gatein.wsrp.consumer;
 import junit.framework.TestCase;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvokerException;
+import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.gatein.wsrp.spec.v2.WSRP2Constants;
 import org.gatein.wsrp.spec.v2.WSRP2ExceptionFactory;
 import org.gatein.wsrp.test.protocol.v2.BehaviorBackedServiceFactory;
@@ -82,6 +83,9 @@ public class ProducerInfoTestCase extends TestCase
       serviceFactory = new BehaviorBackedServiceFactory();
       EndpointConfigurationInfo eci = new EndpointConfigurationInfo(serviceFactory);
       info.setEndpointConfigurationInfo(eci);
+
+      // make sure we reset any held session information
+      RequestHeaderClientHandler.resetCurrentInfo();
    }
 
    public void testSettersWithoutModificationShouldNotChangeLastModified()

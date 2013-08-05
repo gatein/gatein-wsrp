@@ -214,7 +214,7 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
     * @param invocation     the invocation that caused the error to occur
     * @param runtimeContext the current WSRP RuntimeContext
     * @return an ErrorResponse if the error couldn't be dealt with or <code>null</code> if the error was correctly
-    *         handled
+    * handled
     */
    private PortletInvocationResponse dealWithError(Exception error, Invocation invocation, RuntimeContext runtimeContext) throws PortletInvokerException
    {
@@ -264,6 +264,10 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
          consumer.handleModifyRegistrationRequiredFault();
 
          return new ErrorResponse(error);
+      }
+      else if (consumer.getProducerInfo().canAttemptRecoveryFrom(error))
+      {
+         return new WSErrorResponse(error);
       }
       else
       {
@@ -341,6 +345,15 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
     * @throws PortletInvokerException
     */
    protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
+
+   public static class WSErrorResponse extends ErrorResponse
+   {
+
+      public WSErrorResponse(Throwable cause)
+      {
+         super(cause);
+      }
+   }
 
    /**
     * Extracts extensions from the response.

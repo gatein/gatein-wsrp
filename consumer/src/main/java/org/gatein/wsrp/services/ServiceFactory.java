@@ -31,7 +31,7 @@ import org.gatein.common.util.Version;
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision: 11484 $
  */
-public interface ServiceFactory
+public interface ServiceFactory extends Cloneable
 {
    int DEFAULT_TIMEOUT_MS = 10000;
    Version WSRP2 = new Version("WSRP", 2, 0, 0, new Version.Qualifier(Version.Qualifier.Prefix.GA), "WSRP2");
@@ -148,4 +148,6 @@ public interface ServiceFactory
     * @return <code>true</code> if WS-Security is configured and available, <code>false</code> otherwise
     */
    boolean isWSSAvailable();
+
+   ServiceFactory clone();
 }

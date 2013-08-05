@@ -265,7 +265,12 @@ public class RequestHeaderClientHandler implements SOAPHandler<SOAPMessageContex
     */
    public static ProducerSessionInformation getCurrentProducerSessionInformation()
    {
-      CurrentInfo info = getCurrentInfo(false);
+      return getProducerSessionInformation(false);
+   }
+
+   public static ProducerSessionInformation getProducerSessionInformation(boolean createIfNeeded)
+   {
+      CurrentInfo info = getCurrentInfo(createIfNeeded);
 
       if (info != null)
       {
