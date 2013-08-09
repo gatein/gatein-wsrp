@@ -250,6 +250,10 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
 
          return new ErrorResponse(error);
       }
+      else if (consumer.getProducerInfo().canAttemptRecoveryFrom(error))
+      {
+         return new WSErrorResponse(error);
+      }
       else
       {
          // other errors cannot be dealt with: we have an error condition
@@ -293,6 +297,15 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
    protected abstract Request prepareRequest(RequestPrecursor<Invocation> requestPrecursor, Invocation invocation);
 
    protected abstract PortletInvocationResponse processResponse(Response response, Invocation invocation, RequestPrecursor<Invocation> requestPrecursor) throws PortletInvokerException;
+
+   public static class WSErrorResponse extends ErrorResponse
+   {
+
+      public WSErrorResponse(Throwable cause)
+      {
+         super(cause);
+      }
+   }
 
    /**
     * Extracts basic required elements for all invocation requests.

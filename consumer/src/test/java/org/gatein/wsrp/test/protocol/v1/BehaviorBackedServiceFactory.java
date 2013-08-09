@@ -238,4 +238,15 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
          return MARKUP;
       }
    }
+
+   @Override
+   public ServiceFactory clone()
+   {
+      final BehaviorBackedServiceFactory factory = new BehaviorBackedServiceFactory();
+      factory.registry = this.registry;
+      factory.initialized = this.initialized;
+      factory.timeout = this.timeout;
+      factory.wsdl = this.wsdl;
+      return factory;
+   }
 }

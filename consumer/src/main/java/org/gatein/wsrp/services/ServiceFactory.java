@@ -25,17 +25,26 @@ package org.gatein.wsrp.services;
 import org.gatein.common.util.Version;
 
 /**
- * A factory that gives access to remote services.
+ * A factory that gives access to WSRP services published by a remote producer based on the metadata provided by its WSDL file. This WSDL file is parsed and analyzed to extract
+ * the supported WSRP version as well as individual Services information.
  *
  * @author <a href="mailto:julien@jboss.org">Julien Viet</a>
  * @version $Revision: 11484 $
  */
-public interface ServiceFactory
+public interface ServiceFactory extends Cloneable
 {
    int DEFAULT_TIMEOUT_MS = 10000;
    Version WSRP2 = new Version("WSRP", 2, 0, 0, new Version.Qualifier(Version.Qualifier.Prefix.GA), "WSRP2");
    Version WSRP1 = new Version("WSRP", 1, 0, 0, new Version.Qualifier(Version.Qualifier.Prefix.GA), "WSRP1");
 
+   /**
+    * Generic, typesafe version of the get*Service methods.
+    *
+    * @param clazz the expected class of the service we're trying to retrieve
+    * @param <T>   the generic type of the service we're trying to retrieve
+    * @return the service instance associated with the specified type if any
+    * @throws Exception if the service couldn't be initialized or retrieved
+    */
    <T> T getService(Class<T> clazz) throws Exception;
 
    /**
@@ -56,23 +65,45 @@ public interface ServiceFactory
     */
    boolean isFailed();
 
+   /**
+    * Performs initialization of this ServiceFactory based on available connection metadata.
+    *
+    * @throws Exception if initialization and connection to the remote service couldn't be performed.
+    */
    void start() throws Exception;
 
+   /** Performs any clean-up operation needed when this factory is being shutdown. */
    void stop();
 
+   /**
+    * Specifies the URL of the WSDL that needs to be analyzed for WSRP service publication.
+    *
+    * @param wsdlDefinitionURL a String representation of the URL of the remote producer's WSDL
+    */
    void setWsdlDefinitionURL(String wsdlDefinitionURL);
 
+   /**
+    * Retrieves the current String representation of the remote producer's WSDL URL.
+    *
+    * @return the current String representation of the remote producer's WSDL URL.
+    */
    String getWsdlDefinitionURL();
 
    /**
-    * Number of milliseconds before a WS operation is considered as having timed out.
+    * Specifies how many milliseconds this factory waits before deciding a WS operation is considered as having timed out.
     *
     * @param msBeforeTimeOut number of milliseconds to wait for a WS operation to return before timing out. Will be set
     *                        to {@link #DEFAULT_TIMEOUT_MS} if negative.
     */
    void setWSOperationTimeOut(int msBeforeTimeOut);
 
+   /**
+    * Retrieves the current number of milliseconds this factory waits before deciding that a WS operation has timed out.
+    *
+    * @return the current number of milliseconds this factory waits before deciding that a WS operation has timed out.
+    */
    int getWSOperationTimeOut();
+
 
    ServiceDescriptionService getServiceDescriptionService() throws Exception;
 
@@ -85,10 +116,17 @@ public interface ServiceFactory
    /**
     * Returns the WSRP version of the remote service that this ServiceFactory connects to or <code>null</code> if the
     * ServiceFactory is not available.
-    *
-    * @return
     */
    Version getWSRPVersion();
 
+   /**
+    * Refreshes (if needed) the information held by this factory from the producer's WSDL.
+    *
+    * @param force whether or not to force the refresh (i.e. retrieval and parsing of the WSDL information), regardless of potential cache
+    * @return <code>true</code> if a refresh occurred as a result of this operation, <code>false</code> otherwise
+    * @throws Exception
+    */
    boolean refresh(boolean force) throws Exception;
+
+   ServiceFactory clone();
 }

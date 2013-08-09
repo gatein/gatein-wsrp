@@ -1,6 +1,6 @@
 /*
  * JBoss, a division of Red Hat
- * Copyright 2010, Red Hat Middleware, LLC, and individual
+ * Copyright 2011, Red Hat Middleware, LLC, and individual
  * contributors as indicated by the @authors tag. See the
  * copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -61,6 +61,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -72,15 +73,14 @@ public class SOAPServiceFactory implements ManageableServiceFactory
     * HTTP request timeout property. JAX-WS doesn't standardize that value, so needs to be adapted per used
     * implementation
     */
-   static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
-   static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
-   static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
+   private static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
+   private static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
+   private static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
 
-   static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
-   static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
+   private static final RequestHeaderClientHandler REQUEST_HEADER_CLIENT_HANDLER = new RequestHeaderClientHandler();
+   private static final String JBOSS_WS_STUBEXT_PROPERTY_CHUNKED_ENCODING_SIZE = "http://org.jboss.ws/http#chunksize";
 
    private static final Logger log = LoggerFactory.getLogger(SOAPServiceFactory.class);
-
    private String wsdlDefinitionURL;
 
    private boolean isV2 = false;
@@ -89,13 +89,17 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    private static final String WSRP_V1_BINDING = "urn:oasis:names:tc:wsrp:v1:bind";
    private static final String WSRP_V2_BINDING = "urn:oasis:names:tc:wsrp:v2:bind";
 
-   private String markupURL;
-   private String serviceDescriptionURL;
-   private String portletManagementURL;
-   private String registrationURL;
    private boolean failed;
    private boolean available;
    private int msBeforeTimeOut = DEFAULT_TIMEOUT_MS;
+
+   private final ConcurrentHashMap<Class, Object> ports = new ConcurrentHashMap<Class, Object>(7);
+
+   @Override
+   public String toString()
+   {
+      return "SOAPServiceFactory (@" + Integer.toHexString(hashCode()) + ") URL=" + wsdlDefinitionURL + ", WSRP version " + (isV2 ? "2" : "1");
+   }
 
    private void setTimeout(Map<String, Object> requestContext)
    {
@@ -105,16 +109,13 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       requestContext.put(IBM_WS_TIMEOUT, timeout);
    }
 
-   private <T> T customizePort(Class<T> expectedServiceInterface, Object service, String portAddress)
+   private <T> T customizePort(Class<T> expectedServiceInterface, Object service)
    {
       BindingProvider bindingProvider = (BindingProvider)service;
       Map<String, Object> requestContext = bindingProvider.getRequestContext();
 
       // set timeout
       setTimeout(requestContext);
-
-      // set port address
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, portAddress);
 
       // Set org.jboss.ws.core.StubExt.PROPERTY_CHUNKED_ENCODING_SIZE to 0 to deactive chunked encoding for
       // better interoperability as Oracle's producer doesn't support it, for example.
@@ -146,8 +147,6 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public <T> T getService(Class<T> clazz) throws Exception
    {
-      // todo: clean up!
-
       if (log.isDebugEnabled())
       {
          log.debug("Getting service for class " + clazz);
@@ -155,79 +154,49 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
       refresh(false);
 
-      Object service = null;
+      Object service = ports.get(clazz);
+      if (service == null)
+      {
+         return initPortFor(clazz);
+      }
+      else
+      {
+         return clazz.cast(service);
+      }
+   }
+
+   private <T> T initPortFor(Class<T> clazz)
+   {
       try
       {
-         service = wsService.getPort(clazz);
+         // need to be careful about: http://cxf.apache.org/faq.html#FAQ-AreJAXWSclientproxiesthreadsafe
+
+         T result = customizePort(clazz, wsService.getPort(clazz));
+
+         // if we managed to retrieve a service, we're probably available
+         setFailed(false);
+         setAvailable(true);
+
+         ports.put(clazz, result);
+
+         return result;
       }
       catch (Exception e)
       {
          log.debug("No port available for " + clazz, e);
-      }
-
-      //
-      String portAddress = null;
-      boolean isMandatoryInterface = false;
-      if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz)
-         || WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = serviceDescriptionURL;
-         isMandatoryInterface = true;
-      }
-      else if (WSRPV2MarkupPortType.class.isAssignableFrom(clazz)
-         || WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = markupURL;
-         isMandatoryInterface = true;
-      }
-      else if (WSRPV2RegistrationPortType.class.isAssignableFrom(clazz)
-         || WSRPV1RegistrationPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = registrationURL;
-      }
-      else if (WSRPV2PortletManagementPortType.class.isAssignableFrom(clazz)
-         || WSRPV1PortletManagementPortType.class.isAssignableFrom(clazz))
-      {
-         portAddress = portletManagementURL;
-      }
-
-      // Get the stub from the service, remember that the stub itself is not threadsafe
-      // and must be customized for every request to this method.
-      if (service != null)
-      {
-         if (portAddress != null)
+         if (WSRPV2ServiceDescriptionPortType.class.isAssignableFrom(clazz) || WSRPV1ServiceDescriptionPortType.class.isAssignableFrom(clazz)
+            || WSRPV2MarkupPortType.class.isAssignableFrom(clazz) || WSRPV1MarkupPortType.class.isAssignableFrom(clazz))
          {
-            if (log.isDebugEnabled())
-            {
-               log.debug("Setting the end point to: " + portAddress);
-            }
-
-            T result = customizePort(clazz, service, portAddress);
-
-            // if we managed to retrieve a service, we're probably available
-            setFailed(false);
-            setAvailable(true);
-
-            return result;
+            setFailed(true);
+            throw new IllegalArgumentException("Mandatory interface URLs were not properly initialized: no proper service URL for " + clazz.getName(), e);
          }
          else
          {
-            if (isMandatoryInterface)
-            {
-               setFailed(true);
-               throw new IllegalStateException("Mandatory interface URLs were not properly initialized: no proper service URL for "
-                  + clazz.getName());
-            }
-            else
-            {
-               throw new IllegalStateException("No URL was provided for optional interface " + clazz.getName());
-            }
+            log.debug("No URL was provided for optional interface " + clazz.getName(), e);
          }
       }
-      else
-      {
-         return null;
-      }
+
+      return null;
    }
 
    public boolean isAvailable()
@@ -287,127 +256,63 @@ public class SOAPServiceFactory implements ManageableServiceFactory
 
    public void start() throws Exception
    {
-      try
+      if (!isAvailable())
       {
-         ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
-         URL wsdlURL = new URI(wsdlDefinitionURL).toURL();
-
-         WSDLInfo wsdlInfo = new WSDLInfo(wsdlDefinitionURL);
-
-         // try to get v2 of service if possible, first
-         QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
-         QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
-         if (wsrp2 != null)
+         try
          {
-            wsService = Service.create(wsdlURL, wsrp2);
+            ParameterValidation.throwIllegalArgExceptionIfNullOrEmpty(wsdlDefinitionURL, "WSDL URL", "SOAPServiceFactory");
+            URL wsdlURL = new URI(wsdlDefinitionURL).toURL();
 
-            Class portTypeClass = null;
-            try
-            {
-               portTypeClass = WSRPV2MarkupPortType.class;
-               WSRPV2MarkupPortType markupPortType = wsService.getPort(WSRPV2MarkupPortType.class);
-               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            WSDLInfo wsdlInfo = new WSDLInfo(wsdlDefinitionURL);
 
-               portTypeClass = WSRPV2ServiceDescriptionPortType.class;
-               WSRPV2ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV2ServiceDescriptionPortType.class);
-               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
+            // try to get v2 of service if possible, first
+            QName wsrp2 = wsdlInfo.getWSRP2ServiceQName();
+            QName wsrp1 = wsdlInfo.getWSRP1ServiceQName();
+            if (wsrp2 != null)
             {
-               setFailed(true);
-               throw new IllegalArgumentException("Mandatory WSRP 2 port "
-                  + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
-            }
+               wsService = Service.create(wsdlURL, wsrp2);
 
-            try
-            {
-               WSRPV2PortletManagementPortType managementPortType = wsService.getPort(WSRPV2PortletManagementPortType.class);
-               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("PortletManagement port was not available for WSDL at " + wsdlDefinitionURL, e);
-               portletManagementURL = null;
-            }
+               // init the service ports
+               initPortFor(WSRPV2MarkupPortType.class);
+               initPortFor(WSRPV2ServiceDescriptionPortType.class);
+               initPortFor(WSRPV2PortletManagementPortType.class);
+               initPortFor(WSRPV2RegistrationPortType.class);
 
-            try
-            {
-               WSRPV2RegistrationPortType registrationPortType = wsService.getPort(WSRPV2RegistrationPortType.class);
-               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+               setFailed(false);
+               setAvailable(true);
+               isV2 = true;
             }
-            catch (Exception e)
+            else if (wsrp1 != null)
             {
-               log.debug("Registration port was not available for WSDL at " + wsdlDefinitionURL, e);
-               registrationURL = null;
-            }
+               wsService = Service.create(wsdlURL, wsrp1);
 
-            setFailed(false);
-            setAvailable(true);
-            isV2 = true;
+               // init the service ports
+               initPortFor(WSRPV1MarkupPortType.class);
+               initPortFor(WSRPV1ServiceDescriptionPortType.class);
+               initPortFor(WSRPV1PortletManagementPortType.class);
+               initPortFor(WSRPV1RegistrationPortType.class);
+
+               setFailed(false);
+               setAvailable(true);
+               isV2 = false;
+            }
+            else
+            {
+               throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
+            }
          }
-         else if (wsrp1 != null)
+         catch (MalformedURLException e)
          {
-            wsService = Service.create(wsdlURL, wsrp1);
-
-            Class portTypeClass = null;
-            try
-            {
-               portTypeClass = WSRPV1MarkupPortType.class;
-               WSRPV1MarkupPortType markupPortType = wsService.getPort(WSRPV1MarkupPortType.class);
-               markupURL = (String)((BindingProvider)markupPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-
-               portTypeClass = WSRPV1ServiceDescriptionPortType.class;
-               WSRPV1ServiceDescriptionPortType sdPort = wsService.getPort(WSRPV1ServiceDescriptionPortType.class);
-               serviceDescriptionURL = (String)((BindingProvider)sdPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               setFailed(true);
-               throw new IllegalArgumentException("Mandatory WSRP 1 port " + portTypeClass.getName() + " was not found for WSDL at " + wsdlDefinitionURL, e);
-            }
-
-            try
-            {
-               WSRPV1PortletManagementPortType managementPortType = wsService.getPort(WSRPV1PortletManagementPortType.class);
-               portletManagementURL = (String)((BindingProvider)managementPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("PortletManagement port was not available for WSDL at: " + wsdlDefinitionURL, e);
-               portletManagementURL = null;
-            }
-
-            try
-            {
-               WSRPV1RegistrationPortType registrationPortType = wsService.getPort(WSRPV1RegistrationPortType.class);
-               registrationURL = (String)((BindingProvider)registrationPortType).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-            }
-            catch (Exception e)
-            {
-               log.debug("Registration port was not available for WSDL at: " + wsdlDefinitionURL, e);
-               registrationURL = null;
-            }
-
-            setFailed(false);
-            setAvailable(true);
-            isV2 = false;
+            setFailed(true);
+            throw new IllegalArgumentException(wsdlDefinitionURL + " is not a well-formed URL specifying where to find the WSRP services definition.", e);
          }
-         else
+         catch (Exception e)
          {
-            throw new IllegalArgumentException("Couldn't find any WSRP service in specified WSDL: " + wsdlDefinitionURL);
+            log.info("Couldn't access WSDL information at " + wsdlDefinitionURL + ". Service won't be available", e);
+            setAvailable(false);
+            setFailed(true);
+            throw e;
          }
-      }
-      catch (MalformedURLException e)
-      {
-         setFailed(true);
-         throw new IllegalArgumentException(wsdlDefinitionURL + " is not a well-formed URL specifying where to find the WSRP services definition.", e);
-      }
-      catch (Exception e)
-      {
-         log.info("Couldn't access WSDL information. Service won't be available", e);
-         setAvailable(false);
-         setFailed(true);
-         throw e;
       }
    }
 
@@ -499,14 +404,35 @@ public class SOAPServiceFactory implements ManageableServiceFactory
       return false;
    }
 
-   protected class WSDLInfo
+   @Override
+   public ServiceFactory clone()
+   {
+      final SOAPServiceFactory factory = new SOAPServiceFactory();
+      factory.msBeforeTimeOut = this.msBeforeTimeOut;
+      factory.wsdlDefinitionURL = this.wsdlDefinitionURL;
+      return factory;
+   }
+
+   protected static class WSDLInfo
    {
       private final QName wsrp2ServiceQName;
       private final QName wsrp1ServiceQName;
+      private static final WSDLFactory wsdlFactory;
+
+      static
+      {
+         try
+         {
+            wsdlFactory = WSDLFactory.newInstance();
+         }
+         catch (WSDLException e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
 
       public WSDLInfo(String wsdlURL) throws WSDLException
       {
-         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
          WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
 
          wsdlReader.setFeature("javax.wsdl.verbose", false);

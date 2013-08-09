@@ -35,279 +35,279 @@
 <h:form id="edit-cons-form">
 <table width="100%" class="portlet-table-body #{consumer.active ? 'active' : 'inactive'}">
 <tr>
-   <th>#{i18n.edit_consumer_producer}</th>
-   <td>
-      <h:inputText id="id" value="#{consumer.id}"/>
-      <h:message styleClass="portlet-msg-error" for="id"/>
-   </td>
+    <th>#{i18n.edit_consumer_producer}</th>
+    <td>
+        <h:inputText id="id" value="#{consumer.id}"/>
+        <h:message styleClass="portlet-msg-error" for="id"/>
+    </td>
 </tr>
 <tr>
-   <th>#{i18n.edit_consumer_cache}</th>
-   <td>
-      <h:inputText id="cache" value="#{consumer.cache}"/>
-      #{i18n.edit_consumer_cache_seconds}
-      <h:message styleClass="portlet-msg-error" for="cache"/>
-   </td>
+    <th>#{i18n.edit_consumer_cache}</th>
+    <td>
+        <h:inputText id="cache" value="#{consumer.cache}"/>
+        #{i18n.edit_consumer_cache_seconds}
+        <h:message styleClass="portlet-msg-error" for="cache"/>
+    </td>
 </tr>
 <tr>
-   <th>#{i18n.edit_consumer_timeout}</th>
-   <td>
-      <h:inputText id="timeout" value="#{consumer.timeout}"/>
-      #{i18n.edit_consumer_timeout_milliseconds}
-      <h:message styleClass="portlet-msg-error" for="timeout"/>
-   </td>
+    <th>#{i18n.edit_consumer_timeout}</th>
+    <td>
+        <h:inputText id="timeout" value="#{consumer.timeout}"/>
+        #{i18n.edit_consumer_timeout_milliseconds}
+        <h:message styleClass="portlet-msg-error" for="timeout"/>
+    </td>
 </tr>
 <tr>
-   <th>#{i18n.edit_consumer_endpoint}</th>
-   <td>
-      <h:inputText id="wsdl" size="70" value="#{consumer.wsdl}"/>
-      <h:message styleClass="portlet-msg-error" for="wsdl"/>
-   </td>
+    <th>#{i18n.edit_consumer_endpoint}</th>
+    <td>
+        <h:inputText id="wsdl" size="70" value="#{consumer.wsdl}"/>
+        <h:message styleClass="portlet-msg-error" for="wsdl"/>
+    </td>
 </tr>
 <c:if test="#{consumer.localInfoPresent}">
-   <tr>
-      <th>#{i18n.edit_consumer_registration}</th>
-      <td>
-         <c:choose>
-            <c:when test="#{consumer.registrationChecked and !consumer.registrationRequired}">
-               #{i18n.edit_consumer_no_registration}
-            </c:when>
-            <c:otherwise>
-               <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_current}</h3>
-               <h:panelGroup styleClass="portlet-area-body">
-                  <c:choose>
-                     <c:when test="#{consumer.registrationPropertiesExisting}">
-                        <h:dataTable id="existingProps"
-                                     value="#{consumer.registrationProperties}" var="prop"
-                                     rowClasses="portlet-section-body,portlet-section-alternate"
-                                     columnClasses="nameColumn,descColumn,"
-                                     headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
-                                     styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                     width="100%">
-                           <h:column>
-                              <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
-                              #{prop.name}
-                           </h:column>
-                           <h:column>
-                              <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
-                              #{prop.description.label.value}
-                           </h:column>
-                           <h:column>
-                              <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
-                              <h:inputText id="prop-value-input" value="#{prop.value}" size="50"
-                                           disabled="#{consumer.displayExpectedNeeded}"/>
-                              <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
-                                            rendered="#{prop.determinedInvalid}"
-                                            converter="faces.convert.RegistrationProperty.Status"/>
-                           </h:column>
-                        </h:dataTable>
+    <tr>
+        <th>#{i18n.edit_consumer_registration}</th>
+        <td>
+            <c:choose>
+                <c:when test="#{consumer.registrationChecked and !consumer.registrationRequired}">
+                    #{i18n.edit_consumer_no_registration}
+                </c:when>
+                <c:otherwise>
+                    <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_current}</h3>
+                    <h:panelGroup styleClass="portlet-area-body">
+                        <c:choose>
+                            <c:when test="#{consumer.registrationPropertiesExisting}">
+                                <h:dataTable id="existingProps"
+                                             value="#{consumer.registrationProperties}" var="prop"
+                                             rowClasses="portlet-section-body,portlet-section-alternate"
+                                             columnClasses="nameColumn,descColumn,"
+                                             headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
+                                             styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
+                                             width="100%">
+                                    <h:column>
+                                        <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
+                                        #{prop.name}
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
+                                        #{prop.description.label.value}
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
+                                        <h:inputText id="prop-value-input" value="#{prop.value}" size="50"
+                                                     disabled="#{consumer.displayExpectedNeeded}"/>
+                                        <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
+                                                      rendered="#{prop.determinedInvalid}"
+                                                      converter="faces.convert.RegistrationProperty.Status"/>
+                                    </h:column>
+                                </h:dataTable>
 
 
-                        <table class="ActionContainer">
-                           <tr>
-                              <td>
-                                 <div class="ButtonLeft">
-                                    <div class="ButtonRight">
-                                       <div class="ButtonMiddle">
-                                          <h:commandLink id="cons-update-link" action="#{consumer.update}"
-                                                         value="#{i18n.edit_consumer_registration_update_props}"
-                                                         rendered="#{consumer.registered}"/>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </td>
-                              <td>
-                                 <div class="ButtonLeft">
-                                    <div class="ButtonRight">
-                                       <div class="ButtonMiddle">
-                                          <h:commandLink id="modify-reg-link"
-                                                         action="#{consumer.modifyRegistration}"
-                                                         value="#{i18n.edit_consumer_registration_modify}"
-                                                         title="#{i18n.edit_consumer_registration_modify_title}"
-                                                         rendered="#{consumer.registrationLocallyModified}"/>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </td>
-                           </tr>
-                        </table>
+                                <table class="ActionContainer">
+                                    <tr>
+                                        <td>
+                                            <div class="ButtonLeft">
+                                                <div class="ButtonRight">
+                                                    <div class="ButtonMiddle">
+                                                        <h:commandLink id="cons-update-link" action="#{consumer.update}"
+                                                                       value="#{i18n.edit_consumer_registration_update_props}"
+                                                                       rendered="#{consumer.registered}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="ButtonLeft">
+                                                <div class="ButtonRight">
+                                                    <div class="ButtonMiddle">
+                                                        <h:commandLink id="modify-reg-link"
+                                                                       action="#{consumer.modifyRegistration}"
+                                                                       value="#{i18n.edit_consumer_registration_modify}"
+                                                                       title="#{i18n.edit_consumer_registration_modify_title}"
+                                                                       rendered="#{consumer.registrationLocallyModified}"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                        <ui:remove><webui:commandButton action="update"
-                                                        backingBean="#{consumer}"
-                                                        id="cons-update-link"
-                                                        value="#{i18n.edit_consumer_registration_update_props}"
-                                                        rendered="registered"/></ui:remove>
-                     </c:when>
-                     <c:otherwise>
-                        #{i18n.edit_consumer_registration_no_props}
-                     </c:otherwise>
-                  </c:choose>
-                  <ui:remove>
-                     <webui:commandButton action="modifyRegistration"
-                                          backingBean="#{consumer}"
-                                          id="modify-reg-link"
-                                          rendered="registrationLocallyModified"
-                                          value="#{i18n.edit_consumer_registration_modify}"
-                                          title="#{i18n.edit_consumer_registration_modify_title}"/>
-                  </ui:remove>
-                  <br style="clear:both;"/>
-               </h:panelGroup>
+                                <ui:remove><webui:commandButton action="update"
+                                                                backingBean="#{consumer}"
+                                                                id="cons-update-link"
+                                                                value="#{i18n.edit_consumer_registration_update_props}"
+                                                                rendered="registered"/></ui:remove>
+                            </c:when>
+                            <c:otherwise>
+                                #{i18n.edit_consumer_registration_no_props}
+                            </c:otherwise>
+                        </c:choose>
+                        <ui:remove>
+                            <webui:commandButton action="modifyRegistration"
+                                                 backingBean="#{consumer}"
+                                                 id="modify-reg-link"
+                                                 rendered="registrationLocallyModified"
+                                                 value="#{i18n.edit_consumer_registration_modify}"
+                                                 title="#{i18n.edit_consumer_registration_modify_title}"/>
+                        </ui:remove>
+                        <br style="clear:both;"/>
+                    </h:panelGroup>
 
-               <br/>
+                    <br/>
 
-               <c:if test="#{consumer.displayExpectedNeeded}">
-                  <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_expected}</h3>
-                  <h:panelGroup styleClass="portlet-area-body">
-                     <c:choose>
-                        <c:when test="#{consumer.expectedRegistrationPropertiesExisting}">
-                           <h:dataTable id="expectedProps"
-                                        value="#{consumer.expectedRegistrationProperties}" var="prop"
-                                        rowClasses="portlet-section-body,portlet-section-alternate"
-                                        columnClasses="nameColumn,descColumn,"
-                                        headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
-                                        styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
-                                        width="100%">
-                              <h:column>
-                                 <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
-                                 #{prop.name}
-                              </h:column>
-                              <h:column>
-                                 <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
-                                 #{prop.description.label.value}
-                              </h:column>
-                              <h:column>
-                                 <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
-                                 <h:inputText id="prop-value-input" value="#{prop.value}" size="50"/>
-                                 <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
-                                               rendered="#{prop.determinedInvalid}"
-                                               converter="faces.convert.RegistrationProperty.Status"/>
-                              </h:column>
-                           </h:dataTable>
-                        </c:when>
-                        <c:otherwise>
-                           #{i18n.edit_consumer_registration_no_props}
-                        </c:otherwise>
-                     </c:choose>
+                    <c:if test="#{consumer.displayExpectedNeeded}">
+                        <h3 class="portlet-area-header">#{i18n.edit_consumer_registration_expected}</h3>
+                        <h:panelGroup styleClass="portlet-area-body">
+                            <c:choose>
+                                <c:when test="#{consumer.expectedRegistrationPropertiesExisting}">
+                                    <h:dataTable id="expectedProps"
+                                                 value="#{consumer.expectedRegistrationProperties}" var="prop"
+                                                 rowClasses="portlet-section-body,portlet-section-alternate"
+                                                 columnClasses="nameColumn,descColumn,"
+                                                 headerClass="portlet-section-header #{consumer.active ? 'active' : 'inactive'}"
+                                                 styleClass="registration-prop-table #{consumer.active ? 'active' : 'inactive'}"
+                                                 width="100%">
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_name}</f:facet>
+                                            #{prop.name}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_desc}</f:facet>
+                                            #{prop.description.label.value}
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">#{i18n.edit_consumer_prop_value}</f:facet>
+                                            <h:inputText id="prop-value-input" value="#{prop.value}" size="50"/>
+                                            <h:outputText styleClass="portlet-msg-error" value="#{prop.status}"
+                                                          rendered="#{prop.determinedInvalid}"
+                                                          converter="faces.convert.RegistrationProperty.Status"/>
+                                        </h:column>
+                                    </h:dataTable>
+                                </c:when>
+                                <c:otherwise>
+                                    #{i18n.edit_consumer_registration_no_props}
+                                </c:otherwise>
+                            </c:choose>
 
-                     <table class="ActionContainer">
-                        <tr>
-                           <td>
-                              <div class="ButtonLeft">
-                                 <div class="ButtonRight">
+                            <table class="ActionContainer">
+                                <tr>
+                                    <td>
+                                        <div class="ButtonLeft">
+                                            <div class="ButtonRight">
+                                                <div class="ButtonMiddle">
+                                                    <h:commandLink id="edit-reg-link"
+                                                                   action="#{consumer.modifyRegistration}"
+                                                                   value="#{i18n.edit_consumer_registration_modify}"
+                                                                   title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <ui:remove><webui:commandButton action="modifyRegistration"
+                                                            backingBean="#{consumer}"
+                                                            id="edit-reg-link"
+                                                            value="#{i18n.edit_consumer_registration_modify}"
+                                                            title="#{i18n.edit_consumer_registration_modify_title}"/></ui:remove>
+
+                            <br style="clear:both;"/>
+                        </h:panelGroup>
+                    </c:if>
+                </c:otherwise>
+            </c:choose>
+        </td>
+    </tr>
+    <c:if test="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}">
+        <tr>
+            <th>#{i18n.edit_consumer_registration_context}</th>
+            <td id="handle">
+                #{i18n.edit_consumer_registration_context_handle}
+                <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
+
+                <table class="ActionContainer">
+                    <tr>
+                        <td>
+                            <div class="ButtonLeft">
+                                <div class="ButtonRight">
                                     <div class="ButtonMiddle">
-                                       <h:commandLink id="edit-reg-link"
-                                                      action="#{consumer.modifyRegistration}"
-                                                      value="#{i18n.edit_consumer_registration_modify}"
-                                                      title="#{i18n.edit_consumer_registration_modify_title}"/>
+                                        <h:commandLink id="erase-cons-link" action="confirmEraseRegistration"
+                                                       value="#{i18n.edit_consumer_registration_context_erase}"
+                                                       title="#{i18n.edit_consumer_registration_context_erase_title}"/>
                                     </div>
-                                 </div>
-                              </div>
-                           </td>
-                        </tr>
-                     </table>
-                     <ui:remove><webui:commandButton action="modifyRegistration"
-                                                     backingBean="#{consumer}"
-                                                     id="edit-reg-link"
-                                                     value="#{i18n.edit_consumer_registration_modify}"
-                                                     title="#{i18n.edit_consumer_registration_modify_title}"/></ui:remove>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <ui:remove><webui:commandButton id="erase-cons-link" action="confirmEraseRegistration"
+                                                backingBean="#{consumer}"
+                                                value="#{i18n.edit_consumer_registration_context_erase}"
+                                                title="#{i18n.edit_consumer_registration_context_erase_title}"/></ui:remove>
 
-                     <br style="clear:both;"/>
-                  </h:panelGroup>
-               </c:if>
-            </c:otherwise>
-         </c:choose>
-      </td>
-   </tr>
-   <c:if test="#{!empty consumer.producerInfo.registrationInfo.registrationHandle}">
-      <tr>
-         <th>#{i18n.edit_consumer_registration_context}</th>
-         <td id="handle">
-            #{i18n.edit_consumer_registration_context_handle}
-            <h:outputText value="#{consumer.producerInfo.registrationInfo.registrationHandle}"/>
-
-            <table class="ActionContainer">
-               <tr>
-                  <td>
-                     <div class="ButtonLeft">
-                        <div class="ButtonRight">
-                           <div class="ButtonMiddle">
-                              <h:commandLink id="erase-cons-link" action="confirmEraseRegistration"
-                                             value="#{i18n.edit_consumer_registration_context_erase}"
-                                             title="#{i18n.edit_consumer_registration_context_erase_title}"/>
-                           </div>
-                        </div>
-                     </div>
-                  </td>
-               </tr>
-            </table>
-            <ui:remove><webui:commandButton id="erase-cons-link" action="confirmEraseRegistration"
-                                            backingBean="#{consumer}"
-                                            value="#{i18n.edit_consumer_registration_context_erase}"
-                                            title="#{i18n.edit_consumer_registration_context_erase_title}"/></ui:remove>
-
-         </td>
-      </tr>
-   </c:if>
+            </td>
+        </tr>
+    </c:if>
 </c:if>
 <tr>
-   <th/>
-   <td class="portlet-section-buttonrow">
-      <table class="ActionContainer">
-         <tr>
-            <td>
-               <div class="ButtonLeft">
-                  <div class="ButtonRight">
-                     <div class="ButtonMiddle">
-                        <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}"
-                                       actionListener="#{consumersMgr.selectConsumer}"
-                                       rendered="#{consumer.supportsExport}"
-                                       value="#{i18n.edit_consumer_export}"
-                                       title="#{i18n.edit_consumer_export_title}">
-                           <f:param name="id" value="#{consumer.id}"/>
-                        </h:commandLink>
-                     </div>
-                  </div>
-               </div>
-            </td>
-            <td>
-               <div class="ButtonLeft">
-                  <div class="ButtonRight">
-                     <div class="ButtonMiddle">
-                        <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}"
-                                       actionListener="#{consumersMgr.selectConsumer}"
-                                       rendered="#{consumer.supportsExport and ! consumer.availableExportInfosEmpty}"
-                                       value="#{i18n.edit_consumer_import}"
-                                       title="#{i18n.edit_consumer_import_title}">
-                           <f:param name="id" value="#{consumer.id}"/>
-                        </h:commandLink>
-                     </div>
-                  </div>
-               </div>
-            </td>
-            <td>
-               <div class="ButtonLeft">
-                  <div class="ButtonRight">
-                     <div class="ButtonMiddle">
-                        <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
-                                         value="#{i18n.edit_consumer_refresh}"
-                                         title="#{i18n.edit_consumer_refresh_title}"/>
-                     </div>
-                  </div>
-               </div>
-            </td>
-            <td>
-               <div class="ButtonLeft">
-                  <div class="ButtonRight">
-                     <div class="ButtonMiddle">
-                        <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}" immediate="true"
-                                       value="#{i18n.edit_consumer_cancel}"/>
-                     </div>
-                  </div>
-               </div>
-            </td>
-         </tr>
-      </table>
-   </td>
+    <th/>
+    <td class="portlet-section-buttonrow">
+        <table class="ActionContainer">
+            <tr>
+                <td>
+                    <div class="ButtonLeft">
+                        <div class="ButtonRight">
+                            <div class="ButtonMiddle">
+                                <h:commandLink id="export-cons-link" action="#{consumersMgr.exportPortlets}"
+                                               actionListener="#{consumersMgr.selectConsumer}"
+                                               rendered="#{consumer.supportsExport}"
+                                               value="#{i18n.edit_consumer_export}"
+                                               title="#{i18n.edit_consumer_export_title}">
+                                    <f:param name="id" value="#{consumer.id}"/>
+                                </h:commandLink>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="ButtonLeft">
+                        <div class="ButtonRight">
+                            <div class="ButtonMiddle">
+                                <h:commandLink id="import-cons-link" action="#{consumersMgr.importPortlets}"
+                                               actionListener="#{consumersMgr.selectConsumer}"
+                                               rendered="#{consumer.supportsExport and ! consumer.availableExportInfosEmpty}"
+                                               value="#{i18n.edit_consumer_import}"
+                                               title="#{i18n.edit_consumer_import_title}">
+                                    <f:param name="id" value="#{consumer.id}"/>
+                                </h:commandLink>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="ButtonLeft">
+                        <div class="ButtonRight">
+                            <div class="ButtonMiddle">
+                                <h:commandButton id="refresh-cons-link" action="#{consumer.refreshConsumer}"
+                                                 value="#{i18n.edit_consumer_refresh}"
+                                                 title="#{i18n.edit_consumer_refresh_title}"/>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="ButtonLeft">
+                        <div class="ButtonRight">
+                            <div class="ButtonMiddle">
+                                <h:commandLink id="list-cons-link" action="#{consumersMgr.listConsumers}" immediate="true"
+                                               value="#{i18n.edit_consumer_cancel}"/>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </td>
 </tr>
 </table>
 </h:form>

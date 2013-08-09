@@ -63,9 +63,11 @@ import org.oasis.wsrp.v2.WSRPV2PortletManagementPortType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.wsdl.WSDLException;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,6 +83,7 @@ import java.util.Set;
  */
 public class ProducerInfo
 {
+   static final String RECOVERY_ATTEMPT_MESSAGE = "Attempting recovery by switching producer URL if possible";
    private final static Logger log = LoggerFactory.getLogger(ProducerInfo.class);
    private final static boolean debug = log.isDebugEnabled();
    public static final Integer DEFAULT_CACHE_VALUE = 300;
@@ -733,20 +736,28 @@ public class ProducerInfo
          }
          catch (Exception e)
          {
-            log.debug("Couldn't get portlet via getPortletDescription for producer '" + persistentId
-               + "'. Attempting to retrieve it from the service description as this producer might not support the PortletManagement interface.", e);
-
-            justRefreshed = refresh(true);
-            portlet = getPortletFromCaches(portletHandle, justRefreshed);
-
-            if (portlet == null)
+            if (canAttemptRecoveryFrom(e))
             {
-               throw new NoSuchPortletException(portletHandle);
+               return getPortlet(portletContext);
             }
             else
             {
-               return portlet;
+               log.debug("Couldn't get portlet via getPortletDescription for producer '" + persistentId
+                  + "'. Attempting to retrieve it from the service description as this producer might not support the PortletManagement interface.", e);
+
+               justRefreshed = refresh(true);
+               portlet = getPortletFromCaches(portletHandle, justRefreshed);
+
+               if (portlet == null)
+               {
+                  throw new NoSuchPortletException(portletHandle);
+               }
+               else
+               {
+                  return portlet;
+               }
             }
+
          }
       }
    }
@@ -920,27 +931,34 @@ public class ProducerInfo
       }
       catch (Exception e)
       {
-         log.debug("Caught Exception in getServiceDescription:\n", e);
-
-         // de-activate
-         setActiveAndSave(false);
-
-         if (e instanceof InvalidRegistration)
+         if (canAttemptRecoveryFrom(e))
          {
-            resetRegistration();
-
-            throw (InvalidRegistration)e;
+            return getUnmanagedServiceDescription(asUnregistered);
          }
-         else if (e instanceof OperationFailed)
+         else
          {
-            throw (OperationFailed)e; // rethrow to deal at higher level as meaning can vary depending on context
-         }
-         else if (e instanceof ModifyRegistrationRequired)
-         {
-            throw (ModifyRegistrationRequired)e;
-         }
+            log.debug("Caught Exception in getServiceDescription:\n", e);
 
-         return rethrowAsInvokerUnvailable(e);
+            // de-activate
+            setActiveAndSave(false);
+
+            if (e instanceof InvalidRegistration)
+            {
+               resetRegistration();
+
+               throw (InvalidRegistration)e;
+            }
+            else if (e instanceof OperationFailed)
+            {
+               throw (OperationFailed)e; // rethrow to deal at higher level as meaning can vary depending on context
+            }
+            else if (e instanceof ModifyRegistrationRequired)
+            {
+               throw (ModifyRegistrationRequired)e;
+            }
+
+            return rethrowAsInvokerUnvailable(e);
+         }
       }
    }
 
@@ -1034,10 +1052,17 @@ public class ProducerInfo
       }
       catch (Exception e)
       {
-         // if we receive an exception that we cannot handle, since the support for PortletManagement is optional,
-         // just return null as if the portlet had no properties
-         log.debug("Couldn't get property descriptions for portlet '" + portletHandle + "'", e);
-         return null;
+         if (canAttemptRecoveryFrom(e))
+         {
+            return getPropertyDescriptionsFor(portletHandle);
+         }
+         else
+         {
+            // if we receive an exception that we cannot handle, since the support for PortletManagement is optional,
+            // just return null as if the portlet had no properties
+            log.debug("Couldn't get property descriptions for portlet '" + portletHandle + "'", e);
+            return null;
+         }
       }
    }
 
@@ -1060,7 +1085,7 @@ public class ProducerInfo
     * @param serviceDescription
     * @param forceRefresh
     * @return <code>true</code> if the client code should ask for a new service description, <code>false</code> if the
-    *         specified description is good to be further processed
+    * specified description is good to be further processed
     * @throws PortletInvokerException
     * @since 2.6
     */
@@ -1118,9 +1143,16 @@ public class ProducerInfo
                }
                catch (Exception e)
                {
-                  persistentRegistrationInfo.resetRegistration();
-                  setActive(false);
-                  throw new PortletInvokerException("Couldn't register with producer '" + persistentId + "'", e);
+                  if (canAttemptRecoveryFrom(e))
+                  {
+                     return register(serviceDescription, forceRefresh);
+                  }
+                  else
+                  {
+                     persistentRegistrationInfo.resetRegistration();
+                     setActive(false);
+                     throw new PortletInvokerException("Couldn't register with producer '" + persistentId + "'", e);
+                  }
                }
             }
             else
@@ -1149,7 +1181,14 @@ public class ProducerInfo
          }
          catch (Exception e)
          {
-            throw new PortletInvokerException("Couldn't deregister with producer '" + persistentId + "'", e);
+            if (canAttemptRecoveryFrom(e))
+            {
+               deregister();
+            }
+            else
+            {
+               throw new PortletInvokerException("Couldn't deregister with producer '" + persistentId + "'", e);
+            }
          }
          finally
          {
@@ -1213,7 +1252,14 @@ public class ProducerInfo
             }
             catch (Exception e)
             {
-               throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
+               if (canAttemptRecoveryFrom(e))
+               {
+                  modifyRegistration(force);
+               }
+               else
+               {
+                  throw new PortletInvokerException("Couldn't modify registration with producer '" + persistentId + "'", e);
+               }
             }
          }
       }
@@ -1279,6 +1325,19 @@ public class ProducerInfo
       else
       {
          return eventDescriptions.get(name);
+      }
+   }
+
+   public boolean canAttemptRecoveryFrom(Throwable cause)
+   {
+      if ((cause instanceof WebServiceException || cause instanceof WSDLException) && persistentEndpointInfo.switchProducerIfPossible())
+      {
+         log.debug(RECOVERY_ATTEMPT_MESSAGE);
+         return true;
+      }
+      else
+      {
+         return false;
       }
    }
 }
