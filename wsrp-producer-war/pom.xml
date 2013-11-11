@@ -365,17 +365,6 @@
    <build>
       <plugins>
          <plugin>
-            <artifactId>maven-war-plugin</artifactId>
-            <version>2.2</version>
-            <configuration>
-               <archive>
-                  <manifestEntries>
-                     <Dependencies>org.apache.cxf</Dependencies>
-                  </manifestEntries>
-               </archive>
-            </configuration>
-         </plugin>
-         <plugin>
             <artifactId>maven-jar-plugin</artifactId>
             <configuration>
                <finalName>producer</finalName>
