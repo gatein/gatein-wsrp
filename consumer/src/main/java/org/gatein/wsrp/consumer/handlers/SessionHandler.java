@@ -190,14 +190,7 @@ public class SessionHandler implements SessionEventListener
       }
       catch (Exception e)
       {
-         if (consumer.getProducerInfo().canAttemptRecoveryFrom(e))
-         {
-            initCookie(invocation, retryIfFails);
-         }
-         else
-         {
-            throw new InvokerUnavailableException("Couldn't init cookies!", e);
-         }
+         throw new InvokerUnavailableException("Couldn't init cookies!", e);
       }
    }
 
@@ -414,16 +407,9 @@ public class SessionHandler implements SessionEventListener
          }
          catch (Exception e)
          {
-            if (consumer.getProducerInfo().canAttemptRecoveryFrom(e))
-            {
-               internalReleaseSessions(idsToRelease);
-            }
-            else
-            {
-               String message = "Couldn't release sessions " + idsToRelease;
-               log.debug(message, e);
-               throw new PortletInvokerException(message, e);
-            }
+            String message = "Couldn't release sessions " + idsToRelease;
+            log.debug(message, e);
+            throw new PortletInvokerException(message, e);
          }
       }
    }

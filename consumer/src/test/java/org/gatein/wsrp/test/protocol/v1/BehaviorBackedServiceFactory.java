@@ -252,12 +252,4 @@ public class BehaviorBackedServiceFactory implements ServiceFactory
    {
       return false;
    }
-
-   @Override
-   public ServiceFactory clone()
-   {
-      final BehaviorBackedServiceFactory factory = new BehaviorBackedServiceFactory();
-      factory.registry = this.registry;
-      return factory;
-   }
 }
