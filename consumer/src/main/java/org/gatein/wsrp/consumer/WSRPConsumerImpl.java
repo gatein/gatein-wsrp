@@ -49,7 +49,6 @@ import org.gatein.wsrp.WSRPTypeFactory;
 import org.gatein.wsrp.WSRPUtils;
 import org.gatein.wsrp.api.session.SessionEvent;
 import org.gatein.wsrp.consumer.handlers.InvocationDispatcher;
-import org.gatein.wsrp.consumer.handlers.InvocationHandler;
 import org.gatein.wsrp.consumer.handlers.ProducerSessionInformation;
 import org.gatein.wsrp.consumer.handlers.SessionHandler;
 import org.gatein.wsrp.consumer.migration.ExportInfo;
@@ -198,12 +197,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
 
    public PortletInvocationResponse invoke(PortletInvocation invocation) throws PortletInvokerException
    {
-      final PortletInvocationResponse response = dispatcher.dispatchAndHandle(invocation);
-      if (response instanceof InvocationHandler.WSErrorResponse)
-      {
-         return invoke(invocation);
-      }
-      return response;
+      return dispatcher.dispatchAndHandle(invocation);
    }
 
    public PortletContext createClone(PortletStateType stateType, PortletContext portletContext) throws IllegalArgumentException, PortletInvokerException, UnsupportedOperationException
@@ -233,14 +227,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }
       catch (Exception e)
       {
-         if (producerInfo.canAttemptRecoveryFrom(e))
-         {
-            return createClone(stateType, portletContext);
-         }
-         else
-         {
-            throw new PortletInvokerException("Couldn't clone portlet '" + portletContext.getId() + "'", e);
-         }
+         throw new PortletInvokerException("Couldn't clone portlet '" + portletContext.getId() + "'", e);
       }
    }
 
@@ -308,14 +295,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }
       catch (Exception e)
       {
-         if (producerInfo.canAttemptRecoveryFrom(e))
-         {
-            return destroyClones(portletContexts);
-         }
-         else
-         {
-            throw new PortletInvokerException("Couldn't destroy clones.", e);
-         }
+         throw new PortletInvokerException("Couldn't destroy clones.", e);
       }
    }
 
@@ -402,14 +382,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }*/
       catch (Exception e)
       {
-         if (producerInfo.canAttemptRecoveryFrom(e))
-         {
-            return getProperties(portletContext, keys);
-         }
-         else
-         {
-            throw new PortletInvokerException(e);
-         }
+         throw new PortletInvokerException(e);
       }
    }
 
@@ -476,14 +449,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
       }
       catch (Exception e)
       {
-         if (producerInfo.canAttemptRecoveryFrom(e))
-         {
-            return setProperties(portletContext, changes);
-         }
-         else
-         {
-            throw new PortletInvokerException("Unable to set properties for portlet '" + portletContext.getId() + "'", e);
-         }
+         throw new PortletInvokerException("Unable to set properties for portlet '" + portletContext.getId() + "'", e);
       }
    }
 
@@ -909,14 +875,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
          }*/
          catch (Exception e)
          {
-            if (producerInfo.canAttemptRecoveryFrom(e))
-            {
-               return exportPortlets(portletHandles);
-            }
-            else
-            {
-               throw new PortletInvokerException(e.getLocalizedMessage(), e);
-            }
+            throw new PortletInvokerException(e.getLocalizedMessage(), e);
          }
       }
       else
@@ -929,21 +888,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
    {
       ParameterValidation.throwIllegalArgExceptionIfNull(exportInfo, "ExportInfo to release");
 
-      try
-      {
-         getPortletManagementService().releaseExport(getRegistrationContext(), exportInfo.getExportContext(), UserAccess.getUserContext());
-      }
-      catch (PortletInvokerException e)
-      {
-         if (producerInfo.canAttemptRecoveryFrom(e))
-         {
-            releaseExport(exportInfo);
-         }
-         else
-         {
-            throw e;
-         }
-      }
+      getPortletManagementService().releaseExport(getRegistrationContext(), exportInfo.getExportContext(), UserAccess.getUserContext());
    }
 
    public ImportInfo importPortlets(ExportInfo exportInfo, List<String> portlets) throws PortletInvokerException
@@ -1042,14 +987,7 @@ public class WSRPConsumerImpl implements WSRPConsumerSPI
          }*/
          catch (Exception e)
          {
-            if (producerInfo.canAttemptRecoveryFrom(e))
-            {
-               return importPortlets(exportInfo, portlets);
-            }
-            else
-            {
-               throw new PortletInvokerException(e.getLocalizedMessage(), e);
-            }
+            throw new PortletInvokerException(e.getLocalizedMessage(), e);
          }
       }
       else

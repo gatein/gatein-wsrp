@@ -27,7 +27,6 @@ import org.apache.commons.httpclient.Cookie;
 import org.gatein.common.util.ParameterValidation;
 import org.gatein.common.util.Tools;
 import org.gatein.wsrp.WSRPConstants;
-import org.gatein.wsrp.services.ServiceFactory;
 import org.oasis.wsrp.v2.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,22 +70,15 @@ public class ProducerSessionInformation implements Serializable
    /** The identifier of the Session containing this ProducerSessionInformation */
    private String parentSessionId;
 
-   /** The ServiceFactory that handles calls for this consumer session */
-   private ServiceFactory factory;
-
+   /**
+    * public only for tests
+    *
+    * @return
+    * @since 2.6
+    */
    public String getParentSessionId()
    {
       return parentSessionId;
-   }
-
-   public ServiceFactory getServiceFactory()
-   {
-      return factory;
-   }
-
-   public void setServiceFactory(ServiceFactory serviceFactory)
-   {
-      this.factory = serviceFactory;
    }
 
    /**
@@ -237,7 +229,7 @@ public class ProducerSessionInformation implements Serializable
     *
     * @param portletHandle the handle of the portlet for which the session id is to be retrieved
     * @return the session id for the specified portlet, <code>null</code> if there is no session associated with the
-    * portlet or if the session has expired.
+    *         portlet or if the session has expired.
     */
    public String getSessionIdForPortlet(String portletHandle)
    {
@@ -281,7 +273,7 @@ public class ProducerSessionInformation implements Serializable
 
    /**
     * @return a list containing the session ids that were still valid when they were removed and would need to be
-    * released
+    *         released
     */
    public List<String> removeSessions()
    {
