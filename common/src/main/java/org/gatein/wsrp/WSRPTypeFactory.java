@@ -139,6 +139,7 @@ import org.oasis.wsrp.v2.UserProfile;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -470,6 +471,20 @@ public class WSRPTypeFactory
    {
       return createResourceParams(false, WSRPConstants.getDefaultLocales(), WSRPConstants.getDefaultMimeTypes(),
          WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceID, StateChange.READ_ONLY);
+   }
+
+   public static ResourceParams createResourceParams(boolean secureClientCommunication, List<String> locales, List<String> mimeTypes, String mode, String windowState, String resourceID, StateChange stateChange, Map<String, String[]> parameters)
+   {
+      ResourceParams resourceParams = createResourceParams(secureClientCommunication, locales, mimeTypes, mode, windowState, resourceID, stateChange);
+      List<NamedString> formParameters = new ArrayList<NamedString>(parameters.size());
+      for (String key : parameters.keySet())
+      {
+         NamedString namedString = new NamedString();
+         namedString.setName(key);
+         namedString.setValue(parameters.get(key)[0]);
+         resourceParams.getFormParameters().add(namedString);
+      }
+      return resourceParams;
    }
 
    public static ResourceParams createResourceParams(boolean secureClientCommunication, List<String> locales, List<String> mimeTypes, String mode, String windowState, String resourceID, StateChange stateChange)
@@ -932,6 +947,20 @@ public class WSRPTypeFactory
    {
       ClientData clientData = new ClientData();
       clientData.setUserAgent(userAgent);
+      return clientData;
+   }
+
+   /**
+    * userAgent(xsd:string)?, requestVerb(xsd:string)?, extensions(Extension)*
+    *
+    * @param userAgent
+    * @param requestVerb
+    * @return
+    */
+   public static ClientData createClientData(String userAgent, String requestVerb)
+   {
+      ClientData clientData = createClientData(userAgent);
+      clientData.setRequestVerb(requestVerb);
       return clientData;
    }
 

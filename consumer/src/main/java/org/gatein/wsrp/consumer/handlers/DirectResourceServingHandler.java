@@ -33,11 +33,18 @@ import org.gatein.wsrp.consumer.spi.WSRPConsumerSPI;
 import org.gatein.wsrp.handler.CookieUtil;
 import org.gatein.wsrp.handler.RequestHeaderClientHandler;
 import org.oasis.wsrp.v2.GetResource;
+import org.oasis.wsrp.v2.NamedString;
 import org.oasis.wsrp.v2.ResourceContext;
 import org.oasis.wsrp.v2.ResourceResponse;
 
+import java.io.BufferedWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +73,40 @@ public class DirectResourceServingHandler extends ResourceHandler
       if (cookieValue.length() != 0)
       {
          urlConnection.addRequestProperty(CookieUtil.COOKIE, cookieValue);
+      }
+
+       // adjusts the http method and adds form parameters, if any
+      if (urlConnection instanceof HttpURLConnection)
+      {
+          HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+          String httpVerb = getResource.getResourceParams().getClientData().getRequestVerb();
+          httpURLConnection.setRequestMethod(httpVerb);
+
+          List<NamedString> namedStrings = getResource.getResourceParams().getFormParameters();
+          if (namedStrings != null && "POST".equalsIgnoreCase(httpVerb))
+          {
+             httpURLConnection.setDoOutput(true);
+             OutputStream os = httpURLConnection.getOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+
+             boolean first=true;
+             for (NamedString name : namedStrings)
+             {
+                if (!first)
+                {
+                   writer.write("&");
+                }
+                writer.write(URLEncoder.encode(name.getName()));
+                writer.write("=");
+                writer.write(URLEncoder.encode(name.getName()));
+                first=false;
+             }
+
+             writer.flush();
+             writer.close();
+             os.close();
+          }
+
       }
 
       String contentType = urlConnection.getContentType();
