@@ -463,7 +463,8 @@ public abstract class InvocationHandler<Invocation extends PortletInvocation, Re
             WSRPUtils.convertLocalesToRFC3066LanguageTags(userContext.getLocales()),
             Collections.singletonList(contentType.getValue()), mode, windowState);
          String userAgent = WSRPConsumerImpl.getHttpRequest(invocation).getHeader(USER_AGENT);
-         getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent));
+         String requestVerb = WSRPConsumerImpl.getHttpRequest(invocation).getMethod();
+         getMarkupParams().setClientData(WSRPTypeFactory.createClientData(userAgent, requestVerb));
          getMarkupParams().getExtensions().addAll(ExtensionAccess.getConsumerExtensionAccessor().getRequestExtensionsFor(MarkupParams.class));
 
          // navigational state

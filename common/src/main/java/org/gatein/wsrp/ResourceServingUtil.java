@@ -43,6 +43,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -85,8 +86,10 @@ public class ResourceServingUtil
       List<String> locales = WSRPUtils.convertLocalesToRFC3066LanguageTags(Collections.list(reqLocales));
       List<String> mimeTypes = WSRPConstants.getDefaultMimeTypes();
 
+      Map<String, String[]> parameters = req.getParameterMap();
+
       ResourceParams resourceParams = WSRPTypeFactory.createResourceParams(req.isSecure(), locales, mimeTypes,
-         WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceId, StateChange.READ_ONLY);
+         WSRPConstants.VIEW_MODE, WSRPConstants.NORMAL_WINDOW_STATE, resourceId, StateChange.READ_ONLY, parameters);
       resourceParams.setResourceState(req.getParameter(RESOURCE_STATE));
 
       String navState = req.getParameter(NAV_STATE);

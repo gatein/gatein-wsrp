@@ -81,4 +81,10 @@ public class ResourceServingServlet extends HttpServlet
             + " for portlet " + getResource.getPortletContext(), exception);
       }
    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+       doGet(req, resp);
+    }
 }
