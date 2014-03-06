@@ -66,7 +66,6 @@ import java.util.List;
    wsdlLocation = "/WEB-INF/wsdl/wsrp-2.0-services.wsdl",
    endpointInterface = "org.oasis.wsrp.v2.WSRPV2RegistrationPortType"
 )
-@HandlerChain(file = "../producer-handler-chains.xml")
 @Features(features = "org.gatein.wsrp.cxf.WSRPEndpointFeature")
 public class RegistrationEndpoint extends WSRPBaseEndpoint implements WSRPV2RegistrationPortType
 {
