@@ -50,6 +50,15 @@
       <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
       <param-value>server</param-value>
    </context-param>
+   <context-param>
+      <param-name>com.sun.faces.autoCompleteOffOnViewState</param-name>
+      <param-value>false</param-value>
+   </context-param>
+   <context-param>
+      <param-name>com.sun.faces.enableViewStateIdRendering</param-name>
+      <param-value>false</param-value>
+   </context-param>
+
 
    <servlet>
       <servlet-name>FacesServlet</servlet-name>

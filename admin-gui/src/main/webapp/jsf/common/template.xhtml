@@ -26,12 +26,10 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets">
 
-   <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/styles/style.css"
-         media="screen"/>
-   <link rel="stylesheet" type="text/css"
-         href="#{facesContext.externalContext.requestContextPath}/skin/wsrp/DefaultSkin/DefaultStylesheet.css"
-         media="screen"/>
-
+   <h:head>
+     <h:outputStylesheet name="styles/style.css" />
+     <h:outputStylesheet name="skin/wsrp/DefaultSkin/DefaultStylesheet.css" />
+   </h:head>
 
    <f:loadBundle basename="locale/portlet/Resource" var="i18n"/>
 
