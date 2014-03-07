@@ -117,7 +117,7 @@
    color: #315896;
    font-size: 11px;
    padding: 3px 0 3px 3px;
-   background: url(../img/section-subHeader-bg.gif) repeat-x left top;
+   background: url(#{resource['img/section-subHeader-bg.gif']}) repeat-x left top;
    border: 1px solid #b9c6d7;
 }
 

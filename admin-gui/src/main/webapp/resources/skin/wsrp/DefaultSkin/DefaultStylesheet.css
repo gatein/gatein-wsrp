@@ -46,7 +46,7 @@
 
 .portlet-msg-success {
    color: darkgreen;
-   background: url('background/SelectIcon.gif') no-repeat left top;
+   background: url(#{resource['skin/wsrp/DefaultSkin/background/SelectIcon.gif']}) no-repeat left top;
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
@@ -54,7 +54,7 @@
 
 .portlet-msg-warn {
    color: orange;
-   background: url('background/Warning.gif') no-repeat left top;
+   background: url(#{resource['skin/wsrp/DefaultSkin/background/Warning.gif']}) no-repeat left top;
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
@@ -62,7 +62,7 @@
 
 .portlet-msg-error {
    color: darkred;
-   background: url('background/Error.gif') no-repeat left top;
+   background: url(#{resource['skin/wsrp/DefaultSkin/background/Error.gif']}) no-repeat left top;
    list-style: none;
    padding: 0 0 0 20px;
    font-weight: bold;
@@ -100,7 +100,7 @@
 .UIWsrpPortlet .ActionButton {
    line-height: 19px;
    text-align: center;
-   background: url('background/LightBlueStyle.gif') repeat-x center;
+   background: url(#{resource['skin/wsrp/DefaultSkin/background/LightBlueStyle.gif']}) repeat-x center;
    white-space: nowrap;
    padding: 0 12px;
    -moz-border-radius: 3px;

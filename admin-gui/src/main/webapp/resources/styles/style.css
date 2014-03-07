@@ -49,12 +49,12 @@
    color: #315896;
    font-size: 11px;
    padding: 3px 0 3px 3px;
-   background: url(../img/section-subHeader-bg.gif) repeat-x left top;
+   background: url(#{resource['img/section-subHeader-bg.gif']}) repeat-x left top;
    border: 1px solid #b9c6d7;
 }
 
 .wsrp-consumers-ui .portlet-section-header {
-   background: url(../img/pathBackground.png) repeat-x left;
+   background: url(#{resource['img/pathBackground.png']}) repeat-x left;
    font-weight: bold;
    color: #656565;
    font-size: 10px;
@@ -64,7 +64,7 @@
 }
 
 .wsrp-consumers-ui .portlet-section-header th {
-   background: url(../img/pathBackground.png) repeat-x left;
+   background: url(#{resource['img/pathBackground.png']}) repeat-x left;
    font-weight: bold;
    color: #656565;
    font-size: 10px;
@@ -75,63 +75,63 @@
 
 .wsrp-consumers-ui .actionConfigure {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/settings.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/settings.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionRefresh {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/refresh.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/refresh.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionRegister {
    padding: 5px 5px 5px 24px;
-   background: url(../img/jbp-icon-set/register.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/register.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionDeregister {
    padding: 5px 5px 5px 24px;
-   background: url(../img/jbp-icon-set/deregister.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/deregister.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionDelete {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/delete2.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/delete2.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionActivate {
    padding: 5px 5px 5px 23px;
-   background: url(../img/jbp-icon-set/activate.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/activate.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionDeactivate {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/deactivate.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/deactivate.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionImport {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/import.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/import.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
 
 .wsrp-consumers-ui .actionExport {
    padding: 5px 5px 5px 20px;
-   background: url(../img/jbp-icon-set/export.gif) no-repeat left;
+   background: url(#{resource['img/jbp-icon-set/export.gif']}) no-repeat left;
    line-height: 18px;
    white-space: nowrap;
 }
