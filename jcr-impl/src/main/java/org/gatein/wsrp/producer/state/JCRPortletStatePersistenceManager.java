@@ -38,6 +38,7 @@ import org.gatein.wsrp.producer.state.mapping.PortletStateMapping;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author <a href="mailto:chris.laprun@jboss.com">Chris Laprun</a>
@@ -127,18 +128,12 @@ public class JCRPortletStatePersistenceManager extends AbstractPortletStatePersi
       {
          ChromatticSession session = persister.getSession();
 
-         String encodedForPath = ChromatticPersister.PortletNameFormatter.encode(portletId);
-
-         PortletStateContextMapping pscm = session.findByPath(PortletStateContextMapping.class, PATH + encodedForPath);
-         if (pscm == null)
-         {
-            PortletStateContextsMapping portletStateContexts = getContexts(session);
-            pscm = portletStateContexts.createPortletStateContext(portletId);
-            portletStateContexts.getPortletStateContexts().add(pscm);
-         }
+         PortletStateContextsMapping portletStateContexts = getContexts(session);
+         PortletStateContextMapping pscm = portletStateContexts.createPortletStateContext(UUID.randomUUID().toString());
+         portletStateContexts.getPortletStateContexts().add(pscm);
 
          PortletStateMapping psm = pscm.getState();
-         psm.setPortletID(pscm.getPortletId());
+         psm.setPortletID(portletId);
          psm.setProperties(propertyMap);
 
          // get the key

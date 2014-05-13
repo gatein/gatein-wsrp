@@ -25,7 +25,6 @@ package org.gatein.wsrp.producer.state.mapping;
 
 import org.chromattic.api.annotations.Id;
 import org.chromattic.api.annotations.MappedBy;
-import org.chromattic.api.annotations.Name;
 import org.chromattic.api.annotations.OneToOne;
 import org.chromattic.api.annotations.Owner;
 import org.chromattic.api.annotations.PrimaryType;
@@ -44,9 +43,6 @@ public abstract class PortletStateContextMapping
    @Id
    public abstract String getPersistentKey();
 
-   @Name
-   public abstract String getPortletId();
-
    @OneToOne
    @Owner
    @MappedBy("state")
@@ -57,7 +53,7 @@ public abstract class PortletStateContextMapping
       PortletStateMapping psm = getState();
       String portletId = psm.getPortletID();
 
-      if (getPortletId().equals(portletId))
+      if (psm.getPortletID().equals(portletId))
       {
          PortletStateContextImpl context = new PortletStateContextImpl(getPersistentKey(), portletId, psm.getPropertiesAsPropertyMap());
          context.getState().setTerminationTime(psm.getTerminationTime());
@@ -65,7 +61,7 @@ public abstract class PortletStateContextMapping
       }
       else
       {
-         throw new IllegalStateException("PortletStateContext's portlet id is '" + getPortletId()
+         throw new IllegalStateException("PortletStateContext's portlet id is '" + psm.getPortletID()
             + "' but PortletState has '" + portletId + "'");
       }
    }
