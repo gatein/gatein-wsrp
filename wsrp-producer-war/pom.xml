@@ -344,7 +344,7 @@
          <groupId>org.jboss.web</groupId>
          <artifactId>jbossweb</artifactId>
          <scope>test</scope>
-         <version>7.0.16.Final</version>
+         <version>7.4.2.Final</version>
          <!-- TODO: figure out this dependency issue -->
       </dependency>
 

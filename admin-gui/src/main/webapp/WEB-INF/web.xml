@@ -30,6 +30,7 @@
    version="3.0">
 
    <display-name>wsrp-admin-ui</display-name>
+   <distributable/>
 
    <context-param>
       <param-name>javax.portlet.faces.renderPolicy</param-name>

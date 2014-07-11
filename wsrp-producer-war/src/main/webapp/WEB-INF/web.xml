@@ -28,6 +28,8 @@
          version="2.5"
          id="wsrp-producer">
 
+   <distributable/>
+
    <!-- Filter to put request and response in ServletAccess -->
    <filter>
       <filter-name>ServletAccessFilter</filter-name>
