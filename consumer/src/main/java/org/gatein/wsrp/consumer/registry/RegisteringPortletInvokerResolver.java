@@ -47,13 +47,6 @@ public class RegisteringPortletInvokerResolver implements PortletInvokerResolver
 
    public FederatedPortletInvoker resolvePortletInvokerFor(String invokerId, FederatingPortletInvoker callingInvoker, String compoundPortletId) throws NoSuchPortletException
    {
-      FederatingPortletInvoker registryInvoker = consumerRegistry.getFederatingPortletInvoker();
-      if (!registryInvoker.equals(callingInvoker))
-      {
-         throw new IllegalArgumentException("Trying to use a ConsumerRegistry already linked to a different FederatingPortletInvoker ("
-            + registryInvoker + ") than the specified one (" + callingInvoker + ")");
-      }
-
       WSRPConsumer consumer = consumerRegistry.getConsumer(invokerId);
 
       if (consumer == null)
