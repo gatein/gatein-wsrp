@@ -3,7 +3,7 @@
   <parent>
     <artifactId>wsrp-examples</artifactId>
     <groupId>org.gatein.wsrp</groupId>
-    <version>2.3.4.Final-SNAPSHOT</version>
+    <version>2.3.4.Final</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
