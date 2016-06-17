@@ -72,6 +72,16 @@ public class WSRPPortletURLTestCase extends TestCase
       assertEquals("false", resourceMap.get(WSRP2RewritingConstants.RESOURCE_PREFER_OPERATION));
    }
 
+   public void testResourceURLWithDoubleEncoding()
+   {
+      String expected = "wsrp_rewrite?wsrp-urlType=blockingAction&wsrp-mode=wsrp:view&wsrp-windowState=wsrp:normal&wsrp-interactionState=JBPNS_rO0ABX\\/wsrp_rewrite";
+      WSRPPortletURL url = WSRPPortletURL.create(expected);
+
+      assertTrue(url instanceof WSRPActionURL);
+      WSRPActionURL resource = (WSRPActionURL)url;
+      assertEquals("JBPNS_rO0ABX", resource.getInteractionState().getStringValue());
+   }
+
    public void testResourceID()
    {
       String expected = "wsrp_rewrite?wsrp-urlType=resource&amp;wsrp-resourceID=resource_123" +
