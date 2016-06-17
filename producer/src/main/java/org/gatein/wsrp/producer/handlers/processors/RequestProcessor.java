@@ -508,6 +508,16 @@ public abstract class RequestProcessor<Request, Response>
       }
       else
       {
+         // We had some problems with double-encoding "somewhere" along the way. It's *never* OK to have a
+         // interaction state of JBPNS with a slash at the end, so, we'll just remove it if we find this case.
+         // ideally, we would fix it wherever this broke, but this might be things out of our control, like JavaScript
+         // UI stuff, or other consumers sending us back something we sent previously, or ...
+         // It is possible that we only receive "JBPNS" here, so, the first check would always be true, but I'm not
+         // 100% sure that's the case. So, better safe than sorry.
+         if (navigationalState.startsWith("JBPNS") && navigationalState.endsWith("\\"))
+         {
+            navigationalState = navigationalState.substring(0, navigationalState.length()-1);
+         }
          return StateString.create(navigationalState);
       }
    }
