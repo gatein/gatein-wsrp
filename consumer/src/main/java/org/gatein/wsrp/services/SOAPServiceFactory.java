@@ -74,6 +74,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
     * implementation
     */
    private static final String JBOSS_WS_TIMEOUT = "org.jboss.ws.timeout";
+   private static final String JAX_WS_TIMEOUT = "javax.xml.ws.client.receiveTimeout";
    private static final String SUN_WS_TIMEOUT = "com.sun.xml.ws.request.timeout";
    private static final String IBM_WS_TIMEOUT = "com.ibm.SOAP.requestTimeout";
 
@@ -102,6 +103,7 @@ public class SOAPServiceFactory implements ManageableServiceFactory
    {
       int timeout = getWSOperationTimeOut();
       requestContext.put(JBOSS_WS_TIMEOUT, timeout);
+      requestContext.put(JAX_WS_TIMEOUT, timeout);
       requestContext.put(SUN_WS_TIMEOUT, timeout);
       requestContext.put(IBM_WS_TIMEOUT, timeout);
    }
