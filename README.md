@@ -97,7 +97,7 @@ provides the common behavior for `ConsumerRegistry` implementations. Below is a 
 ## Producer overview
 
 The core class of the producer module is `WSRPProducer` and its `WSRPProducerImpl` implementation. The producer is configured using a `ProducerConfigurationService` implementation
-and delegates WSRP calls to a `PortletInvoker`, which can access the portlets that have been deployed and made remotable. The producer manages consumers' registrations using a
+and delegates WSRP calls to a `PortletInvoker`, which can access the portlets that have been deployed and made removable. The producer manages consumers' registrations using a
 `RegistrationManager` implementation, while import/export operations are handled by an `ExportManager` implementation. For more flexibility, the producer can learn about the
 context it runs in using a `ProducerContext` implementation, though this aspect is currently underdeveloped.
 
